@@ -11,8 +11,28 @@ import AppLogo from './AppLogo.vue';
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: '/dashboard',
+        href: 'admin.dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Usuarios',
+        href: 'admin.users.index',
+        icon: Folder,
+    },
+    {
+        title: 'Cursos',
+        href: 'admin.courses.index',
+        icon: BookOpen,
+    },
+    {
+        title: 'Categorías',
+        href: 'admin.categories.index',
+        icon: Folder,
+    },
+    {
+        title: 'Pagos',
+        href: 'admin.payments.index',
+        icon: Folder,
     },
 ];
 
@@ -36,7 +56,7 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('dashboard')">
+                        <Link :href="route('admin.dashboard')">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>

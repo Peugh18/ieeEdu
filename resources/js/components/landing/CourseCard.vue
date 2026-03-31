@@ -17,13 +17,25 @@ interface Props {
     image?: string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const {
+    title,
+    description,
+    category,
+    instructor,
+    students,
+    duration,
+    level,
+    rating,
+    type,
+    price,
+    categoryBgColor,
+    image,
+} = withDefaults(defineProps<Props>(), {
     categoryBgColor: 'bg-secondary-container',
     students: 0,
     duration: '12 semanas',
     level: 'Intermedio',
     rating: 4.8,
-    reviews: 120,
     description: 'Programa especializado diseñado para profesionales que buscan avanzar en sus carreras.',
     instructor: 'Docente IEE',
 });
