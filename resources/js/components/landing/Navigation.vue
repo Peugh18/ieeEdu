@@ -38,10 +38,7 @@ const menuItems = [
         <div class="flex justify-between items-center w-full px-6 md:px-8 py-4 max-w-7xl mx-auto">
             <!-- Logo -->
             <Link href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
-                    <span class="text-lg font-serif font-black text-on-primary">IEE</span>
-                </div>
-                <span class="hidden sm:block text-xl font-serif font-bold text-primary">Instituto</span>
+                <img src="/images/empresa/IEE-Logo02.png" alt="IEE Instituto" class="h-14 sm:h-16 w-auto object-contain" />
             </Link>
             
             <!-- Desktop Menu -->

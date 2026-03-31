@@ -588,10 +588,7 @@ const toggleAbout = (id: string) => {
                 <!-- Brand -->
                 <div>
                     <div class="flex items-center gap-2 mb-6">
-                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center">
-                            <span class="text-lg font-serif font-black text-on-primary">IEE</span>
-                        </div>
-                        <span class="font-serif text-lg font-bold text-primary">Instituto</span>
+                        <img src="/images/empresa/IEE-Logo02.png" alt="IEE Instituto" class="h-16 w-auto object-contain" />
                     </div>
                     <p class="text-on-surface-variant text-xs md:text-sm leading-relaxed max-w-xs">
                         Transformando el futuro corporativo del Perú con educación de excelencia.
