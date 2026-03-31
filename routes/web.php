@@ -4,13 +4,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Http\Controllers\PublicCourseController;
+
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
-Route::get('/cursos', function () {
-    return Inertia::render('Cursos');
-})->name('cursos');
+Route::get('/cursos', [PublicCourseController::class, 'index'])->name('cursos.index');
+Route::get('/cursos/{slug}', [PublicCourseController::class, 'show'])->name('cursos.show');
 
 Route::get('/ebooks', function () {
     return Inertia::render('Ebooks');
