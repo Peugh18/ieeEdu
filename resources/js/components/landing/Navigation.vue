@@ -20,9 +20,9 @@ const toggleMobileMenu = () => {
 };
 
 const menuItems = [
-    { label: 'Cursos', href: '#cursos' },
+    { label: 'Cursos', href: '/cursos' },
     { label: 'Consultoría', href: '#consultoria' },
-    { label: 'Publicaciones', href: '#publicaciones' },
+    { label: 'Ebooks', href: '/ebooks' },
     { label: 'Sobre Nosotros', href: '#nosotros' },
 ];
 </script>

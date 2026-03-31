@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import HeroSection from '../components/landing/HeroSection.vue';
 import Navigation from '../components/landing/Navigation.vue';
 import CourseCard from '../components/landing/CourseCard.vue';
-import ResourceCarousel from '../components/landing/ResourceCarousel.vue';
 
 const courses = [
     {
@@ -81,51 +80,41 @@ const testimonials = [
     },
 ];
 
-const resources = [
-    {
-        id: 1,
-        title: 'Reporte de Coyuntura 2024',
-        category: 'PDF',
-        size: '4.2 MB',
-        icon: 'description', // Material icon name
-        color: 'rgba(87, 87, 42, 0.9)',
-        href: '#',
-    },
-    {
-        id: 2,
-        title: 'Guía: Liderazgo Post-Pandemia',
-        category: 'PDF',
-        size: '2.8 MB',
-        icon: 'bar_chart', // Material icon name
-        color: 'rgba(87, 87, 42, 0.85)',
-        href: '#',
-    },
-    {
-        id: 3,
-        title: 'Tendencias de Inversión 2025',
-        category: 'PDF',
-        size: '3.5 MB',
-        icon: 'show_chart', // Material icon name
-        color: 'rgba(87, 87, 42, 0.8)',
-        href: '#',
-    },
-    {
-        id: 4,
-        title: 'Estrategias de Gestión Estatal',
-        category: 'PDF',
-        size: '2.1 MB',
-        icon: 'assignment', // Material icon name
-        color: 'rgba(87, 87, 42, 0.88)',
-        href: '#',
-    },
-];
-
 const stats = [
     { value: '500+', label: 'Profesionales formados' },
     { value: '98%', label: 'Empleabilidad' },
     { value: '25+', label: 'Programas activos' },
     { value: '15', label: 'Años de trayectoria' },
 ];
+
+const courseTabs = [
+    { id: 'recorded', label: 'Clases grabadas 24/7' },
+    { id: 'live', label: 'Clases en vivo' },
+    { id: 'hybrid', label: 'Híbrido' },
+];
+
+const activeCourseTab = ref('recorded');
+const filteredCourses = computed(() => {
+    if (!activeCourseTab.value) return courses;
+    return courses.filter((course) => course.type === activeCourseTab.value);
+});
+
+const publications = [
+    { id: 1, title: 'E-book: Gestión Pública Ágil', type: 'free', category: 'PDF', size: '3.6 MB', price: 0, href: '#' },
+    { id: 2, title: 'Manual de Analytics para Gerentes', type: 'paid', category: 'PDF', size: '5.4 MB', price: 59, href: '#' },
+    { id: 3, title: 'Guía de Liderazgo Directivo', type: 'free', category: 'PDF', size: '2.1 MB', price: 0, href: '#' },
+    { id: 4, title: 'Libro: Estrategias Corporativas 2026', type: 'paid', category: 'PDF', size: '7.3 MB', price: 120, href: '#' },
+];
+
+const publicationTabs = [
+    { id: 'free', label: 'Libros gratuitos' },
+    { id: 'paid', label: 'Libros de pago' },
+];
+
+const activePublicationTab = ref('free');
+const filteredPublications = computed(() => {
+    return publications.filter((item) => item.type === activePublicationTab.value);
+});
 
 const expandedAbout = ref<string | null>('mision');
 
@@ -214,7 +203,7 @@ const toggleAbout = (id: string) => {
                 </div>
 
                 <div class="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-8">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-8">
                         <div>
                             <p class="text-primary text-sm font-bold uppercase tracking-widest mb-2">Nuestra Oferta Académica</p>
                             <h2 class="font-serif text-3xl md:text-5xl text-on-surface mb-4 leading-tight">
@@ -224,16 +213,37 @@ const toggleAbout = (id: string) => {
                                 Formación avanzada para líderes empresariales y profesionales del sector público con metodología comprobada.
                             </p>
                         </div>
-                        <Link href="#cursos" class="w-full md:w-auto px-8 py-3 bg-primary text-on-primary rounded-lg font-bold hover:shadow-xl transition-all text-center md:text-left">
-                            Ver Todos
+                        <Link href="#consultoria" class="w-full md:w-auto px-8 py-3 bg-primary text-on-primary rounded-lg font-bold hover:shadow-xl transition-all text-center md:text-left">
+                            Consultorías
                         </Link>
                     </div>
 
-                    <!-- Course Grid - Show 1 on mobile, 2 on tablet, 3 on desktop -->
+                    <!-- Tabs for course type -->
+                    <div class="flex flex-wrap gap-3 mb-8">
+                        <button
+                            v-for="tab in courseTabs"
+                            :key="tab.id"
+                            @click.prevent="activeCourseTab = tab.id"
+                            :class="[
+                                'px-4 py-2 rounded-full font-semibold transition-all',
+                                activeCourseTab === tab.id ? 'bg-primary text-on-primary shadow-lg' : 'bg-surface-container-low border border-outline-variant/40 text-on-surface-variant hover:bg-surface'
+                            ]"
+                        >
+                            {{ tab.label }}
+                        </button>
+                    </div>
+
+                    <!-- Course Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                        <CourseCard v-for="course in courses.slice(0, 1)" :key="course.id" v-bind="course" class="md:col-span-2 lg:col-span-1" />
-                        <template v-if="courses.length > 1">
-                            <CourseCard v-for="course in courses.slice(1)" :key="course.id" v-bind="course" class="hidden md:block" />
+                        <CourseCard
+                            v-for="course in filteredCourses"
+                            :key="course.id"
+                            v-bind="course"
+                        />
+                        <template v-if="filteredCourses.length === 0">
+                            <div class="col-span-full p-10 text-center bg-surface-container-high rounded-2xl border border-outline-variant/20">
+                                <p class="text-on-surface-variant">No hay cursos disponibles para esta categoría todavía.</p>
+                            </div>
                         </template>
                     </div>
                 </div>
@@ -449,96 +459,63 @@ const toggleAbout = (id: string) => {
 
 
 
-            <!-- Editorial Section with Resources -->
+            <!-- Publicaciones y Biblioteca -->
             <section id="publicaciones" class="py-12 sm:py-16 md:py-24 px-4 md:px-8 bg-gradient-to-b from-surface to-surface-container-low">
                 <div class="max-w-7xl mx-auto">
                     <!-- Header -->
                     <div class="text-center mb-8 sm:mb-12 md:mb-16">
-                        <p class="text-primary text-xs sm:text-sm font-bold uppercase tracking-widest mb-2">Contenido Exclusivo</p>
+                        <p class="text-primary text-xs sm:text-sm font-bold uppercase tracking-widest mb-2">Publicaciones</p>
                         <h2 class="font-serif text-2xl sm:text-3xl md:text-5xl text-on-surface mb-3 md:mb-4 leading-tight">
-                            Editorial <span class="italic text-primary">Insights</span>
+                            Biblioteca de <span class="italic text-primary">Libros Digitales</span>
                         </h2>
                         <p class="text-on-surface-variant text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-                            Accede a nuestros últimos reportes económicos, guías estratégicas y análisis de tendencias del mercado peruano.
+                            Descarga libros gratuitos o adquiere publicaciones premium para profundizar tus conocimientos.
                         </p>
+                        <div class="mt-6">
+                            <a href="/ebooks" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded-full font-bold hover:shadow-xl transition-all">
+                                Ir a Ebooks
+                                <span class="material-symbols-outlined">arrow_forward</span>
+                            </a>
+                        </div>
                     </div>
 
-                    <!-- Main Content Grid -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
-                        <!-- Left: Resources Carousel -->
-                        <div class="bg-gradient-to-br from-primary to-primary-container rounded-3xl p-5 sm:p-6 md:p-12 shadow-xl flex items-start md:items-center justify-center min-h-[340px] sm:min-h-[420px] md:min-h-[560px]">
-                            <div class="w-full h-full">
-                                <ResourceCarousel :resources="resources" />
-                            </div>
-                        </div>
+                    <div class="flex flex-wrap justify-center gap-3 mb-8">
+                        <button
+                            v-for="tab in publicationTabs"
+                            :key="tab.id"
+                            @click.prevent="activePublicationTab = tab.id"
+                            :class="[
+                                'px-4 py-2 rounded-full font-semibold transition-all',
+                                activePublicationTab === tab.id ? 'bg-primary text-on-primary shadow-lg' : 'bg-surface-container-low border border-outline-variant/40 text-on-surface-variant hover:bg-surface'
+                            ]"
+                        >
+                            {{ tab.label }}
+                        </button>
+                    </div>
 
-                        <!-- Right: Newsletter Form -->
-                        <div class="bg-white rounded-3xl p-6 md:p-12 shadow-lg flex flex-col justify-center h-full">
-                            <div class="mb-6 md:mb-8">
-                                <h3 class="font-serif text-2xl sm:text-3xl md:text-4xl text-on-surface mb-2 md:mb-3 leading-tight">Mantente informado</h3>
-                                <p class="text-on-surface-variant text-sm sm:text-base md:text-lg leading-relaxed">
-                                    Recibe semanalmente análisis críticos y tendencias del mercado directamente en tu bandeja.
-                                </p>
-                            </div>
-
-                            <!-- Form -->
-                            <form @submit.prevent class="space-y-4">
-                                <div>
-                                    <label class="block text-xs font-bold uppercase tracking-widest text-primary mb-3">Tu Correo Electrónico</label>
-                                    <input 
-                                        type="email"
-                                        placeholder="ejemplo@empresa.com"
-                                        class="w-full bg-surface-container-low border-2 border-outline-variant/20 rounded-xl px-4 md:px-6 py-3 md:py-4 text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                                        required
-                                    />
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <template v-if="filteredPublications.length > 0">
+                            <div v-for="item in filteredPublications" :key="item.id" class="bg-white rounded-2xl border border-outline-variant/10 p-6 shadow-sm hover:shadow-lg transition-all">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs font-bold uppercase tracking-widest text-primary">{{ item.category }}</span>
+                                    <span class="text-xs text-on-surface-variant">{{ item.size }}</span>
                                 </div>
-
-                                <button 
-                                    type="submit"
-                                    class="w-full bg-gradient-to-r from-primary to-primary-container text-on-primary py-3 md:py-4 rounded-xl font-bold text-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 active:scale-95"
-                                >
-                                    Suscribirme
-                                </button>
-
-                                <p class="text-xs text-on-surface-variant text-center pt-2">
-                                    Al suscribirse, acepta nuestra 
-                                    <a href="#" class="text-primary hover:underline font-bold">Política de Privacidad</a>
-                                    <span class="mx-1">y</span>
-                                    <a href="#" class="text-primary hover:underline font-bold">tratamiento de datos</a>.
-                                </p>
-                            </form>
-
-                            <!-- Benefits -->
-                            <div class="mt-6 md:mt-8 pt-6 md:pt-8 border-t border-outline-variant/10 space-y-3">
-                                <p class="text-xs font-bold uppercase tracking-widest text-primary mb-4">Lo que recibirás:</p>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />
-                                        </svg>
-                                        <span class="text-sm text-on-surface-variant">Reportes semanales</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />
-                                        </svg>
-                                        <span class="text-sm text-on-surface-variant">Análisis experto</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />
-                                        </svg>
-                                        <span class="text-sm text-on-surface-variant">Recursos exclusivos</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4" />
-                                        </svg>
-                                        <span class="text-sm text-on-surface-variant">Sin spam</span>
-                                    </div>
+                                <h3 class="font-serif text-lg text-on-surface font-bold mb-3">{{ item.title }}</h3>
+                                <p class="text-on-surface-variant text-sm mb-5">{{ item.type === 'free' ? 'Descarga gratis ahora' : 'Compra y accede al instante' }}</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-2xl font-bold text-primary">{{ item.type === 'free' ? 'Gratis' : `S/ ${item.price}` }}</span>
+                                    <a :href="item.href" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-all">
+                                        {{ item.type === 'free' ? 'Descargar' : 'Comprar' }}
+                                        <span class="material-symbols-outlined text-sm">east</span>
+                                    </a>
                                 </div>
                             </div>
-                        </div>
+                        </template>
+                        <template v-else>
+                            <div class="col-span-full p-8 text-center bg-surface-container-high rounded-2xl border border-outline-variant/20">
+                                <p class="text-on-surface-variant">No hay libros disponibles para esta categoría aún.</p>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </section>
