@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import axios from 'axios';
 
@@ -46,6 +46,10 @@ const newMaterial = ref({
 });
 const addingMaterialFor = ref<number | null>(null);
 
+const showSuccessNotification = ref(false);
+const showErrorNotification = ref(false);
+const showPublishSuccessNotification = ref(false);
+
 const isMasterclass = computed(() => form.type === 'masterclass' || form.type === 'evento');
 const canPublish = computed(() => {
     if (lessons.value.length < 1) return false;
@@ -66,36 +70,65 @@ function resetNewLesson(moduleId: number | null = null) {
     };
 }
 
-async function saveCourse() {
-    const payload = new FormData();
-    payload.append('title', form.title);
-    payload.append('description', form.description || '');
-    payload.append('price', String(form.price || 0));
-    payload.append('sale_price', String(form.discount_enabled ? (form.sale_price || 0) : ''));
-    payload.append('type', form.type);
-    payload.append('status', form.status);
-    payload.append('category_id', String(form.category_id || ''));
-    payload.append('certificate_enabled', String(!!form.certificate_enabled));
-    if (form.image_file) payload.append('image_file', form.image_file);
-    payload.append('_method', 'PUT');
-
-    await axios.post(route('admin.courses.update', props.course.id), payload, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+function saveCourse() {
+    form.transform((data) => {
+        const payload: any = {
+            ...data,
+            sale_price: data.discount_enabled ? data.sale_price : '',
+            certificate_enabled: !!data.certificate_enabled,
+            _method: 'PUT'
+        };
+        if (!payload.image_file) {
+            delete payload.image_file;
+        }
+        return payload;
+    }).post(route('admin.courses.update', props.course.id), {
+        preserveScroll: true,
+        forceFormData: true,
+        onSuccess: () => {
+            showSuccessNotification.value = true;
+            setTimeout(() => {
+                showSuccessNotification.value = false;
+            }, 3000);
+        },
+        onError: () => {
+            showErrorNotification.value = true;
+            setTimeout(() => {
+                showErrorNotification.value = false;
+            }, 4000);
+        }
     });
 }
 
-async function publishCourse() {
+function publishCourse() {
     if (!canPublish.value) {
         alert('Debes tener al menos 1 clase. En masterclass solo se permite 1.');
         return;
     }
-    await axios.patch(route('admin.courses.publish', props.course.id));
-    form.status = 'PUBLICADO';
+    router.patch(route('admin.courses.publish', props.course.id), {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+            showPublishSuccessNotification.value = true;
+            setTimeout(() => { showPublishSuccessNotification.value = false; }, 3000);
+        },
+        onError: (errors: any) => {
+            if (errors.course) alert(errors.course);
+            else {
+                showErrorNotification.value = true;
+                setTimeout(() => { showErrorNotification.value = false; }, 4000);
+            }
+        }
+    });
 }
 
-async function hideCourse() {
-    await axios.patch(route('admin.courses.hide', props.course.id));
-    form.status = 'OCULTO';
+function hideCourse() {
+    router.patch(route('admin.courses.hide', props.course.id), {}, {
+        preserveScroll: true,
+        onSuccess: () => {
+             showSuccessNotification.value = true;
+             setTimeout(() => { showSuccessNotification.value = false; }, 3000);
+        }
+    });
 }
 
 async function createModule() {
@@ -225,6 +258,46 @@ async function deleteMaterial(lessonId: number, materialId: number) {
 <template>
     <Head title="Editor de Curso" />
     <AppLayout>
+        <!-- Notificación de éxito flotante -->
+        <transition
+            enter-active-class="transition ease-out duration-300 transform"
+            enter-from-class="opacity-0 translate-y-4 sm:translate-y-0 sm:translate-x-4"
+            enter-to-class="opacity-100 translate-y-0 sm:translate-x-0"
+            leave-active-class="transition ease-in duration-200"
+            leave-from-class="opacity-100"
+            leave-to-class="opacity-0"
+        >
+            <div v-if="showSuccessNotification" class="fixed bottom-6 right-6 z-50 rounded-xl bg-[#4B5320] px-6 py-4 shadow-xl border border-white/20 flex items-center gap-3 text-white">
+                <svg class="h-6 w-6 text-emerald-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <h4 class="font-bold text-sm">¡Cambios guardados!</h4>
+                    <p class="text-xs text-white/80">El curso se ha actualizado correctamente.</p>
+                </div>
+            </div>
+            
+            <div v-else-if="showPublishSuccessNotification" class="fixed bottom-6 right-6 z-50 rounded-xl bg-emerald-700 px-6 py-4 shadow-xl border border-white/20 flex items-center gap-3 text-white">
+                <svg class="h-6 w-6 text-emerald-200 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <div>
+                    <h4 class="font-bold text-sm">¡Curso Publicado!</h4>
+                    <p class="text-xs text-white/80">El curso ahora está visible para los alumnos.</p>
+                </div>
+            </div>
+
+            <div v-else-if="showErrorNotification" class="fixed bottom-6 right-6 z-50 rounded-xl bg-red-600 px-6 py-4 shadow-xl border border-white/20 flex items-center gap-3 text-white">
+                <svg class="h-6 w-6 text-red-200 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                    <h4 class="font-bold text-sm">Error al guardar</h4>
+                    <p class="text-xs text-white/80">Revisa los campos marcados en rojo.</p>
+                </div>
+            </div>
+        </transition>
+
         <div class="space-y-6">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -235,7 +308,10 @@ async function deleteMaterial(lessonId: number, materialId: number) {
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <button class="rounded-xl border border-outline-variant/30 px-4 py-2 text-sm font-semibold" @click="hideCourse">Ocultar</button>
-                    <button class="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white" @click="saveCourse">Guardar cambios</button>
+                    <button class="rounded-xl flex items-center justify-center gap-2 bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60 disabled:cursor-not-allowed transition" :disabled="form.processing" @click="saveCourse">
+                        <svg v-if="form.processing" class="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        Guardar cambios
+                    </button>
                     <button class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60" :disabled="!canPublish" @click="publishCourse">Publicar</button>
                 </div>
             </div>
@@ -243,10 +319,19 @@ async function deleteMaterial(lessonId: number, materialId: number) {
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <aside class="lg:col-span-4 rounded-2xl border border-outline-variant/10 bg-white p-5 space-y-3">
                     <h2 class="font-semibold">Información del curso</h2>
-                    <input v-model="form.title" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="Nombre del curso" />
-                    <textarea v-model="form.description" rows="4" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="Descripción" />
+                    <div>
+                        <input v-model="form.title" class="w-full rounded-xl border px-4 py-3 text-sm" :class="form.errors.title ? 'border-red-500' : 'border-outline-variant/30'" placeholder="Nombre del curso" />
+                        <p v-if="form.errors.title" class="mt-1 text-xs text-red-600">{{ form.errors.title }}</p>
+                    </div>
+                    <div>
+                        <textarea v-model="form.description" rows="4" class="w-full rounded-xl border px-4 py-3 text-sm" :class="form.errors.description ? 'border-red-500' : 'border-outline-variant/30'" placeholder="Descripción" />
+                        <p v-if="form.errors.description" class="mt-1 text-xs text-red-600">{{ form.errors.description }}</p>
+                    </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <input v-model.number="form.price" type="number" min="0" class="rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="Precio" />
+                        <div>
+                            <input v-model.number="form.price" type="number" min="0" class="w-full rounded-xl border px-4 py-3 text-sm" :class="form.errors.price ? 'border-red-500' : 'border-outline-variant/30'" placeholder="Precio" />
+                            <p v-if="form.errors.price" class="mt-1 text-xs text-red-600">{{ form.errors.price }}</p>
+                        </div>
                         <select v-model="form.type" class="rounded-xl border border-outline-variant/30 px-4 py-3 text-sm">
                             <option value="grabado">Grabado</option>
                             <option value="en vivo">En vivo</option>
@@ -281,12 +366,18 @@ async function deleteMaterial(lessonId: number, materialId: number) {
                             <option value="PUBLICADO">Publicado</option>
                             <option value="OCULTO">Oculto</option>
                         </select>
-                        <select v-model="form.category_id" class="rounded-xl border border-outline-variant/30 px-4 py-3 text-sm">
-                            <option value="">Sin categoría</option>
-                            <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
-                        </select>
+                        <div>
+                            <select v-model="form.category_id" class="w-full rounded-xl border px-4 py-3 text-sm" :class="form.errors.category_id ? 'border-red-500' : 'border-outline-variant/30'">
+                                <option value="">Sin categoría</option>
+                                <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
+                            </select>
+                            <p v-if="form.errors.category_id" class="mt-1 text-xs text-red-600">{{ form.errors.category_id }}</p>
+                        </div>
                     </div>
-                    <input type="file" accept="image/*" class="w-full text-sm" @change="(e) => { form.image_file = (e.target as HTMLInputElement).files?.[0] ?? null; }" />
+                    <div>
+                        <input type="file" accept="image/*" class="w-full text-sm" @change="(e) => { form.image_file = (e.target as HTMLInputElement).files?.[0] ?? null; }" />
+                        <p v-if="form.errors.image_file" class="mt-1 text-xs text-red-600">{{ form.errors.image_file }}</p>
+                    </div>
                     <img v-if="course.image" :src="course.image" class="h-16 w-16 rounded-xl object-cover border border-outline-variant/20" />
                 </aside>
 

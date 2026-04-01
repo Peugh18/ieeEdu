@@ -17,7 +17,7 @@ class CourseRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'slug' => 'nullable|alpha_dash|unique:courses,slug,' . ($this->course?->id ?? 'null'),
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             // Nuevo: precio final con descuento (opcional)
             'sale_price' => 'nullable|numeric|min:0|lt:price',
@@ -28,7 +28,7 @@ class CourseRequest extends FormRequest
             // Keep "evento" for backwards compatibility with existing DB enum (masterclass maps to evento)
             'type' => 'required|in:grabado,en vivo,masterclass,evento',
             'status' => 'sometimes|in:BORRADOR,PUBLICADO,OCULTO',
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'docente_id' => 'nullable|exists:users,id',
             // Image can be either an uploaded file (new) or an existing stored URL/path (update)
             'image' => 'nullable',

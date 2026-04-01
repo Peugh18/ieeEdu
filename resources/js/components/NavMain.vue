@@ -6,7 +6,7 @@ import type { Component } from 'vue';
 
 interface NavItem {
     title: string;
-    url: string;
+    href: string;
     icon: Component;
 }
 
@@ -22,7 +22,7 @@ const page = usePage<SharedData>();
         <SidebarGroupLabel>Platform</SidebarGroupLabel>
         <SidebarMenu>
             <SidebarMenuItem v-for="item in items" :key="item.title">
-                <SidebarMenuButton as-child :is-active="route(item.href) === page.url">
+                <SidebarMenuButton as-child :is-active="page.url.startsWith(route(item.href, undefined, false))">
                     <Link :href="route(item.href)">
                         <component :is="item.icon" />
                         <span>{{ item.title }}</span>

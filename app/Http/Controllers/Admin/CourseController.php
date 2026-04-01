@@ -53,7 +53,7 @@ class CourseController extends Controller
     public function edit(Course $course)
     {
         $categories = \App\Models\Category::orderBy('name')->get();
-        $course->load(['modules.lessons.materials', 'quizzes.questions.answers']);
+        $course->load(['modules', 'lessons', 'quizzes.questions.answers']);
 
         return Inertia::render('admin/CourseEditor', [
             'course' => $course,
