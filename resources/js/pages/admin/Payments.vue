@@ -7,8 +7,10 @@ import {
     Download, Eye, FileImage, Plus, RefreshCw,
     Search, X, XCircle
 } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue';
 import { useForm as useInertiaForm } from '@inertiajs/vue3';
+
+
 
 interface PaymentItem {
     id: number; status: string; amount: number; comprobante: string | null; created_at: string;
@@ -59,6 +61,18 @@ const createForm = useInertiaForm({
 
 // ── User AJAX search ─────────────────────────────────────────────
 const userQuery    = ref('');
+
+onMounted(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openCreate') === '1') {
+        showCreate.value = true;
+        
+        // Si hay una búsqueda, podemos intentar pre-seleccionar o al menos dejar la búsqueda escrita
+        if (props.filters.search) {
+             userQuery.value = props.filters.search;
+        }
+    }
+});
 const userResults  = ref<UserResult[]>([]);
 const selectedUser = ref<UserResult | null>(null);
 const showDropdown = ref(false);

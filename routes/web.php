@@ -13,15 +13,23 @@ Route::get('/cursos/{slug}', [PublicCourseController::class, 'show'])->name('cur
 
 Route::get('/publicaciones', [App\Http\Controllers\PublicPublicationController::class, 'index'])->name('publicaciones.index');
 
-Route::get('dashboard', function () {
-    $user = Auth::user();
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 
-    if ($user && $user->role === 'admin') {
-        return redirect()->route('admin.dashboard');
-    }
+Route::get('dashboard', [StudentDashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::prefix('student')->name('student.')->middleware(['auth', 'verified'])->group(function () {
+    Route::get('/courses', [StudentDashboardController::class, 'courses'])->name('courses.index');
+    Route::get('/live-classes', [StudentDashboardController::class, 'liveClasses'])->name('live-classes.index');
+    Route::get('/exams', [StudentDashboardController::class, 'exams'])->name('exams.index');
+    Route::get('/certificates', [StudentDashboardController::class, 'certificates'])->name('certificates.index');
+    Route::get('/classroom/{course:slug}/{lesson?}', [\App\Http\Controllers\Student\ClassroomController::class, 'show'])->name('classroom');
+
+    // Explore Catalog
+    Route::get('/explore/courses', [StudentDashboardController::class, 'exploreCourses'])->name('explore.courses');
+    Route::get('/explore/publications', [StudentDashboardController::class, 'explorePublications'])->name('explore.publications');
+});
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

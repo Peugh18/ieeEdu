@@ -61,7 +61,7 @@ const unenrolledCourses = computed(() =>
 
 function submitAssign() {
     if (!assignForm.course_id) return;
-    assignForm.post(route('admin.users.assignCourse', props.user.id), {
+    assignForm.post(route('admin.users.assignCourse', { user: props.user.id }), {
         onSuccess: () => {
             enrolledIds.value.push(Number(assignForm.course_id));
             showAssign.value = false;
@@ -72,7 +72,7 @@ function submitAssign() {
 
 // ─── Toggle Status ─────────────────────────────────────────────────
 function toggleStatus() {
-    router.patch(route('admin.users.toggleStatus', props.user.id), {}, { preserveScroll: true });
+    router.patch(route('admin.users.toggleStatus', { user: props.user.id }), {}, { preserveScroll: true });
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────
@@ -159,13 +159,13 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
 
                         <!-- Actions -->
                         <div class="flex gap-2">
-                            <button
-                                @click="showAssign = true"
+                            <Link
+                                :href="route('admin.payments.index', { search: props.user.email, openCreate: 1 })"
                                 class="inline-flex items-center gap-2 rounded-xl bg-[#57572A] px-4 py-2.5 text-sm font-bold text-white shadow hover:opacity-95 transition-opacity"
                             >
-                                <Plus class="h-4 w-4" />
-                                Asignar curso
-                            </button>
+                                <CreditCard class="h-4 w-4" />
+                                Registrar Venta
+                            </Link>
                         </div>
                     </div>
 

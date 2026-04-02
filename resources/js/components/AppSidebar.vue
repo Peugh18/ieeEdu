@@ -3,12 +3,16 @@ import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-vue-next';
+import { type NavItem, type SharedData, type User } from '@/types';
+import { Link, usePage } from '@inertiajs/vue3';
+import { BookOpen, Folder, LayoutGrid, Calendar, ClipboardCheck, Award, Settings } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
-const mainNavItems: NavItem[] = [
+const page = usePage<SharedData>();
+const user = page.props.auth.user as User;
+const isAdmin = user.role === 'admin';
+
+const adminNavItems: NavItem[] = [
     {
         title: 'Dashboard',
         href: 'admin.dashboard',
@@ -46,6 +50,41 @@ const mainNavItems: NavItem[] = [
     },
 ];
 
+const studentNavItems: NavItem[] = [
+    {
+        title: 'Mi Dashboard',
+        href: 'dashboard',
+        icon: LayoutGrid,
+    },
+    {
+        title: 'Mis Cursos',
+        href: 'student.courses.index',
+        icon: BookOpen,
+    },
+    {
+        title: 'Clases en Vivo',
+        href: 'student.live-classes.index',
+        icon: Calendar,
+    },
+    {
+        title: 'Mis Exámenes',
+        href: 'student.exams.index',
+        icon: ClipboardCheck,
+    },
+    {
+        title: 'Certificados',
+        href: 'student.certificates.index',
+        icon: Award,
+    },
+    {
+        title: 'Ajustes',
+        href: 'profile.edit',
+        icon: Settings,
+    },
+];
+
+const mainNavItems = isAdmin ? adminNavItems : studentNavItems;
+
 const footerNavItems: NavItem[] = [
     {
         title: 'Github Repo',
@@ -66,9 +105,9 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('admin.dashboard')" class="flex items-center gap-2">
+                        <Link :href="isAdmin ? route('admin.dashboard') : route('dashboard')" class="flex items-center gap-2">
                             <AppLogo />
-                            <span class="font-serif font-bold text-on-surface">IEE - Admin</span>
+                            <span class="font-serif font-bold text-on-surface">{{ isAdmin ? 'IEE - Admin' : 'Aula Virtual' }}</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
