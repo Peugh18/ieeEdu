@@ -2,19 +2,22 @@
 import { ref, computed } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import Navigation from '@/components/landing/Navigation.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
 
 const props = defineProps<{
     courses: any[];
     categories: any[];
     filters: { category?: string };
+    isDashboard?: boolean;
 }>();
 
 const selectedCategory = ref(props.filters.category || 'Todas');
 
 function applyFilters(category: string) {
     selectedCategory.value = category;
+    const routeName = props.isDashboard ? 'student.explore.masterclasses' : 'masterclass.index';
     router.get(
-        route('masterclass.index'),
+        route(routeName),
         { category: category === 'Todas' ? '' : category },
         { preserveState: true, preserveScroll: true, replace: true }
     );
@@ -40,15 +43,21 @@ const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' (Perú)';
 };
+
+const breadcrumbs = [
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Masterclasses en Vivo', href: '#' },
+];
 </script>
 
 <template>
     <Head title="Masterclasses - IEE" />
     
-    <div class="flex min-h-screen flex-col bg-[#FAFAF5] text-[#1A1C19] font-sans">
-        <Navigation />
-
-        <main class="flex-1 pb-20 pt-24 md:pt-32">
+    <component :is="isDashboard ? AppLayout : 'div'" v-bind="isDashboard ? { breadcrumbs } : {}">
+        <div :class="['flex min-h-screen flex-col font-sans', !isDashboard ? 'bg-[#FAFAF5]' : 'bg-transparent shadow-none']">
+            <Navigation v-if="!isDashboard" />
+    
+            <main :class="['flex-1 pb-20', !isDashboard ? 'pt-24 md:pt-32' : 'pt-0']">
             <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
                 
                 <!-- Header -->
@@ -201,5 +210,6 @@ const formatTime = (dateString: string) => {
 
             </div>
         </main>
-    </div>
+        </div>
+    </component>
 </template>

@@ -54,9 +54,9 @@ const page = usePage();
             <Link 
                 v-for="link in [
                     { title: 'Cursos', href: route('student.explore.courses') },
-                    { title: 'Consultoría', href: '#' },
+                    { title: 'Consultoría', href: route('student.explore.consultoria') },
                     { title: 'Publicaciones', href: route('student.explore.publications') },
-                    { title: 'Masterclass', href: '#' }
+                    { title: 'Masterclass', href: route('student.explore.masterclasses') }
                 ]" 
                 :key="link.title"
                 :href="link.href"

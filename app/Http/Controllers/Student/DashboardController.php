@@ -184,4 +184,36 @@ class DashboardController extends Controller
             'isDashboard' => true,
         ]);
     }
+
+    public function exploreMasterclasses(\Illuminate\Http\Request $request)
+    {
+        $query = \App\Models\Course::where('status', 'PUBLICADO')
+            ->where('type', 'evento')
+            ->with(['category', 'lessons']);
+
+        if ($request->filled('category') && $request->category !== 'Todas') {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('name', $request->category);
+            });
+        }
+
+        $courses = $query->orderBy('created_at', 'desc')->get();
+        $categories = \App\Models\Category::whereHas('courses', function($q){
+            $q->where('type', 'evento');
+        })->orderBy('name')->get();
+
+        return Inertia::render('Masterclasses', [
+            'courses' => $courses,
+            'categories' => $categories,
+            'filters' => $request->only(['category']),
+            'isDashboard' => true,
+        ]);
+    }
+
+    public function exploreConsultoria()
+    {
+        return Inertia::render('Consultoria', [
+            'isDashboard' => true,
+        ]);
+    }
 }

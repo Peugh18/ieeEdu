@@ -12,6 +12,9 @@ Route::get('/masterclass', [PublicCourseController::class, 'masterclasses'])->na
 Route::get('/cursos/{slug}', [PublicCourseController::class, 'show'])->name('cursos.show');
 
 Route::get('/publicaciones', [App\Http\Controllers\PublicPublicationController::class, 'index'])->name('publicaciones.index');
+Route::get('/consultoria', function () {
+    return Inertia::render('Consultoria');
+})->name('consultoria');
 
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 
@@ -29,6 +32,8 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'verified'])->gr
     // Explore Catalog
     Route::get('/explore/courses', [StudentDashboardController::class, 'exploreCourses'])->name('explore.courses');
     Route::get('/explore/publications', [StudentDashboardController::class, 'explorePublications'])->name('explore.publications');
+    Route::get('/explore/masterclass', [StudentDashboardController::class, 'exploreMasterclasses'])->name('explore.masterclasses');
+    Route::get('/explore/consultoria', [StudentDashboardController::class, 'exploreConsultoria'])->name('explore.consultoria');
 });
 
 require __DIR__.'/settings.php';

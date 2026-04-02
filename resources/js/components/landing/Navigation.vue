@@ -20,10 +20,10 @@ const toggleMobileMenu = () => {
 };
 
 const menuItems = [
-    { label: 'Cursos', href: '/cursos' },
-    { label: 'Consultoría', href: '#consultoria' },
-    { label: 'Publicaciones', href: '/publicaciones' },
-    { label: 'Masterclass', href: '/masterclass' },
+    { label: 'Cursos', href: route('cursos.index') },
+    { label: 'Consultoría', href: route('consultoria') },
+    { label: 'Publicaciones', href: route('publicaciones.index') },
+    { label: 'Masterclass', href: route('masterclass.index') },
 ];
 </script>
 
@@ -43,7 +43,7 @@ const menuItems = [
             
             <!-- Desktop Menu -->
             <div class="hidden lg:flex items-center gap-2 md:gap-8">
-                <a 
+                <Link 
                     v-for="item in menuItems" 
                     :key="item.href"
                     :href="item.href" 
@@ -51,7 +51,7 @@ const menuItems = [
                 >
                     {{ item.label }}
                     <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
-                </a>
+                </Link>
             </div>
 
             <!-- Right Section -->
@@ -99,7 +99,7 @@ const menuItems = [
         >
             <div v-if="mobileMenuOpen" class="lg:hidden bg-surface/98 backdrop-blur-lg border-b border-outline-variant/10">
                 <div class="px-6 py-4 space-y-3 max-w-7xl mx-auto">
-                    <a 
+                    <Link 
                         v-for="item in menuItems" 
                         :key="item.href"
                         :href="item.href"
@@ -107,7 +107,7 @@ const menuItems = [
                         class="block px-3 py-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-colors font-medium"
                     >
                         {{ item.label }}
-                    </a>
+                    </Link>
                     <div class="flex gap-2 pt-2 border-t border-outline-variant/10">
                         <Link 
                             v-if="!isAuthenticated" 
