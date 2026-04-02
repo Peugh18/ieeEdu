@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { 
     ChevronLeft, ChevronRight, Menu, MessageSquare, 
     Download, ExternalLink, Play, Clock, 
     Send, Users, X, CheckCircle2, ChevronDown,
-    ArrowRight, HandIcon, Flag
+    ArrowRight, HandIcon, Flag, ListVideo
 } from 'lucide-vue-next';
 import { ref, computed, onMounted } from 'vue';
 
@@ -55,7 +56,13 @@ const props = defineProps<{
     currentLessonIndex: number;
 }>();
 
-const showSidebar = ref(false);
+const breadcrumbs = computed(() => [
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Mis Cursos', href: '/student/courses' },
+    { title: props.course.title, href: route('student.classroom', { course: props.course.slug }) },
+]);
+
+const activeSidebarTab = ref<'curriculum' | 'chat'>('curriculum');
 const activeTab = ref<'content' | 'resources' | 'exams'>('content');
 
 const isLive = computed(() => props.currentLesson?.content_type === 'live');
@@ -95,7 +102,16 @@ onMounted(() => {
             new (window as any).Plyr(p, {
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
                 tooltips: { controls: true, seek: true },
-                youtube: { noCookie: true, rel: 0, showinfo: 0, iv_load_policy: 3, modestbranding: 1 }
+                youtube: { 
+                    noCookie: true, 
+                    rel: 0, 
+                    showinfo: 0, 
+                    iv_load_policy: 3, 
+                    modestbranding: 1,
+                    controls: 0,
+                    disablekb: 1,
+                    fs: 0
+                }
             });
         });
     };
@@ -124,10 +140,11 @@ onMounted(() => {
 <template>
     <Head :title="`${currentLesson?.title || 'Aula Virtual'} - ${course.title}`" />
 
-    <div class="min-h-screen bg-surface-container-lowest text-on-surface font-sans selection:bg-primary/20 selection:text-primary flex flex-col">
-        
-        <!-- Navbar: Theme Colors (Olive/Gold) -->
-        <header class="h-16 bg-surface-container-low border-b border-outline-variant/30 flex items-center px-4 md:px-8 justify-between sticky top-0 z-50">
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="h-[calc(100svh-4rem)] bg-surface-container-lowest text-on-surface font-sans selection:bg-primary/20 selection:text-primary flex flex-col">
+            
+            <!-- Navbar: Theme Colors (Olive/Gold) -->
+            <header class="h-16 shrink-0 bg-surface-container-low border-b border-outline-variant/30 flex items-center px-4 md:px-8 justify-between relative z-40">
             <div class="flex items-center gap-4">
                 <Link :href="route('student.courses.index')" class="p-2 hover:bg-surface-container rounded-xl transition text-on-surface-variant hover:text-primary">
                     <ChevronLeft class="w-5 h-5" />
@@ -145,26 +162,29 @@ onMounted(() => {
                         :href="route('student.classroom', { course: course.slug, lesson: prevLessonId })"
                         class="px-4 py-2 hover:bg-surface-container-high rounded-xl transition flex items-center gap-2 text-xs font-bold text-on-surface-variant hover:text-primary"
                     >
-                        <ChevronLeft class="w-4 h-4" /> <span class="hidden lg:inline">Anterior</span>
+                        <ChevronLeft class="w-4 h-4" /> <span class="hidden lg:inline">Clase anterior</span>
                     </Link>
                     <button 
-                        @click="showSidebar = !showSidebar"
+                        @click="activeSidebarTab = activeSidebarTab === 'curriculum' ? 'chat' : 'curriculum'"
                         class="px-4 py-2 bg-primary/5 hover:bg-primary/10 text-primary rounded-xl transition flex items-center gap-2 text-xs font-bold border border-primary/10"
                     >
-                        <Menu class="w-4 h-4" /> <span class="hidden lg:inline">Contenido</span>
+                        <ListVideo v-if="activeSidebarTab === 'chat'" class="w-4 h-4" />
+                        <MessageSquare v-else class="w-4 h-4" />
+                        <span class="hidden lg:inline">{{ activeSidebarTab === 'chat' ? 'Ver clases' : 'Ver foro/chat' }}</span>
                     </button>
                     <Link 
                         v-if="nextLessonId"
                         :href="route('student.classroom', { course: course.slug, lesson: nextLessonId })"
                         class="px-5 py-2 bg-primary text-on-primary rounded-xl hover:bg-primary/90 transition flex items-center gap-2 text-xs font-bold shadow-lg shadow-primary/20"
                     >
-                        <span class="hidden lg:inline">Siguiente</span> <ChevronRight class="w-4 h-4" />
+                        <span class="hidden lg:inline">Siguiente clase</span> <ChevronRight class="w-4 h-4" />
                     </Link>
                 </div>
                 
                 <!-- Mobile Only -->
-                 <button @click="showSidebar = true" class="sm:hidden p-2 bg-primary text-on-primary rounded-xl">
-                     <Menu class="w-5 h-5" />
+                 <button @click="activeSidebarTab = activeSidebarTab === 'curriculum' ? 'chat' : 'curriculum'" class="sm:hidden p-2 bg-primary text-on-primary rounded-xl">
+                     <ListVideo class="w-5 h-5" v-if="activeSidebarTab === 'chat'" />
+                     <MessageSquare class="w-5 h-5" v-else />
                  </button>
             </div>
         </header>
@@ -322,131 +342,148 @@ onMounted(() => {
 
             <!-- Interaction Sidebar (Comments / Q&A) -->
             <aside class="w-full lg:w-[420px] bg-surface-container-low border-l border-outline-variant/30 flex flex-col h-full z-40">
-                <header class="p-6 border-b border-outline-variant/30 flex items-center justify-between">
-                     <div class="flex items-center gap-2">
-                         <MessageSquare class="w-5 h-5 text-primary" />
-                         <span class="text-sm font-bold uppercase tracking-widest text-on-surface">Foro de la Clase</span>
-                     </div>
-                     <span class="text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-full">{{ comments.length }} aportes</span>
-                </header>
-
-                <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
-                    <!-- New Comment Input -->
-                    <div class="relative group">
-                         <div class="bg-surface-container-lowest rounded-3xl border border-outline-variant/30 focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5 transition-all p-5 space-y-4">
-                             <textarea 
-                                v-model="newComment"
-                                placeholder="Escribe tu consulta o aporte académico aquí..."
-                                class="w-full bg-transparent border-none p-0 text-sm placeholder:text-on-surface-variant/30 focus:ring-0 min-h-[100px] resize-none font-serif italic"
-                             ></textarea>
-                             <div class="flex items-center justify-between">
-                                 <p class="text-[10px] text-on-surface-variant/40 italic">Sea respetuoso y claro con sus dudas.</p>
-                                 <button 
-                                    @click="postComment"
-                                    class="p-2.5 bg-primary text-on-primary rounded-xl hover:scale-110 active:scale-95 transition-all shadow-lg shadow-primary/10"
-                                 >
-                                    <Send class="w-4 h-4" />
-                                 </button>
-                             </div>
+                <template v-if="activeSidebarTab === 'chat'">
+                    <header class="p-6 border-b border-outline-variant/30 flex items-center justify-between">
+                         <div class="flex items-center gap-2">
+                             <MessageSquare class="w-5 h-5 text-primary" />
+                             <span class="text-sm font-bold uppercase tracking-widest text-on-surface">Foro de la Clase</span>
                          </div>
-                    </div>
+                         <span class="text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-full">{{ comments.length }} aportes</span>
+                    </header>
 
-                    <!-- Comments Listing -->
-                    <div class="space-y-6 pb-24">
-                        <div v-for="c in comments" :key="c.id" class="p-6 bg-surface-container-lowest border border-outline-variant/20 rounded-[2.5rem] space-y-4 hover:shadow-xl hover:shadow-primary/5 transition-all border-l-4 border-l-primary/10">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/10 flex items-center justify-center text-[11px] font-bold text-primary italic uppercase">
-                                        {{ c.user.charAt(0) }}
-                                    </div>
-                                    <div class="min-w-0">
-                                        <p class="text-[11px] font-bold text-on-surface flex items-center gap-1.5">
-                                            {{ c.user }}
-                                            <CheckCircle2 v-if="c.is_verified" class="w-3 h-3 text-primary fill-primary/10" />
-                                        </p>
-                                        <p class="text-[9px] text-on-surface-variant uppercase tracking-widest">{{ c.role }} · {{ c.time }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-center gap-0.5">
-                                     <button class="p-1 hover:text-primary transition-colors">
-                                         <HandIcon class="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
+                    <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
+                        <!-- New Comment Input -->
+                        <div class="relative group">
+                             <div class="bg-surface-container-lowest rounded-3xl border border-outline-variant/30 focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5 transition-all p-5 space-y-4">
+                                 <textarea 
+                                    v-model="newComment"
+                                    placeholder="Escribe tu consulta o aporte académico aquí..."
+                                    class="w-full bg-transparent border-none p-0 text-sm placeholder:text-on-surface-variant/30 focus:ring-0 min-h-[100px] resize-none font-serif italic"
+                                 ></textarea>
+                                 <div class="flex items-center justify-between">
+                                     <p class="text-[10px] text-on-surface-variant/40 italic">Sea respetuoso y claro con sus dudas.</p>
+                                     <button 
+                                        @click="postComment"
+                                        class="p-2.5 bg-primary text-on-primary rounded-xl hover:scale-110 active:scale-95 transition-all shadow-lg shadow-primary/10"
+                                     >
+                                        <Send class="w-4 h-4" />
                                      </button>
-                                     <span class="text-[10px] font-bold text-on-surface-variant/40">{{ c.likes }}</span>
+                                 </div>
+                             </div>
+                        </div>
+
+                        <!-- Comments Listing -->
+                        <div class="space-y-6 pb-24">
+                            <div v-for="c in comments" :key="c.id" class="p-6 bg-surface-container-lowest border border-outline-variant/20 rounded-[2.5rem] space-y-4 hover:shadow-xl hover:shadow-primary/5 transition-all border-l-4 border-l-primary/10">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/10 flex items-center justify-center text-[11px] font-bold text-primary italic uppercase">
+                                            {{ c.user.charAt(0) }}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-[11px] font-bold text-on-surface flex items-center gap-1.5">
+                                                {{ c.user }}
+                                                <CheckCircle2 v-if="c.is_verified" class="w-3 h-3 text-primary fill-primary/10" />
+                                            </p>
+                                            <p class="text-[9px] text-on-surface-variant uppercase tracking-widest">{{ c.role }} · {{ c.time }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-0.5">
+                                         <button class="p-1 hover:text-primary transition-colors">
+                                             <HandIcon class="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
+                                         </button>
+                                         <span class="text-[10px] font-bold text-on-surface-variant/40">{{ c.likes }}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <p class="text-xs text-on-surface-variant leading-relaxed font-serif italic">{{ c.content }}</p>
-                            <div class="flex items-center gap-4 text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/40">
-                                <button class="hover:text-primary transition">Responder</button>
-                                <button class="hover:text-red-600 transition">Reportar aporte</button>
+                                <p class="text-xs text-on-surface-variant leading-relaxed font-serif italic">{{ c.content }}</p>
+                                <div class="flex items-center gap-4 text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/40">
+                                    <button class="hover:text-primary transition">Responder</button>
+                                    <button class="hover:text-red-600 transition">Reportar aporte</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </aside>
+                </template>
 
-            <!-- Navigation Drawer (Modules List) -->
-            <div 
-                v-if="showSidebar"
-                class="fixed inset-0 z-[100] flex justify-end"
-                @click.self="showSidebar = false"
-            >
-                <div class="absolute inset-0 bg-on-surface/20 backdrop-blur-sm transition-opacity"></div>
-                <div class="relative w-full max-w-sm bg-surface-container-lowest h-full shadow-2xl flex flex-col border-l border-outline-variant/30 animate-in slide-in-from-right duration-300">
-                    <header class="p-8 border-b border-outline-variant/30 flex items-center justify-between bg-surface-container-low">
+                <template v-else>
+                    <header class="p-6 border-b border-outline-variant/30 flex flex-col justify-center bg-surface-container-low">
                          <div class="space-y-1">
-                             <h2 class="text-xl font-serif font-bold italic text-on-surface">Currículo del Curso</h2>
-                             <p class="text-[10px] font-bold text-primary uppercase tracking-widest">Plan de estudios interactivo</p>
+                             <h2 class="text-xl font-serif font-bold italic text-on-surface">Progreso del curso</h2>
+                             <div class="flex items-center gap-2 mt-2">
+                                 <span class="text-xs font-bold text-on-surface-variant">{{ Math.round((currentLessonIndex / allLessonsCount) * 100) }}%</span>
+                                 <div class="h-1 flex-1 bg-surface-container flex rounded-full overflow-hidden">
+                                     <div class="h-full bg-emerald-500 rounded-full transition-all duration-1000" :style="{ width: `${(currentLessonIndex / allLessonsCount) * 100}%` }"></div>
+                                 </div>
+                             </div>
                          </div>
-                         <button @click="showSidebar = false" class="p-2 hover:bg-primary/5 rounded-xl transition text-on-surface-variant hover:text-primary">
-                             <X class="w-6 h-6" />
-                         </button>
                     </header>
-
-                    <nav class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-10">
-                        <div v-for="m in course.modules" :key="m.id" class="space-y-4">
-                            <h3 class="text-[11px] font-bold text-primary uppercase tracking-[0.2em] italic border-b-2 border-primary/20 pb-2 inline-block">{{ m.title }}</h3>
-                            <div class="space-y-2">
+                    <nav class="flex-1 overflow-y-auto custom-scrollbar p-6 pb-24 space-y-8">
+                        <div v-for="m in course.modules" :key="m.id" class="space-y-6">
+                            <h3 class="text-sm font-bold text-on-surface">{{ m.title }}</h3>
+                            <div class="space-y-4 relative before:absolute before:inset-y-0 before:left-4 before:w-0.5 before:bg-outline-variant/30">
                                 <Link 
-                                    v-for="l in m.lessons" :key="l.id"
+                                    v-for="(l, i) in m.lessons" :key="l.id"
                                     :href="route('student.classroom', { course: course.slug, lesson: l.id })"
-                                    class="flex items-center gap-4 p-5 rounded-3xl transition-all group"
-                                    :class="currentLesson?.id === l.id ? 'bg-primary/5 border border-primary/20' : 'hover:bg-surface-container shadow-sm border border-transparent'"
+                                    class="flex items-center gap-4 transition-all group relative z-10"
                                 >
-                                    <div class="flex-shrink-0">
-                                        <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-surface-container-lowest border border-outline-variant/20 shadow-sm group-hover:border-primary/30 transition-all">
-                                           <Clock v-if="l.content_type === 'live'" class="w-4 h-4 text-amber-500" />
-                                           <Play v-else class="w-4 h-4 text-primary/50 group-hover:text-primary transition-colors" />
+                                    <div class="flex-shrink-0 bg-surface-container-low py-1">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
+                                        :class="currentLesson?.id === l.id ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'bg-surface-container-highest text-on-surface-variant border border-outline-variant/30'">
+                                            {{ i + 1 }}
                                         </div>
                                     </div>
-                                    <div class="min-w-0 flex-1">
-                                        <p class="text-sm font-bold text-on-surface truncate group-hover:text-primary transition-colors" :class="{ 'text-primary': currentLesson?.id === l.id }">{{ l.title }}</p>
-                                        <p class="text-[9px] text-on-surface-variant uppercase tracking-widest mt-1">{{ l.content_type === 'live' ? 'Sesión en Vivo' : 'Cápsula de Video' }}</p>
+                                    <div class="min-w-0 flex-1 p-2 rounded-2xl transition-all flex items-start gap-3" :class="currentLesson?.id === l.id ? 'bg-primary/5 border border-primary/20' : 'hover:bg-surface-container border border-transparent'">
+                                        <div class="w-16 h-10 bg-surface-container-high rounded-xl flex items-center justify-center flex-shrink-0 border border-outline-variant/20 mt-1">
+                                            <Play class="w-3 h-3 text-on-surface-variant" />
+                                        </div>
+                                        <div class="min-w-0 flex-1 pt-1">
+                                            <p class="text-sm font-bold leading-tight group-hover:text-primary transition-colors pr-2" :class="{ 'text-primary': currentLesson?.id === l.id }">{{ l.title }}</p>
+                                            <p class="text-[9px] uppercase tracking-widest mt-1.5 flex items-center gap-1 font-bold" :class="currentLesson?.id === l.id ? 'text-primary' : 'text-on-surface-variant'">
+                                                <CheckCircle2 v-if="currentLesson?.id === l.id" class="w-3 h-3" />
+                                                {{ currentLesson?.id === l.id ? 'Viendo ahora' : 'Clase de Video' }}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <CheckCircle2 v-if="false" class="w-4 h-4 text-emerald-500" /> <!-- Progress tracker icon -->
                                 </Link>
                             </div>
                         </div>
 
                         <!-- Lessons without modules -->
-                        <div v-if="course.lessons.filter(l => !l.module_id).length" class="space-y-4">
-                             <h3 class="text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.2em] italic border-b-2 border-outline-variant pb-2 inline-block">Módulos Extra</h3>
-                             <div class="space-y-2">
+                        <div v-if="course.lessons.filter(l => !l.module_id).length" class="space-y-6">
+                             <h3 class="text-sm font-bold text-on-surface">Módulos Extra</h3>
+                             <div class="space-y-4 relative before:absolute before:inset-y-0 before:left-4 before:w-0.5 before:bg-outline-variant/30">
                                 <Link 
-                                    v-for="l in course.lessons.filter(l => !l.module_id)" :key="l.id"
+                                    v-for="(l, i) in course.lessons.filter(l => !l.module_id)" :key="l.id"
                                     :href="route('student.classroom', { course: course.slug, lesson: l.id })"
-                                    class="flex items-center gap-4 p-5 rounded-3xl transition-all group hover:bg-surface-container"
+                                    class="flex items-center gap-4 transition-all group relative z-10"
                                 >
-                                    <Play class="w-4 h-4 text-primary/30" />
-                                    <span class="text-sm font-bold truncate text-on-surface">{{ l.title }}</span>
+                                    <div class="flex-shrink-0 bg-surface-container-low py-1">
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
+                                        :class="currentLesson?.id === l.id ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'bg-surface-container-highest text-on-surface-variant border border-outline-variant/30'">
+                                            {{ course.modules.reduce((acc, m) => acc + m.lessons.length, 0) + i + 1 }}
+                                        </div>
+                                    </div>
+                                    <div class="min-w-0 flex-1 p-2 rounded-2xl transition-all flex items-start gap-3" :class="currentLesson?.id === l.id ? 'bg-primary/5 border border-primary/20' : 'hover:bg-surface-container border border-transparent'">
+                                        <div class="w-16 h-10 bg-surface-container-high rounded-xl flex items-center justify-center flex-shrink-0 border border-outline-variant/20 mt-1">
+                                            <Play class="w-3 h-3 text-on-surface-variant" />
+                                        </div>
+                                        <div class="min-w-0 flex-1 pt-1">
+                                            <p class="text-sm font-bold leading-tight group-hover:text-primary transition-colors text-on-surface pr-2" :class="{ 'text-primary': currentLesson?.id === l.id }">{{ l.title }}</p>
+                                            <p class="text-[9px] uppercase tracking-widest mt-1.5 flex items-center gap-1 font-bold text-on-surface-variant">
+                                                <CheckCircle2 v-if="currentLesson?.id === l.id" class="w-3 h-3" />
+                                                {{ currentLesson?.id === l.id ? 'Viendo ahora' : 'Clase de Video' }}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </Link>
                              </div>
                         </div>
                     </nav>
-                </div>
-            </div>
-
+                </template>
+            </aside>
         </main>
-    </div>
+        </div>
+    </AppLayout>
 </template>
 
 <style scoped>
@@ -486,6 +523,12 @@ iframe {
 :deep(.plyr__video-wrapper) {
     height: 100% !important;
     padding-bottom: 0 !important;
+}
+
+/* Intercept clicks and hover to YouTube iframe explicitly, and scale it up to push the title/logos out of the visible area */
+:deep(.plyr iframe) {
+    pointer-events: none !important;
+    transform: scale(1.35) !important;
 }
 
 /* Hide typical YT elements inside Plyr if they peek through */
