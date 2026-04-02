@@ -31,8 +31,9 @@ class DashboardController extends Controller
         $completedEnrollments = Enrollment::whereNotNull('completed_at')->count();
         $passedEnrollments = Enrollment::where('passed', true)->count();
 
-        $completionRate = $totalEnrollments ? ($completedEnrollments / $totalEnrollments) * 100 : 0;
-        $approvalRate = $totalEnrollments ? ($passedEnrollments / $totalEnrollments) * 100 : 0;
+        $completionRate = $totalEnrollments ? (float) ($completedEnrollments / $totalEnrollments) * 100 : 0;
+        $approvalRate = $totalEnrollments ? (float) ($passedEnrollments / $totalEnrollments) * 100 : 0;
+        $totalIncome = (float) $totalIncome;
 
         return Inertia::render('admin/Dashboard', compact(
             'totalUsers',

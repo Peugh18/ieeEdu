@@ -24,21 +24,32 @@ class PaymentService
         $payment->status = 'aprobado';
         $payment->save();
 
-        $enrollment = $this->enrollmentRepo->create([
-            'user_id' => $payment->user_id,
-            'course_id' => $payment->course_id,
-            'enrolled_at' => Carbon::now(),
-            'passed' => false,
-        ]);
+        // Idempotent: create enrollment only if it doesn't exist yet
+        Enrollment::firstOrCreate(
+            [
+                'user_id'   => $payment->user_id,
+                'course_id' => $payment->course_id,
+            ],
+            [
+                'enrolled_at' => Carbon::now(),
+                'passed'      => false,
+            ]
+        );
 
-        return compact('payment', 'enrollment');
+        return $payment;
     }
 
     public function reject(Payment $payment)
     {
         $payment->status = 'rechazado';
         $payment->save();
+        return $payment;
+    }
 
+    public function setEnRevision(Payment $payment)
+    {
+        $payment->status = 'en_revision';
+        $payment->save();
         return $payment;
     }
 }

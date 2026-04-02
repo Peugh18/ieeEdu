@@ -2,6 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import { computed, ref, onMounted } from 'vue';
+import { Plus, Search } from 'lucide-vue-next';
 import CreateCourseModal from '@/components/admin/courses/CreateCourseModal.vue';
 
 interface CourseItem {
@@ -69,7 +70,7 @@ onMounted(() => {
                     @click="showCreateModal = true"
                     class="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-white shadow hover:opacity-95 w-full sm:w-auto"
                 >
-                    <span class="material-symbols-outlined text-[20px]">add</span>
+                    <Plus class="w-5 h-5" />
                     Crear nuevo curso
                 </button>
             </div>
@@ -79,7 +80,7 @@ onMounted(() => {
                 <div class="flex flex-col md:flex-row gap-3 items-center">
                     <div class="flex-1 w-full">
                         <div class="flex items-center gap-2 rounded-xl bg-white border border-outline-variant/15 px-3 py-2">
-                            <span class="material-symbols-outlined text-base text-on-surface-variant">search</span>
+                            <Search class="w-4 h-4 text-on-surface-variant" />
                             <input
                                 v-model="filtersForm.search"
                                 placeholder="Buscar por título…"

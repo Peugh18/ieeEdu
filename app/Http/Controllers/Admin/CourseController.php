@@ -40,9 +40,22 @@ class CourseController extends Controller
             $data['type'] = 'evento';
         }
 
+        // ✅ Compute sale_price on the backend (authoritative source)
+        // If discount is set, calculate sale_price regardless of what frontend sent
+        if (!empty($data['discount']) && (float)$data['discount'] > 0 && !empty($data['price'])) {
+            $data['sale_price'] = round((float)$data['price'] * (1 - (float)$data['discount'] / 100), 2);
+        } else {
+            $data['sale_price'] = null; // no discount → null
+        }
+
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('courses', 'public');
             $data['image'] = '/storage/' . $path;
+        }
+
+        if ($request->hasFile('instructor_image_file')) {
+            $path = $request->file('instructor_image_file')->store('instructors', 'public');
+            $data['instructor_image'] = '/storage/' . $path;
         }
 
         $course = $this->service->create($data);
@@ -69,9 +82,21 @@ class CourseController extends Controller
             $data['type'] = 'evento';
         }
 
+        // ✅ Compute sale_price on the backend (authoritative source)
+        if (!empty($data['discount']) && (float)$data['discount'] > 0 && !empty($data['price'])) {
+            $data['sale_price'] = round((float)$data['price'] * (1 - (float)$data['discount'] / 100), 2);
+        } else {
+            $data['sale_price'] = null;
+        }
+
         if ($request->hasFile('image_file')) {
             $path = $request->file('image_file')->store('courses', 'public');
             $data['image'] = '/storage/' . $path;
+        }
+
+        if ($request->hasFile('instructor_image_file')) {
+            $path = $request->file('instructor_image_file')->store('instructors', 'public');
+            $data['instructor_image'] = '/storage/' . $path;
         }
 
         $this->service->update($course, $data);

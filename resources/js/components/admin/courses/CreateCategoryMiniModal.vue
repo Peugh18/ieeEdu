@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import { X } from 'lucide-vue-next';
 import axios from 'axios';
 
 const props = defineProps<{
@@ -60,7 +61,7 @@ async function submit() {
                         <p class="mt-1 text-xs text-on-surface-variant">Se agregará al select automáticamente.</p>
                     </div>
                     <button class="rounded-lg p-2 hover:bg-surface-container-low" @click="$emit('close')" aria-label="Cerrar">
-                        <span class="material-symbols-outlined text-on-surface-variant">close</span>
+                        <X class="w-5 h-5 text-on-surface-variant" />
                     </button>
                 </div>
 

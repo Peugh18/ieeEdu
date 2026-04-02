@@ -5,56 +5,9 @@ import HeroSection from '../components/landing/HeroSection.vue';
 import Navigation from '../components/landing/Navigation.vue';
 import CourseCard from '../components/landing/CourseCard.vue';
 
-const courses = [
-    {
-        id: 1,
-        title: 'Diplomado en Gestión Estratégica del Estado',
-        description: 'Programa intensivo para líderes del sector público con enfoque en políticas públicas',
-        category: 'Gestión Pública',
-        categoryBgColor: 'bg-secondary-container text-on-secondary-container',
-        instructor: 'Mg. Roberto Flores',
-        students: 320,
-        duration: '16 semanas',
-        level: 'Avanzado',
-        rating: 4.9,
-        reviews: 156,
-        type: 'hybrid',
-        price: 1200,
-        image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=500&fit=crop',
-    },
-    {
-        id: 2,
-        title: 'Análisis de Datos para Decisiones Empresariales',
-        description: 'Domina las herramientas de análisis y visualización de datos empresariales',
-        category: 'Finanzas',
-        categoryBgColor: 'bg-primary-container text-on-primary-container',
-        instructor: 'Dr. Carlos Mendoza',
-        students: 245,
-        duration: '12 semanas',
-        level: 'Intermedio',
-        rating: 4.8,
-        reviews: 98,
-        type: 'recorded',
-        price: 850,
-        image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=500&fit=crop',
-    },
-    {
-        id: 3,
-        title: 'Programa de Alta Gerencia y Comunicación',
-        description: 'Desarrolla habilidades de liderazgo ejecutivo y comunicación corporativa',
-        category: 'Liderazgo',
-        categoryBgColor: 'bg-tertiary-container text-on-tertiary-container',
-        instructor: 'Dra. Patricia Silva',
-        students: 187,
-        duration: '20 semanas',
-        level: 'Avanzado',
-        rating: 4.95,
-        reviews: 234,
-        type: 'live',
-        price: 2400,
-        image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=500&fit=crop',
-    },
-];
+const props = defineProps<{
+    dynamicCourses: any[];
+}>();
 
 const testimonials = [
     {
@@ -88,15 +41,15 @@ const stats = [
 ];
 
 const courseTabs = [
-    { id: 'recorded', label: 'Clases grabadas 24/7' },
-    { id: 'live', label: 'Clases en vivo' },
-    { id: 'hybrid', label: 'Híbrido' },
+    { id: 'en vivo', label: 'Clases en vivo' },
+    { id: 'grabado', label: 'Clases grabadas 24/7' },
+    { id: 'hibrido', label: 'Híbrido' },
 ];
 
-const activeCourseTab = ref('recorded');
+const activeCourseTab = ref('en vivo');
 const filteredCourses = computed(() => {
-    if (!activeCourseTab.value) return courses;
-    return courses.filter((course) => course.type === activeCourseTab.value);
+    if (!activeCourseTab.value) return props.dynamicCourses;
+    return props.dynamicCourses.filter((course) => course.type === activeCourseTab.value);
 });
 
 const publications = [
@@ -163,7 +116,7 @@ const toggleAbout = (id: string) => {
 <template>
     <Head title="IEE - Instituto de Economía y Empresa">
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     </Head>
@@ -235,11 +188,16 @@ const toggleAbout = (id: string) => {
 
                     <!-- Course Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                        <CourseCard
+                        <Link 
                             v-for="course in filteredCourses"
                             :key="course.id"
-                            v-bind="course"
-                        />
+                            :href="route('cursos.show', course.slug)"
+                            class="block"
+                        >
+                            <CourseCard
+                                v-bind="course"
+                            />
+                        </Link>
                         <template v-if="filteredCourses.length === 0">
                             <div class="col-span-full p-10 text-center bg-surface-container-high rounded-2xl border border-outline-variant/20">
                                 <p class="text-on-surface-variant">No hay cursos disponibles para esta categoría todavía.</p>

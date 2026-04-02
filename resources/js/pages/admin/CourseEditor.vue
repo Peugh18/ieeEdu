@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import axios from 'axios';
 
 const props = defineProps<{
@@ -18,13 +18,40 @@ const form = useForm({
     title: props.course.title ?? '',
     description: props.course.description ?? '',
     price: Number(props.course.price ?? 0),
-    discount_enabled: props.course.sale_price != null && Number(props.course.sale_price) > 0,
+    discount_enabled: props.course.discount != null && Number(props.course.discount) > 0,
+    discount: Number(props.course.discount ?? 0),
     sale_price: Number(props.course.sale_price ?? 0),
     type: props.course.type ?? 'grabado',
     status: props.course.status ?? 'BORRADOR',
     category_id: props.course.category_id ?? '',
     certificate_enabled: props.course.certificate_enabled ?? true,
     image_file: null as File | null,
+    instructor_name: props.course.instructor_name ?? '',
+    instructor_title: props.course.instructor_title ?? '',
+    instructor_bio: props.course.instructor_bio ?? '',
+    instructor_image_file: null as File | null,
+    start_date: props.course.start_date ?? '',
+    start_time: props.course.start_time ?? '',
+    class_hours: props.course.class_hours ?? '',
+    whatsapp_link: props.course.whatsapp_link ?? '',
+    objectives: props.course.objectives ?? '',
+    requirements: props.course.requirements ?? '',
+});
+
+watch([() => form.price, () => form.discount], ([newPrice, newDiscount]) => {
+    if (form.discount_enabled && (newDiscount as number) > 0) {
+        form.sale_price = Number(((newPrice as number) - ((newPrice as number) * ((newDiscount as number) / 100))).toFixed(2));
+    } else {
+        form.sale_price = 0;
+    }
+});
+
+watch(() => form.discount_enabled, (enabled: boolean) => {
+    if (enabled && form.discount > 0) {
+        form.sale_price = Number((form.price - (form.price * (form.discount / 100))).toFixed(2));
+    } else {
+        form.sale_price = 0;
+    }
 });
 
 const newModuleTitle = ref('');
@@ -75,11 +102,15 @@ function saveCourse() {
         const payload: any = {
             ...data,
             sale_price: data.discount_enabled ? data.sale_price : '',
+            discount: data.discount_enabled ? data.discount : '',
             certificate_enabled: !!data.certificate_enabled,
             _method: 'PUT'
         };
         if (!payload.image_file) {
             delete payload.image_file;
+        }
+        if (!payload.instructor_image_file) {
+            delete payload.instructor_image_file;
         }
         return payload;
     }).post(route('admin.courses.update', props.course.id), {
@@ -349,16 +380,22 @@ async function deleteMaterial(lessonId: number, materialId: number) {
                     <div class="rounded-xl border border-outline-variant/20 bg-surface-container-low p-3">
                         <label class="flex items-center gap-2 text-sm font-semibold">
                             <input type="checkbox" v-model="form.discount_enabled" />
-                            Aplicar descuento
+                            Aplicar descuento (%)
                         </label>
-                        <input
-                            v-model.number="form.sale_price"
-                            :disabled="!form.discount_enabled"
-                            type="number"
-                            min="0"
-                            class="mt-2 w-full rounded-xl border border-outline-variant/30 px-4 py-2 text-sm disabled:opacity-60"
-                            placeholder="Precio final con descuento (S/)"
-                        />
+                        <div class="flex gap-2 mt-2">
+                            <input
+                                v-model.number="form.discount"
+                                :disabled="!form.discount_enabled"
+                                type="number"
+                                min="0"
+                                max="100"
+                                class="w-full rounded-xl border border-outline-variant/30 px-4 py-2 text-sm disabled:opacity-60"
+                                placeholder="Porcentaje (Ej. 20)"
+                            />
+                            <div class="w-full flex flex-col justify-center pl-2">
+                                <span class="text-xs text-on-surface-variant font-bold">Precio final calculdo: <br/> S/ {{ form.sale_price }}</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <select v-model="form.status" class="rounded-xl border border-outline-variant/30 px-4 py-3 text-sm">
@@ -379,6 +416,58 @@ async function deleteMaterial(lessonId: number, materialId: number) {
                         <p v-if="form.errors.image_file" class="mt-1 text-xs text-red-600">{{ form.errors.image_file }}</p>
                     </div>
                     <img v-if="course.image" :src="course.image" class="h-16 w-16 rounded-xl object-cover border border-outline-variant/20" />
+
+                    <hr class="border-outline-variant/20 my-2" />
+                    <h3 class="font-semibold text-sm">Detalles específicos</h3>
+                    
+                    <div v-if="form.type === 'en vivo' || form.type === 'masterclass' || form.type === 'evento'" class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Fecha de inicio</label>
+                            <input v-model="form.start_date" type="date" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Hora</label>
+                            <input v-model="form.start_time" type="time" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" />
+                        </div>
+                    </div>
+
+                    <div v-if="form.type === 'grabado'">
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Horas de clase (Duración)</label>
+                        <input v-model.number="form.class_hours" type="number" min="0" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="Ej. 12" />
+                    </div>
+
+                    <div v-if="form.type === 'masterclass' || form.type === 'evento'">
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Link Grupo de WhatsApp</label>
+                        <input v-model="form.whatsapp_link" type="url" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="https://chat.whatsapp.com/..." />
+                    </div>
+
+                    <div v-if="form.type !== 'masterclass' && form.type !== 'evento'">
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Objetivos del curso</label>
+                        <textarea v-model="form.objectives" rows="3" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="¿Qué aprenderá el alumno? (Puedes separar por saltos de línea)"></textarea>
+                    </div>
+
+                    <div v-if="form.type !== 'masterclass' && form.type !== 'evento'">
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Requisitos</label>
+                        <textarea v-model="form.requirements" rows="3" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="¿Qué necesita saber el alumno antes?"></textarea>
+                    </div>
+
+                    <hr class="border-outline-variant/20 my-2" />
+                    <h3 class="font-semibold text-sm">Instructor (Opcional)</h3>
+                    <div>
+                        <input v-model="form.instructor_name" class="w-full rounded-xl border px-4 py-3 text-sm border-outline-variant/30" placeholder="Nombre (Ej. Mg. Juan Pérez)" />
+                    </div>
+                    <div>
+                        <input v-model="form.instructor_title" class="w-full rounded-xl border px-4 py-3 text-sm border-outline-variant/30" placeholder="Cargo/Título (Ej. Ex-Ministro de Minería)" />
+                    </div>
+                    <div>
+                        <textarea v-model="form.instructor_bio" rows="3" class="w-full rounded-xl border px-4 py-3 text-sm border-outline-variant/30" placeholder="Pequeña reseña o biografía del docente..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Foto de Perfil</label>
+                        <input type="file" accept="image/*" class="w-full text-sm" @change="(e) => { form.instructor_image_file = (e.target as HTMLInputElement).files?.[0] ?? null; }" />
+                    </div>
+                    <img v-if="course.instructor_image" :src="course.instructor_image" class="h-16 w-16 rounded-full object-cover border border-outline-variant/20" />
+
                 </aside>
 
                 <main class="lg:col-span-8 space-y-6">

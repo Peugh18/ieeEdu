@@ -151,32 +151,56 @@ const getDuration = (course: any) => {
                                     <span class="text-[10px] font-bold text-[#57572A] uppercase tracking-widest mb-3">{{ course.category?.name || 'General' }}</span>
                                     
                                     <Link :href="route('cursos.show', course.slug)">
-                                        <h3 class="font-serif font-bold text-xl text-[#1A1C19] leading-snug mb-4 group-hover:text-[#57572A] transition-colors" :title="course.title">
+                                        <h3 class="font-serif font-bold text-[22px] text-[#1A1C19] leading-snug mb-4 group-hover:text-[#57572A] transition-colors" :title="course.title">
                                             {{ course.title }}
                                         </h3>
                                     </Link>
 
-                                    <!-- Features/Duration -->
-                                    <div class="space-y-3 mb-8 mt-auto">
-                                        <div class="flex items-center gap-2 text-sm text-[#5F5E5E]">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            {{ getDuration(course) }}
-                                        </div>
-                                        <div class="flex items-center gap-2 text-sm text-[#5F5E5E]">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            {{ course.type === 'evento' ? 'Certificable' : 'Material Incluido' }}
-                                        </div>
+                                    <!-- Features based on Modality -->
+                                    <div class="space-y-3 mb-6 mt-auto">
+                                        <template v-if="course.type === 'en vivo' || course.type === 'evento' || course.type === 'masterclass'">
+                                            <div class="flex items-center gap-2 text-[13px] text-[#5F5E5E] font-medium">
+                                                <svg class="w-4 h-4 text-[#57572A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                Inicio: <strong class="text-[#1A1C19]">{{ course.start_date ? new Date(course.start_date).toLocaleDateString() : 'Por definir' }}</strong>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-[13px] text-[#5F5E5E] font-medium">
+                                                <svg class="w-4 h-4 text-[#57572A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                Hora: <strong class="text-[#1A1C19]">{{ course.start_time || 'Por definir' }}</strong>
+                                            </div>
+                                        </template>
+                                        <template v-else-if="course.type === 'grabado'">
+                                            <div class="flex items-center gap-2 text-[13px] text-[#5F5E5E] font-medium">
+                                                <svg class="w-4 h-4 text-[#57572A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                A tu propio ritmo
+                                            </div>
+                                        </template>
                                     </div>
 
+                                    <!-- Instructor removed per request -->
+
                                     <!-- Footer Pricing & CTA -->
-                                    <div class="flex items-end justify-between pt-6 border-t border-[#C9C7B8] border-opacity-30">
+                                    <div class="flex flex-col pt-5 border-t border-[#C9C7B8] border-opacity-30 gap-4">
                                         <div class="flex flex-col">
-                                            <span v-if="course.sale_price && course.sale_price > 0" class="text-xs text-[#5F5E5E] line-through mb-1">S/ {{ course.price }}</span>
-                                            <span class="text-2xl font-serif font-bold text-[#1A1C19]">S/ {{ course.sale_price && course.sale_price > 0 ? course.sale_price : course.price }}</span>
+                                            <p class="text-[10px] uppercase tracking-widest text-[#5F5E5E] font-bold mb-1">Inversión</p>
+                                            <div v-if="course.sale_price && course.sale_price > 0 && course.sale_price < course.price" class="flex items-baseline gap-2">
+                                                <span class="text-2xl font-serif font-bold text-[#1A1C19]">S/ {{ course.sale_price }}</span>
+                                                <div class="flex flex-col">
+                                                    <span class="text-[10px] text-[#D32F2F] font-bold uppercase leading-none">Antes</span>
+                                                    <span class="text-[13px] text-[#5F5E5E] line-through leading-none">S/ {{ course.price }}</span>
+                                                </div>
+                                            </div>
+                                            <span v-else class="text-2xl font-serif font-bold text-[#1A1C19]">S/ {{ course.price }}</span>
                                         </div>
-                                        <Link :href="route('cursos.show', course.slug)" class="rounded text-[11px] uppercase tracking-[0.05em] font-bold px-4 py-2.5 bg-gradient-to-br from-[#57572A] to-[#707040] text-white hover:opacity-90 transition-opacity">
-                                            Detalles
-                                        </Link>
+                                        
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <button class="w-full flex justify-center items-center gap-1.5 rounded text-[10px] uppercase tracking-[0.05em] font-bold px-2 py-3 bg-[#D4AF37] hover:bg-[#C5A017] text-white transition-colors">
+                                                <span class="material-symbols-outlined text-[16px]">shopping_cart</span>
+                                                Carrito
+                                            </button>
+                                            <Link :href="route('cursos.show', course.slug)" class="w-full flex justify-center items-center gap-1.5 rounded text-[10px] uppercase tracking-[0.05em] font-bold px-2 py-3 bg-[#57572A] hover:bg-[#4a4a24] text-white transition-colors">
+                                                Detalles
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
                             </article>
