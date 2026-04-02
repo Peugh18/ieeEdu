@@ -34,6 +34,16 @@ const mainNavItems: NavItem[] = [
         href: 'admin.payments.index',
         icon: Folder,
     },
+    {
+        title: 'Libros',
+        href: 'admin.books.index',
+        icon: BookOpen,
+    },
+    {
+        title: 'Artículos',
+        href: 'admin.articles.index',
+        icon: Folder,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
@@ -56,8 +66,9 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('admin.dashboard')">
+                        <Link :href="route('admin.dashboard')" class="flex items-center gap-2">
                             <AppLogo />
+                            <span class="font-serif font-bold text-on-surface">IEE - Admin</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

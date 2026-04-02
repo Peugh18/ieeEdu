@@ -3,19 +3,15 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
 use App\Http\Controllers\PublicCourseController;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+Route::get('/', [PublicCourseController::class, 'welcome'])->name('home');
 
 Route::get('/cursos', [PublicCourseController::class, 'index'])->name('cursos.index');
+Route::get('/masterclass', [PublicCourseController::class, 'masterclasses'])->name('masterclass.index');
 Route::get('/cursos/{slug}', [PublicCourseController::class, 'show'])->name('cursos.show');
 
-Route::get('/ebooks', function () {
-    return Inertia::render('Ebooks');
-})->name('ebooks');
+Route::get('/publicaciones', [App\Http\Controllers\PublicPublicationController::class, 'index'])->name('publicaciones.index');
 
 Route::get('dashboard', function () {
     $user = Auth::user();
@@ -35,6 +31,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\BookController;
+use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Middleware\EnsureAdmin;
 
 Route::get('/dev/make-admin', function () {
@@ -49,13 +47,20 @@ Route::get('/dev/make-admin', function () {
 Route::prefix('admin')->name('admin.')->middleware(['auth', EnsureAdmin::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('users', UserController::class)->only(['index','store','update','destroy']);
+    Route::resource('users', UserController::class)->only(['index','store','show','update','destroy']);
+    Route::get('users-search', [UserController::class, 'search'])->name('users.search');
+    Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggleStatus');
+    Route::post('users/{user}/assign-course', [UserController::class, 'assignCourse'])->name('users.assignCourse');
+    Route::get('users-export', [UserController::class, 'export'])->name('users.export');
+    Route::resource('categories', CategoryController::class)->only(['index','store','update','destroy']);
     Route::resource('courses', CourseController::class)->only(['index','store','update','destroy']);
     Route::get('courses/{course}/edit', [CourseController::class, 'edit'])->name('courses.edit');
-    Route::resource('categories', CategoryController::class)->only(['index','store','update','destroy']);
 
     Route::patch('courses/{course}/publish', [CourseController::class, 'publish'])->name('courses.publish');
     Route::patch('courses/{course}/hide', [CourseController::class, 'hide'])->name('courses.hide');
+
+    Route::resource('books', BookController::class)->only(['index','store','update','destroy']);
+    Route::resource('articles', ArticleController::class)->only(['index','store','update','destroy']);
 
     Route::get('courses/{course}/modules', [\App\Http\Controllers\Admin\ModuleController::class, 'index'])->name('courses.modules.index');
     Route::post('courses/{course}/modules', [\App\Http\Controllers\Admin\ModuleController::class, 'store'])->name('courses.modules.store');
@@ -84,6 +89,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', EnsureAdmin::class])
     Route::delete('questions/{question}', [\App\Http\Controllers\Admin\QuestionController::class, 'destroy'])->name('questions.destroy');
 
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
+    Route::post('payments', [PaymentController::class, 'store'])->name('payments.store');
     Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
     Route::patch('payments/{payment}/approve', [PaymentController::class, 'approve'])->name('payments.approve');
     Route::patch('payments/{payment}/reject', [PaymentController::class, 'reject'])->name('payments.reject');

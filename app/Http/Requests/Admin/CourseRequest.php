@@ -19,8 +19,8 @@ class CourseRequest extends FormRequest
             'slug' => 'nullable|alpha_dash|unique:courses,slug,' . ($this->course?->id ?? 'null'),
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            // Nuevo: precio final con descuento (opcional)
-            'sale_price' => 'nullable|numeric|min:0|lt:price',
+            // sale_price is computed by the backend from price+discount, just validate its type if sent
+            'sale_price' => 'nullable|numeric|min:0',
             // Legacy (ya no lo usaremos en UI, pero lo dejamos por compatibilidad)
             'discount' => 'nullable|numeric|min:0|max:100',
             'duration_weeks' => 'nullable|integer|min:0',
@@ -34,6 +34,17 @@ class CourseRequest extends FormRequest
             'image' => 'nullable',
             'image_file' => ($this->isMethod('post') ? 'required' : 'nullable') . '|file|mimes:jpg,jpeg,png,webp|max:5120',
             'certificate_enabled' => 'sometimes|boolean',
+            'instructor_name' => 'nullable|string|max:255',
+            'instructor_title' => 'nullable|string|max:255',
+            'instructor_bio' => 'nullable|string',
+            'instructor_image' => 'nullable|string',
+            'instructor_image_file' => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
+            'start_date' => 'nullable|date',
+            'start_time' => 'nullable',
+            'class_hours' => 'nullable|integer|min:0',
+            'whatsapp_link' => 'nullable|string|url',
+            'objectives' => 'nullable|string',
+            'requirements' => 'nullable|string',
         ];
     }
 }

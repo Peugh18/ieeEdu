@@ -4,7 +4,7 @@ import { usePage } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
 
 const page = usePage();
-const isAuthenticated = computed(() => page.props.auth.user);
+const isAuthenticated = computed(() => (page.props as any).auth?.user);
 const mobileMenuOpen = ref(false);
 const scrolled = ref(false);
 
@@ -22,8 +22,8 @@ const toggleMobileMenu = () => {
 const menuItems = [
     { label: 'Cursos', href: '/cursos' },
     { label: 'Consultoría', href: '#consultoria' },
-    { label: 'Ebooks', href: '/ebooks' },
-    { label: 'Sobre Nosotros', href: '#nosotros' },
+    { label: 'Publicaciones', href: '/publicaciones' },
+    { label: 'Masterclass', href: '/masterclass' },
 ];
 </script>
 
