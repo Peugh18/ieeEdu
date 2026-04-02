@@ -12,6 +12,9 @@ const props = defineProps<{
 const lessons = ref<any[]>(props.course.lessons ?? []);
 const modules = ref<any[]>(props.course.modules ?? []);
 const openLessonId = ref<number | null>(null);
+const openQuizId = ref<number | null>(null);
+const isExamView = ref(false);
+const quizzes = ref<any[]>(props.course.quizzes ?? []);
 const materialsByLesson = ref<Record<number, any[]>>({});
 
 const form = useForm({
@@ -284,6 +287,74 @@ async function deleteMaterial(lessonId: number, materialId: number) {
     await axios.delete(route('admin.materials.destroy', { material: materialId }));
     materialsByLesson.value[lessonId] = (materialsByLesson.value[lessonId] ?? []).filter((m) => m.id !== materialId);
 }
+// ─── Quiz Management ─────────────────────────────────────────────
+const newQuiz = ref({
+    title: '',
+    time_limit: 30,
+    max_attempts: 1,
+    minimum_score: 14,
+});
+
+async function createQuiz() {
+    if (!newQuiz.value.title.trim()) return;
+    try {
+        const res = await axios.post(route('admin.courses.quizzes.store', { course: props.course.id }), newQuiz.value);
+        quizzes.value.push({ ...res.data, questions: [] });
+        newQuiz.value = { title: '', time_limit: 30, max_attempts: 1, minimum_score: 14 };
+    } catch (e) { alert('Error al crear el examen'); }
+}
+
+async function deleteQuiz(id: number) {
+    if (!confirm('Eliminar examen y todas sus preguntas?')) return;
+    await axios.delete(route('admin.quizzes.destroy', { quiz: id }));
+    quizzes.value = quizzes.value.filter(q => q.id !== id);
+}
+
+const addingQuestionFor = ref<number | null>(null);
+const newQuestion = ref({
+    question: '',
+    type: 'multiple_choice',
+    points: 1,
+    answers: [
+        { answer_text: '', is_correct: true },
+        { answer_text: '', is_correct: false },
+    ]
+});
+
+function addAnswerOption() {
+    newQuestion.value.answers.push({ answer_text: '', is_correct: false });
+}
+
+async function saveQuestion(quizId: number) {
+    if (!newQuestion.value.question.trim()) return;
+    if (newQuestion.value.answers.filter(a => a.is_correct).length === 0) {
+        alert('Selecciona al menos una respuesta correcta.');
+        return;
+    }
+    
+    try {
+        const res = await axios.post(route('admin.questions.store'), { 
+            quiz_id: quizId,
+            ...newQuestion.value 
+        });
+        const qIdx = quizzes.value.findIndex(q => q.id === quizId);
+        if (qIdx !== -1) quizzes.value[qIdx].questions.push(res.data);
+        addingQuestionFor.value = null;
+        newQuestion.value = { question: '', type: 'multiple_choice', points: 1, answers: [{ answer_text: '', is_correct: true }, { answer_text: '', is_correct: false }] };
+    } catch (e) { alert('Error al guardar la pregunta'); }
+}
+
+async function deleteQuestion(quizId: number, questionId: number) {
+    if (!confirm('Eliminar pregunta?')) return;
+    await axios.delete(route('admin.questions.destroy', { question: questionId }));
+    const qIdx = quizzes.value.findIndex(q => q.id === quizId);
+    if (qIdx !== -1) {
+        quizzes.value[qIdx].questions = quizzes.value[qIdx].questions.filter((q: any) => q.id !== questionId);
+    }
+}
+async function toggleQuiz(id: number) {
+    openQuizId.value = openQuizId.value === id ? null : id;
+}
 </script>
 
 <template>
@@ -472,16 +543,32 @@ async function deleteMaterial(lessonId: number, materialId: number) {
 
                 <main class="lg:col-span-8 space-y-6">
                     <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <h2 class="font-bold text-base text-on-surface">Módulos, clases y recursos</h2>
-                        <p class="text-xs text-on-surface-variant">Masterclass permite solo una clase</p>
+                        <div class="flex items-center gap-2 bg-surface-container-low p-1 rounded-2xl border border-outline-variant/10">
+                            <button 
+                                @click="isExamView = false"
+                                class="px-5 py-2 text-sm font-bold rounded-xl transition"
+                                :class="!isExamView ? 'bg-white shadow text-primary font-bold' : 'text-on-surface-variant hover:text-primary'"
+                            >
+                                Contenido
+                            </button>
+                            <button 
+                                @click="isExamView = true"
+                                class="px-5 py-2 text-sm font-bold rounded-xl transition"
+                                :class="isExamView ? 'bg-white shadow text-primary font-bold' : 'text-on-surface-variant hover:text-primary'"
+                            >
+                                Exámenes
+                            </button>
+                        </div>
+                        <p v-if="!isExamView" class="text-xs text-on-surface-variant">Masterclass permite solo una clase</p>
                     </div>
 
-                    <div v-if="!isMasterclass">
-                        <div class="flex gap-2">
-                            <input v-model="newModuleTitle" class="flex-1 rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition" placeholder="Nombre del módulo" />
-                            <button class="rounded-xl bg-[#4B5320] px-5 py-3 text-sm font-semibold text-white shadow hover:opacity-90 transition" @click="createModule">Agregar módulo</button>
+                    <div v-if="!isExamView" class="space-y-6">
+                        <div v-if="!isMasterclass">
+                            <div class="flex gap-2">
+                                <input v-model="newModuleTitle" class="flex-1 rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition" placeholder="Nombre del módulo" />
+                                <button class="rounded-xl bg-[#4B5320] px-5 py-3 text-sm font-semibold text-white shadow hover:opacity-90 transition" @click="createModule">Agregar módulo</button>
+                            </div>
                         </div>
-                    </div>
 
                     <div class="space-y-3">
                         <h3 class="text-sm font-bold text-on-surface">Agregar clase</h3>
@@ -585,6 +672,106 @@ async function deleteMaterial(lessonId: number, materialId: number) {
                                 <p v-if="!lessons.filter((l) => isMasterclass ? true : l.module_id === m.id).length" class="text-xs text-on-surface-variant">
                                     Sin clases todavía.
                                 </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exam View section -->
+                <div v-else class="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div class="bg-surface-container-low border border-outline-variant/20 rounded-[2rem] p-8 space-y-6">
+                            <h3 class="font-bold text-lg">Nuevo Examen / Evaluación</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div class="md:col-span-2">
+                                     <input v-model="newQuiz.title" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary transition" placeholder="Nombre (Ej. Evaluación Final)" />
+                                </div>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Min.</span>
+                                    <input v-model.number="newQuiz.minimum_score" type="number" class="w-full rounded-xl border border-outline-variant/30 pl-12 pr-4 py-3 text-sm" placeholder="Nota min." />
+                                </div>
+                                <button @click="createQuiz" class="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-xl hover:opacity-90 transition">Crear Examen</button>
+                            </div>
+                        </div>
+
+                        <div v-if="quizzes.length === 0" class="py-20 text-center border-2 border-dashed border-outline-variant/10 rounded-[3rem]">
+                             <p class="text-on-surface-variant italic font-serif">Aún no has creado exámenes para este curso.</p>
+                        </div>
+
+                        <div v-for="quiz in quizzes" :key="quiz.id" class="rounded-[2.5rem] bg-white border border-outline-variant/10 shadow-sm overflow-hidden transition-all group hover:shadow-xl hover:shadow-primary/5">
+                            <div class="p-8 flex items-center justify-between cursor-pointer" @click="toggleQuiz(quiz.id)">
+                                <div class="flex items-center gap-6">
+                                    <div class="p-4 bg-primary/5 rounded-[1.5rem] group-hover:bg-primary/10 transition-colors">
+                                         <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-on-surface leading-tight">{{ quiz.title }}</h4>
+                                        <div class="flex items-center gap-4 mt-1 text-xs text-on-surface-variant font-bold uppercase tracking-widest">
+                                            <span>{{ quiz.questions?.length ?? 0 }} preguntas</span>
+                                            <span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+                                            <span>Nota min: {{ quiz.minimum_score }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button class="text-xs font-bold text-red-600 px-4 py-2 hover:bg-red-50 rounded-xl transition" @click.stop="deleteQuiz(quiz.id)">Eliminar</button>
+                                    <div class="p-2 bg-surface-container-low rounded-xl transition group-hover:bg-surface-container-high" :class="{ 'rotate-180': openQuizId === quiz.id }">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quiz Content (Questions) -->
+                            <div v-show="openQuizId === quiz.id" class="px-8 pb-10 border-t border-outline-variant/10 space-y-8 animate-in fade-in duration-500">
+                                <div class="pt-8 flex items-center justify-between">
+                                    <h5 class="font-bold text-on-surface uppercase tracking-widest text-[10px]">Banco de Preguntas</h5>
+                                    <button @click="addingQuestionFor = quiz.id" class="text-sm font-bold text-primary hover:underline">+ Agregar Pregunta</button>
+                                </div>
+
+                                <!-- Add Question Form -->
+                                <div v-if="addingQuestionFor === quiz.id" class="p-8 bg-surface-container-lowest rounded-[2rem] border border-outline-variant/20 space-y-6">
+                                    <input v-model="newQuestion.question" class="w-full rounded-xl border border-outline-variant/30 px-5 py-4 text-sm font-bold italic" placeholder="Enunciado de la pregunta..." />
+                                    
+                                    <div class="space-y-4">
+                                        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest px-1">Opciones de respuesta</p>
+                                        <div v-for="(ans, idx) in newQuestion.answers" :key="idx" class="flex items-center gap-3">
+                                            <button 
+                                                @click="newQuestion.answers.forEach((a, i) => a.is_correct = (i === idx))"
+                                                class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                                                :class="ans.is_correct ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-outline-variant'"
+                                            >
+                                                <svg v-if="ans.is_correct" class="w-3 h-3 " fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                                            </button>
+                                            <input v-model="ans.answer_text" class="flex-1 rounded-xl border border-outline-variant/20 px-4 py-2.5 text-sm" placeholder="Texto de la opción..." />
+                                            <button v-if="newQuestion.answers.length > 2" @click="newQuestion.answers.splice(idx, 1)" class="text-on-surface-variant hover:text-red-500 transition">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            </button>
+                                        </div>
+                                        <button @click="addAnswerOption" class="text-xs font-bold text-on-surface-variant hover:text-primary transition underline decoration-dotted">+ Agregar opción</button>
+                                    </div>
+
+                                    <div class="flex justify-end gap-3 pt-4">
+                                        <button @click="addingQuestionFor = null" class="px-6 py-3 text-sm font-bold text-on-surface-variant hover:bg-surface-container-high rounded-xl transition">Cancelar</button>
+                                        <button @click="saveQuestion(quiz.id)" class="px-8 py-3 bg-primary text-white text-sm font-bold rounded-xl shadow-lg hover:opacity-90 active:scale-95 transition">Guardar Pregunta</button>
+                                    </div>
+                                </div>
+
+                                <!-- Questions List -->
+                                <div class="space-y-4">
+                                    <div v-for="(q, qidx) in quiz.questions" :key="q.id" class="p-6 rounded-3xl bg-surface-container-lowest border border-outline-variant/10 flex items-start justify-between gap-4">
+                                        <div class="space-y-4 min-w-0 flex-1">
+                                            <p class="text-sm font-bold text-on-surface leading-relaxed"><span class="text-primary tabular-nums mr-2">{{ Number(qidx) + 1 }}.</span> {{ q.question }}</p>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                                <div v-for="a in q.answers" :key="a.id" class="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/50 border border-outline-variant/5">
+                                                     <div class="w-2 h-2 rounded-full" :class="a.is_correct ? 'bg-emerald-500 shadow-lg shadow-emerald-500/20' : 'bg-gray-200'"></div>
+                                                     <span class="text-xs font-medium" :class="{ 'text-emerald-700 font-bold': a.is_correct }">{{ a.answer_text }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button @click="deleteQuestion(quiz.id, q.id)" class="p-2 text-on-surface-variant hover:text-red-600 hover:bg-red-50 rounded-xl transition">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
