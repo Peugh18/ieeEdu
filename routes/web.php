@@ -26,8 +26,11 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'verified'])->gr
     Route::get('/courses', [StudentDashboardController::class, 'courses'])->name('courses.index');
     Route::get('/live-classes', [StudentDashboardController::class, 'liveClasses'])->name('live-classes.index');
     Route::get('/exams', [StudentDashboardController::class, 'exams'])->name('exams.index');
+    Route::get('/exams/{quiz}/take', [StudentDashboardController::class, 'takeExam'])->name('exams.take');
+    Route::post('/exams/{quiz}/submit', [StudentDashboardController::class, 'submitExam'])->name('exams.submit');
     Route::get('/certificates', [StudentDashboardController::class, 'certificates'])->name('certificates.index');
     Route::get('/classroom/{course:slug}/{lesson?}', [\App\Http\Controllers\Student\ClassroomController::class, 'show'])->name('classroom');
+    Route::post('/classroom/progress', [\App\Http\Controllers\Student\ClassroomController::class, 'updateProgress'])->name('classroom.progress');
 
     // Explore Catalog
     Route::get('/explore/courses', [StudentDashboardController::class, 'exploreCourses'])->name('explore.courses');

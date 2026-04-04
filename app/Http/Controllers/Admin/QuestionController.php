@@ -34,11 +34,19 @@ class QuestionController extends Controller
             'question' => 'required|string',
             'type' => 'required|in:multiple_choice,true_false',
             'points' => 'required|integer|min:1',
+            'answers' => 'required|array|min:2',
+            'answers.*.answer_text' => 'required|string',
+            'answers.*.is_correct' => 'boolean',
         ]);
 
-        $question->update($validated);
+        $question->update($request->only(['question', 'type', 'points']));
 
-        return response()->json($question);
+        $question->answers()->delete();
+        foreach ($validated['answers'] as $answer) {
+            $question->answers()->create($answer);
+        }
+
+        return response()->json($question->load('answers'));
     }
 
     public function destroy(CourseQuestion $question)

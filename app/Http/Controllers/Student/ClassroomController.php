@@ -52,6 +52,16 @@ class ClassroomController extends Controller
         $prevLesson = $currentIndex > 0 ? $allLessons[$currentIndex - 1] : null;
         $nextLesson = $currentIndex < $allLessons->count() - 1 ? $allLessons[$currentIndex + 1] : null;
 
+        $completedLessons = \App\Models\LessonProgress::where('user_id', $user->id)
+            ->whereIn('course_lesson_id', $allLessons->pluck('id'))
+            ->where('is_completed', true)
+            ->pluck('course_lesson_id')
+            ->toArray();
+
+        // Determinar si todos los videos están completados
+        // Se define un curso completado si todas sus lecciones registradas en sistema están en $completedLessons
+        $allLessonsCompleted = count($completedLessons) === $allLessons->count() && $allLessons->count() > 0;
+
         return Inertia::render('student/Classroom', [
             'course' => $course,
             'currentLesson' => $lesson->load('materials'),
@@ -59,6 +69,22 @@ class ClassroomController extends Controller
             'nextLessonId' => $nextLesson?->id,
             'allLessonsCount' => $allLessons->count(),
             'currentLessonIndex' => $currentIndex + 1,
+            'completedLessons' => $completedLessons,
+            'allLessonsCompleted' => $allLessonsCompleted,
         ]);
+    }
+
+    public function updateProgress(Request $request)
+    {
+        $request->validate([
+            'lesson_id' => 'required|exists:course_lessons,id'
+        ]);
+
+        \App\Models\LessonProgress::updateOrCreate(
+            ['user_id' => Auth::id(), 'course_lesson_id' => $request->lesson_id],
+            ['is_completed' => true]
+        );
+
+        return response()->json(['status' => 'success']);
     }
 }

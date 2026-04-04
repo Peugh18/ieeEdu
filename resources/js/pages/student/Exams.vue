@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { ClipboardCheck, Clock, FileText, CheckCircle2, XCircle, MoreVertical, PlayCircle, BarChart3, RotateCw } from 'lucide-vue-next';
+import { ClipboardCheck, Clock, FileText, CheckCircle2, XCircle, MoreVertical, PlayCircle, BarChart3, RotateCw, Award } from 'lucide-vue-next';
 
 interface ExamAttempt {
     id: number;
@@ -73,11 +73,13 @@ const getStatusStyles = (status: string) => {
                             <div class="flex items-center justify-between pt-4 border-t border-gray-50">
                                 <div class="flex items-center gap-2 text-xs text-gray-500 font-medium">
                                     <Clock class="w-4 h-4" />
-                                    <span>60 Minutos</span>
+                                    <span>{{ exam.time_limit }} Minutos</span>
                                 </div>
-                                <button class="px-5 py-2.5 rounded-xl bg-[#57572A] text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#4a4a24] transition-colors shadow-sm">
+                                <Link v-if="exam.attempts_left > 0 && !exam.passed" :href="route('student.exams.take', exam.id)" class="px-5 py-2.5 rounded-xl bg-[#57572A] text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#4a4a24] transition-colors shadow-sm">
                                     Iniciar Ahora
-                                </button>
+                                </Link>
+                                <span v-else-if="exam.passed" class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest px-4 py-2.5 bg-emerald-50 rounded-xl">🌟 Aprobado</span>
+                                <span v-else class="text-[10px] font-bold text-rose-600 uppercase tracking-widest px-4 py-2.5 bg-rose-50 rounded-xl">Intentos Agotados</span>
                             </div>
                         </div>
                     </div>

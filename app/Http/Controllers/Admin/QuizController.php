@@ -11,7 +11,7 @@ class QuizController extends Controller
 {
     public function index(Course $course)
     {
-        return response()->json($course->quizzes()->with('questions.answers')->get());
+        return response()->json($course->quizzes()->with(['questions.answers', 'attempts.user'])->get());
     }
 
     public function store(Request $request, Course $course)

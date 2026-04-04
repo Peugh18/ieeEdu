@@ -295,6 +295,30 @@ const newQuiz = ref({
     minimum_score: 14,
 });
 
+const editingQuizId = ref<number | null>(null);
+const editQuizData = ref({ title: '', minimum_score: 14, time_limit: 30, max_attempts: 1 });
+
+function startEditQuiz(quiz: any) {
+    editingQuizId.value = quiz.id;
+    openQuizId.value = quiz.id;
+    editQuizData.value = {
+        title: quiz.title,
+        minimum_score: quiz.minimum_score ?? 14,
+        time_limit: quiz.time_limit ?? 30,
+        max_attempts: quiz.max_attempts ?? 1,
+    };
+}
+
+async function saveEditQuiz() {
+    if (!editQuizData.value.title.trim() || !editingQuizId.value) return;
+    try {
+        const res = await axios.put(route('admin.quizzes.update', { quiz: editingQuizId.value }), editQuizData.value);
+        const idx = quizzes.value.findIndex(q => q.id === editingQuizId.value);
+        if (idx !== -1) quizzes.value[idx] = { ...quizzes.value[idx], ...res.data };
+        editingQuizId.value = null;
+    } catch (e) { alert('Error al actualizar'); }
+}
+
 async function createQuiz() {
     if (!newQuiz.value.title.trim()) return;
     try {
@@ -311,6 +335,7 @@ async function deleteQuiz(id: number) {
 }
 
 const addingQuestionFor = ref<number | null>(null);
+const editingQuestionId = ref<number | null>(null);
 const newQuestion = ref({
     question: '',
     type: 'multiple_choice',
@@ -320,6 +345,23 @@ const newQuestion = ref({
         { answer_text: '', is_correct: false },
     ]
 });
+
+function startAddQuestion(quizId: number) {
+    addingQuestionFor.value = quizId;
+    editingQuestionId.value = null;
+    newQuestion.value = { question: '', type: 'multiple_choice', points: 1, answers: [{ answer_text: '', is_correct: true }, { answer_text: '', is_correct: false }] };
+}
+
+function startEditQuestion(quizId: number, q: any) {
+    addingQuestionFor.value = quizId;
+    editingQuestionId.value = q.id;
+    newQuestion.value = {
+        question: q.question,
+        type: q.type,
+        points: q.points,
+        answers: q.answers.map((a: any) => ({ ...a }))
+    };
+}
 
 function addAnswerOption() {
     newQuestion.value.answers.push({ answer_text: '', is_correct: false });
@@ -333,13 +375,23 @@ async function saveQuestion(quizId: number) {
     }
     
     try {
-        const res = await axios.post(route('admin.questions.store'), { 
-            quiz_id: quizId,
-            ...newQuestion.value 
-        });
-        const qIdx = quizzes.value.findIndex(q => q.id === quizId);
-        if (qIdx !== -1) quizzes.value[qIdx].questions.push(res.data);
+        if (editingQuestionId.value) {
+            const res = await axios.put(route('admin.questions.update', { question: editingQuestionId.value }), newQuestion.value);
+            const qIdx = quizzes.value.findIndex(q => q.id === quizId);
+            if (qIdx !== -1) {
+                const qqIdx = quizzes.value[qIdx].questions.findIndex((qq: any) => qq.id === editingQuestionId.value);
+                if (qqIdx !== -1) quizzes.value[qIdx].questions[qqIdx] = res.data;
+            }
+        } else {
+            const res = await axios.post(route('admin.questions.store'), { 
+                quiz_id: quizId,
+                ...newQuestion.value 
+            });
+            const qIdx = quizzes.value.findIndex(q => q.id === quizId);
+            if (qIdx !== -1) quizzes.value[qIdx].questions.push(res.data);
+        }
         addingQuestionFor.value = null;
+        editingQuestionId.value = null;
         newQuestion.value = { question: '', type: 'multiple_choice', points: 1, answers: [{ answer_text: '', is_correct: true }, { answer_text: '', is_correct: false }] };
     } catch (e) { alert('Error al guardar la pregunta'); }
 }
@@ -352,8 +404,16 @@ async function deleteQuestion(quizId: number, questionId: number) {
         quizzes.value[qIdx].questions = quizzes.value[qIdx].questions.filter((q: any) => q.id !== questionId);
     }
 }
+const activeQuizTabs = ref<Record<number, 'questions' | 'results'>>({});
 async function toggleQuiz(id: number) {
-    openQuizId.value = openQuizId.value === id ? null : id;
+    if (openQuizId.value === id) {
+        openQuizId.value = null;
+    } else {
+        openQuizId.value = id;
+        if (!activeQuizTabs.value[id]) {
+            activeQuizTabs.value[id] = 'questions';
+        }
+    }
 }
 </script>
 
@@ -681,15 +741,26 @@ async function toggleQuiz(id: number) {
                 <div v-else class="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div class="bg-surface-container-low border border-outline-variant/20 rounded-[2rem] p-8 space-y-6">
                             <h3 class="font-bold text-lg">Nuevo Examen / Evaluación</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
                                 <div class="md:col-span-2">
+                                     <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Título</label>
                                      <input v-model="newQuiz.title" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary transition" placeholder="Nombre (Ej. Evaluación Final)" />
                                 </div>
-                                <div class="relative">
-                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Min.</span>
-                                    <input v-model.number="newQuiz.minimum_score" type="number" class="w-full rounded-xl border border-outline-variant/30 pl-12 pr-4 py-3 text-sm" placeholder="Nota min." />
+                                <div>
+                                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Nota min.</label>
+                                    <input v-model.number="newQuiz.minimum_score" type="number" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="14" />
                                 </div>
-                                <button @click="createQuiz" class="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white shadow-xl hover:opacity-90 transition">Crear Examen</button>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Tiempo (m)</label>
+                                    <input v-model.number="newQuiz.time_limit" type="number" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="30" />
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Intentos permitidos</label>
+                                    <input v-model.number="newQuiz.max_attempts" type="number" min="1" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="1" />
+                                </div>
+                                <div class="pt-4">
+                                    <button @click="createQuiz" class="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-xl hover:opacity-90 transition">Crear Examen</button>
+                                </div>
                             </div>
                         </div>
 
@@ -698,7 +769,9 @@ async function toggleQuiz(id: number) {
                         </div>
 
                         <div v-for="quiz in quizzes" :key="quiz.id" class="rounded-[2.5rem] bg-white border border-outline-variant/10 shadow-sm overflow-hidden transition-all group hover:shadow-xl hover:shadow-primary/5">
-                            <div class="p-8 flex items-center justify-between cursor-pointer" @click="toggleQuiz(quiz.id)">
+                            
+                            <!-- Header Vista Normal -->
+                            <div v-if="editingQuizId !== quiz.id" class="p-8 flex items-center justify-between cursor-pointer" @click="toggleQuiz(quiz.id)">
                                 <div class="flex items-center gap-6">
                                     <div class="p-4 bg-primary/5 rounded-[1.5rem] group-hover:bg-primary/10 transition-colors">
                                          <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -709,10 +782,15 @@ async function toggleQuiz(id: number) {
                                             <span>{{ quiz.questions?.length ?? 0 }} preguntas</span>
                                             <span class="w-1 h-1 bg-outline-variant rounded-full"></span>
                                             <span>Nota min: {{ quiz.minimum_score }}</span>
+                                            <span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+                                            <span>{{ quiz.time_limit }} minutos</span>
+                                            <span class="w-1 h-1 bg-outline-variant rounded-full"></span>
+                                            <span>{{ quiz.max_attempts }} intentos</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-3">
+                                    <button class="text-xs font-bold text-indigo-600 px-4 py-2 hover:bg-indigo-50 rounded-xl transition" @click.stop="startEditQuiz(quiz)">Editar</button>
                                     <button class="text-xs font-bold text-red-600 px-4 py-2 hover:bg-red-50 rounded-xl transition" @click.stop="deleteQuiz(quiz.id)">Eliminar</button>
                                     <div class="p-2 bg-surface-container-low rounded-xl transition group-hover:bg-surface-container-high" :class="{ 'rotate-180': openQuizId === quiz.id }">
                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
@@ -720,58 +798,128 @@ async function toggleQuiz(id: number) {
                                 </div>
                             </div>
 
+                            <!-- Header Vista Edición -->
+                            <div v-else class="p-6 bg-surface-container-lowest border-b border-outline-variant/10">
+                                <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Título</label>
+                                        <input v-model="editQuizData.title" class="w-full rounded-xl border border-outline-variant/30 px-4 py-2 text-sm focus:outline-none focus:border-primary transition" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Nota min.</label>
+                                        <input v-model.number="editQuizData.minimum_score" type="number" class="w-full rounded-xl border border-outline-variant/30 px-4 py-2 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Tiempo (m)</label>
+                                        <input v-model.number="editQuizData.time_limit" type="number" class="w-full rounded-xl border border-outline-variant/30 px-4 py-2 text-sm" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Intentos</label>
+                                        <input v-model.number="editQuizData.max_attempts" type="number" min="1" class="w-full rounded-xl border border-outline-variant/30 px-4 py-2 text-sm" />
+                                    </div>
+                                    <div class="flex items-center gap-2 mt-4">
+                                        <button @click="editingQuizId = null" class="flex-[1] rounded-xl border border-outline-variant/30 px-2 py-2 text-xs font-bold hover:bg-surface-container transition">X</button>
+                                        <button @click="saveEditQuiz" class="flex-[3] rounded-xl bg-primary text-white px-3 py-2 text-xs font-bold hover:opacity-90 transition">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Quiz Content (Questions) -->
-                            <div v-show="openQuizId === quiz.id" class="px-8 pb-10 border-t border-outline-variant/10 space-y-8 animate-in fade-in duration-500">
-                                <div class="pt-8 flex items-center justify-between">
-                                    <h5 class="font-bold text-on-surface uppercase tracking-widest text-[10px]">Banco de Preguntas</h5>
-                                    <button @click="addingQuestionFor = quiz.id" class="text-sm font-bold text-primary hover:underline">+ Agregar Pregunta</button>
+                            <div v-show="openQuizId === quiz.id" class="px-8 pb-10 border-t border-outline-variant/10 animate-in fade-in duration-500">
+                                
+                                <!-- Tabs -->
+                                <div class="flex items-center gap-6 border-b border-outline-variant/10 pt-4 mb-6">
+                                    <button @click="activeQuizTabs[quiz.id] = 'questions'" class="pb-3 text-sm font-bold uppercase tracking-widest transition-all" :class="activeQuizTabs[quiz.id] === 'questions' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-on-surface'">
+                                        Preguntas
+                                    </button>
+                                    <button @click="activeQuizTabs[quiz.id] = 'results'" class="pb-3 text-sm font-bold uppercase tracking-widest transition-all" :class="activeQuizTabs[quiz.id] === 'results' ? 'text-primary border-b-2 border-primary' : 'text-on-surface-variant hover:text-on-surface'">
+                                        Resultados ({{ quiz.attempts?.length ?? 0 }})
+                                    </button>
                                 </div>
 
-                                <!-- Add Question Form -->
-                                <div v-if="addingQuestionFor === quiz.id" class="p-8 bg-surface-container-lowest rounded-[2rem] border border-outline-variant/20 space-y-6">
-                                    <input v-model="newQuestion.question" class="w-full rounded-xl border border-outline-variant/30 px-5 py-4 text-sm font-bold italic" placeholder="Enunciado de la pregunta..." />
-                                    
+                                <div v-if="activeQuizTabs[quiz.id] === 'questions'" class="space-y-8">
+                                    <div class="flex items-center justify-between">
+                                        <h5 class="font-bold text-on-surface uppercase tracking-widest text-[10px]">Banco de Preguntas</h5>
+                                        <button @click="startAddQuestion(quiz.id)" class="text-sm font-bold text-primary hover:underline">+ Agregar Pregunta</button>
+                                    </div>
+
+                                    <!-- Add Question Form -->
+                                    <div v-if="addingQuestionFor === quiz.id" class="p-8 bg-surface-container-lowest rounded-[2rem] border border-outline-variant/20 space-y-6">
+                                        <input v-model="newQuestion.question" class="w-full rounded-xl border border-outline-variant/30 px-5 py-4 text-sm font-bold italic" placeholder="Enunciado de la pregunta..." />
+                                        
+                                        <div class="space-y-4">
+                                            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest px-1">Opciones de respuesta</p>
+                                            <div v-for="(ans, idx) in newQuestion.answers" :key="idx" class="flex items-center gap-3">
+                                                <button 
+                                                    @click="newQuestion.answers.forEach((a, i) => a.is_correct = (i === idx))"
+                                                    class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                                                    :class="ans.is_correct ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-outline-variant'"
+                                                >
+                                                    <svg v-if="ans.is_correct" class="w-3 h-3 " fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                                                </button>
+                                                <input v-model="ans.answer_text" class="flex-1 rounded-xl border border-outline-variant/20 px-4 py-2.5 text-sm" placeholder="Texto de la opción..." />
+                                                <button v-if="newQuestion.answers.length > 2" @click="newQuestion.answers.splice(idx, 1)" class="text-on-surface-variant hover:text-red-500 transition">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                </button>
+                                            </div>
+                                            <button @click="addAnswerOption" class="text-xs font-bold text-on-surface-variant hover:text-primary transition underline decoration-dotted">+ Agregar opción</button>
+                                        </div>
+
+                                        <div class="flex justify-end gap-3 pt-4">
+                                            <button @click="addingQuestionFor = null; editingQuestionId = null;" class="px-6 py-3 text-sm font-bold text-on-surface-variant hover:bg-surface-container-high rounded-xl transition">Cancelar</button>
+                                            <button @click="saveQuestion(quiz.id)" class="px-8 py-3 bg-primary text-white text-sm font-bold rounded-xl shadow-lg hover:opacity-90 active:scale-95 transition">Guardar Pregunta</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Questions List -->
                                     <div class="space-y-4">
-                                        <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest px-1">Opciones de respuesta</p>
-                                        <div v-for="(ans, idx) in newQuestion.answers" :key="idx" class="flex items-center gap-3">
-                                            <button 
-                                                @click="newQuestion.answers.forEach((a, i) => a.is_correct = (i === idx))"
-                                                class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
-                                                :class="ans.is_correct ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-outline-variant'"
-                                            >
-                                                <svg v-if="ans.is_correct" class="w-3 h-3 " fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>
+                                        <div v-for="(q, qidx) in quiz.questions" :key="q.id" class="p-6 rounded-3xl bg-surface-container-lowest border border-outline-variant/10 flex items-start justify-between gap-4">
+                                            <div class="space-y-4 min-w-0 flex-1">
+                                                <p class="text-sm font-bold text-on-surface leading-relaxed"><span class="text-primary tabular-nums mr-2">{{ Number(qidx) + 1 }}.</span> {{ q.question }}</p>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                                    <div v-for="a in q.answers" :key="a.id" class="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/50 border border-outline-variant/5">
+                                                         <div class="w-2 h-2 rounded-full" :class="a.is_correct ? 'bg-emerald-500 shadow-lg shadow-emerald-500/20' : 'bg-gray-200'"></div>
+                                                         <span class="text-xs font-medium" :class="{ 'text-emerald-700 font-bold': a.is_correct }">{{ a.answer_text }}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col gap-2">
+                                                <button @click="startEditQuestion(quiz.id, q)" title="Editar pregunta" class="p-2 text-on-surface-variant hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition">
+                                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                             </button>
-                                            <input v-model="ans.answer_text" class="flex-1 rounded-xl border border-outline-variant/20 px-4 py-2.5 text-sm" placeholder="Texto de la opción..." />
-                                            <button v-if="newQuestion.answers.length > 2" @click="newQuestion.answers.splice(idx, 1)" class="text-on-surface-variant hover:text-red-500 transition">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            <button @click="deleteQuestion(quiz.id, q.id)" title="Eliminar pregunta" class="p-2 text-on-surface-variant hover:text-red-600 hover:bg-red-50 rounded-xl transition">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                             </button>
                                         </div>
-                                        <button @click="addAnswerOption" class="text-xs font-bold text-on-surface-variant hover:text-primary transition underline decoration-dotted">+ Agregar opción</button>
-                                    </div>
-
-                                    <div class="flex justify-end gap-3 pt-4">
-                                        <button @click="addingQuestionFor = null" class="px-6 py-3 text-sm font-bold text-on-surface-variant hover:bg-surface-container-high rounded-xl transition">Cancelar</button>
-                                        <button @click="saveQuestion(quiz.id)" class="px-8 py-3 bg-primary text-white text-sm font-bold rounded-xl shadow-lg hover:opacity-90 active:scale-95 transition">Guardar Pregunta</button>
                                     </div>
                                 </div>
+                                </div>
 
-                                <!-- Questions List -->
-                                <div class="space-y-4">
-                                    <div v-for="(q, qidx) in quiz.questions" :key="q.id" class="p-6 rounded-3xl bg-surface-container-lowest border border-outline-variant/10 flex items-start justify-between gap-4">
-                                        <div class="space-y-4 min-w-0 flex-1">
-                                            <p class="text-sm font-bold text-on-surface leading-relaxed"><span class="text-primary tabular-nums mr-2">{{ Number(qidx) + 1 }}.</span> {{ q.question }}</p>
-                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                                <div v-for="a in q.answers" :key="a.id" class="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/50 border border-outline-variant/5">
-                                                     <div class="w-2 h-2 rounded-full" :class="a.is_correct ? 'bg-emerald-500 shadow-lg shadow-emerald-500/20' : 'bg-gray-200'"></div>
-                                                     <span class="text-xs font-medium" :class="{ 'text-emerald-700 font-bold': a.is_correct }">{{ a.answer_text }}</span>
+                                <div v-else-if="activeQuizTabs[quiz.id] === 'results'" class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <h5 class="font-bold text-on-surface uppercase tracking-widest text-[10px]">Intentos de Alumnos</h5>
+                                    </div>
+                                    <div v-if="!quiz.attempts || quiz.attempts.length === 0" class="py-12 border-2 border-dashed border-outline-variant/10 rounded-3xl text-center">
+                                        <p class="text-on-surface-variant text-sm font-bold opacity-70">Aún no hay intentos registrados.</p>
+                                    </div>
+                                    <div v-else class="space-y-3">
+                                        <div v-for="attempt in quiz.attempts" :key="attempt.id" class="flex items-center justify-between p-4 bg-surface-container-low border border-outline-variant/10 rounded-2xl">
+                                            <div>
+                                                <p class="text-sm font-bold text-on-surface">{{ attempt.user?.name ?? 'Desconocido' }} <span class="text-xs text-on-surface-variant font-normal">({{ attempt.user?.email }})</span></p>
+                                                <p class="text-xs text-on-surface-variant mt-1">{{ attempt.completed_at ? new Date(attempt.completed_at).toLocaleString() : 'En curso' }}</p>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <div class="px-3 py-1 rounded-xl text-[10px] font-bold uppercase tracking-widest" :class="attempt.status === 'aprobado' ? 'bg-emerald-100 text-emerald-800' : attempt.status === 'reprobado' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'">
+                                                    {{ attempt.status }}
+                                                </div>
+                                                <div class="text-lg font-bold font-mono px-3 py-1 bg-white rounded-xl shadow-sm border border-outline-variant/10">
+                                                    {{ attempt.score !== null ? attempt.score : '-' }}
                                                 </div>
                                             </div>
                                         </div>
-                                        <button @click="deleteQuestion(quiz.id, q.id)" class="p-2 text-on-surface-variant hover:text-red-600 hover:bg-red-50 rounded-xl transition">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                        </button>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
