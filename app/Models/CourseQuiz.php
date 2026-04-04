@@ -22,6 +22,11 @@ class CourseQuiz extends Model
 
     public function questions()
     {
-        return $this->hasMany(CourseQuestion::class);
+        return $this->hasMany(CourseQuestion::class, 'quiz_id');
+    }
+
+    public function attempts()
+    {
+        return $this->hasMany(CourseExamAttempt::class, 'course_quiz_id');
     }
 }

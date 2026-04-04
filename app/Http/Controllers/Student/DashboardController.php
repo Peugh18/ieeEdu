@@ -101,32 +101,125 @@ class DashboardController extends Controller
 
     public function exams()
     {
-        // Mock data
-        $exams = [
-            [
-                'id' => 1,
-                'title' => 'Examen Final de Módulo I',
-                'course_title' => 'Especialización en Gestión Bancaria',
-                'attempts_left' => 2,
-            ]
-        ];
+        $user = Auth::user();
 
-        $history = [
-            [
-                'id' => 2,
-                'title' => 'Control de Lectura 1',
-                'course_title' => 'Análisis Económico Avanzado',
-                'date' => '25 Mar 2026',
-                'score' => 18,
-                'passing_score' => 14,
-                'status' => 'aprobado',
-            ]
-        ];
+        // Obtener todos los cursos del usuario
+        $enrolledCourseIds = \App\Models\Enrollment::where('user_id', $user->id)
+            ->pluck('course_id');
+
+        $quizzes = \App\Models\CourseQuiz::whereIn('course_id', $enrolledCourseIds)
+            ->with(['course'])
+            ->get();
+            
+        $exams = $quizzes->map(function ($quiz) use ($user) {
+            $completedCount = \App\Models\CourseExamAttempt::where('user_id', $user->id)
+                ->where('course_quiz_id', $quiz->id)
+                ->whereNotNull('completed_at')
+                ->count();
+            
+            $attemptsLeft = max(0, $quiz->max_attempts - $completedCount);
+
+            $passed = \App\Models\CourseExamAttempt::where('user_id', $user->id)
+                ->where('course_quiz_id', $quiz->id)
+                ->where('status', 'aprobado')
+                ->exists();
+
+            return [
+                'id' => $quiz->id,
+                'title' => $quiz->title,
+                'course_title' => $quiz->course->title ?? '',
+                'time_limit' => $quiz->time_limit,
+                'max_attempts' => $quiz->max_attempts,
+                'attempts_left' => $attemptsLeft,
+                'passed' => $passed
+            ];
+        });
+
+        $attempts = \App\Models\CourseExamAttempt::where('user_id', $user->id)
+            ->with(['quiz.course'])
+            ->orderByDesc('created_at')
+            ->get();
+            
+        $history = $attempts->map(function ($a) {
+            return [
+                'id' => $a->id,
+                'title' => $a->quiz->title ?? '',
+                'course_title' => $a->quiz->course->title ?? '',
+                'date' => $a->completed_at ? \Carbon\Carbon::parse($a->completed_at)->format('d M Y') : 'En progreso',
+                'score' => $a->score,
+                'passing_score' => $a->quiz->minimum_score ?? 14,
+                'status' => $a->status
+            ];
+        });
 
         return Inertia::render('student/Exams', [
             'exams' => $exams,
             'history' => $history
         ]);
+    }
+
+    public function takeExam(\App\Models\CourseQuiz $quiz)
+    {
+        $user = Auth::user();
+        
+        $attemptCount = \App\Models\CourseExamAttempt::where('user_id', $user->id)
+            ->where('course_quiz_id', $quiz->id)
+            ->whereNotNull('completed_at')
+            ->count();
+
+        if ($attemptCount >= $quiz->max_attempts) {
+             return redirect()->route('student.exams.index')->with('error', 'Has superado el límite de intentos.');
+        }
+
+        // Buscamos o creamos el intento actual (en progreso)
+        \App\Models\CourseExamAttempt::firstOrCreate(
+            ['user_id' => $user->id, 'course_quiz_id' => $quiz->id, 'completed_at' => null],
+            ['status' => 'started', 'score' => null]
+        );
+
+        $quiz->load(['course', 'questions.answers']);
+
+        return Inertia::render('student/TakeExam', [
+            'quiz' => $quiz,
+            'current_attempt' => $attemptCount + 1
+        ]);
+    }
+
+    public function submitExam(\Illuminate\Http\Request $request, \App\Models\CourseQuiz $quiz)
+    {
+        $user = Auth::user();
+        $answers = $request->input('answers', []); // [question_id => answer_id]
+        
+        $scoreRaw = 0;
+        $quiz->load('questions.answers');
+        foreach($quiz->questions as $q) {
+            if (isset($answers[$q->id])) {
+                $selectedAns = $q->answers->where('id', $answers[$q->id])->first();
+                if ($selectedAns && $selectedAns->is_correct) {
+                    $scoreRaw += 1;
+                }
+            }
+        }
+        
+        $totalQuestions = $quiz->questions->count();
+        $finalScore = $totalQuestions > 0 ? round(($scoreRaw / $totalQuestions) * 20) : 0;
+        $status = $finalScore >= 14 ? 'aprobado' : 'reprobado';
+
+        $attempt = \App\Models\CourseExamAttempt::where('user_id', $user->id)
+            ->where('course_quiz_id', $quiz->id)
+            ->whereNull('completed_at')
+            ->first();
+
+        if ($attempt) {
+            $attempt->update([
+                'status' => $status,
+                'score' => $finalScore,
+                'answers_data' => $answers,
+                'completed_at' => now(),
+            ]);
+        }
+
+        return redirect()->route('student.exams.index');
     }
 
     public function certificates()

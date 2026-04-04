@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import axios from 'axios';
 import { 
     ChevronLeft, ChevronRight, Menu, MessageSquare, 
     Download, ExternalLink, Play, Clock, 
@@ -54,7 +55,12 @@ const props = defineProps<{
     nextLessonId?: number;
     allLessonsCount: number;
     currentLessonIndex: number;
+    completedLessons: number[];
+    allLessonsCompleted: boolean;
 }>();
+
+const localCompleted = ref<number[]>([...props.completedLessons]);
+const localAllCompleted = ref(props.allLessonsCompleted);
 
 const breadcrumbs = computed(() => [
     { title: 'Dashboard', href: '/dashboard' },
@@ -63,7 +69,8 @@ const breadcrumbs = computed(() => [
 ]);
 
 const activeSidebarTab = ref<'curriculum' | 'chat'>('curriculum');
-const activeTab = ref<'content' | 'resources' | 'exams'>('content');
+const activeTab = ref<'content' | 'resources'>('content');
+const viewingExam = ref(false);
 
 const isLive = computed(() => props.currentLesson?.content_type === 'live');
 const videoId = computed(() => {
@@ -99,7 +106,7 @@ onMounted(() => {
     script.onload = () => {
         const players = document.querySelectorAll('.js-plyr');
         players.forEach(p => {
-            new (window as any).Plyr(p, {
+            const player = new (window as any).Plyr(p, {
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
                 tooltips: { controls: true, seek: true },
                 youtube: { 
@@ -113,6 +120,23 @@ onMounted(() => {
                     fs: 0
                 }
             });
+
+            if (props.currentLesson) {
+                player.on('timeupdate', (event: any) => {
+                    const instance = event.detail.plyr;
+                    if (!instance.duration) return;
+                    
+                    const percentage = instance.currentTime / instance.duration;
+                    if (percentage >= 0.8 && !localCompleted.value.includes(props.currentLesson!.id)) {
+                        localCompleted.value.push(props.currentLesson!.id);
+                        axios.post('/classroom/progress', { lesson_id: props.currentLesson!.id }).then(() => {
+                            if (localCompleted.value.length >= props.allLessonsCount) {
+                                localAllCompleted.value = true;
+                            }
+                        }).catch(() => {});
+                    }
+                });
+            }
         });
     };
     document.head.appendChild(script);
@@ -194,7 +218,41 @@ onMounted(() => {
             <!-- Main Content Area: Video and Summary -->
             <div class="flex-1 overflow-y-auto custom-scrollbar bg-surface-container-lowest relative">
                 
-                <!-- Video Section -->
+                <div v-if="viewingExam" class="min-h-full flex flex-col items-center justify-center p-8 lg:p-16 animate-in fade-in duration-500 bg-surface-container-lowest">
+                     <div class="max-w-3xl w-full p-12 bg-white rounded-[3rem] border border-outline-variant/20 text-center shadow-[0_20px_60px_rgba(87,87,42,0.05)] relative overflow-hidden">
+                          <!-- Decorative gradient bg -->
+                          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-surface-container-highest pointer-events-none opacity-50"></div>
+                          
+                          <div class="relative z-10">
+                              <div class="inline-flex p-6 rounded-full border mb-8" :class="localAllCompleted ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-orange-500/10 border-orange-500/20'">
+                                 <CheckCircle2 v-if="localAllCompleted" class="w-16 h-16 text-emerald-600" />
+                                 <Clock v-else class="w-16 h-16 text-orange-600" />
+                             </div>
+                             <div class="space-y-6 mb-10">
+                                <h2 class="text-4xl lg:text-5xl font-serif font-bold italic text-on-surface">Evaluación Final</h2>
+                                <p v-if="localAllCompleted" class="text-on-surface-variant italic font-serif text-[1.1rem] max-w-xl mx-auto leading-relaxed">Has completado el currículo modular satisfactoriamente. Para obtener tu certificación, debes aprobar el examen final correspondiente.</p>
+                                <p v-else class="text-on-surface-variant italic font-serif text-[1.1rem] max-w-xl mx-auto leading-relaxed">Debes completar todas las clases curriculares (al menos visualizar el 80% de cada video) para poder acceder a la evaluación final.</p>
+                             </div>
+                             
+                             <div v-if="!localAllCompleted" class="inline-flex flex-col items-center">
+                                 <div class="px-8 py-5 bg-orange-50 rounded-2xl border border-orange-200 shadow-sm animate-in zoom-in-95">
+                                     <p class="text-sm font-bold text-orange-800 uppercase tracking-widest">Requisito Pendiente</p>
+                                     <p class="text-sm font-serif italic text-orange-700 mt-2">Has completado <span class="font-bold text-lg tabular-nums">{{ localCompleted.length }}</span> de <span class="font-bold text-lg tabular-nums">{{ allLessonsCount }}</span> clases necesarias.</p>
+                                 </div>
+                                 <button disabled class="mt-8 inline-flex px-12 py-6 bg-surface-container-highest text-on-surface-variant font-bold text-sm uppercase tracking-widest rounded-2xl cursor-not-allowed">
+                                     Evaluación Bloqueada
+                                 </button>
+                             </div>
+                             <Link v-else :href="route('student.exams.index')" class="inline-flex px-14 py-6 bg-emerald-600 text-white font-bold text-sm uppercase tracking-widest rounded-2xl hover:bg-emerald-700 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-emerald-900/20 relative group">
+                                 Iniciar Evaluación Ahora
+                                 <span class="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                             </Link>
+                          </div>
+                     </div>
+                </div>
+
+                <template v-else>
+                    <!-- Video Section -->
                 <div class="w-full bg-black relative group aspect-video">
                     <template v-if="!isLive">
                         <div v-if="videoId" class="w-full h-full relative group">
@@ -261,14 +319,6 @@ onMounted(() => {
                             {{ tab === 'content' ? 'Resumen de la Clase' : 'Material de Apoyo' }}
                             <span v-if="activeTab === tab" class="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-full"></span>
                         </button>
-                        <button 
-                            v-if="currentLessonIndex === allLessonsCount && course.quizzes?.length"
-                            @click="activeTab = 'exams'"
-                            class="pb-4 text-xs font-bold uppercase tracking-[0.2em] transition-all relative text-emerald-600"
-                        >
-                             Certificar Conocimientos
-                            <span v-if="activeTab === 'exams'" class="absolute bottom-0 left-0 w-full h-[3px] bg-emerald-600 rounded-full"></span>
-                        </button>
                     </div>
 
                     <!-- Tab Content -->
@@ -321,20 +371,8 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <!-- Exam View -->
-                    <div v-show="activeTab === 'exams'" class="animate-in fade-in slide-in-from-bottom-2 duration-500 p-12 bg-gradient-to-br from-primary/5 to-surface-container-highest rounded-[3rem] border border-primary/10 text-center space-y-8">
-                         <div class="inline-flex p-6 bg-emerald-500/10 rounded-full border border-emerald-500/20">
-                             <CheckCircle2 class="w-16 h-16 text-emerald-600" />
-                         </div>
-                         <div class="space-y-4">
-                            <h2 class="text-4xl font-serif font-bold italic">Evaluación de Competencias</h2>
-                            <p class="text-on-surface-variant italic font-serif text-lg max-w-xl mx-auto">Has completado el currículo modular. Para obtener tu certificación oficial, debes aprobar el examen final correspondiente.</p>
-                         </div>
-                         <Link :href="route('student.exams.index')" class="inline-flex px-12 py-6 bg-emerald-600 text-white font-bold text-xs uppercase tracking-widest rounded-2xl hover:bg-emerald-700 hover:scale-105 transition-all shadow-2xl shadow-emerald-900/20">
-                             Iniciar Evaluación Ahora
-                         </Link>
-                    </div>
                 </div>
+                </template>
 
                 <!-- Footer spacing -->
                 <div class="h-24"></div>
@@ -437,10 +475,10 @@ onMounted(() => {
                                             <Play class="w-3 h-3 text-on-surface-variant" />
                                         </div>
                                         <div class="min-w-0 flex-1 pt-1">
-                                            <p class="text-sm font-bold leading-tight group-hover:text-primary transition-colors pr-2" :class="{ 'text-primary': currentLesson?.id === l.id }">{{ l.title }}</p>
-                                            <p class="text-[9px] uppercase tracking-widest mt-1.5 flex items-center gap-1 font-bold" :class="currentLesson?.id === l.id ? 'text-primary' : 'text-on-surface-variant'">
-                                                <CheckCircle2 v-if="currentLesson?.id === l.id" class="w-3 h-3" />
-                                                {{ currentLesson?.id === l.id ? 'Viendo ahora' : 'Clase de Video' }}
+                                            <p class="text-sm font-bold leading-tight group-hover:text-primary transition-colors pr-2" :class="{ 'text-primary': currentLesson?.id === l.id, 'text-emerald-600': localCompleted.includes(l.id) && currentLesson?.id !== l.id }">{{ l.title }}</p>
+                                            <p class="text-[9px] uppercase tracking-widest mt-1.5 flex items-center gap-1 font-bold" :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant')">
+                                                <CheckCircle2 v-if="localCompleted.includes(l.id)" class="w-3 h-3" />
+                                                {{ currentLesson?.id === l.id ? 'Viendo ahora' : (localCompleted.includes(l.id) ? 'Completado' : 'Clase de Video') }}
                                             </p>
                                         </div>
                                     </div>
@@ -468,15 +506,40 @@ onMounted(() => {
                                             <Play class="w-3 h-3 text-on-surface-variant" />
                                         </div>
                                         <div class="min-w-0 flex-1 pt-1">
-                                            <p class="text-sm font-bold leading-tight group-hover:text-primary transition-colors text-on-surface pr-2" :class="{ 'text-primary': currentLesson?.id === l.id }">{{ l.title }}</p>
-                                            <p class="text-[9px] uppercase tracking-widest mt-1.5 flex items-center gap-1 font-bold text-on-surface-variant">
-                                                <CheckCircle2 v-if="currentLesson?.id === l.id" class="w-3 h-3" />
-                                                {{ currentLesson?.id === l.id ? 'Viendo ahora' : 'Clase de Video' }}
+                                            <p class="text-sm font-bold leading-tight group-hover:text-primary transition-colors pr-2" :class="{ 'text-primary': currentLesson?.id === l.id, 'text-emerald-600': localCompleted.includes(l.id) && currentLesson?.id !== l.id }">{{ l.title }}</p>
+                                            <p class="text-[9px] uppercase tracking-widest mt-1.5 flex items-center gap-1 font-bold" :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant')">
+                                                <CheckCircle2 v-if="localCompleted.includes(l.id)" class="w-3 h-3" />
+                                                {{ currentLesson?.id === l.id ? 'Viendo ahora' : (localCompleted.includes(l.id) ? 'Completado' : 'Clase de Video') }}
                                             </p>
                                         </div>
                                     </div>
                                 </Link>
                              </div>
+                        </div>
+
+                        <!-- Botón Examen al final del sidebar -->
+                        <div v-if="course.quizzes?.length" class="mt-8 space-y-4">
+                             <h3 class="text-sm font-bold text-on-surface uppercase tracking-[0.1em]">Evaluación Final</h3>
+                             <button 
+                                @click="viewingExam = true"
+                                class="w-full flex items-center gap-4 transition-all group relative z-10"
+                             >
+                                 <div class="flex-shrink-0 bg-surface-container-low py-1">
+                                     <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-sm transition-all" :class="viewingExam ? 'bg-primary text-on-primary shadow-primary/20 scale-105' : 'bg-white text-on-surface-variant border border-outline-variant/30'">
+                                         <CheckCircle2 class="w-4 h-4" />
+                                     </div>
+                                 </div>
+                                 <div class="min-w-0 flex-1 p-3 rounded-2xl transition-all flex items-start gap-3 border shadow-sm" :class="viewingExam ? 'bg-primary/5 border-primary/30' : 'bg-surface-container-lowest border-outline-variant/20 hover:bg-surface-container hover:border-outline-variant/40'">
+                                     <div class="min-w-0 flex-1 text-left">
+                                         <p class="text-[13px] font-bold leading-tight transition-colors" :class="viewingExam ? 'text-primary' : 'text-on-surface group-hover:text-primary'">Tomar Examen</p>
+                                         <p class="text-[9px] uppercase tracking-[0.15em] mt-1.5 flex items-center gap-1 font-bold" :class="localAllCompleted ? 'text-emerald-600' : 'text-orange-600'">
+                                             <CheckCircle2 v-if="localAllCompleted" class="w-3 h-3" />
+                                             <Clock v-else class="w-3 h-3" />
+                                             {{ localAllCompleted ? 'Disponible para rendir' : 'Bloqueado (Faltan Videos)' }}
+                                         </p>
+                                     </div>
+                                 </div>
+                             </button>
                         </div>
                     </nav>
                 </template>
