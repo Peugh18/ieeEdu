@@ -13,8 +13,10 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    public function __construct(protected UserService $service)
-    {
+    public function __construct(
+        protected UserService $service,
+        protected \App\Services\EnrollmentService $enrollmentService
+    ) {
     }
 
     public function index(Request $request)
@@ -105,18 +107,9 @@ class UserController extends Controller
     public function assignCourse(Request $request, User $user)
     {
         $request->validate(['course_id' => 'required|exists:courses,id']);
-
-        $alreadyEnrolled = Enrollment::where('user_id', $user->id)
-            ->where('course_id', $request->course_id)
-            ->exists();
-
-        if (!$alreadyEnrolled) {
-            Enrollment::create([
-                'user_id'     => $user->id,
-                'course_id'   => $request->course_id,
-                'enrolled_at' => now(),
-            ]);
-        }
+        
+        $course = Course::findOrFail($request->course_id);
+        $this->enrollmentService->enroll($user, $course);
 
         return redirect()->back()->with('success', 'Curso asignado correctamente.');
     }

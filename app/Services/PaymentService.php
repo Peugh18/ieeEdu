@@ -10,8 +10,11 @@ use Carbon\Carbon;
 
 class PaymentService
 {
-    public function __construct(protected PaymentRepository $repo, protected EnrollmentRepository $enrollmentRepo)
-    {
+    public function __construct(
+        protected PaymentRepository $repo, 
+        protected EnrollmentRepository $enrollmentRepo,
+        protected EnrollmentService $enrollmentService
+    ) {
     }
 
     public function list($perPage = 15, $filters = [])
@@ -24,17 +27,7 @@ class PaymentService
         $payment->status = 'aprobado';
         $payment->save();
 
-        // Idempotent: create enrollment only if it doesn't exist yet
-        Enrollment::firstOrCreate(
-            [
-                'user_id'   => $payment->user_id,
-                'course_id' => $payment->course_id,
-            ],
-            [
-                'enrolled_at' => Carbon::now(),
-                'passed'      => false,
-            ]
-        );
+        $this->enrollmentService->enroll($payment->user, $payment->course, $payment->id);
 
         return $payment;
     }

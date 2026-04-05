@@ -1,156 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Certificado de Finalización</title>
+    <meta charset="UTF-8">
+    <title>Certificado - {{ $user->name }}</title>
     <style>
         @page {
+            size: A4 landscape;
             margin: 0;
-            size: landscape;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         body {
-            font-family: 'Serif', 'Times New Roman', Times, serif;
-            background-color: #fafaf5;
-            margin: 0;
-            color: #333;
-        }
-        .certificate-container {
-            width: 100%;
-            height: 100vh;
-            border: 40px solid #57572a;
+            width: 297mm;
+            height: 210mm;
+            overflow: hidden;
+            font-family: '{{ $template->font_family ?? 'serif' }}', serif;
             position: relative;
-            background-image: radial-gradient(circle at top right, rgba(212, 175, 55, 0.05), transparent),
-                              radial-gradient(circle at bottom left, rgba(87, 87, 42, 0.05), transparent);
+            background-color: white;
+            -webkit-print-color-adjust: exact;
         }
-        .inner-border {
+        .cert-container {
+            width: 297mm;
+            height: 210mm;
+            position: relative;
+            background-image: url('{{ $template_image_base64 }}');
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+        }
+        .text-element {
             position: absolute;
-            top: 20px; left: 20px; right: 20px; bottom: 20px;
-            border: 2px solid #d4af37;
-        }
-        .content {
-            padding: 80px 100px;
             text-align: center;
-        }
-        .u-logo {
-            width: 160px;
-            margin-bottom: 30px;
-        }
-        .title {
-            font-size: 55px;
-            text-transform: uppercase;
-            letter-spacing: 12px;
-            color: #57572a;
-            margin-bottom: 0px;
-            font-weight: bold;
-        }
-        .subtitle {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            color: #d4af37;
-            margin-bottom: 50px;
-        }
-        .recognition {
-            font-style: italic;
-            font-size: 20px;
-            margin-bottom: 20px;
+            transform: translate(-50%, -50%); /* Accurate centering in Chromium */
+            white-space: nowrap;
+            color: {{ $template->font_color ?? '#57572A' }};
+            line-height: 1.2;
         }
         .student-name {
-            font-size: 48px;
             font-weight: bold;
-            color: #1a1a1a;
-            border-bottom: 2px solid #57572a;
-            display: inline-block;
-            margin-bottom: 30px;
-            padding: 0 40px;
-        }
-        .course-text {
-            font-size: 22px;
-            line-height: 1.6;
-            margin-bottom: 60px;
-        }
-        .course-name {
-            font-weight: bold;
-            color: #57572a;
-        }
-        .footer {
-            position: absolute;
-            bottom: 100px;
-            width: 80%;
-            left: 10%;
-            display: table;
-        }
-        .footer-item {
-            display: table-cell;
-            width: 33.33%;
-            vertical-align: bottom;
-            text-align: center;
-        }
-        .signature-line {
-            border-top: 1px solid #57572a;
-            width: 180px;
-            margin: 0 auto 10px;
-        }
-        .signature-text {
-            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #888;
-        }
-        .date {
-            font-size: 14px;
-            font-style: italic;
-        }
-        .certificate-id {
-            position: absolute;
-            bottom: 40px;
-            right: 40px;
-            font-size: 10px;
-            color: #bfa34b;
-            letter-spacing: 1px;
-        }
-        .seal {
-             width: 100px;
         }
     </style>
 </head>
 <body>
-    <div class="certificate-container">
-        <div class="inner-border"></div>
-        <div class="content">
-            <h1 class="title">DIPLOMA</h1>
-            <p class="subtitle">Instituto de Economía y Empresa</p>
-            
-            <p class="recognition">Se otorga con orgullo el presente reconocimiento a:</p>
-            <div class="student-name">{{ $user_name }}</div>
-            
-            <p class="course-text">
-                Por haber completado satisfactoriamente los requisitos académicos del curso: <br>
-                <span class="course-name">{{ $course_name }}</span>
-            </p>
-
-            <div class="footer">
-                <div class="footer-item">
-                    <p class="date">Emitido el {{ $date }}</p>
-                </div>
-                <div class="footer-item">
-                    <div style="margin-bottom: -15px;">
-                        <img src="{{ public_path('images/signature.png') }}" style="width: 120px; height: auto; opacity: 0.8;" />
-                    </div>
-                    <div class="signature-line"></div>
-                    <p class="signature-text">Sello de Autenticidad</p>
-                </div>
-                <div class="footer-item">
-                    <div style="margin-bottom: -15px;">
-                        <img src="{{ public_path('images/signature.png') }}" style="width: 120px; height: auto; transform: scaleX(-1); opacity: 0.8;" />
-                    </div>
-                    <div class="signature-line"></div>
-                    <p class="signature-text">Dirección Académica</p>
-                </div>
+    @if($is_custom)
+        <div class="cert-container">
+            <!-- Nombre del Alumno -->
+            <div class="text-element student-name" style="
+                left: {{ $template->student_name_X * 100 }}%; 
+                top: {{ $template->student_name_Y * 100 }}%; 
+                font-size: {{ $template->student_name_font_size }}pt;
+            ">
+                {{ $user->name }}
             </div>
-            
-            <div class="certificate-id">Código de Verificación: {{ $code }}</div>
+
+            <!-- Título del Curso -->
+            <div class="text-element" style="
+                left: {{ $template->course_title_X * 100 }}%; 
+                top: {{ $template->course_title_Y * 100 }}%; 
+                font-size: {{ $template->course_title_font_size }}pt;
+            ">
+                {{ $course->title }}
+            </div>
+
+            <!-- Fecha -->
+            <div class="text-element" style="
+                left: {{ $template->issue_date_X * 100 }}%; 
+                top: {{ $template->issue_date_Y * 100 }}%; 
+                font-size: {{ $template->issue_date_font_size }}pt;
+            ">
+                Emitido el {{ $date }}
+            </div>
+
+            <!-- Código de Verificación -->
+            <div class="text-element" style="
+                left: {{ $template->certificate_code_X * 100 }}%; 
+                top: {{ $template->certificate_code_Y * 100 }}%; 
+                font-size: {{ $template->certificate_code_font_size }}pt;
+                opacity: 0.8;
+            ">
+                ID: {{ $code }}
+            </div>
         </div>
-    </div>
+    @else
+        <div style="padding: 50px; text-align: center; border: 10px solid {{ $template->font_color ?? '#57572A' }}; height: 100%;">
+             <h1 style="font-size: 48pt;">CERTIFICADO</h1>
+             <p style="margin-top: 50px;">Se otorga a:</p>
+             <h2 style="font-size: 36pt; color: {{ $template->font_color ?? '#57572A' }}">{{ $user->name }}</h2>
+             <p style="margin-top: 30px;">Por completar el curso:</p>
+             <h3>{{ $course->title }}</h3>
+             <footer style="margin-top: 100px;">
+                ID: {{ $code }} | Fecha: {{ $date }}
+             </footer>
+        </div>
+    @endif
 </body>
 </html>

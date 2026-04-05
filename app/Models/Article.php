@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\Slugifiable;
+
 class Article extends Model
 {
-    use HasFactory;
+    use HasFactory, Slugifiable;
 
     protected $fillable = [
         'title',

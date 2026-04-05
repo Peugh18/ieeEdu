@@ -599,6 +599,26 @@ async function toggleQuiz(id: number) {
                     </div>
                     <img v-if="course.instructor_image" :src="course.instructor_image" class="h-16 w-16 rounded-full object-cover border border-outline-variant/20" />
 
+                    <hr class="border-outline-variant/20 my-4" />
+                    <div class="space-y-4">
+                         <h3 class="font-bold text-sm text-primary uppercase tracking-widest flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Certificación
+                         </h3>
+                         <div class="p-4 rounded-2xl bg-primary/5 border border-primary/10 space-y-3">
+                             <p class="text-[11px] text-on-surface-variant font-medium italic leading-relaxed">
+                                Personaliza el diseño del diploma que recibirán los alumnos al completar este curso.
+                             </p>
+                             <Link 
+                                :href="route('admin.courses.certificate-template.edit', { course: props.course.id })"
+                                class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary text-white text-xs font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                             >
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                Diseñar Diploma
+                             </Link>
+                         </div>
+                    </div>
+
                 </aside>
 
                 <main class="lg:col-span-8 space-y-6">
