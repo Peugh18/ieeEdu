@@ -129,7 +129,7 @@ const breadcrumbs = [
                                     class="bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-sm overflow-hidden group hover:shadow-2xl hover:shadow-[#57572A]/10 transition-all duration-500 flex flex-col hover:-translate-y-2 border-opacity-30"
                                 >
                                     <!-- Visual Cover -->
-                                    <Link :href="route('cursos.show', course.slug)" class="relative h-[220px] w-full block bg-[#F4F4EF] overflow-hidden">
+                                    <Link :href="route('cursos.show', { slug: course.slug, ...(isDashboard ? { dashboard: true } : {}) })" class="relative h-[220px] w-full block bg-[#F4F4EF] overflow-hidden">
                                         <img v-if="course.image" :src="course.image" :alt="course.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                                         <div class="absolute inset-0 bg-gradient-to-t from-[#57572A]/20 to-transparent"></div>
                                         
@@ -146,7 +146,7 @@ const breadcrumbs = [
                                     <div class="p-8 flex flex-col flex-1 space-y-4">
                                         <span class="text-[9px] font-bold text-[#57572A] uppercase tracking-widest mb-1">{{ course.category?.name || 'Escuela de Negocios' }}</span>
                                         
-                                        <Link :href="route('cursos.show', course.slug)">
+                                        <Link :href="route('cursos.show', { slug: course.slug, ...(isDashboard ? { dashboard: true } : {}) })">
                                             <h3 class="font-serif font-bold text-xl text-[#1A1C19] leading-tight group-hover:text-[#57572A] transition-colors italic mb-4" :title="course.title">
                                                 {{ course.title }}
                                             </h3>
@@ -175,7 +175,7 @@ const breadcrumbs = [
                                                 <button class="w-full py-4 rounded-2xl bg-[#D4AF37] text-white text-[10px] font-bold uppercase tracking-widest hover:opacity-90 shadow-lg shadow-[#D4AF37]/20 transition-all flex justify-center items-center gap-2">
                                                     Matrícula
                                                 </button>
-                                                <Link :href="route('cursos.show', course.slug)" class="w-full py-4 rounded-2xl bg-[#57572A] text-white text-[10px] font-bold uppercase tracking-widest hover:opacity-90 shadow-lg shadow-[#57572A]/20 transition-all flex justify-center items-center">
+                                                <Link :href="route('cursos.show', { slug: course.slug, ...(isDashboard ? { dashboard: true } : {}) })" class="w-full py-4 rounded-2xl bg-[#57572A] text-white text-[10px] font-bold uppercase tracking-widest hover:opacity-90 shadow-lg shadow-[#57572A]/20 transition-all flex justify-center items-center">
                                                     Detalles
                                                 </Link>
                                             </div>

@@ -128,7 +128,7 @@ const breadcrumbs = [
                                 </div>
                             </div>
 
-                            <Link :href="route('cursos.show', course.slug)" class="mb-5 block">
+                            <Link :href="route('cursos.show', { slug: course.slug, ...(isDashboard ? { dashboard: true } : {}) })" class="mb-5 block">
                                 <h3 class="font-serif font-bold text-xl text-[#1A1C19] leading-tight group-hover:text-[#57572A] transition-colors" :title="course.title">
                                     {{ course.title }}
                                 </h3>
@@ -140,7 +140,7 @@ const breadcrumbs = [
                                     <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.115.55 4.183 1.597 6l-1.6 5.8 5.922-1.556c1.782.973 3.791 1.488 5.85 1.488 6.645 0 12.03-5.385 12.03-12.03S18.676 0 12.031 0zm0 21.905c-1.801 0-3.56-.484-5.111-1.405l-.367-.217-3.793.996 1.002-3.693-.238-.38c-.997-1.59-1.523-3.425-1.523-5.32 0-5.632 4.58-10.213 10.212-10.213 5.631 0 10.212 4.581 10.212 10.213 0 5.632-4.58 10.213-10.212 10.213zm5.602-7.662c-.307-.154-1.815-.898-2.097-1.002-.282-.104-.488-.154-.693.154-.206.308-.792 1.002-.971 1.206-.18.205-.36.23-.667.077-.308-.154-1.295-.478-2.467-1.525-.912-.815-1.528-1.821-1.708-2.129-.18-.308-.02-.475.134-.627.139-.138.307-.358.461-.537.154-.18.205-.308.308-.513.102-.205.051-.385-.026-.539-.077-.154-.693-1.673-.95-2.289-.25-.6-.505-.518-.694-.527-.18-.009-.385-.011-.59-.011-.205 0-.539.077-.821.385-.282.308-1.077 1.053-1.077 2.568 0 1.515 1.103 2.978 1.257 3.183.154.205 2.174 3.321 5.265 4.659.735.318 1.308.508 1.758.65.736.234 1.405.2 1.933.121.59-.089 1.815-.742 2.072-1.46.257-.719.257-1.335.18-1.461-.077-.126-.282-.203-.59-.357z"/></svg>
                                     UNIRSE AL GRUPO
                                 </a>
-                                <Link :href="route('cursos.show', course.slug)" class="w-full justify-center flex items-center gap-2 rounded-full text-[10px] uppercase tracking-widest font-bold px-4 py-2 border border-[#C9C7B8]/40 text-[#5F5E5E] hover:bg-[#F4F4EF] hover:text-[#1A1C19] transition-colors">
+                                <Link :href="route('cursos.show', { slug: course.slug, ...(isDashboard ? { dashboard: true } : {}) })" class="w-full justify-center flex items-center gap-2 rounded-full text-[10px] uppercase tracking-widest font-bold px-4 py-2 border border-[#C9C7B8]/40 text-[#5F5E5E] hover:bg-[#F4F4EF] hover:text-[#1A1C19] transition-colors">
                                     <span class="material-symbols-outlined text-[16px]">info</span>
                                     Ver Detalles
                                 </Link>
@@ -180,7 +180,7 @@ const breadcrumbs = [
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-5a2 2 0 00-2-2h-3.586a1 1 0 01-.707-.293l-1.414-1.414A1 1 0 0013.586 11H12v6a2 2 0 002 2h3z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11h-2a2 2 0 00-2 2v6h2"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                                 UNIRSE AL GRUPO
                             </a>
-                            <Link :href="route('cursos.show', featuredMasterclass.slug)" class="w-full sm:w-auto justify-center inline-flex items-center gap-2 rounded-xl text-[13px] uppercase tracking-widest font-bold px-8 py-4 border-2 border-[#57572A]/20 text-[#57572A] hover:bg-[#57572A]/5 transition-all">
+                            <Link :href="route('cursos.show', { slug: featuredMasterclass.slug, ...(isDashboard ? { dashboard: true } : {}) })" class="w-full sm:w-auto justify-center inline-flex items-center gap-2 rounded-xl text-[13px] uppercase tracking-widest font-bold px-8 py-4 border-2 border-[#57572A]/20 text-[#57572A] hover:bg-[#57572A]/5 transition-all">
                                 MÁS INFORMACIÓN
                             </Link>
                         </div>

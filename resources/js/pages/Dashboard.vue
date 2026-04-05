@@ -16,21 +16,31 @@ interface SummaryStats {
     available_exams: number;
 }
 
-interface CourseItem {
+interface ContinueLearning {
+    course_title: string;
+    course_slug: string;
+    lesson_title: string;
+    lesson_id: number;
+    progress: number;
+    image: string;
+}
+
+interface Recommendation {
     id: number;
     title: string;
     slug: string;
     image: string;
-    progress: number;
+    category: {
+        name: string;
+    };
 }
 
-interface LiveClass {
+interface Certificate {
     id: number;
-    title: string;
     course_title: string;
-    start_time: string;
-    start_time_human: string;
-    course_slug: string;
+    issue_date: string;
+    code: string;
+    download_url: string;
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -45,8 +55,10 @@ const user = page.props.auth.user as User;
 
 const props = defineProps<{
     stats: SummaryStats;
-    recentCourses: CourseItem[];
-    nextLiveClass: LiveClass | null;
+    continueLearning: ContinueLearning | null;
+    recommendations: Recommendation[];
+    certificates: Certificate[];
+    nextLiveClass: any | null;
 }>();
 
 const showLiveModal = ref(false);
@@ -57,12 +69,12 @@ const showLiveModal = ref(false);
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6 max-w-7xl mx-auto space-y-12 pb-24">
-            <!-- Header section with Welcome message -->
+            <!-- 1. BIENVENIDA -->
             <header class="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div class="space-y-1">
                     <p class="text-[10px] font-bold text-[#57572A] uppercase tracking-[0.2em] mb-1 italic">Instituto de Economía y Empresa</p>
                     <h1 class="text-4xl font-serif font-bold text-gray-900 leading-tight">Bienvenido de nuevo,<br/> <span class="text-[#D4AF37]">{{ user.name }}</span></h1>
-                    <p class="text-gray-500 font-serif text-lg">Es un buen día para avanzar en tus metas profesionales.</p>
+                    <p class="text-gray-500 font-serif text-lg italic">Continúa tu aprendizaje y alcanza nuevas metas profesionales.</p>
                 </div>
                 
                 <div v-if="nextLiveClass" class="flex items-center gap-4 bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/40">
@@ -70,7 +82,7 @@ const showLiveModal = ref(false);
                          <Calendar class="w-6 h-6 text-[#57572A]" />
                     </div>
                     <div>
-                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Próxima sesión en vivo</p>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Próxima sesión en vivo</p>
                         <p class="text-sm font-bold text-gray-900 italic">Te toca: {{ nextLiveClass.course_title }}</p>
                         <p class="text-[11px] text-[#57572A] font-medium">{{ nextLiveClass.start_time_human }}</p>
                     </div>
@@ -96,13 +108,13 @@ const showLiveModal = ref(false);
             <!-- Stats grid -->
             <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Active Courses Stat -->
-                <div class="bg-white rounded-[2rem] border border-gray-100 p-8 shadow-sm flex flex-col items-center text-center group hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-500 hover:-translate-y-1">
+                <div class="bg-white rounded-[2rem] border border-gray-100 p-8 shadow-sm flex flex-col items-center text-center group hover:shadow-xl hover:shadow-[#57572A]/5 transition-all duration-500 hover:-translate-y-1">
                     <div class="p-4 bg-blue-50 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
                         <BookOpen class="w-8 h-8 text-blue-600" />
                     </div>
                     <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Cursos Activos</h3>
                     <p class="text-4xl font-serif font-bold text-gray-900">{{ stats.active_courses }}</p>
-                    <Link :href="route('student.courses.index')" class="mt-4 text-[10px] font-bold uppercase tracking-widest text-blue-600 flex items-center gap-1.5 hover:underline">Ir a mis cursos <ChevronRight class="w-3 h-3" /></Link>
+                    <Link :href="route('student.courses.index')" class="mt-4 text-[10px] font-bold uppercase tracking-widest text-[#57572A] flex items-center gap-1.5 hover:underline">Ir a mis cursos <ChevronRight class="w-3 h-3" /></Link>
                 </div>
 
                 <!-- Completed Courses Stat -->
@@ -110,9 +122,9 @@ const showLiveModal = ref(false);
                     <div class="p-4 bg-emerald-50 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
                         <CheckCircle2 class="w-8 h-8 text-emerald-600" />
                     </div>
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Graduado en</h3>
-                    <p class="text-4xl font-serif font-bold text-gray-900">{{ stats.completed_courses }} <span class="text-sm text-gray-400">Prog.</span></p>
-                    <Link :href="route('student.certificates.index')" class="mt-4 text-[10px] font-bold uppercase tracking-widest text-emerald-600 flex items-center gap-1.5 hover:underline">Ver certificados <ChevronRight class="w-3 h-3" /></Link>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Cursos Completados</h3>
+                    <p class="text-4xl font-serif font-bold text-gray-900">{{ stats.completed_courses }}</p>
+                    <Link :href="route('student.certificates.index')" class="mt-4 text-[10px] font-bold uppercase tracking-widest text-emerald-600 flex items-center gap-1.5 hover:underline">Mis Certificados <Award class="w-3 h-3" /></Link>
                 </div>
 
                 <!-- Live classes Stat -->
@@ -126,54 +138,108 @@ const showLiveModal = ref(false);
                 </div>
 
                 <!-- Exams Stat -->
-                <div class="bg-white rounded-[2rem] border border-gray-100 p-8 shadow-sm flex flex-col items-center text-center group hover:shadow-xl hover:shadow-[#57572A]/5 transition-all duration-500 hover:-translate-y-1">
-                    <div class="p-4 bg-[#57572A]/5 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
-                        <ClipboardCheck class="w-8 h-8 text-[#57572A]" />
+                <div class="bg-white rounded-[2rem] border border-gray-100 p-8 shadow-sm flex flex-col items-center text-center group hover:shadow-xl hover:shadow-[#D4AF37]/5 transition-all duration-500 hover:-translate-y-1">
+                    <div class="p-4 bg-[#D4AF37]/5 rounded-2xl mb-4 group-hover:scale-110 transition-transform">
+                        <ClipboardCheck class="w-8 h-8 text-[#D4AF37]" />
                     </div>
                     <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Evaluaciones</h3>
                     <p class="text-4xl font-serif font-bold text-gray-900">{{ stats.available_exams }}</p>
-                    <Link :href="route('student.exams.index')" class="mt-4 text-[10px] font-bold uppercase tracking-widest text-[#57572A] flex items-center gap-1.5 hover:underline">Ir a exámenes <ChevronRight class="w-3 h-3" /></Link>
+                    <Link :href="route('student.exams.index')" class="mt-4 text-[10px] font-bold uppercase tracking-widest text-[#D4AF37] flex items-center gap-1.5 hover:underline text-center">Ir a exámenes <ChevronRight class="w-3 h-3" /></Link>
                 </div>
             </section>
 
             <!-- Main dashboard content area -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 <!-- Left Column: Recent Activity and Continue learning -->
-                <div class="lg:col-span-2 space-y-8">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-2xl font-serif font-bold text-gray-900">Continuar Aprendizaje</h2>
-                        <Link :href="route('student.courses.index')" class="text-xs font-bold text-[#57572A] uppercase tracking-widest hover:underline flex items-center gap-1">Ver todos los cursos <ArrowRight class="w-3 h-3" /></Link>
-                    </div>
-
-                    <div v-if="recentCourses.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <article v-for="course in recentCourses" :key="course.id" 
-                            class="bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 group"
-                        >
-                            <div class="relative h-48 overflow-hidden">
-                                <img :src="course.image" :alt="course.title" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                <div class="absolute inset-0 bg-black/10 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <div class="lg:col-span-2 space-y-12">
+                    
+                    <!-- 2. CONTINUAR DONDE LO DEJASTE -->
+                    <div v-if="continueLearning" class="space-y-6">
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                            <h2 class="text-2xl font-serif font-bold text-gray-900 italic">Continuar donde lo dejaste</h2>
+                        </div>
+                        
+                        <div class="bg-white rounded-[2.5rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-500 group flex flex-col md:flex-row">
+                            <div class="md:w-1/3 relative h-48 md:h-auto overflow-hidden">
+                                <img :src="continueLearning.image" :alt="continueLearning.course_title" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/40 to-transparent"></div>
+                                <div class="absolute bottom-4 left-4 p-2 bg-[#D4AF37] rounded-full text-white shadow-lg shadow-[#D4AF37]/30">
+                                    <Play class="w-4 h-4 fill-current" />
+                                </div>
+                            </div>
+                            <div class="p-8 md:w-2/3 flex flex-col justify-between bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#FAFAF5] via-white to-white">
+                                <div>
+                                    <p class="text-[10px] font-bold text-[#57572A] uppercase tracking-[0.2em] mb-2">Curso en curso</p>
+                                    <h3 class="text-2xl font-serif font-bold text-gray-900 mb-2 leading-tight">{{ continueLearning.course_title }}</h3>
+                                    <p class="text-gray-500 font-serif text-sm italic mb-6">Última lección: <span class="font-bold text-gray-700 underline decoration-[#D4AF37]/30">{{ continueLearning.lesson_title }}</span></p>
+                                </div>
+                                
+                                <div class="space-y-6">
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-[0.1em]">
+                                            <span class="text-gray-400 italic">Progreso actual</span>
+                                            <span class="text-[#57572A] italic">{{ continueLearning.progress }}%</span>
+                                        </div>
+                                        <div class="h-2 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100 flex p-[1px]">
+                                            <div class="h-full bg-gradient-to-r from-[#57572A] via-[#D4AF37] to-[#D4AF37] rounded-full transition-all duration-1000" :style="{ width: continueLearning.progress + '%' }"></div>
+                                        </div>
+                                    </div>
+                                    
                                     <Link 
-                                        :href="route('student.classroom', { course: course.slug })"
-                                        class="px-6 py-3 bg-white text-gray-900 text-xs font-bold uppercase tracking-widest rounded-2xl flex items-center gap-2 shadow-xl hover:bg-gray-50 active:scale-95 transition-all"
+                                        :href="route('student.classroom', { course: continueLearning.course_slug })"
+                                        class="inline-flex px-10 py-4 bg-[#57572A] text-white text-xs font-bold uppercase tracking-widest rounded-2xl items-center gap-2 shadow-xl hover:shadow-[#57572A]/30 active:scale-95 transition-all w-full md:w-auto justify-center"
                                     >
-                                        <Play class="w-3 h-3 fill-current" /> Continuar
+                                        Continuar curso
                                     </Link>
                                 </div>
                             </div>
-                            <div class="p-8">
-                                <h3 class="text-xl font-serif font-bold text-gray-900 mb-6 group-hover:text-[#57572A] transition-colors leading-tight">{{ course.title }}</h3>
-                                
-                                <div class="space-y-2">
-                                    <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-[0.1em]">
-                                        <span class="text-gray-400 italic">Progreso actual</span>
-                                        <span class="text-[#57572A] italic">{{ course.progress }}%</span>
+                        </div>
+                    </div>
+
+                    <!-- 4. CERTIFICADOS (RECIENTES) -->
+                    <div v-if="certificates.length > 0" class="space-y-6">
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                            <h2 class="text-2xl font-serif font-bold text-gray-900 italic">Tus Certificados</h2>
+                            <Link :href="route('student.certificates.index')" class="text-[10px] font-bold text-[#57572A] uppercase tracking-widest hover:underline flex items-center gap-1 italic">Ver todos <ArrowRight class="w-3 h-3" /></Link>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div v-for="cert in certificates" :key="cert.id" class="p-6 bg-white rounded-3xl border border-gray-100 shadow-sm flex items-center justify-between group hover:border-[#D4AF37] transition-all">
+                                <div class="flex items-center gap-4">
+                                    <div class="p-3 bg-emerald-50 rounded-2xl text-emerald-600 group-hover:scale-110 transition-transform">
+                                        <Award class="w-6 h-6" />
                                     </div>
-                                    <div class="h-2 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100 flex p-[2px]">
-                                        <div class="h-full bg-gradient-to-r from-[#57572A] to-[#D4AF37] rounded-full transition-all duration-1000" :style="{ width: course.progress + '%' }"></div>
+                                    <div>
+                                        <h4 class="text-sm font-bold text-gray-900 line-clamp-1 italic">{{ cert.course_title }}</h4>
+                                        <p class="text-[10px] text-gray-400 font-serif italic">Logrado el {{ cert.issue_date }}</p>
                                     </div>
                                 </div>
+                                <a :href="cert.download_url" target="_blank" class="p-2.5 bg-gray-50 text-gray-400 rounded-xl hover:bg-[#D4AF37] hover:text-white transition-all shadow-sm">
+                                    <ExternalLink class="w-4 h-4" />
+                                </a>
                             </div>
-                        </article>
+                        </div>
+                    </div>
+
+                    <!-- RECOMENDACIONES -->
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                            <h2 class="text-2xl font-serif font-bold text-gray-900 italic">Recomendado para ti</h2>
+                            <Link :href="route('student.explore.courses')" class="text-[10px] font-bold text-[#57572A] uppercase tracking-widest hover:underline flex items-center gap-1 italic">Explorar catálogo <ArrowRight class="w-3 h-3" /></Link>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <article v-for="rec in recommendations" :key="rec.id" 
+                                class="bg-gray-50 rounded-[2rem] border border-gray-100 p-6 flex flex-col group hover:bg-white hover:shadow-xl transition-all duration-500"
+                            >
+                                <div class="relative h-32 rounded-2xl overflow-hidden mb-4">
+                                    <img :src="rec.image" :alt="rec.title" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-90 group-hover:opacity-100" />
+                                </div>
+                                <p class="text-[9px] font-bold text-[#D4AF37] uppercase tracking-widest mb-1 italic">{{ rec.category?.name }}</p>
+                                <h4 class="text-sm font-serif font-bold text-gray-900 mb-4 line-clamp-2 leading-snug group-hover:text-[#57572A] transition-colors italic">{{ rec.title }}</h4>
+                                <Link :href="route('cursos.show', { slug: rec.slug, dashboard: true })" class="mt-auto text-[9px] font-bold uppercase tracking-widest text-[#57572A] opacity-60 group-hover:opacity-100 flex items-center gap-1 underline underline-offset-4 decoration-[#D4AF37] transition-all">Más información <ArrowRight class="w-2.5 h-2.5" /></Link>
+                            </article>
+                        </div>
                     </div>
                 </div>
 
@@ -184,30 +250,25 @@ const showLiveModal = ref(false);
                         <div class="relative z-10 flex flex-col h-full">
                             <header class="flex items-center justify-between mb-8">
                                 <span class="p-3 bg-white/10 rounded-2xl backdrop-blur-md border border-white/10"><BarChart3 class="w-6 h-6 text-[#D4AF37]" /></span>
-                                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-[9px] font-bold uppercase tracking-[0.2em] rounded-full border border-emerald-500/20 flex items-center gap-1.5"><TrendingUp class="w-3 h-3 text-emerald-400" /> Rendimiento Alto</span>
+                                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-[9px] font-bold uppercase tracking-[0.2em] rounded-full border border-emerald-500/20 flex items-center gap-1.5"><TrendingUp class="w-3 h-3 text-emerald-400" /> Rendimiento Pro</span>
                             </header>
                             
-                            <h3 class="text-2xl font-serif font-bold mb-2">Desempeño Global</h3>
-                            <p class="text-white/40 font-serif text-sm italic mb-8">Basado en tus últimos 5 exámenes y tareas completadas.</p>
+                            <h3 class="text-2xl font-serif font-bold mb-2">Desempeño Académico</h3>
+                            <p class="text-white/40 font-serif text-xs italic mb-8">Estado actual de tus evaluaciones y logros obtenidos.</p>
                             
                             <div class="flex items-center gap-6 mb-10">
                                 <div class="text-center">
                                     <p class="text-4xl font-serif font-bold italic text-white/95">18.5</p>
-                                    <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-white/30 italic">Promedio</p>
-                                </div>
-                                <div class="w-[1px] h-10 bg-white/10"></div>
-                                <div class="text-center">
-                                    <p class="text-4xl font-serif font-bold italic text-[#D4AF37]">92%</p>
-                                    <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-white/30 italic">Asistencia</p>
+                                    <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-white/30 italic">Puntaje Med.</p>
                                 </div>
                                 <div class="w-[1px] h-10 bg-white/10"></div>
                                 <div class="text-center text-white/95">
-                                    <p class="text-4xl font-serif font-bold italic">04</p>
-                                    <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40 italic">Cert.</p>
+                                    <p class="text-4xl font-serif font-bold italic">{{ stats.completed_courses < 10 ? '0' + stats.completed_courses : stats.completed_courses }}</p>
+                                    <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40 italic">Diplomas</p>
                                 </div>
                             </div>
                             
-                            <button class="mt-auto w-full py-4 bg-white text-gray-900 text-xs font-bold uppercase tracking-[0.2em] rounded-2xl hover:bg-[#D4AF37] hover:text-white transition-all shadow-xl active:scale-95 group-hover:shadow-white/5">Descargar Historial Académico</button>
+                            <Link :href="route('student.certificates.index')" class="mt-auto w-full py-4 bg-white text-gray-900 text-xs text-center font-bold uppercase tracking-[0.2em] rounded-2xl hover:bg-[#D4AF37] hover:text-white transition-all shadow-xl active:scale-95 group-hover:shadow-white/5">Ver certificados</Link>
                         </div>
                         <!-- Abstract background -->
                         <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-indigo-500/10 rounded-full blur-[100px]"></div>
@@ -215,13 +276,13 @@ const showLiveModal = ref(false);
                     </div>
 
                     <!-- Announcements or next step -->
-                    <div class="bg-[#FAFAF5] rounded-[2.5rem] border-2 border-dashed border-[#C9C7B8] p-8 text-center group cursor-pointer hover:border-[#57572A] transition-colors">
+                    <div class="bg-[#FAFAF5] rounded-[2.5rem] border border-dashed border-[#C9C7B8] p-8 text-center group cursor-pointer hover:border-[#57572A] transition-colors bg-[url('https://www.transparenttextures.com/patterns/pinstriped-suit.png')]">
                         <div class="inline-flex p-4 bg-white rounded-[2rem] shadow-sm mb-4 border border-gray-100 group-hover:scale-110 transition-transform">
                              <Award class="w-8 h-8 text-[#D4AF37]" />
                         </div>
-                        <h4 class="text-lg font-serif font-bold text-gray-900">¿Listo para el siguiente paso?</h4>
-                        <p class="text-xs text-gray-500 font-serif italic mb-6 leading-relaxed">Explora nuestras nuevas Masterclasses impartidas por expertos internacionales.</p>
-                        <Link :href="route('cursos.index')" class="px-6 py-2.5 bg-transparent border border-gray-200 text-gray-900 text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-white hover:border-gray-900 transition-all">Ver Masterclasses</Link>
+                        <h4 class="text-lg font-serif font-bold text-gray-900 italic">Especialízate más</h4>
+                        <p class="text-xs text-gray-500 font-serif italic mb-6 leading-relaxed">¿Ya viste las nuevas Masterclasses de este mes? Tenemos temas de vanguardia.</p>
+                        <Link :href="route('student.explore.masterclasses')" class="px-6 py-2.5 bg-transparent border border-gray-200 text-gray-900 text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-white hover:border-gray-100 transition-all">Ver Masterclasses</Link>
                     </div>
                 </aside>
             </div>

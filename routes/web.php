@@ -37,6 +37,12 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'verified'])->gr
     Route::get('/explore/publications', [StudentDashboardController::class, 'explorePublications'])->name('explore.publications');
     Route::get('/explore/masterclass', [StudentDashboardController::class, 'exploreMasterclasses'])->name('explore.masterclasses');
     Route::get('/explore/consultoria', [StudentDashboardController::class, 'exploreConsultoria'])->name('explore.consultoria');
+
+    // Lesson Comments
+    Route::post('/comments/{lesson}', [\App\Http\Controllers\Student\LessonCommentController::class, 'store'])->name('comments.store');
+    Route::put('/comments/{comment}', [\App\Http\Controllers\Student\LessonCommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [\App\Http\Controllers\Student\LessonCommentController::class, 'destroy'])->name('comments.destroy');
+    Route::post('/comments/{comment}/like', [\App\Http\Controllers\Student\LessonCommentController::class, 'toggleLike'])->name('comments.like');
 });
 
 require __DIR__.'/settings.php';

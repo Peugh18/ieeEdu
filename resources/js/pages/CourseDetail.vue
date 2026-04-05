@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import Navigation from '@/components/landing/Navigation.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { ref } from 'vue';
 
 const props = defineProps<{
     course: any;
+    isDashboard?: boolean;
+    isEnrolled?: boolean;
 }>();
 
 const formatPrice = (price: number) => {
@@ -31,24 +34,31 @@ const getModalityLabel = (type: string) => {
 const mainPrice = props.course.sale_price > 0 ? props.course.sale_price : props.course.price;
 const originalPrice = props.course.sale_price > 0 ? props.course.price : null;
 
+const breadcrumbs = [
+    { title: 'Dashboard', href: route('dashboard') },
+    { title: 'Explorar', href: route('student.explore.courses') },
+    { title: 'Detalle de Curso', href: '#' },
+];
+
 </script>
 
 <template>
     <Head :title="course.title + ' - IEE'" />
 
-    <div class="flex min-h-screen flex-col bg-[#FAFAF5] text-[#1A1C19] font-sans">
-        <Navigation />
+    <component :is="isDashboard ? AppLayout : 'div'" v-bind="isDashboard ? { breadcrumbs } : {}">
+        <div :class="['flex flex-col text-[#1A1C19] font-sans', !isDashboard ? 'min-h-screen bg-[#FAFAF5]' : 'bg-transparent']">
+            <Navigation v-if="!isDashboard" />
 
-        <main class="flex-1 pb-20 pt-10">
-            <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-                
-                <!-- Breadcrumb / Back button -->
-                <div class="mb-10">
-                    <Link :href="route('cursos.index')" class="inline-flex items-center gap-2 text-[13px] font-bold text-[#5F5E5E] tracking-[0.05em] uppercase hover:text-[#1A1C19] transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> 
-                        Volver a cursos
-                    </Link>
-                </div>
+            <main :class="['flex-1 pb-20 pt-10', isDashboard ? 'p-0' : '']">
+                <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
+                    
+                    <!-- Breadcrumb / Back button -->
+                    <div class="mb-10">
+                        <Link :href="isDashboard ? route('student.explore.courses') : route('cursos.index')" class="inline-flex items-center gap-2 text-[13px] font-bold text-[#5F5E5E] tracking-[0.05em] uppercase hover:text-[#1A1C19] transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> 
+                            {{ isDashboard ? 'Volver al catálogo' : 'Volver a cursos' }}
+                        </Link>
+                    </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 relative items-start">
                     
@@ -313,14 +323,20 @@ const originalPrice = props.course.sale_price > 0 ? props.course.price : null;
                             </div>
 
                             <!-- Payment Button / Inscribirse Flow Placeholder -->
-                            <a v-if="course.type === 'evento'" :href="course.lessons?.[0]?.live_link || '#'" target="_blank" class="w-full bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white font-bold text-[12px] uppercase tracking-[0.05em] py-4 rounded shadow-md hover:shadow-lg transition-all mb-4 flex items-center justify-center gap-3 hover:-translate-y-0.5">
+                            <div v-if="isEnrolled">
+                                <Link :href="route('student.classroom', { course: course.slug })" class="w-full bg-[#57572A] text-white font-bold text-[12px] uppercase tracking-[0.05em] py-4 rounded shadow-md hover:shadow-lg transition-all mb-4 flex items-center justify-center gap-3 hover:-translate-y-0.5">
+                                    IR AL AULA VIRTUAL
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                </Link>
+                            </div>
+                            <a v-else-if="course.type === 'evento'" :href="course.lessons?.[0]?.live_link || '#'" target="_blank" class="w-full bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white font-bold text-[12px] uppercase tracking-[0.05em] py-4 rounded shadow-md hover:shadow-lg transition-all mb-4 flex items-center justify-center gap-3 hover:-translate-y-0.5">
                                 UNIRSE POR WHATSAPP
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.225 5.225 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.015-1.04 2.476 0 1.46 1.065 2.871 1.213 3.07.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                             </a>
-                            <button v-else class="w-full bg-gradient-to-br from-[#57572A] to-[#707040] text-white font-bold text-[12px] uppercase tracking-[0.05em] py-4 rounded shadow-md hover:shadow-lg transition-all mb-4 flex items-center justify-center gap-3 hover:-translate-y-0.5">
+                            <a v-else :href="course.whatsapp_link || 'https://wa.me/51934057867'" target="_blank" class="w-full bg-gradient-to-br from-[#57572A] to-[#707040] text-white font-bold text-[12px] uppercase tracking-[0.05em] py-4 rounded shadow-md hover:shadow-lg transition-all mb-4 flex items-center justify-center gap-3 hover:-translate-y-0.5">
                                 Completar Inscripción
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                            </button>
+                            </a>
 
                             <p v-if="course.type === 'evento'" class="text-[11px] text-[#5F5E5E] mb-10 font-medium text-center tracking-wide">Al unirte al grupo tendrás todos los detalles e información para conectarte.</p>
                             <p v-else class="text-[11px] text-[#5F5E5E] mb-10 font-medium text-center italic tracking-wide">Transacción segura y acceso inmediato al campus institucional.</p>

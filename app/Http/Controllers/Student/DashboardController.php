@@ -5,10 +5,18 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Enrollment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Services\CertificateService;
 
 class DashboardController extends Controller
 {
+    protected $certificateService;
+
+    public function __construct(CertificateService $certificateService)
+    {
+        $this->certificateService = $certificateService;
+    }
     public function index()
     {
         $user = Auth::user();
@@ -17,9 +25,10 @@ class DashboardController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        $enrollmentIds = Enrollment::where('user_id', $user->id)->pluck('course_id');
+        $enrollments = Enrollment::where('user_id', $user->id)->with('course.category')->get();
+        $enrollmentIds = $enrollments->pluck('course_id');
         
-        // Fetch real next live class
+        // 1. Fetch real next live class
         $nextLiveClass = \App\Models\CourseLesson::with('course')
             ->whereIn('course_id', $enrollmentIds)
             ->whereNotNull('live_link')
@@ -27,28 +36,103 @@ class DashboardController extends Controller
             ->orderBy('start_time', 'asc')
             ->first();
 
+        // 2. Summary stats
         $stats = [
-            'active_courses' => Enrollment::where('user_id', $user->id)->whereNull('completed_at')->count(),
-            'completed_courses' => Enrollment::where('user_id', $user->id)->whereNotNull('completed_at')->count(),
+            'active_courses' => $enrollments->whereNull('completed_at')->count(),
+            'completed_courses' => $enrollments->whereNotNull('completed_at')->count(),
             'upcoming_classes' => \App\Models\CourseLesson::whereIn('course_id', $enrollmentIds)
                 ->where('start_time', '>', now())
                 ->count(),
-            'available_exams' => 0, 
+            'available_exams' => \App\Models\CourseQuiz::whereIn('course_id', $enrollmentIds)->count(),
         ];
 
-        $recentCourses = $user->enrolledCourses()->with('category')->latest()->take(2)->get()->map(function($course) {
-            return [
-                'id' => $course->id,
-                'title' => $course->title,
-                'slug' => $course->slug,
-                'image' => $course->image,
-                'progress' => $course->pivot->completed_at ? 100 : 45,
-            ];
-        });
+        // 3. Continue where you left off (MUY IMPORTANTE)
+        $lastLessonProgress = \App\Models\LessonProgress::where('user_id', $user->id)
+            ->with(['lesson.module.course.category'])
+            ->latest('updated_at')
+            ->first();
+
+        $continueLearning = null;
+        if ($lastLessonProgress && $lastLessonProgress->lesson) {
+            $course = $lastLessonProgress->lesson->course 
+                      ?? $lastLessonProgress->lesson->module?->course;
+            
+            if ($course) {
+                // Calculate detailed progress for this course
+                $allLessonsCount = \App\Models\CourseLesson::whereHas('module', function($q) use ($course) {
+                    $q->where('course_id', $course->id);
+                })->orWhere(function($q) use ($course) {
+                    $q->where('course_id', $course->id)->whereNull('module_id');
+                })->count();
+                
+                $completedCount = \App\Models\LessonProgress::where('user_id', $user->id)
+                    ->whereHas('lesson', function($q) use ($course) {
+                        $q->where('course_id', $course->id)
+                          ->orWhereHas('module', function($m) use ($course) {
+                              $m->where('course_id', $course->id);
+                          });
+                    })
+                    ->where('is_completed', true)
+                    ->count();
+                    
+                $progressPercent = $allLessonsCount > 0 ? round(($completedCount / $allLessonsCount) * 100) : 0;
+
+                $continueLearning = [
+                    'course_title' => $course->title,
+                    'course_slug' => $course->slug,
+                    'lesson_title' => $lastLessonProgress->lesson->title,
+                    'lesson_id' => $lastLessonProgress->lesson->id,
+                    'progress' => $progressPercent,
+                    'image' => $course->image,
+                ];
+            }
+        }
+
+        // 4. Recommendation Logic (Misma categoría + Más vendidos)
+        $enrolledCategories = $enrollments->pluck('course.category_id')->unique();
+        
+        $recommendations = \App\Models\Course::whereNotIn('id', $enrollmentIds)
+            ->where('status', 'PUBLICADO')
+            ->whereIn('category_id', $enrolledCategories)
+            ->with('category')
+            ->withCount('enrollments')
+            ->orderBy('enrollments_count', 'desc') // "Más vendidos" (Simulado por inscritos)
+            ->take(3)
+            ->get();
+
+        if ($recommendations->count() < 3) {
+            $moreRecs = \App\Models\Course::whereNotIn('id', $enrollmentIds)
+                ->whereNotIn('id', $recommendations->pluck('id'))
+                ->where('status', 'PUBLICADO')
+                ->withCount('enrollments')
+                ->orderBy('enrollments_count', 'desc')
+                ->latest()
+                ->take(3 - $recommendations->count())
+                ->get();
+            $recommendations = $recommendations->concat($moreRecs);
+        }
+
+        // 5. Get Certificates
+        $certificates = \App\Models\Certificate::where('user_id', $user->id)
+            ->with('course')
+            ->orderByDesc('issue_date')
+            ->take(3)
+            ->get()
+            ->map(function($cert) {
+                return [
+                    'id' => $cert->id,
+                    'course_title' => $cert->course->title,
+                    'issue_date' => $cert->issue_date->format('d M Y'),
+                    'code' => $cert->code,
+                    'download_url' => Storage::url($cert->file_path),
+                ];
+            });
 
         return Inertia::render('Dashboard', [
             'stats' => $stats,
-            'recentCourses' => $recentCourses,
+            'continueLearning' => $continueLearning,
+            'recommendations' => $recommendations,
+            'certificates' => $certificates,
             'nextLiveClass' => $nextLiveClass ? [
                 'id' => $nextLiveClass->id,
                 'title' => $nextLiveClass->title,
@@ -72,27 +156,29 @@ class DashboardController extends Controller
 
     public function liveClasses()
     {
-        // Mock live classes
-        $liveClasses = [
-            [
-                'id' => 1,
-                'title' => 'Gestión de Riesgos y Cumplimiento',
-                'day' => 'HOY',
-                'date' => date('Y-m-d'),
-                'time' => '19:00 PM',
-                'course_title' => 'Especialización en Gestión Bancaria',
-                'is_today' => true,
-            ],
-            [
-                'id' => 2,
-                'title' => 'Econometría Aplicada I',
-                'day' => 'VIE',
-                'date' => date('Y-m-d', strtotime('+2 days')),
-                'time' => '18:30 PM',
-                'course_title' => 'Análisis Económico Avanzado',
-                'is_today' => false,
-            ]
-        ];
+        $user = Auth::user();
+        $enrollmentIds = \App\Models\Enrollment::where('user_id', $user->id)->pluck('course_id');
+
+        // Fetching real live classes from enrolled courses
+        $sessions = \App\Models\CourseLesson::with('course')
+            ->whereIn('course_id', $enrollmentIds)
+            ->whereNotNull('live_link')
+            ->where('start_time', '>=', now()->subHours(2)) // Show up to 2h after they started
+            ->orderBy('start_time', 'asc')
+            ->get();
+
+        $liveClasses = $sessions->map(function($session) {
+            return [
+                'id' => $session->id,
+                'title' => $session->title,
+                'day' => $session->start_time->isToday() ? 'HOY' : strtoupper($session->start_time->isoFormat('ddd')),
+                'date' => $session->start_time->format('Y-m-d'),
+                'time' => $session->start_time->format('H:i A'),
+                'course_title' => $session->course->title,
+                'course_slug' => $session->course->slug,
+                'is_today' => $session->start_time->isToday(),
+            ];
+        });
 
         return Inertia::render('student/LiveClasses', [
             'live_classes' => $liveClasses
@@ -217,6 +303,23 @@ class DashboardController extends Controller
                 'answers_data' => $answers,
                 'completed_at' => now(),
             ]);
+
+            // Sync Enrollment completion
+            if ($status === 'aprobado') {
+                $enrollment = Enrollment::where('user_id', $user->id)
+                    ->where('course_id', $quiz->course_id)
+                    ->first();
+                
+                if ($enrollment) {
+                    $isEligible = $this->certificateService->checkEligibility($user, $quiz->course);
+                    if ($isEligible) {
+                        $enrollment->update(['completed_at' => ($enrollment->completed_at ?? now())]);
+                    }
+                }
+                
+                // Trigger certificate generation
+                $this->certificateService->generateIfEligible($user, $quiz->course);
+            }
         }
 
         return redirect()->route('student.exams.index');
@@ -224,18 +327,24 @@ class DashboardController extends Controller
 
     public function certificates()
     {
-        // Mock data
-        $certificates = [
-            [
-                'id' => 1,
-                'title' => 'Diploma de Especialización',
-                'course_title' => 'Analista Profesional en Finanzas',
-                'issue_date' => '15 Mar 2026',
-                'image' => 'https://i.ibb.co/6P6X7p6/cert-placeholder.png',
-                'code' => 'IEE-FA-2026-001',
-                'is_available' => true,
-            ]
-        ];
+        $user = Auth::user();
+        
+        $certificates = \App\Models\Certificate::where('user_id', $user->id)
+            ->with('course')
+            ->orderByDesc('issue_date')
+            ->get()
+            ->map(function($cert) {
+                return [
+                    'id' => $cert->id,
+                    'title' => 'Diploma de Finalización',
+                    'course_title' => $cert->course->title,
+                    'issue_date' => $cert->issue_date->format('d M Y'),
+                    'image' => 'https://i.ibb.co/6P6X7p6/cert-placeholder.png', // Or a thumbnail if available
+                    'code' => $cert->code,
+                    'is_available' => true,
+                    'download_url' => Storage::url($cert->file_path),
+                ];
+            });
 
         return Inertia::render('student/Certificates', [
             'certificates' => $certificates

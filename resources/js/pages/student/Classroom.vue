@@ -6,7 +6,8 @@ import {
     ChevronLeft, ChevronRight, Menu, MessageSquare, 
     Download, ExternalLink, Play, Clock, 
     Send, Users, X, CheckCircle2, ChevronDown,
-    ArrowRight, HandIcon, Flag, ListVideo
+    ArrowRight, HandIcon, Flag, ListVideo,
+    Heart, Reply, Trash2, Edit2
 } from 'lucide-vue-next';
 import { ref, computed, onMounted } from 'vue';
 
@@ -48,6 +49,8 @@ interface Course {
     whatsapp_link?: string;
 }
 
+import { router, usePage } from '@inertiajs/vue3';
+
 const props = defineProps<{
     course: Course;
     currentLesson: Lesson | null;
@@ -57,7 +60,11 @@ const props = defineProps<{
     currentLessonIndex: number;
     completedLessons: number[];
     allLessonsCompleted: boolean;
+    comments: any[];
 }>();
+
+const { props: pageProps } = usePage() as any;
+const currentUser = computed(() => pageProps.auth.user);
 
 const localCompleted = ref<number[]>([...props.completedLessons]);
 const localAllCompleted = ref(props.allLessonsCompleted);
@@ -68,7 +75,7 @@ const breadcrumbs = computed(() => [
     { title: props.course.title, href: route('student.classroom', { course: props.course.slug }) },
 ]);
 
-const activeSidebarTab = ref<'curriculum' | 'chat'>('curriculum');
+const activeSidebarTab = ref<'curriculum' | 'chat' | 'comments'>('curriculum');
 const activeTab = ref<'content' | 'resources'>('content');
 const viewingExam = ref(false);
 
@@ -80,17 +87,67 @@ const videoId = computed(() => {
     return (match && match[2].length === 11) ? match[2] : null;
 });
 
-// Comments handling (Simplified for MVP but dynamic in feel)
-const comments = ref([
-    { id: 1, user: 'Asesor Académico', role: 'staff', content: 'Bienvenidos a esta sesión. No olviden descargar los materiales adjuntos en la pestaña de recursos.', time: 'hace 1 hora', likes: 12, is_verified: true },
-]);
-
+// Comments handling
 const newComment = ref('');
+const replyingTo = ref<any>(null);
+const editingComment = ref<any>(null);
+
 function postComment() {
-    if (!newComment.value.trim()) return;
-    comments.value.unshift({ id: Date.now(), user: 'Tu', role: 'Estudiante', content: newComment.value, time: 'ahora', likes: 0, is_verified: false });
-    newComment.value = '';
+    if (!newComment.value.trim() || !props.currentLesson) return;
+    
+    router.post(route('student.comments.store', props.currentLesson.id), {
+        content: newComment.value,
+        parent_id: replyingTo.value?.id
+    }, {
+        onSuccess: () => {
+            newComment.value = '';
+            replyingTo.value = null;
+        }
+    });
 }
+
+function toggleLike(commentId: number) {
+    router.post(route('student.comments.like', commentId), {}, {
+        preserveScroll: true
+    });
+}
+
+function deleteComment(commentId: number) {
+    if (confirm('¿Estás seguro de eliminar este comentario?')) {
+        router.delete(route('student.comments.destroy', commentId), {
+            preserveScroll: true
+        });
+    }
+}
+
+function updateComment() {
+    if (!editingComment.value?.content.trim()) return;
+    router.put(route('student.comments.update', editingComment.value.id), {
+        content: editingComment.value.content
+    }, {
+        onSuccess: () => {
+            editingComment.value = null;
+        }
+    });
+}
+
+const timeSince = (dateString: string) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    let interval = seconds / 31536000;
+    if (interval > 1) return 'hace ' + Math.floor(interval) + ' años';
+    interval = seconds / 2592000;
+    if (interval > 1) return 'hace ' + Math.floor(interval) + ' meses';
+    interval = seconds / 86400;
+    if (interval > 1) return 'hace ' + Math.floor(interval) + ' días';
+    interval = seconds / 3600;
+    if (interval > 1) return 'hace ' + Math.floor(interval) + ' horas';
+    interval = seconds / 60;
+    if (interval > 1) return 'hace ' + Math.floor(interval) + ' min';
+    return 'hace un momento';
+};
 
 // Countdown for Live Classes
 const countdown = ref('--:--:--');
@@ -390,12 +447,16 @@ onMounted(() => {
                     </header>
 
                     <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
-                        <!-- New Comment Input -->
+                        <!-- New Comment / Reply Input -->
                         <div class="relative group">
-                             <div class="bg-surface-container-lowest rounded-3xl border border-outline-variant/30 focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5 transition-all p-5 space-y-4">
+                             <div v-if="replyingTo" class="mb-2 flex items-center justify-between px-3 py-2 bg-primary/5 rounded-t-2xl border-x border-t border-primary/20">
+                                 <p class="text-[10px] font-bold text-primary italic truncate">Respondiendo a @{{ replyingTo.user.name }}</p>
+                                 <button @click="replyingTo = null" class="p-1 hover:bg-primary/10 rounded-full transition-colors"><X class="w-3 h-3 text-primary" /></button>
+                             </div>
+                             <div class="bg-surface-container-lowest rounded-3xl border border-outline-variant/30 focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5 transition-all p-5 space-y-4" :class="replyingTo ? 'rounded-t-none' : ''">
                                  <textarea 
                                     v-model="newComment"
-                                    placeholder="Escribe tu consulta o aporte académico aquí..."
+                                    :placeholder="replyingTo ? 'Escribe tu respuesta...' : 'Escribe tu consulta o aporte académico aquí...'"
                                     class="w-full bg-transparent border-none p-0 text-sm placeholder:text-on-surface-variant/30 focus:ring-0 min-h-[100px] resize-none font-serif italic"
                                  ></textarea>
                                  <div class="flex items-center justify-between">
@@ -412,31 +473,79 @@ onMounted(() => {
 
                         <!-- Comments Listing -->
                         <div class="space-y-6 pb-24">
-                            <div v-for="c in comments" :key="c.id" class="p-6 bg-surface-container-lowest border border-outline-variant/20 rounded-[2.5rem] space-y-4 hover:shadow-xl hover:shadow-primary/5 transition-all border-l-4 border-l-primary/10">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/10 flex items-center justify-center text-[11px] font-bold text-primary italic uppercase">
-                                            {{ c.user.charAt(0) }}
+                            <div v-for="c in comments" :key="c.id" class="space-y-3">
+                                <div class="p-6 bg-surface-container-lowest border border-outline-variant/20 rounded-[2.5rem] space-y-4 hover:shadow-xl hover:shadow-primary/5 transition-all border-l-4 border-l-primary/10 group">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/10 flex items-center justify-center text-[11px] font-bold text-primary italic uppercase">
+                                                {{ c.user.name.charAt(0) }}
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="text-[11px] font-bold text-on-surface flex items-center gap-1.5">
+                                                    {{ c.user.name }}
+                                                    <CheckCircle2 v-if="c.user.role === 'admin' || c.user.role === 'editor'" class="w-3 h-3 text-primary fill-primary/10" />
+                                                </p>
+                                                <p class="text-[9px] text-on-surface-variant uppercase tracking-widest">{{ c.user.role === 'admin' ? 'Staff IEE' : 'Estudiante Scholar' }} · {{ timeSince(c.created_at) }} <span v-if="c.is_edited" class="italic">(editado)</span></p>
+                                            </div>
                                         </div>
-                                        <div class="min-w-0">
-                                            <p class="text-[11px] font-bold text-on-surface flex items-center gap-1.5">
-                                                {{ c.user }}
-                                                <CheckCircle2 v-if="c.is_verified" class="w-3 h-3 text-primary fill-primary/10" />
-                                            </p>
-                                            <p class="text-[9px] text-on-surface-variant uppercase tracking-widest">{{ c.role }} · {{ c.time }}</p>
+                                        <div class="flex flex-col items-center gap-0.5">
+                                             <button @click="toggleLike(c.id)" class="p-1 transition-colors" :class="c.is_liked ? 'text-red-500' : 'text-on-surface-variant/30 hover:text-red-400'">
+                                                 <Heart class="w-4 h-4" :fill="c.is_liked ? 'currentColor' : 'none'" />
+                                             </button>
+                                             <span class="text-[10px] font-bold text-on-surface-variant/40">{{ c.likes_count }}</span>
                                         </div>
                                     </div>
-                                    <div class="flex flex-col items-center gap-0.5">
-                                         <button class="p-1 hover:text-primary transition-colors">
-                                             <HandIcon class="w-4 h-4 text-on-surface-variant/30 group-hover:text-primary transition-colors" />
-                                         </button>
-                                         <span class="text-[10px] font-bold text-on-surface-variant/40">{{ c.likes }}</span>
+                                    
+                                    <div v-if="editingComment?.id === c.id" class="space-y-3">
+                                        <textarea v-model="editingComment.content" class="w-full bg-surface-container-low rounded-xl p-3 text-xs font-serif italic border border-primary/20 focus:ring-0 focus:border-primary/40 min-h-[80px] resize-none"></textarea>
+                                        <div class="flex justify-end gap-2 text-[10px] font-bold uppercase tracking-widest">
+                                            <button @click="editingComment = null" class="px-4 py-2 text-on-surface-variant">Cancelar</button>
+                                            <button @click="updateComment" class="px-4 py-2 bg-primary text-on-primary rounded-lg">Guardar</button>
+                                        </div>
+                                    </div>
+                                    <p v-else class="text-xs text-on-surface-variant leading-relaxed font-serif italic">{{ c.content }}</p>
+                                    
+                                    <div v-if="editingComment?.id !== c.id" class="flex items-center justify-between text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/40">
+                                        <div class="flex items-center gap-4">
+                                            <button @click="replyingTo = c" class="hover:text-primary transition flex items-center gap-1"><Reply class="w-3 h-3" /> Responder</button>
+                                            <button v-if="c.user_id === currentUser.id" @click="editingComment = { ...c }" class="hover:text-amber-600 transition flex items-center gap-1"><Edit2 class="w-3 h-3" /> Editar</button>
+                                        </div>
+                                        <button v-if="c.user_id === currentUser.id" @click="deleteComment(c.id)" class="hover:text-red-600 transition opacity-0 group-hover:opacity-100 flex items-center gap-1"><Trash2 class="w-3 h-3" /> Borrar</button>
                                     </div>
                                 </div>
-                                <p class="text-xs text-on-surface-variant leading-relaxed font-serif italic">{{ c.content }}</p>
-                                <div class="flex items-center gap-4 text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/40">
-                                    <button class="hover:text-primary transition">Responder</button>
-                                    <button class="hover:text-red-600 transition">Reportar aporte</button>
+
+                                <!-- Recursive Replies (Simple Level 1 Indentation) -->
+                                <div v-if="c.replies?.length" class="pl-8 space-y-3 mt-4">
+                                    <div v-for="r in c.replies" :key="r.id" class="p-4 bg-surface-container-low border border-outline-variant/10 rounded-[1.5rem] space-y-3 group/reply relative before:absolute before:-left-4 before:top-1/2 before:w-4 before:h-[2px] before:bg-outline-variant/20">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-8 h-8 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-[9px] font-bold text-primary italic uppercase">
+                                                    {{ r.user.name.charAt(0) }}
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="text-[10px] font-bold text-on-surface flex items-center gap-1">{{ r.user.name }}</p>
+                                                    <p class="text-[8px] text-on-surface-variant uppercase tracking-tight">{{ timeSince(r.created_at) }} <span v-if="r.is_edited">(editado)</span></p>
+                                                </div>
+                                            </div>
+                                            <button @click="toggleLike(r.id)" class="p-1 transition-colors" :class="r.is_liked ? 'text-red-500' : 'text-on-surface-variant/20 hover:text-red-400'">
+                                                 <Heart class="w-3.5 h-3.5" :fill="r.is_liked ? 'currentColor' : 'none'" />
+                                            </button>
+                                        </div>
+
+                                        <div v-if="editingComment?.id === r.id" class="space-y-3">
+                                            <textarea v-model="editingComment.content" class="w-full bg-surface-container-lowest rounded-xl p-3 text-xs font-serif italic border border-primary/20 focus:ring-0 min-h-[60px] resize-none"></textarea>
+                                            <div class="flex justify-end gap-2 text-[10px] font-bold uppercase tracking-widest">
+                                                <button @click="editingComment = null" class="px-3 py-1.5 text-on-surface-variant">Cancelar</button>
+                                                <button @click="updateComment" class="px-3 py-1.5 bg-primary text-on-primary rounded-lg">Guardar</button>
+                                            </div>
+                                        </div>
+                                        <p v-else class="text-xs text-on-surface-variant/80 leading-relaxed font-serif italic">{{ r.content }}</p>
+
+                                        <div v-if="editingComment?.id !== r.id && r.user_id === currentUser.id" class="flex justify-end gap-3 text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/30 opacity-0 group-hover/reply:opacity-100 transition-opacity">
+                                            <button @click="editingComment = { ...r }" class="hover:text-amber-600 transition flex items-center gap-1"><Edit2 class="w-3 h-3" /> Editar</button>
+                                            <button @click="deleteComment(r.id)" class="hover:text-red-600 transition flex items-center gap-1"><Trash2 class="w-3 h-3" /> Borrar</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

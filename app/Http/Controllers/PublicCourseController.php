@@ -84,7 +84,7 @@ class PublicCourseController extends Controller
         ]);
     }
 
-    public function show($slug)
+    public function show(Request $request, $slug)
     {
         $course = Course::where('slug', $slug)
             ->where('status', 'PUBLICADO')
@@ -92,11 +92,12 @@ class PublicCourseController extends Controller
             ->firstOrFail();
 
         // Calculate some basic stats to display
-        $totalDuration = 0;
         $course->loadCount('lessons');
 
         return Inertia::render('CourseDetail', [
             'course' => $course,
+            'isDashboard' => $request->boolean('dashboard'),
+            'isEnrolled' => auth()->check() ? \App\Models\Enrollment::where('user_id', auth()->id())->where('course_id', $course->id)->exists() : false,
         ]);
     }
 
