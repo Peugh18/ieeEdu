@@ -41,15 +41,18 @@ const courseLinks = computed(() => props.courses.links.filter((link: any) => lin
 
 function destroy(course: CourseItem) {
     if (!confirm('Eliminar curso?')) return;
-    useForm().delete(route('admin.courses.destroy', course.id), { preserveState: true });
+    const form = useForm({});
+    form.delete(route('admin.courses.destroy', { course: course.id }), { preserveState: true });
 }
 
 function publish(course: CourseItem) {
-    useForm().patch(route('admin.courses.publish', course.id), { preserveState: true });
+    const form = useForm({});
+    form.patch(route('admin.courses.publish', { course: course.id }), { preserveState: true });
 }
 
 function hide(course: CourseItem) {
-    useForm().patch(route('admin.courses.hide', course.id), { preserveState: true });
+    const form = useForm({});
+    form.patch(route('admin.courses.hide', { course: course.id }), { preserveState: true });
 }
 
 onMounted(() => {
@@ -149,9 +152,16 @@ onMounted(() => {
                             <p class="font-bold text-sm text-on-surface truncate">{{ course.title }}</p>
                             <p class="text-xs text-on-surface-variant truncate">ID: {{ course.id }}</p>
                         </div>
-                        <Link :href="route('admin.courses.edit', course.id)" class="ml-auto text-xs font-bold text-primary hover:underline">
-                            Editar
-                        </Link>
+                        <div class="ml-auto flex items-center gap-3">
+                            <Link :href="route('admin.courses.certificate-template.edit', { course: course.id })" class="text-[10px] font-bold text-on-surface-variant flex items-center gap-1 hover:text-primary transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                Certificado
+                            </Link>
+
+                            <Link :href="route('admin.courses.edit', course.id)" class="text-xs font-bold text-primary hover:underline">
+                                Editar
+                            </Link>
+                        </div>
                     </div>
 
                     <div class="col-span-2">

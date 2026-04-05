@@ -115,4 +115,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', EnsureAdmin::class])
     Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
     Route::patch('payments/{payment}/approve', [PaymentController::class, 'approve'])->name('payments.approve');
     Route::patch('payments/{payment}/reject', [PaymentController::class, 'reject'])->name('payments.reject');
+
+    // Certificate Templates
+    Route::get('courses/{course}/certificate-template', [\App\Http\Controllers\Admin\CertificateTemplateController::class, 'edit'])->name('courses.certificate-template.edit');
+    Route::post('courses/{course}/certificate-template', [\App\Http\Controllers\Admin\CertificateTemplateController::class, 'update'])->name('courses.certificate-template.update');
 });

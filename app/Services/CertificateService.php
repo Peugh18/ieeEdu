@@ -74,6 +74,15 @@ class CertificateService
             ->where('course_id', $course->id)
             ->first();
             
+        $template = $course->certificateTemplate;
+
+        // Force regeneration if template was updated after certificate creation
+        if ($existing && $template && $template->updated_at && $existing->created_at->lt($template->updated_at)) {
+             Storage::disk('public')->delete($existing->file_path);
+             $existing->delete();
+             $existing = null;
+        }
+
         if ($existing) {
             return $existing;
         }
@@ -82,11 +91,31 @@ class CertificateService
         $code = 'IEE-' . strtoupper(Str::random(8)) . '-' . date('Y');
         $fileName = 'certificates/' . $user->id . '_' . $course->id . '_' . time() . '.pdf';
 
+        $template = $course->certificateTemplate;
+        $templateImageBase64 = null;
+        if ($template && $template->template_image) {
+            $imageDisk = Storage::disk('public');
+            if ($imageDisk->exists($template->template_image)) {
+                $imageData = $imageDisk->get($template->template_image);
+                $type = strtolower(pathinfo($template->template_image, PATHINFO_EXTENSION));
+                $templateImageBase64 = 'data:image/' . $type . ';base64,' . base64_encode($imageData);
+            } else {
+                 \Illuminate\Support\Facades\Log::warning('Certificate template image missing from disk', [
+                    'path' => $template->template_image,
+                    'course' => $course->id
+                ]);
+            }
+        }
+
         $data = [
-            'user_name' => $user->name,
-            'course_name' => $course->title,
+            'user' => $user,
+            'course' => $course,
             'date' => date('d/m/Y'),
             'code' => $code,
+            'template' => $template,
+            'template_image_base64' => $templateImageBase64,
+            // Fallback coordinate data if no template exists
+            'is_custom' => $template && $template->template_image ? true : false,
         ];
 
         // Ensure the directory exists in public storage
@@ -94,10 +123,17 @@ class CertificateService
             Storage::disk('public')->makeDirectory('certificates');
         }
 
-        $pdf = Pdf::loadView('pdf.certificate', $data)
-            ->setPaper('a4', 'landscape');
+        $pdf = \Spatie\LaravelPdf\Facades\Pdf::view('pdf.certificate', $data)
+            ->format('a4')
+            ->landscape()
+            ->margins(0, 0, 0, 0)
+            ->withBrowsershot(function ($browsershot) {
+                $browsershot->noSandbox()
+                   ->setOption('args', ['--disable-web-security'])
+                   ->windowSize(1122, 794); // Standard A4 at 96dpi
+            });
         
-        Storage::disk('public')->put($fileName, $pdf->output());
+        $pdf->save(Storage::disk('public')->path($fileName));
 
         return Certificate::create([
             'user_id' => $user->id,

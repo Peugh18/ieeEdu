@@ -12,10 +12,12 @@ use App\Services\CertificateService;
 class DashboardController extends Controller
 {
     protected $certificateService;
+    protected $examService;
 
-    public function __construct(CertificateService $certificateService)
+    public function __construct(CertificateService $certificateService, \App\Services\ExamService $examService)
     {
         $this->certificateService = $certificateService;
+        $this->examService = $examService;
     }
     public function index()
     {
@@ -114,17 +116,21 @@ class DashboardController extends Controller
 
         // 5. Get Certificates
         $certificates = \App\Models\Certificate::where('user_id', $user->id)
-            ->with('course')
+            ->with('course.certificateTemplate')
             ->orderByDesc('issue_date')
             ->take(3)
             ->get()
             ->map(function($cert) {
+                $template = $cert->course->certificateTemplate;
                 return [
                     'id' => $cert->id,
                     'course_title' => $cert->course->title,
                     'issue_date' => $cert->issue_date->format('d M Y'),
                     'code' => $cert->code,
-                    'download_url' => Storage::url($cert->file_path),
+                    'image' => ($template && $template->template_image) 
+                               ? '/storage/' . $template->template_image 
+                               : 'https://i.ibb.co/6P6X7p6/cert-placeholder.png',
+                    'download_url' => '/storage/' . $cert->file_path,
                 ];
             });
 
@@ -248,12 +254,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        $attemptCount = \App\Models\CourseExamAttempt::where('user_id', $user->id)
-            ->where('course_quiz_id', $quiz->id)
-            ->whereNotNull('completed_at')
-            ->count();
-
-        if ($attemptCount >= $quiz->max_attempts) {
+        if (!$this->examService->canTakeQuiz($user, $quiz)) {
              return redirect()->route('student.exams.index')->with('error', 'Has superado el límite de intentos.');
         }
 
@@ -265,84 +266,58 @@ class DashboardController extends Controller
 
         $quiz->load(['course', 'questions.answers']);
 
+        $completedCount = \App\Models\CourseExamAttempt::where('user_id', $user->id)
+            ->where('course_quiz_id', $quiz->id)
+            ->whereNotNull('completed_at')
+            ->count();
+
         return Inertia::render('student/TakeExam', [
             'quiz' => $quiz,
-            'current_attempt' => $attemptCount + 1
+            'current_attempt' => $completedCount + 1
         ]);
     }
 
     public function submitExam(\Illuminate\Http\Request $request, \App\Models\CourseQuiz $quiz)
     {
-        $user = Auth::user();
-        $answers = $request->input('answers', []); // [question_id => answer_id]
-        
-        $scoreRaw = 0;
-        $quiz->load('questions.answers');
-        foreach($quiz->questions as $q) {
-            if (isset($answers[$q->id])) {
-                $selectedAns = $q->answers->where('id', $answers[$q->id])->first();
-                if ($selectedAns && $selectedAns->is_correct) {
-                    $scoreRaw += 1;
-                }
-            }
+        try {
+            $this->examService->submit(
+                Auth::user(), 
+                $quiz, 
+                $request->input('answers', [])
+            );
+            return redirect()->route('student.exams.index')->with('success', 'Examen finalizado con éxito.');
+        } catch (\Exception $e) {
+            return redirect()->route('student.exams.index')->with('error', $e->getMessage());
         }
-        
-        $totalQuestions = $quiz->questions->count();
-        $finalScore = $totalQuestions > 0 ? round(($scoreRaw / $totalQuestions) * 20) : 0;
-        $status = $finalScore >= 14 ? 'aprobado' : 'reprobado';
-
-        $attempt = \App\Models\CourseExamAttempt::where('user_id', $user->id)
-            ->where('course_quiz_id', $quiz->id)
-            ->whereNull('completed_at')
-            ->first();
-
-        if ($attempt) {
-            $attempt->update([
-                'status' => $status,
-                'score' => $finalScore,
-                'answers_data' => $answers,
-                'completed_at' => now(),
-            ]);
-
-            // Sync Enrollment completion
-            if ($status === 'aprobado') {
-                $enrollment = Enrollment::where('user_id', $user->id)
-                    ->where('course_id', $quiz->course_id)
-                    ->first();
-                
-                if ($enrollment) {
-                    $isEligible = $this->certificateService->checkEligibility($user, $quiz->course);
-                    if ($isEligible) {
-                        $enrollment->update(['completed_at' => ($enrollment->completed_at ?? now())]);
-                    }
-                }
-                
-                // Trigger certificate generation
-                $this->certificateService->generateIfEligible($user, $quiz->course);
-            }
-        }
-
-        return redirect()->route('student.exams.index');
     }
 
     public function certificates()
     {
         $user = Auth::user();
         
+        // Auto-generate missing certificates for completed courses
+        $enrollments = Enrollment::where('user_id', $user->id)->get();
+        foreach($enrollments as $enrollment) {
+            $this->certificateService->generateIfEligible($user, $enrollment->course);
+        }
+
         $certificates = \App\Models\Certificate::where('user_id', $user->id)
-            ->with('course')
+            ->with(['course.certificateTemplate'])
             ->orderByDesc('issue_date')
             ->get()
             ->map(function($cert) {
+                $template = $cert->course->certificateTemplate;
                 return [
                     'id' => $cert->id,
                     'title' => 'Diploma de Finalización',
                     'course_title' => $cert->course->title,
                     'issue_date' => $cert->issue_date->format('d M Y'),
-                    'image' => 'https://i.ibb.co/6P6X7p6/cert-placeholder.png', // Or a thumbnail if available
+                    'image' => ($template && $template->template_image) 
+                               ? '/storage/' . $template->template_image 
+                               : 'https://i.ibb.co/6P6X7p6/cert-placeholder.png',
                     'code' => $cert->code,
                     'is_available' => true,
-                    'download_url' => Storage::url($cert->file_path),
+                    'download_url' => '/storage/' . $cert->file_path,
                 ];
             });
 

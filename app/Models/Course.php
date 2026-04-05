@@ -6,9 +6,11 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\Slugifiable;
+
 class Course extends Model
 {
-    use HasFactory;
+    use HasFactory, Slugifiable;
 
     protected $fillable = [
         'title',
@@ -78,6 +80,11 @@ class Course extends Model
     public function quizzes()
     {
         return $this->hasMany(CourseQuiz::class);
+    }
+
+    public function certificateTemplate()
+    {
+        return $this->hasOne(CertificateTemplate::class);
     }
 }
 
