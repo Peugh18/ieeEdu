@@ -84,42 +84,31 @@ const studentNavItems: NavItem[] = [
 ];
 
 const mainNavItems = isAdmin ? adminNavItems : studentNavItems;
-
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Github Repo',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
-    },
-];
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="inset">
-        <SidebarHeader>
+    <Sidebar collapsible="icon" variant="inset" class="border-r border-sidebar-border/30">
+        <SidebarHeader class="p-4">
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="isAdmin ? route('admin.dashboard') : route('dashboard')" class="flex items-center gap-2">
+                        <Link :href="isAdmin ? route('admin.dashboard') : route('dashboard')" class="flex items-center gap-3 group">
                             <AppLogo />
-                            <span class="font-serif font-bold text-on-surface">{{ isAdmin ? 'IEE - Admin' : 'Aula Virtual' }}</span>
+                            <div class="flex flex-col gap-0.5 group-hover:translate-x-1 transition-transform">
+                                <span class="font-serif font-bold text-sm tracking-tighter italic text-[#57572a] leading-none uppercase">{{ isAdmin ? 'Admin' : 'Aula Virtual' }}</span>
+                                <span class="text-[9px] font-bold text-muted-foreground tracking-[0.2em] uppercase leading-none">IIE - Institute</span>
+                            </div>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
         </SidebarHeader>
 
-        <SidebarContent>
+        <SidebarContent class="px-3">
             <NavMain :items="mainNavItems" />
         </SidebarContent>
 
-        <SidebarFooter>
-            <NavFooter :items="footerNavItems" />
+        <SidebarFooter class="p-6 border-t border-sidebar-border/30">
             <NavUser />
         </SidebarFooter>
     </Sidebar>

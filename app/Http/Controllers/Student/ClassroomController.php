@@ -63,6 +63,7 @@ class ClassroomController extends Controller
             ->whereIn('course_lesson_id', $allLessons->pluck('id'))
             ->where('is_completed', true)
             ->pluck('course_lesson_id')
+            ->map(fn($id) => (int)$id)
             ->toArray();
 
         // Determinar si todos los videos están completados
@@ -109,7 +110,7 @@ class ClassroomController extends Controller
 
         $progress = \App\Models\LessonProgress::updateOrCreate(
             ['user_id' => $user->id, 'course_lesson_id' => $request->lesson_id],
-            ['is_completed' => true]
+            ['is_completed' => 1]
         );
 
         // Update Enrollment Table Progress

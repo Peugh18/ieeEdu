@@ -1,69 +1,101 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { BookOpen, CheckCircle2, Clock } from 'lucide-vue-next';
+import { Head, router, usePage, Link as InertiaLink } from '@inertiajs/vue3';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { Trophy, XCircle, Download, RotateCcw, ArrowRight, Clock, CheckCircle2 } from 'lucide-vue-next';
+
+interface Answer {
+    id: number;
+    answer_text: string;
+}
+
+interface Question {
+    id: number;
+    question: string;
+    answers: Answer[];
+}
+
+interface Quiz {
+    id: number;
+    title: string;
+    course?: { title: string };
+    time_limit: number;
+    max_attempts: number;
+    questions: Question[];
+}
 
 const props = defineProps<{
-    quiz: any;
+    quiz: Quiz;
     current_attempt: number;
 }>();
 
+// Results from flash session
+const page = usePage() as any;
+const examResult = computed(() => page.props.flash?.exam_result);
+const showResultModal = computed(() => !!examResult.value);
+
+// Reactive State
 const currentQuestionIndex = ref(0);
 const selectedAnswers = ref<Record<number, number>>({});
 const isSubmitting = ref(false);
-
-const timeRemaining = ref(props.quiz.time_limit ? props.quiz.time_limit * 60 : 30 * 60);
+const timeRemaining = ref(props.quiz.time_limit * 60);
 let timer: any = null;
 
+// Modal State
 const showModal = ref(false);
+const modalType = ref<'submit' | 'timeup'>('submit');
 const modalTitle = ref('');
 const modalMessage = ref('');
-const modalType = ref<'submit' | 'timeup'>('submit');
 const onConfirmModal = ref<(() => void) | null>(null);
 
-const performSubmit = () => {
-    isSubmitting.value = true;
-    if (timer) clearInterval(timer);
-    router.post(route('student.exams.submit', props.quiz.id), {
-        answers: selectedAnswers.value
-    });
-};
+const formattedTime = computed(() => {
+    const mins = Math.floor(timeRemaining.value / 60);
+    const secs = timeRemaining.value % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+});
 
 onMounted(() => {
-    timer = setInterval(() => {
-        if (timeRemaining.value > 0) {
-            timeRemaining.value--;
-        } else {
-            clearInterval(timer);
-            modalType.value = 'timeup';
-            modalTitle.value = '¡El tiempo ha terminado!';
-            modalMessage.value = 'Se acabó el tiempo asignado. Tus respuestas guardadas se enviarán automáticamente para su calificación.';
-            onConfirmModal.value = () => {
-                showModal.value = false;
-                performSubmit();
-            };
-            showModal.value = true;
-            
-            // Automaically submit after 4 seconds if they are AFK
-            setTimeout(() => {
-                if(showModal.value && modalType.value === 'timeup') {
-                    performSubmit();
-                }
-            }, 4000);
-        }
-    }, 1000);
+    if (props.quiz.questions.length > 0) {
+        timer = setInterval(() => {
+            if (timeRemaining.value > 0) {
+                timeRemaining.value--;
+            } else {
+                clearInterval(timer);
+                triggerTimeUp();
+            }
+        }, 1000);
+    }
 });
 
 onUnmounted(() => {
     if (timer) clearInterval(timer);
 });
 
-const formattedTime = computed(() => {
-    const min = Math.floor(timeRemaining.value / 60);
-    const sec = timeRemaining.value % 60;
-    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-});
+const triggerTimeUp = () => {
+    modalType.value = 'timeup';
+    modalTitle.value = '¡Tiempo Agotado!';
+    modalMessage.value = 'El tiempo para realizar esta evaluación ha finalizado. Tus respuestas actuales serán enviadas automáticamente.';
+    onConfirmModal.value = () => {
+        showModal.value = false;
+        performSubmit();
+    };
+    showModal.value = true;
+};
+
+const performSubmit = () => {
+    isSubmitting.value = true;
+    if (timer) clearInterval(timer);
+    router.post(route('student.exams.submit', { quiz: props.quiz.id }), {
+        answers: selectedAnswers.value
+    }, {
+        onSuccess: () => {
+            isSubmitting.value = false;
+        },
+        onError: () => {
+             isSubmitting.value = false;
+        }
+    });
+};
 
 const breadcrumbs = [
     { title: 'Dashboard', href: '/dashboard' },
@@ -124,14 +156,14 @@ const triggerSubmitConfirm = () => {
                         <h2 class="text-2xl font-serif font-bold italic mt-1">{{ quiz.title }}</h2>
                     </div>
                     <div class="flex items-center gap-4">
-                        <div class="hidden sm:flex px-5 py-2 bg-indigo-50 rounded-full font-bold text-indigo-700 items-center justify-center">
+                        <div class="hidden sm:flex px-5 py-2 bg-indigo-50 rounded-full font-bold text-indigo-700 items-center justify-center text-xs">
                             Intento {{ current_attempt }} de {{ quiz.max_attempts }}
                         </div>
                         <div class="px-5 py-2 bg-red-50 rounded-full font-bold text-red-600 flex items-center gap-2" :class="timeRemaining < 60 ? 'animate-pulse' : ''">
                             <Clock class="w-4 h-4" />
                             <span class="tabular-nums font-mono text-lg tracking-wider">{{ formattedTime }}</span>
                         </div>
-                        <div class="hidden sm:block px-5 py-2.5 bg-primary/10 rounded-full font-bold text-primary tabular-nums">
+                        <div class="hidden sm:block px-5 py-2.5 bg-primary/10 rounded-full font-bold text-primary tabular-nums text-xs">
                             Pregunta {{ currentQuestionIndex + 1 }} de {{ quiz.questions.length }}
                         </div>
                     </div>
@@ -140,7 +172,7 @@ const triggerSubmitConfirm = () => {
                 <!-- Content container -->
                 <div class="flex-1 overflow-y-auto p-8 md:p-12 custom-scrollbar" v-if="quiz.questions.length > 0">
                     <div class="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-right-4 duration-300" :key="currentQuestionIndex">
-                        <h3 class="text-2xl font-bold text-on-surface leading-snug">
+                        <h3 class="text-2xl font-bold text-on-surface leading-snug font-serif italic">
                             {{ quiz.questions[currentQuestionIndex].question }}
                         </h3>
 
@@ -149,16 +181,16 @@ const triggerSubmitConfirm = () => {
                                 v-for="(ans, i) in quiz.questions[currentQuestionIndex].answers"
                                 :key="ans.id"
                                 @click="selectAnswer(quiz.questions[currentQuestionIndex].id, ans.id)"
-                                class="w-full flex items-center p-5 rounded-2xl border-2 transition-alltext-left group"
+                                class="w-full flex items-center p-6 rounded-3xl border-2 transition-all group text-left shadow-sm"
                                 :class="selectedAnswers[quiz.questions[currentQuestionIndex].id] === ans.id 
-                                ? 'border-primary bg-primary/5 shadow-sm' 
+                                ? 'border-primary bg-primary/5' 
                                 : 'border-outline-variant/30 hover:border-primary/40 bg-white'"
                             >
-                                <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center mr-4 transition-colors shrink-0" 
+                                <div class="w-10 h-10 rounded-2xl border-2 flex items-center justify-center mr-5 transition-colors shrink-0" 
                                      :class="selectedAnswers[quiz.questions[currentQuestionIndex].id] === ans.id ? 'border-primary bg-primary text-white' : 'border-outline-variant/40 group-hover:border-primary/50 text-transparent'">
-                                    <CheckCircle2 class="w-4 h-4" />
+                                    <CheckCircle2 class="w-5 h-5" />
                                 </div>
-                                <span class="text-lg text-on-surface font-medium leading-relaxed group-hover:text-primary transition-colors text-left" :class="selectedAnswers[quiz.questions[currentQuestionIndex].id] === ans.id ? 'text-primary' : ''">
+                                <span class="text-lg text-on-surface font-medium leading-relaxed group-hover:text-primary transition-colors pr-4" :class="selectedAnswers[quiz.questions[currentQuestionIndex].id] === ans.id ? 'text-primary' : ''">
                                     {{ ans.answer_text }}
                                 </span>
                             </button>
@@ -183,7 +215,7 @@ const triggerSubmitConfirm = () => {
                     <button 
                         v-if="currentQuestionIndex < quiz.questions.length - 1"
                         @click="nextQuestion"
-                        class="px-10 py-4 bg-primary text-on-primary font-bold text-xs uppercase tracking-widest rounded-2xl shadow-lg hover:scale-105 transition-all"
+                        class="px-10 py-4 bg-primary text-on-primary font-bold text-xs uppercase tracking-widest rounded-3xl shadow-xl shadow-primary/20 hover:scale-105 transition-all"
                     >
                         Siguiente Pregunta
                     </button>
@@ -192,39 +224,97 @@ const triggerSubmitConfirm = () => {
                         v-if="currentQuestionIndex === quiz.questions.length - 1 && quiz.questions.length > 0"
                         @click="triggerSubmitConfirm"
                         :disabled="isSubmitting"
-                        class="px-12 py-4 bg-emerald-600 text-white font-bold text-xs uppercase tracking-widest rounded-2xl shadow-lg shadow-emerald-900/20 hover:bg-emerald-700 hover:scale-105 transition-all disabled:opacity-50"
+                        class="px-12 py-4 bg-emerald-600 text-white font-bold text-xs uppercase tracking-widest rounded-3xl shadow-xl shadow-emerald-900/20 hover:bg-emerald-700 hover:scale-105 transition-all disabled:opacity-50"
                     >
-                        {{ isSubmitting ? 'Enviando...' : 'Finalizar y Calificar' }}
+                        {{ isSubmitting ? 'Calificando...' : 'Finalizar y Entregar' }}
                     </button>
                 </div>
             </div>
 
         </div>
 
-        <!-- Custom Modal Overlay -->
-        <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div class="bg-white rounded-[2.5rem] shadow-2xl max-w-md w-full p-8 text-center border border-outline-variant/10 animate-in zoom-in-95 duration-200">
-                <div class="w-20 h-20 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-6">
-                    <Clock v-if="modalType === 'timeup'" class="w-10 h-10 text-primary animate-pulse" />
-                    <CheckCircle2 v-else class="w-10 h-10 text-primary" />
+        <!-- Confirm Submission Modal -->
+        <div v-if="showModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div class="bg-white rounded-[3rem] shadow-2xl max-w-md w-full p-10 text-center border border-outline-variant/10 animate-in zoom-in-95 duration-200">
+                <div class="w-24 h-24 mx-auto bg-primary/10 rounded-full flex items-center justify-center mb-8">
+                    <Clock v-if="modalType === 'timeup'" class="w-12 h-12 text-primary animate-pulse" />
+                    <CheckCircle2 v-else class="w-12 h-12 text-primary" />
                 </div>
-                <h3 class="text-2xl font-serif font-bold text-on-surface mb-3">{{ modalTitle }}</h3>
-                <p class="text-on-surface-variant leading-relaxed text-sm mb-8">{{ modalMessage }}</p>
+                <h3 class="text-3xl font-serif font-bold italic text-on-surface mb-4">{{ modalTitle }}</h3>
+                <p class="text-on-surface-variant leading-relaxed font-serif italic text-lg mb-10">{{ modalMessage }}</p>
                 
-                <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-4">
                     <button 
                         @click="onConfirmModal && onConfirmModal()"
-                        class="w-full py-4 bg-primary text-white font-bold rounded-2xl shadow-lg hover:opacity-90 active:scale-95 transition"
+                        class="w-full py-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:opacity-90 active:scale-95 transition-all uppercase tracking-widest text-xs"
                     >
                         {{ modalType === 'timeup' ? 'Aceptar y Enviar' : 'Sí, calificar ahora' }}
                     </button>
                     <button 
                         v-if="modalType === 'submit'"
                         @click="showModal = false"
-                        class="w-full py-4 text-on-surface-variant hover:text-primary font-bold rounded-2xl hover:bg-surface-container-low transition"
+                        class="w-full py-5 text-on-surface-variant hover:text-primary font-bold rounded-2xl hover:bg-surface-container-low transition-all uppercase tracking-widest text-xs"
                     >
                         Volver al examen
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- FINAL RESULTS MODAL (Success / Failure) -->
+        <div v-if="showResultModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-500">
+            <div class="bg-white rounded-[4rem] shadow-[0_30px_90px_rgba(0,0,0,0.3)] max-w-xl w-full p-12 text-center border border-outline-variant/10 animate-in zoom-in-95 duration-400 relative overflow-hidden">
+                <!-- Abstract Design Bgs -->
+                <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+
+                <div class="relative z-10">
+                    <div class="w-32 h-32 mx-auto rounded-[2.5rem] flex items-center justify-center mb-10 shadow-inner" :class="examResult.status === 'aprobado' ? 'bg-emerald-50' : 'bg-red-50'">
+                        <Trophy v-if="examResult.status === 'aprobado'" class="w-16 h-16 text-emerald-600 animate-bounce" />
+                        <XCircle v-else class="w-16 h-16 text-red-600 animate-pulse" />
+                    </div>
+
+                    <h3 class="text-4xl lg:text-5xl font-serif font-bold italic text-on-surface mb-4 leading-tight">
+                        {{ examResult.status === 'aprobado' ? '¡Magnífica Calificación!' : 'Sigue intentándolo' }}
+                    </h3>
+                    
+                    <p class="text-xl font-serif italic text-on-surface-variant mb-12">
+                        Has obtenido un puntaje de <span class="font-bold text-primary text-3xl tabular-nums">{{ examResult.score }}</span> sobre 20. 
+                        {{ examResult.status === 'aprobado' ? 'Has superado los estándares académicos necesarios.' : 'No has alcanzado el puntaje mínimo de ' + examResult.passing_score + ' para la acreditación.' }}
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row gap-4 items-center justify-center">
+                        <template v-if="examResult.status === 'aprobado'">
+                            <a 
+                                v-if="examResult.certificate_url"
+                                :href="examResult.certificate_url" 
+                                target="_blank"
+                                class="w-full sm:w-auto px-10 py-5 bg-emerald-600 text-white font-bold rounded-2xl shadow-xl shadow-emerald-900/20 hover:bg-emerald-700 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
+                            >
+                                <Download class="w-4 h-4" /> Mi Certificado
+                            </a>
+                            <InertiaLink 
+                                :href="route('student.courses.index')" 
+                                class="w-full sm:w-auto px-10 py-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:opacity-90 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
+                            >
+                                Finalizar <ArrowRight class="w-4 h-4" />
+                            </InertiaLink>
+                        </template>
+                        <template v-else>
+                            <button 
+                                @click="router.reload()"
+                                class="w-full sm:w-auto px-10 py-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:opacity-90 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
+                            >
+                                <RotateCcw class="w-4 h-4" /> Reintentar Quiz
+                            </button>
+                            <InertiaLink 
+                                :href="route('student.exams.index')" 
+                                class="w-full sm:w-auto px-10 py-5 text-on-surface-variant hover:text-primary font-bold rounded-2xl border-2 border-outline-variant/30 hover:bg-surface-container-low transition-all uppercase tracking-widest text-xs"
+                            >
+                                Volver al panel
+                            </InertiaLink>
+                        </template>
+                    </div>
                 </div>
             </div>
         </div>
