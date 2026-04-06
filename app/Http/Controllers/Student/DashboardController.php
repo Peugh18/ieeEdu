@@ -280,14 +280,26 @@ class DashboardController extends Controller
     public function submitExam(\Illuminate\Http\Request $request, \App\Models\CourseQuiz $quiz)
     {
         try {
-            $this->examService->submit(
+            $attempt = $this->examService->submit(
                 Auth::user(), 
                 $quiz, 
                 $request->input('answers', [])
             );
-            return redirect()->route('student.exams.index')->with('success', 'Examen finalizado con éxito.');
+
+            // Cargar datos del certificado si aprobó
+            $certificate = \App\Models\Certificate::where('user_id', Auth::id())
+                ->where('course_id', $quiz->course_id)
+                ->first();
+
+            return back()->with('exam_result', [
+                'score' => $attempt->score,
+                'status' => $attempt->status,
+                'passing_score' => $quiz->minimum_score ?? 14,
+                'certificate_url' => $certificate ? '/storage/' . $certificate->file_path : null,
+            ]);
+            
         } catch (\Exception $e) {
-            return redirect()->route('student.exams.index')->with('error', $e->getMessage());
+            return back()->with('error', $e->getMessage());
         }
     }
 

@@ -75,6 +75,17 @@ const newMaterial = ref({
     file: null as File | null,
 });
 const addingMaterialFor = ref<number | null>(null);
+const editingLessonId = ref<number | null>(null);
+const editLessonData = ref<any>({
+    title: '',
+    description: '',
+    content_type: 'video',
+    video_url: '',
+    live_link: '',
+    start_time: '',
+    end_time: '',
+    module_id: null,
+});
 
 const showSuccessNotification = ref(false);
 const showErrorNotification = ref(false);
@@ -254,6 +265,67 @@ async function toggleLesson(lessonId: number) {
         const res = await axios.get(route('admin.lessons.materials.index', { lesson: lessonId }));
         materialsByLesson.value[lessonId] = res.data;
     }
+}
+
+const now = ref(new Date());
+setInterval(() => { now.value = new Date(); }, 30000); // Check every 30s
+
+function getLessonStatus(lesson: any) {
+    if (lesson.video_url) return { label: 'Grabada', class: 'bg-blue-100 text-blue-700' };
+    if (lesson.content_type !== 'live') return { label: 'Texto/Otro', class: 'bg-gray-100 text-gray-600' };
+    
+    if (!lesson.start_time) return { label: 'Pendiente Programar', class: 'bg-amber-100 text-amber-700' };
+    
+    // Al parsing del DB, quitamos el sufijo 'Z' para que se trate como hora local
+    const normalized = lesson.start_time.replace('z', '').replace('Z', '').replace('T', ' ').substring(0, 19);
+    const start = new Date(normalized).getTime();
+    const end = lesson.end_time 
+        ? new Date(lesson.end_time.replace('Z', '').replace('T', ' ').substring(0, 19)).getTime() 
+        : start + (3 * 60 * 60 * 1000);
+    const currentTime = now.value.getTime();
+    
+    if (currentTime < start) return { label: 'Programada', class: 'bg-indigo-100 text-indigo-700' };
+    if (currentTime >= start && currentTime <= end) return { label: '¡EN VIVO!', class: 'bg-emerald-100 text-emerald-700 animate-pulse' };
+    return { label: 'En Procesamiento', class: 'bg-orange-100 text-orange-700' };
+}
+
+function formatLocalTime(dateStr: string) {
+    if (!dateStr) return '';
+    // Simplemente formateamos para mostrar lo que hay en la BD como local
+    const normalized = dateStr.replace('Z', '').replace('T', ' ').substring(0, 19);
+    return new Date(normalized).toLocaleString();
+}
+
+function startEditLesson(lesson: any) {
+    editingLessonId.value = lesson.id;
+    editLessonData.value = {
+        title: lesson.title,
+        description: lesson.description || '',
+        content_type: lesson.content_type,
+        video_url: lesson.video_url || '',
+        live_link: lesson.live_link || '',
+        start_time: lesson.start_time ? lesson.start_time.substring(0, 16).replace(' ', 'T') : '',
+        end_time: lesson.end_time ? lesson.end_time.substring(0, 16).replace(' ', 'T') : '',
+        module_id: lesson.module_id,
+    };
+}
+
+async function saveEditLesson() {
+    if (!editingLessonId.value) return;
+    try {
+        const res = await axios.put(route('admin.lessons.update', { lesson: editingLessonId.value }), editLessonData.value);
+        const idx = lessons.value.findIndex(l => l.id === editingLessonId.value);
+        if (idx !== -1) lessons.value[idx] = res.data;
+        editingLessonId.value = null;
+        showSuccessNotification.value = true;
+        setTimeout(() => showSuccessNotification.value = false, 3000);
+    } catch (e: any) {
+        alert(e?.response?.data?.message ?? 'Error al actualizar la clase');
+    }
+}
+
+function cancelEditLesson() {
+    editingLessonId.value = null;
 }
 
 function startAddMaterial(lessonId: number) {
@@ -684,8 +756,8 @@ async function toggleQuiz(id: number) {
                                 class="rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm md:col-span-3 focus:outline-none focus:border-primary/50 transition"
                                 :placeholder="isMasterclass ? 'Link de WhatsApp (grupo)' : 'Link Zoom/Meet'"
                             />
-                            <input v-if="!isMasterclass" v-model="newLesson.start_time" class="rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none" placeholder="Inicio (opcional) YYYY-MM-DD HH:MM" />
-                            <input v-if="!isMasterclass" v-model="newLesson.end_time" class="rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none" placeholder="Fin (opcional) YYYY-MM-DD HH:MM" />
+                            <input v-if="!isMasterclass" v-model="newLesson.start_time" type="datetime-local" class="rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition" />
+                            <input v-if="!isMasterclass" v-model="newLesson.end_time" type="datetime-local" class="rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition" />
                         </div>
 
                         <div>
@@ -708,12 +780,84 @@ async function toggleQuiz(id: number) {
                                     :key="lesson.id"
                                     class="w-full rounded-2xl bg-white border border-outline-variant/10 p-4 shadow-sm transition"
                                 >
-                                    <div class="flex items-start justify-between gap-2 cursor-pointer pb-2" @click="toggleLesson(lesson.id)">
+                                    <div v-if="editingLessonId !== lesson.id" class="flex items-start justify-between gap-2 cursor-pointer pb-2" @click="toggleLesson(lesson.id)">
                                         <div class="min-w-0">
-                                            <p class="font-bold text-sm text-on-surface truncate">{{ lesson.title }}</p>
-                                            <p class="text-xs text-on-surface-variant mt-0.5">{{ lesson.content_type }}</p>
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <p class="font-bold text-sm text-on-surface truncate">{{ lesson.title }}</p>
+                                                <span :class="['text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider', getLessonStatus(lesson).class]">
+                                                    {{ getLessonStatus(lesson).label }}
+                                                </span>
+                                            </div>
+                                            <p class="text-[10px] text-on-surface-variant uppercase tracking-wider font-bold">
+                                                <span v-if="lesson.content_type === 'video'" class="text-blue-600">Video</span>
+                                                <span v-else-if="lesson.content_type === 'live'" class="text-emerald-600">Zoom/Meet</span>
+                                                <span v-else class="text-on-surface-variant">{{ lesson.content_type }}</span>
+                                                <span v-if="lesson.start_time" class="ml-2 text-on-surface-variant/60">• {{ formatLocalTime(lesson.start_time) }}</span>
+                                            </p>
                                         </div>
-                                        <button class="text-xs font-bold text-red-600 hover:text-red-800 transition pt-0.5" @click.stop="deleteLesson(lesson.id)">Eliminar</button>
+                                        <div class="flex items-center gap-1">
+                                            <button class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition px-2 py-1" @click.stop="startEditLesson(lesson)">Editar</button>
+                                            <button class="text-xs font-bold text-red-600 hover:text-red-800 transition px-2 py-1" @click.stop="deleteLesson(lesson.id)">Eliminar</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Formulario de Edición de Clase -->
+                                    <div v-else class="space-y-4 pb-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <h5 class="text-xs font-bold text-indigo-600 uppercase">Editando Clase</h5>
+                                            <button @click="cancelEditLesson" class="text-xs font-bold text-on-surface-variant hover:text-on-surface">Cancelar</button>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1 ml-1">Título</label>
+                                                <input v-model="editLessonData.title" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:border-primary transition" />
+                                            </div>
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1 ml-1">Tipo de Contenido</label>
+                                                <select v-model="editLessonData.content_type" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:border-primary transition">
+                                                    <option value="video">Video (grabado)</option>
+                                                    <option value="live">En vivo (link + horario)</option>
+                                                    <option value="text">Texto</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1 ml-1">Descripción (Opcional)</label>
+                                            <textarea v-model="editLessonData.description" rows="2" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:border-primary transition"></textarea>
+                                        </div>
+
+                                        <div v-if="editLessonData.content_type === 'video'">
+                                            <label class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1 ml-1">URL de Video</label>
+                                            <input v-model="editLessonData.video_url" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:border-primary transition" />
+                                        </div>
+
+                                        <div v-if="editLessonData.content_type === 'live'" class="space-y-3">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1 ml-1">Link de la sesión (Zoom/Meet)</label>
+                                                <input v-model="editLessonData.live_link" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:border-primary transition" />
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1 ml-1">Fecha/Hora Inicio</label>
+                                                    <input v-model="editLessonData.start_time" type="datetime-local" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:border-primary transition" />
+                                                </div>
+                                                <div>
+                                                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase mb-1 ml-1">Fecha/Hora Fin</label>
+                                                    <input v-model="editLessonData.end_time" type="datetime-local" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:border-primary transition" />
+                                                </div>
+                                            </div>
+                                            <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                                                <p class="text-[10px] text-amber-800 leading-tight">
+                                                    <strong>Nota para Post-En-Vivo:</strong> Si ya pasó la sesión y tienes la grabación, cambia el tipo a <strong>Video</strong> y pega la URL de YouTube/Vimeo.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex justify-end pt-2">
+                                            <button @click="saveEditLesson" class="rounded-xl bg-primary px-6 py-2 text-xs font-bold text-white shadow-lg hover:opacity-90 active:scale-95 transition">Guardar Clase</button>
+                                        </div>
                                     </div>
 
                                     <div v-if="openLessonId === lesson.id || true" class="mt-4 pt-4 border-t border-outline-variant/10">

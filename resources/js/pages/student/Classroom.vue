@@ -9,7 +9,7 @@ import {
     ArrowRight, HandIcon, Flag, ListVideo,
     Heart, Reply, Trash2, Edit2
 } from 'lucide-vue-next';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
 interface Material {
     id: number;
@@ -66,8 +66,83 @@ const props = defineProps<{
 const { props: pageProps } = usePage() as any;
 const currentUser = computed(() => pageProps.auth.user);
 
-const localCompleted = ref<number[]>([...props.completedLessons]);
-const localAllCompleted = ref(props.allLessonsCompleted);
+// ─── PROGRESS STATE (persistent via localStorage) ────────────────────────────
+// Key: "iie_progress_{courseId}_{userId}"
+// This survives component recreation, SPA navigation, and server timing issues.
+const progressKey = computed(() => 
+    `iie_progress_${props.course.id}_${pageProps.auth?.user?.id ?? 'guest'}`
+);
+
+function loadFromStorage(): number[] {
+    try {
+        const raw = localStorage.getItem(progressKey.value);
+        if (!raw) return [];
+        return JSON.parse(raw) as number[];
+    } catch { return []; }
+}
+
+function saveToStorage(ids: number[]): void {
+    try { localStorage.setItem(progressKey.value, JSON.stringify(ids)); } catch {}
+}
+
+// Initialize: server data + localStorage (merge both, localStorage can be ahead)
+function buildInitialCompleted(): number[] {
+    const fromServer = props.completedLessons.map((id: any) => Number(id));
+    const fromStorage = loadFromStorage();
+    const merged = [...fromServer];
+    fromStorage.forEach(id => { if (!merged.includes(id)) merged.push(id); });
+    return merged;
+}
+
+const localCompleted = ref<number[]>(buildInitialCompleted());
+const localAllCompleted = ref(
+    props.allLessonsCompleted || localCompleted.value.length >= props.allLessonsCount
+);
+
+// When server sends new completedLessons (after SPA nav), MERGE with our localStorage state
+// We NEVER replace — server data can be stale if POST hasn't finished yet
+watch(() => props.completedLessons, (serverCompleted) => {
+    const current = loadFromStorage();
+    const serverIds = serverCompleted.map((id: any) => Number(id));
+    serverIds.forEach(id => { if (!current.includes(id)) current.push(id); });
+    // Also keep anything already in localCompleted (optimistic additions this session)
+    localCompleted.value.forEach(id => { if (!current.includes(id)) current.push(id); });
+    localCompleted.value = current;
+    saveToStorage(current);
+    if (current.length >= props.allLessonsCount && props.allLessonsCount > 0) {
+        localAllCompleted.value = true;
+    }
+}, { deep: true });
+
+watch(() => props.allLessonsCompleted, (newVal) => {
+    if (newVal === true) localAllCompleted.value = true;
+});
+
+async function completeLesson() {
+    if (!props.currentLesson) return;
+    const lessonId = props.currentLesson.id;
+
+    if (!localCompleted.value.includes(lessonId)) {
+        // 1. Update UI immediately (optimistic)
+        localCompleted.value.push(lessonId);
+        // 2. Persist to localStorage immediately (survives navigation)
+        saveToStorage(localCompleted.value);
+        // 3. Check if all done
+        if (localCompleted.value.length >= props.allLessonsCount) {
+            localAllCompleted.value = true;
+        }
+        // 4. Send to server (best-effort, non-blocking)
+        try {
+            await axios.post('/classroom/progress', { lesson_id: lessonId });
+        } catch (e) {
+            console.warn('[iieEdu] Progress save failed, localStorage kept:', e);
+            // We do NOT revert — localStorage is source of truth
+        }
+    }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+
 
 const breadcrumbs = computed(() => [
     { title: 'Dashboard', href: '/dashboard' },
@@ -76,16 +151,56 @@ const breadcrumbs = computed(() => [
 ]);
 
 const activeSidebarTab = ref<'curriculum' | 'chat' | 'comments'>('curriculum');
-const activeTab = ref<'content' | 'resources'>('content');
-const viewingExam = ref(false);
+const now = ref(new Date());
+setInterval(() => {
+    now.value = new Date();
+}, 1000);
 
-const isLive = computed(() => props.currentLesson?.content_type === 'live');
+// Helper to parse Laravel dates safely regardless of timezone suffixes
+const parseSafeDate = (dateStr: string) => {
+    if (!dateStr) return null;
+    // We strip Z and T to force the browser to treat it as LOCAL wall-clock time
+    // This fixed the "5 hour shift" issue in Peru/Colombia
+    let normalized = dateStr.replace('Z', '').replace('z', '').replace('T', ' ').substring(0, 19);
+    const d = new Date(normalized);
+    return isNaN(d.getTime()) ? null : d;
+};
+
+const lessonState = computed(() => {
+    if (props.currentLesson?.video_url) return 'recorded';
+    
+    if (props.currentLesson?.content_type === 'live' || props.currentLesson?.start_time) {
+        const startDate = parseSafeDate(props.currentLesson?.start_time || '');
+        if (!startDate) return 'recorded';
+
+        const startTime = startDate.getTime();
+        const endDate = parseSafeDate(props.currentLesson?.end_time || '');
+        
+        // If no end time, assume 3 hours duration for the live session window
+        const endTime = endDate ? endDate.getTime() : startTime + (3 * 60 * 60 * 1000); 
+        
+        const currentTime = now.value.getTime();
+        
+        if (currentTime < startTime) return 'scheduled';
+        if (currentTime >= startTime && currentTime <= endTime) return 'live';
+        return 'processing';
+    }
+    
+    return 'recorded';
+});
+
+const isLiveLegacy = computed(() => lessonState.value === 'live' || lessonState.value === 'scheduled');
+
 const videoId = computed(() => {
     if (!props.currentLesson?.video_url) return null;
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = props.currentLesson.video_url.match(regExp);
     return (match && match[2].length === 11) ? match[2] : null;
 });
+
+// UI State
+const viewingExam = ref(false);
+const activeTab = ref<'content' | 'resources'>('content');
 
 // Comments handling
 const newComment = ref('');
@@ -95,7 +210,7 @@ const editingComment = ref<any>(null);
 function postComment() {
     if (!newComment.value.trim() || !props.currentLesson) return;
     
-    router.post(route('student.comments.store', props.currentLesson.id), {
+    router.post(route('student.comments.store', { lesson: props.currentLesson.id }), {
         content: newComment.value,
         parent_id: replyingTo.value?.id
     }, {
@@ -107,14 +222,14 @@ function postComment() {
 }
 
 function toggleLike(commentId: number) {
-    router.post(route('student.comments.like', commentId), {}, {
+    router.post(route('student.comments.like', { comment: commentId }), {}, {
         preserveScroll: true
     });
 }
 
 function deleteComment(commentId: number) {
     if (confirm('¿Estás seguro de eliminar este comentario?')) {
-        router.delete(route('student.comments.destroy', commentId), {
+        router.delete(route('student.comments.destroy', { comment: commentId }), {
             preserveScroll: true
         });
     }
@@ -122,7 +237,7 @@ function deleteComment(commentId: number) {
 
 function updateComment() {
     if (!editingComment.value?.content.trim()) return;
-    router.put(route('student.comments.update', editingComment.value.id), {
+    router.put(route('student.comments.update', { comment: editingComment.value.id }), {
         content: editingComment.value.content
     }, {
         onSuccess: () => {
@@ -149,8 +264,75 @@ const timeSince = (dateString: string) => {
     return 'hace un momento';
 };
 
+
 // Countdown for Live Classes
 const countdown = ref('--:--:--');
+let timerInterval: any = null;
+
+function startCountdown() {
+    if (timerInterval) clearInterval(timerInterval);
+    
+    if (lessonState.value === 'scheduled' && props.currentLesson?.start_time) {
+        const startDate = parseSafeDate(props.currentLesson.start_time);
+        if (!startDate) return;
+        
+        const target = startDate.getTime();
+        
+        const update = () => {
+            const currentTime = new Date().getTime();
+            const diff = target - currentTime;
+            
+            if (diff <= 0) {
+                countdown.value = "ENTRANDO...";
+                if (timerInterval) clearInterval(timerInterval);
+                // Trigger a small delay and maybe a refresh or just let the computed property switch the view
+                return;
+            }
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+            countdown.value = `${hours}:${minutes}:${seconds}`;
+        };
+        
+        update();
+        timerInterval = setInterval(update, 1000);
+    }
+}
+
+watch(() => props.currentLesson?.id, () => {
+    startCountdown();
+}, { immediate: true });
+
+// CRITICAL FIX: When navigating between lessons in Inertia SPA,
+// the server sends a fresh list of completed lessons for the new lesson's page.
+// We must MERGE server data with our local state, NOT replace it.
+// Otherwise, lessons marked as complete in this session would disappear.
+watch(() => props.completedLessons, (serverCompleted) => {
+    // Find any IDs the server knows about that we don't have locally yet
+    const merged = [...localCompleted.value];
+    serverCompleted.forEach((id: number) => {
+        if (!merged.includes(id)) {
+            merged.push(id);
+        }
+    });
+    localCompleted.value = merged;
+    // Recalculate allCompleted with merged data
+    if (merged.length >= props.allLessonsCount && props.allLessonsCount > 0) {
+        localAllCompleted.value = true;
+    }
+}, { deep: true });
+
+watch(() => props.allLessonsCompleted, (newVal) => {
+    // Only update to TRUE from the server, never back to false
+    // (local state can be ahead of server)
+    if (newVal === true) localAllCompleted.value = true;
+});
+
+onUnmounted(() => {
+    if (timerInterval) clearInterval(timerInterval);
+});
+
 onMounted(() => {
     // Load Plyr
     const link = document.createElement('link');
@@ -174,7 +356,8 @@ onMounted(() => {
                     modestbranding: 1,
                     controls: 0,
                     disablekb: 1,
-                    fs: 0
+                    fs: 0,
+                    origin: window.location.origin
                 }
             });
 
@@ -184,13 +367,8 @@ onMounted(() => {
                     if (!instance.duration) return;
                     
                     const percentage = instance.currentTime / instance.duration;
-                    if (percentage >= 0.8 && !localCompleted.value.includes(props.currentLesson!.id)) {
-                        localCompleted.value.push(props.currentLesson!.id);
-                        axios.post('/classroom/progress', { lesson_id: props.currentLesson!.id }).then(() => {
-                            if (localCompleted.value.length >= props.allLessonsCount) {
-                                localAllCompleted.value = true;
-                            }
-                        }).catch(() => {});
+                    if (percentage >= 0.8) {
+                        completeLesson();
                     }
                 });
             }
@@ -198,22 +376,7 @@ onMounted(() => {
     };
     document.head.appendChild(script);
 
-    if (isLive.value && props.currentLesson?.start_time) {
-        const target = new Date(props.currentLesson.start_time).getTime();
-        const timer = setInterval(() => {
-            const now = new Date().getTime();
-            const diff = target - now;
-            if (diff <= 0) {
-                countdown.value = "EN VIVO";
-                clearInterval(timer);
-                return;
-            }
-            const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
-            countdown.value = `${hours}:${minutes}:${seconds}`;
-        }, 1000);
-    }
+    startCountdown();
 });
 
 </script>
@@ -311,52 +474,70 @@ onMounted(() => {
                 <template v-else>
                     <!-- Video Section -->
                 <div class="w-full bg-black relative group aspect-video">
-                    <template v-if="!isLive">
+                    <!-- RECORDED: Show Video Player -->
+                    <template v-if="lessonState === 'recorded'">
                         <div v-if="videoId" class="w-full h-full relative group">
-                            <!-- Premium Elegant Border Wrapper -->
                             <div class="absolute -inset-1 z-0 bg-gradient-to-tr from-primary/20 via-transparent to-primary/20 rounded-[2.5rem] blur-sm"></div>
-                            
                             <div class="relative z-10 w-full h-full rounded-[2rem] overflow-hidden bg-black border-4 border-surface-container-high shadow-[0_20px_50px_rgba(87,87,42,0.3)]">
-                                <!-- Plyr Container -->
-                                <div 
-                                    class="js-plyr w-full h-full" 
-                                    :data-plyr-provider="'youtube'" 
-                                    :data-plyr-embed-id="videoId"
-                                ></div>
-                            </div>
-
-                            <!-- Branding Mask (Covers the tiny YT logo if it appears) -->
-                            <div class="absolute bottom-4 right-4 z-20 w-16 h-8 bg-black/80 backdrop-blur-sm rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <span class="text-[8px] font-bold text-primary italic uppercase tracking-widest">IEE Player</span>
+                                <div class="js-plyr w-full h-full" :data-plyr-provider="'youtube'" :data-plyr-embed-id="videoId"></div>
                             </div>
                         </div>
                         <div v-else class="w-full h-full flex flex-col items-center justify-center p-12 text-center bg-surface-container-high/20">
                             <Play class="w-16 h-16 text-primary/30 mb-6" />
-                            <h2 class="text-2xl font-serif font-bold text-on-surface mb-2 italic">Preparando el contenido...</h2>
-                            <p class="text-on-surface-variant italic font-serif max-w-sm">{{ currentLesson?.description }}</p>
+                            <h2 class="text-2xl font-serif font-bold text-on-surface mb-2 italic text-on-surface/40">Contenido en preparación</h2>
+                            <p class="text-on-surface-variant italic font-serif max-w-sm">{{ currentLesson?.description || 'Esta lección será activada próximamente.' }}</p>
                         </div>
                     </template>
 
-                    <!-- Live Overlay -->
-                    <template v-else>
-                         <div class="absolute inset-0 bg-gradient-to-tr from-surface-container-highest via-surface-container-highest/90 to-primary/10 flex flex-col items-center justify-center p-8 text-center">
-                            <div class="px-3 py-1 bg-primary text-on-primary rounded-full text-[10px] font-bold uppercase tracking-widest mb-10 animate-pulse">
-                                EN VIVO
+                    <!-- SCHEDULED & LIVE -->
+                    <template v-else-if="lessonState === 'scheduled' || lessonState === 'live'">
+                         <div class="absolute inset-0 bg-gradient-to-tr from-surface-container-highest via-surface-container-highest/90 to-primary/10 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                            <div class="px-3 py-1 bg-primary text-on-primary rounded-full text-[10px] font-bold uppercase tracking-widest mb-10" :class="lessonState === 'live' ? 'animate-pulse' : ''">
+                                {{ lessonState === 'live' ? 'EN VIVO' : 'PROGRAMADA' }}
                             </div>
                             <h2 class="text-4xl md:text-5xl font-serif font-bold text-on-surface mb-6 italic leading-tight">{{ currentLesson?.title }}</h2>
-                            <p class="text-on-surface-variant font-serif italic text-lg mb-12">La sesión interactiva está por comenzar</p>
+                            <p class="text-on-surface-variant font-serif italic text-lg mb-12">{{ lessonState === 'live' ? 'La sesión interactiva está activa' : 'La sesión interactiva está por comenzar' }}</p>
 
                             <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-[3rem] p-10 flex flex-col items-center shadow-2xl">
-                                <div class="text-7xl font-serif font-bold text-primary tracking-tighter mb-4 italic tabular-nums">{{ countdown }}</div>
+                                <div v-if="lessonState === 'scheduled'" class="text-7xl font-serif font-bold text-primary tracking-tighter mb-4 italic tabular-nums">{{ countdown }}</div>
+                                <div v-else class="text-7xl font-serif font-bold text-emerald-600 tracking-tighter mb-4 italic tabular-nums animate-in zoom-in">STREAMING</div>
+                                
                                 <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.3em] mb-10 italic">Inicia el {{ currentLesson?.start_time ? new Date(currentLesson.start_time).toLocaleDateString() : 'hoy' }}</p>
                                 
-                                <div class="flex flex-col sm:flex-row gap-4">
-                                    <a :href="currentLesson?.live_link" target="_blank" class="px-10 py-5 bg-primary text-on-primary font-bold text-xs uppercase tracking-widest rounded-2xl hover:scale-105 transition-all flex items-center gap-2 shadow-xl shadow-primary/20">
+                                <div class="flex flex-col sm:flex-row gap-4" v-if="lessonState === 'live'">
+                                    <a 
+                                        :href="currentLesson?.live_link" 
+                                        target="_blank" 
+                                        @click="completeLesson"
+                                        class="px-10 py-5 bg-primary text-on-primary font-bold text-xs uppercase tracking-widest rounded-2xl hover:scale-105 transition-all flex items-center gap-2 shadow-xl shadow-primary/20"
+                                    >
                                         <ExternalLink class="w-4 h-4" /> Entrar a Clase
                                     </a>
-                                    <a v-if="course.whatsapp_link" :href="course.whatsapp_link" target="_blank" class="px-10 py-5 bg-[#25D366] text-white font-bold text-xs uppercase tracking-widest rounded-2xl hover:scale-105 transition-all flex items-center gap-2 shadow-xl shadow-emerald-500/20">
-                                        <Users class="w-4 h-4" /> Grupo WhatsApp
-                                    </a>
+                                </div>
+                                <p v-else class="text-sm font-serif italic text-on-surface-variant/60">El acceso se habilitará automáticamente al iniciar</p>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- PROCESSING: The Gap -->
+                    <template v-else-if="lessonState === 'processing'">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-surface-container-high to-surface-container-lowest flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+                            <div class="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-10">
+                                <Clock class="w-12 h-12 text-primary animate-spin-slow" />
+                            </div>
+                            <h2 class="text-4xl lg:text-5xl font-serif font-bold text-on-surface mb-6 italic leading-tight">Procesamiento Académico</h2>
+                            <p class="text-on-surface-variant font-serif italic text-xl max-w-xl mx-auto leading-relaxed h-20">
+                                La sesión en vivo ha finalizado satisfactoriamente. Nuestro equipo está procesando la grabación académica para tu consulta asíncrona. Estará disponible en breve.
+                            </p>
+                            
+                            <div class="mt-12 flex flex-col sm:flex-row gap-6">
+                                <div class="px-6 py-4 bg-white/50 backdrop-blur rounded-2xl border border-primary/20 flex flex-col items-center">
+                                    <span class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Finalizó a las</span>
+                                    <span class="text-lg font-serif italic text-on-surface">{{ currentLesson?.end_time ? new Date(currentLesson.end_time).toLocaleTimeString() : 'Hace poco' }}</span>
+                                </div>
+                                <div class="px-6 py-4 bg-white/50 backdrop-blur rounded-2xl border border-primary/20 flex flex-col items-center">
+                                    <span class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Material PDF</span>
+                                    <span class="text-lg font-serif italic text-on-surface">{{ currentLesson?.materials?.length || 0 }} Archivos listos</span>
                                 </div>
                             </div>
                         </div>
@@ -557,9 +738,9 @@ onMounted(() => {
                          <div class="space-y-1">
                              <h2 class="text-xl font-serif font-bold italic text-on-surface">Progreso del curso</h2>
                              <div class="flex items-center gap-2 mt-2">
-                                 <span class="text-xs font-bold text-on-surface-variant">{{ Math.round((currentLessonIndex / allLessonsCount) * 100) }}%</span>
+                                 <span class="text-xs font-bold text-on-surface-variant text-right tabular-nums min-w-[2.5rem]">{{ Math.round((localCompleted.length / allLessonsCount) * 100) }}%</span>
                                  <div class="h-1 flex-1 bg-surface-container flex rounded-full overflow-hidden">
-                                     <div class="h-full bg-emerald-500 rounded-full transition-all duration-1000" :style="{ width: `${(currentLessonIndex / allLessonsCount) * 100}%` }"></div>
+                                     <div class="h-full bg-emerald-500 rounded-full transition-all duration-1000" :style="{ width: `${(localCompleted.length / allLessonsCount) * 100}%` }"></div>
                                  </div>
                              </div>
                          </div>
@@ -574,20 +755,43 @@ onMounted(() => {
                                     class="flex items-center gap-4 transition-all group relative z-10"
                                 >
                                     <div class="flex-shrink-0 bg-surface-container-low py-1">
-                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
-                                        :class="currentLesson?.id === l.id ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'bg-surface-container-highest text-on-surface-variant border border-outline-variant/30'">
-                                            {{ i + 1 }}
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] transition-all duration-500"
+                                        :class="currentLesson?.id === l.id && !localCompleted.includes(l.id)
+                                            ? 'bg-primary text-on-primary shadow-lg shadow-primary/20 scale-110 z-10' 
+                                            : (localCompleted.includes(l.id) 
+                                                ? 'bg-emerald-500 text-white border border-emerald-400/20' 
+                                                : 'bg-surface-container-highest text-on-surface-variant border border-outline-variant/30')">
+                                            <CheckCircle2 v-if="localCompleted.includes(l.id)" class="w-4 h-4" />
+                                            <span v-else>{{ i + 1 }}</span>
                                         </div>
                                     </div>
-                                    <div class="min-w-0 flex-1 p-2 rounded-2xl transition-all flex items-start gap-3" :class="currentLesson?.id === l.id ? 'bg-primary/5 border border-primary/20' : 'hover:bg-surface-container border border-transparent'">
-                                        <div class="w-16 h-10 bg-surface-container-high rounded-xl flex items-center justify-center flex-shrink-0 border border-outline-variant/20 mt-1">
-                                            <Play class="w-3 h-3 text-on-surface-variant" />
+                                    <div class="min-w-0 flex-1 p-2.5 rounded-2xl transition-all flex items-start gap-3" 
+                                        :class="currentLesson?.id === l.id 
+                                            ? 'bg-white border border-primary/30 shadow-sm' 
+                                            : (localCompleted.includes(l.id) ? 'bg-emerald-50/30' : 'hover:bg-surface-container border border-transparent')">
+                                        <div class="w-14 h-9 rounded-xl flex items-center justify-center flex-shrink-0 border transition-colors mt-0.5"
+                                            :class="currentLesson?.id === l.id ? 'bg-primary/10 border-primary/20' : (localCompleted.includes(l.id) ? 'bg-emerald-100/50 border-emerald-200' : 'bg-surface-container-high border-outline-variant/20')">
+                                            <Play class="w-3 h-3" :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant')" />
                                         </div>
-                                        <div class="min-w-0 flex-1 pt-1">
-                                            <p class="text-sm font-bold leading-tight group-hover:text-primary transition-colors pr-2" :class="{ 'text-primary': currentLesson?.id === l.id, 'text-emerald-600': localCompleted.includes(l.id) && currentLesson?.id !== l.id }">{{ l.title }}</p>
-                                            <p class="text-[9px] uppercase tracking-widest mt-1.5 flex items-center gap-1 font-bold" :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant')">
-                                                <CheckCircle2 v-if="localCompleted.includes(l.id)" class="w-3 h-3" />
-                                                {{ currentLesson?.id === l.id ? 'Viendo ahora' : (localCompleted.includes(l.id) ? 'Completado' : 'Clase de Video') }}
+                                        <div class="min-w-0 flex-1 pt-0.5">
+                                            <p class="text-[13px] font-bold leading-tight group-hover:text-primary transition-colors pr-2" 
+                                               :class="{ 'text-primary': currentLesson?.id === l.id && !localCompleted.includes(l.id), 'text-emerald-700': localCompleted.includes(l.id), 'text-on-surface': !localCompleted.includes(l.id) && currentLesson?.id !== l.id }">
+                                               {{ l.title }}
+                                            </p>
+                                            <p class="text-[9px] uppercase tracking-[0.1em] mt-1.5 flex items-center gap-1.5 font-bold" 
+                                               :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant/50')">
+                                                <template v-if="localCompleted.includes(l.id)">
+                                                    <CheckCircle2 class="w-3 h-3 fill-emerald-600/10" />
+                                                    Completado <span v-if="currentLesson?.id === l.id" class="text-[8px] opacity-70 ml-1">• Viendo</span>
+                                                </template>
+                                                <template v-else-if="currentLesson?.id === l.id">
+                                                    <div class="w-1 h-1 rounded-full bg-primary animate-pulse"></div>
+                                                    Viendo ahora
+                                                </template>
+                                                <template v-else>
+                                                    <Play class="w-2.5 h-2.5" />
+                                                    {{ l.content_type === 'live' ? 'Sesión en Vivo' : 'Clase de Video' }}
+                                                </template>
                                             </p>
                                         </div>
                                     </div>
@@ -605,20 +809,43 @@ onMounted(() => {
                                     class="flex items-center gap-4 transition-all group relative z-10"
                                 >
                                     <div class="flex-shrink-0 bg-surface-container-low py-1">
-                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
-                                        :class="currentLesson?.id === l.id ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'bg-surface-container-highest text-on-surface-variant border border-outline-variant/30'">
-                                            {{ course.modules.reduce((acc, m) => acc + m.lessons.length, 0) + i + 1 }}
+                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] transition-all duration-500"
+                                        :class="currentLesson?.id === l.id && !localCompleted.includes(l.id)
+                                            ? 'bg-primary text-on-primary shadow-lg shadow-primary/20 scale-110 z-10' 
+                                            : (localCompleted.includes(l.id) 
+                                                ? 'bg-emerald-500 text-white border border-emerald-400/20' 
+                                                : 'bg-surface-container-highest text-on-surface-variant border border-outline-variant/30')">
+                                            <CheckCircle2 v-if="localCompleted.includes(l.id)" class="w-4 h-4" />
+                                            <span v-else>{{ course.modules.reduce((acc, m) => acc + m.lessons.length, 0) + i + 1 }}</span>
                                         </div>
                                     </div>
-                                    <div class="min-w-0 flex-1 p-2 rounded-2xl transition-all flex items-start gap-3" :class="currentLesson?.id === l.id ? 'bg-primary/5 border border-primary/20' : 'hover:bg-surface-container border border-transparent'">
-                                        <div class="w-16 h-10 bg-surface-container-high rounded-xl flex items-center justify-center flex-shrink-0 border border-outline-variant/20 mt-1">
-                                            <Play class="w-3 h-3 text-on-surface-variant" />
+                                    <div class="min-w-0 flex-1 p-2.5 rounded-2xl transition-all flex items-start gap-3" 
+                                        :class="currentLesson?.id === l.id 
+                                            ? 'bg-white border border-primary/30 shadow-sm' 
+                                            : (localCompleted.includes(l.id) ? 'bg-emerald-50/30' : 'hover:bg-surface-container border border-transparent')">
+                                        <div class="w-14 h-9 rounded-xl flex items-center justify-center flex-shrink-0 border transition-colors mt-0.5"
+                                            :class="currentLesson?.id === l.id ? 'bg-primary/10 border-primary/20' : (localCompleted.includes(l.id) ? 'bg-emerald-100/50 border-emerald-200' : 'bg-surface-container-high border-outline-variant/20')">
+                                            <Play class="w-3 h-3" :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant')" />
                                         </div>
-                                        <div class="min-w-0 flex-1 pt-1">
-                                            <p class="text-sm font-bold leading-tight group-hover:text-primary transition-colors pr-2" :class="{ 'text-primary': currentLesson?.id === l.id, 'text-emerald-600': localCompleted.includes(l.id) && currentLesson?.id !== l.id }">{{ l.title }}</p>
-                                            <p class="text-[9px] uppercase tracking-widest mt-1.5 flex items-center gap-1 font-bold" :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant')">
-                                                <CheckCircle2 v-if="localCompleted.includes(l.id)" class="w-3 h-3" />
-                                                {{ currentLesson?.id === l.id ? 'Viendo ahora' : (localCompleted.includes(l.id) ? 'Completado' : 'Clase de Video') }}
+                                        <div class="min-w-0 flex-1 pt-0.5">
+                                            <p class="text-[13px] font-bold leading-tight group-hover:text-primary transition-colors pr-2" 
+                                               :class="{ 'text-primary': currentLesson?.id === l.id && !localCompleted.includes(l.id), 'text-emerald-700': localCompleted.includes(l.id), 'text-on-surface': !localCompleted.includes(l.id) && currentLesson?.id !== l.id }">
+                                               {{ l.title }}
+                                            </p>
+                                            <p class="text-[9px] uppercase tracking-[0.1em] mt-1.5 flex items-center gap-1.5 font-bold" 
+                                               :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant/50')">
+                                                <template v-if="localCompleted.includes(l.id)">
+                                                    <CheckCircle2 class="w-3 h-3 fill-emerald-600/10" />
+                                                    Completado <span v-if="currentLesson?.id === l.id" class="text-[8px] opacity-70 ml-1">• Viendo</span>
+                                                </template>
+                                                <template v-else-if="currentLesson?.id === l.id">
+                                                    <div class="w-1 h-1 rounded-full bg-primary animate-pulse"></div>
+                                                    Viendo ahora
+                                                </template>
+                                                <template v-else>
+                                                    <Play class="w-2.5 h-2.5" />
+                                                    {{ l.content_type === 'live' ? 'Sesión en Vivo' : 'Clase de Video' }}
+                                                </template>
                                             </p>
                                         </div>
                                     </div>

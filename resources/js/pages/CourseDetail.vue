@@ -213,7 +213,7 @@ const breadcrumbs = [
                         <div v-if="course.objectives" class="mb-16">
                             <h2 class="text-[32px] font-serif font-bold text-[#1A1C19] mb-8">Objetivos del Curso</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div v-for="(obj, i) in course.objectives.split('\n').filter((o: string) => o.trim())" :key="'obj-'+i" class="flex items-start gap-4 p-6 bg-white rounded shadow-[0_20px_40px_rgba(26,28,25,0.03)] border border-[#C9C7B8]/20">
+                                <div v-for="(obj, i) in (course.objectives || '').split('\n').filter(o => o.trim())" :key="'obj-'+i" class="flex items-start gap-4 p-6 bg-white rounded shadow-[0_20px_40px_rgba(26,28,25,0.03)] border border-[#C9C7B8]/20">
                                     <div class="min-w-10 h-10 rounded-full bg-[#FAFAF5] flex items-center justify-center text-[#57572A]">
                                         <span class="font-bold font-serif">{{ Number(i) + 1 }}</span>
                                     </div>
@@ -228,7 +228,7 @@ const breadcrumbs = [
                         <div v-if="course.requirements" class="mb-16">
                             <h2 class="text-[32px] font-serif font-bold text-[#1A1C19] mb-8">Requisitos Previos</h2>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div v-for="(req, i) in course.requirements.split('\n').filter((r: string) => r.trim())" :key="'req-'+i" class="flex items-start gap-4 p-6 bg-white rounded shadow-[0_20px_40px_rgba(26,28,25,0.03)] border border-[#C9C7B8]/20">
+                                <div v-for="(req, i) in (course.requirements || '').split('\n').filter(r => r.trim())" :key="'req-'+i" class="flex items-start gap-4 p-6 bg-white rounded shadow-[0_20px_40px_rgba(26,28,25,0.03)] border border-[#C9C7B8]/20">
                                     <div class="min-w-10 h-10 rounded-full bg-[#FAFAF5] flex items-center justify-center text-[#57572A]">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                     </div>
@@ -360,7 +360,8 @@ const breadcrumbs = [
                 </div>
             </div>
         </main>
-    </div>
+        </div>
+    </component>
 </template>
 
 <style scoped>
