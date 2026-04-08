@@ -3,7 +3,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import HeroSection from '../components/landing/HeroSection.vue';
 import Navigation from '../components/landing/Navigation.vue';
-import CourseCard from '../components/landing/CourseCard.vue';
+import CourseCard from '@/components/CourseCard.vue';
 
 const props = defineProps<{
     dynamicCourses: any[];
@@ -188,16 +188,11 @@ const toggleAbout = (id: string) => {
 
                     <!-- Course Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                        <Link 
+                        <CourseCard 
                             v-for="course in filteredCourses"
                             :key="course.id"
-                            :href="route('cursos.show', course.slug)"
-                            class="block"
-                        >
-                            <CourseCard
-                                v-bind="course"
-                            />
-                        </Link>
+                            :course="course"
+                        />
                         <template v-if="filteredCourses.length === 0">
                             <div class="col-span-full p-10 text-center bg-surface-container-high rounded-2xl border border-outline-variant/20">
                                 <p class="text-on-surface-variant">No hay cursos disponibles para esta categoría todavía.</p>

@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import Navigation from '@/components/landing/Navigation.vue';
+import CourseCard from '@/components/CourseCard.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 
 const props = defineProps<{
@@ -123,65 +124,12 @@ const breadcrumbs = [
 
                             <!-- Grid -->
                             <div v-if="courses.data.length > 0" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-                                <article 
+                                <CourseCard 
                                     v-for="course in courses.data" 
                                     :key="course.id"
-                                    class="bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-sm overflow-hidden group hover:shadow-2xl hover:shadow-[#57572A]/10 transition-all duration-500 flex flex-col hover:-translate-y-2 border-opacity-30"
-                                >
-                                    <!-- Visual Cover -->
-                                    <Link :href="route('cursos.show', { slug: course.slug, ...(isDashboard ? { dashboard: true } : {}) })" class="relative h-[220px] w-full block bg-[#F4F4EF] overflow-hidden">
-                                        <img v-if="course.image" :src="course.image" :alt="course.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
-                                        <div class="absolute inset-0 bg-gradient-to-t from-[#57572A]/20 to-transparent"></div>
-                                        
-                                        <!-- Elegant Tags -->
-                                        <div class="absolute top-4 left-4 z-10">
-                                            <span class="px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-[20px] text-[#1A1C19] text-[9px] font-bold tracking-widest uppercase flex items-center gap-2 border border-white/50">
-                                                <span class="w-1.5 h-1.5 rounded-full" :class="course.type === 'en vivo' ? 'bg-[#D32F2F]' : (course.type === 'evento' ? 'bg-[#7B1FA2]' : 'bg-[#57572A]')"></span>
-                                                {{ course.type === 'en vivo' ? 'EN VIVO' : (course.type === 'evento' ? 'EVENTO' : 'GRABADO') }}
-                                            </span>
-                                        </div>
-                                    </Link>
-
-                                    <!-- Academic Content -->
-                                    <div class="p-8 flex flex-col flex-1 space-y-4">
-                                        <span class="text-[9px] font-bold text-[#57572A] uppercase tracking-widest mb-1">{{ course.category?.name || 'Escuela de Negocios' }}</span>
-                                        
-                                        <Link :href="route('cursos.show', { slug: course.slug, ...(isDashboard ? { dashboard: true } : {}) })">
-                                            <h3 class="font-serif font-bold text-xl text-[#1A1C19] leading-tight group-hover:text-[#57572A] transition-colors italic mb-4" :title="course.title">
-                                                {{ course.title }}
-                                            </h3>
-                                        </Link>
-
-                                        <!-- Features -->
-                                        <div class="space-y-2 flex-1">
-                                            <div class="flex items-center gap-2 text-xs text-[#5F5E5E] font-medium italic">
-                                                <svg class="w-4 h-4 text-[#57572A]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                {{ course.type === 'grabado' ? 'Acceso 24/7 de por vida' : `Próximo inicio: ${course.start_date || 'Pronto'}` }}
-                                            </div>
-                                        </div>
-
-                                        <!-- Footer Pricing & CTA -->
-                                        <div class="flex flex-col pt-6 border-t border-outline-variant/10 gap-6 mt-4">
-                                            <div class="flex justify-between items-end">
-                                                <div class="flex flex-col">
-                                                    <p class="text-[9px] uppercase tracking-widest text-on-surface-variant/40 font-bold mb-1">Matrícula</p>
-                                                    <div class="flex items-baseline gap-2">
-                                                        <span class="text-3xl font-serif font-bold text-[#1A1C19] italic">S/ {{ course.sale_price || course.price }}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="grid grid-cols-2 gap-3">
-                                                <button class="w-full py-4 rounded-2xl bg-[#D4AF37] text-white text-[10px] font-bold uppercase tracking-widest hover:opacity-90 shadow-lg shadow-[#D4AF37]/20 transition-all flex justify-center items-center gap-2">
-                                                    Matrícula
-                                                </button>
-                                                <Link :href="route('cursos.show', { slug: course.slug, ...(isDashboard ? { dashboard: true } : {}) })" class="w-full py-4 rounded-2xl bg-[#57572A] text-white text-[10px] font-bold uppercase tracking-widest hover:opacity-90 shadow-lg shadow-[#57572A]/20 transition-all flex justify-center items-center">
-                                                    Detalles
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </article>
+                                    :course="course"
+                                    :is-dashboard="isDashboard"
+                                />
                             </div>
 
                             <!-- Empty state -->
