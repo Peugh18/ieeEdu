@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData, type User } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Calendar, ClipboardCheck, Award, Settings } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Calendar, ClipboardCheck, Award, Settings, LogOut } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const page = usePage<SharedData>();
@@ -76,11 +76,6 @@ const studentNavItems: NavItem[] = [
         href: 'student.certificates.index',
         icon: Award,
     },
-    {
-        title: 'Ajustes',
-        href: 'profile.edit',
-        icon: Settings,
-    },
 ];
 
 const mainNavItems = isAdmin ? adminNavItems : studentNavItems;
@@ -88,7 +83,7 @@ const mainNavItems = isAdmin ? adminNavItems : studentNavItems;
 
 <template>
     <Sidebar collapsible="icon" variant="inset" class="border-r border-sidebar-border/30">
-        <SidebarHeader class="p-4">
+        <SidebarHeader class="p-4 relative">
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
@@ -102,14 +97,29 @@ const mainNavItems = isAdmin ? adminNavItems : studentNavItems;
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
+            
+            <div class="mt-4 pt-4 border-t border-sidebar-border/30">
+                <Link :href="isAdmin ? route('profile.edit') : route('student.profile.index')" class="flex items-center gap-3 p-2 rounded-xl hover:bg-outline-variant/10 transition-colors group cursor-pointer w-full text-left">
+                    <img :src="user.avatar ? '/storage/'+user.avatar : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=57572A&color=fff`" class="w-9 h-9 rounded-full object-cover shadow-sm group-hover:scale-105 transition-transform shrink-0" />
+                    <div class="flex flex-col overflow-hidden w-full">
+                        <span class="text-xs font-bold text-on-surface truncate uppercase">{{ user.name }}</span>
+                        <span class="text-[9px] text-on-surface-variant hover:text-primary transition-colors tracking-widest uppercase">
+                            Configuración
+                        </span>
+                    </div>
+                </Link>
+            </div>
         </SidebarHeader>
 
         <SidebarContent class="px-3">
             <NavMain :items="mainNavItems" />
         </SidebarContent>
 
-        <SidebarFooter class="p-6 border-t border-sidebar-border/30">
-            <NavUser />
+        <SidebarFooter class="p-4 border-t border-sidebar-border/30">
+            <Link method="post" as="button" :href="route('logout')" class="flex items-center gap-3 w-full p-3 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors group font-bold text-xs uppercase tracking-widest">
+                <LogOut class="w-4 h-4 opacity-70 group-hover:opacity-100" />
+                Cerrar Sesión
+            </Link>
         </SidebarFooter>
     </Sidebar>
     <slot />

@@ -67,18 +67,5 @@ const page = usePage();
             </Link>
         </nav>
 
-        <!-- Profile / Right Section -->
-        <div class="flex items-center gap-6">
-            <div class="hidden lg:block h-4 w-[1px] bg-outline-variant/30"></div>
-            <Link 
-                :href="route('profile.edit')"
-                class="flex items-center gap-3 group"
-            >
-                <span class="text-[10px] font-bold text-on-surface-variant/60 group-hover:text-primary uppercase tracking-widest transition-colors cursor-pointer hidden sm:inline">Perfil</span>
-                <div class="w-8 h-8 rounded-full bg-primary/10 border border-primary/10 flex items-center justify-center text-[10px] font-bold text-primary italic uppercase group-hover:scale-110 transition-transform">
-                    {{ (page.props.auth as any).user.name.charAt(0) }}
-                </div>
-            </Link>
-        </div>
     </header>
 </template>

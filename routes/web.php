@@ -44,6 +44,10 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'verified'])->gr
     Route::put('/comments/{comment}', [\App\Http\Controllers\Student\LessonCommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [\App\Http\Controllers\Student\LessonCommentController::class, 'destroy'])->name('comments.destroy');
     Route::post('/comments/{comment}/like', [\App\Http\Controllers\Student\LessonCommentController::class, 'toggleLike'])->name('comments.like');
+
+    // Perfil Avanzado
+    Route::get('/perfil', [StudentDashboardController::class, 'profile'])->name('profile.index');
+    Route::post('/perfil/update', [StudentDashboardController::class, 'updateProfile'])->name('profile.custom.update');
 });
 
 require __DIR__.'/settings.php';
