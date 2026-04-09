@@ -141,7 +141,7 @@ const breadcrumbs = [
                                     UNIRSE AL GRUPO
                                 </a>
                                 <Link :href="route('cursos.show', { slug: course.slug, ...(isDashboard ? { dashboard: true } : {}) })" class="w-full justify-center flex items-center gap-2 rounded-full text-[10px] uppercase tracking-widest font-bold px-4 py-2 border border-[#C9C7B8]/40 text-[#5F5E5E] hover:bg-[#F4F4EF] hover:text-[#1A1C19] transition-colors">
-                                    <span class="material-symbols-outlined text-[16px]">info</span>
+                                    <span class="material-symbols-outlined text-[16px]" translate="no">info</span>
                                     Ver Detalles
                                 </Link>
                             </div>

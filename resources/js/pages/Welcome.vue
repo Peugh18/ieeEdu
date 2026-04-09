@@ -303,7 +303,7 @@ const toggleAbout = (id: string) => {
                                 ]">
                                     <div class="flex justify-between items-center gap-2">
                                         <div class="flex items-center gap-2 md:gap-3 min-w-0">
-                                            <span class="material-symbols-outlined text-primary text-xl md:text-2xl flex-shrink-0">{{ section.icon }}</span>
+                                            <span class="material-symbols-outlined text-primary text-xl md:text-2xl flex-shrink-0" translate="no">{{ section.icon }}</span>
                                             <h3 class="font-serif text-base md:text-lg lg:text-xl text-on-surface truncate" :class="{'font-bold text-primary': expandedAbout === section.id, 'italic': expandedAbout !== section.id}">
                                                 {{ section.title }}
                                             </h3>
@@ -343,19 +343,19 @@ const toggleAbout = (id: string) => {
                         <ul class="space-y-3 md:space-y-6 mb-6 md:mb-12">
                             <li class="flex items-center gap-3 md:gap-4">
                                 <div class="w-7 md:w-8 h-7 md:h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                                    <span class="material-symbols-outlined text-white text-sm md:text-base">check</span>
+                                    <span class="material-symbols-outlined text-white text-sm md:text-base" translate="no">check</span>
                                 </div>
                                 <span class="text-on-surface-variant font-medium text-sm md:text-base">Auditoría de capacidades técnicas</span>
                             </li>
                             <li class="flex items-center gap-3 md:gap-4">
                                 <div class="w-7 md:w-8 h-7 md:h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                                    <span class="material-symbols-outlined text-white text-sm md:text-base">check</span>
+                                    <span class="material-symbols-outlined text-white text-sm md:text-base" translate="no">check</span>
                                 </div>
                                 <span class="text-on-surface-variant font-medium text-sm md:text-base">Diseño de currícula propietaria</span>
                             </li>
                             <li class="flex items-center gap-3 md:gap-4">
                                 <div class="w-7 md:w-8 h-7 md:h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                                    <span class="material-symbols-outlined text-white text-sm md:text-base">check</span>
+                                    <span class="material-symbols-outlined text-white text-sm md:text-base" translate="no">check</span>
                                 </div>
                                 <span class="text-on-surface-variant font-medium text-sm md:text-base">Proyección de escenarios macro</span>
                             </li>
@@ -368,7 +368,7 @@ const toggleAbout = (id: string) => {
                             <div class="flex justify-between items-start md:items-center mb-6 md:mb-8 gap-4">
                                 <h3 class="font-serif text-xl md:text-2xl text-primary font-bold">Consulta Estratégica</h3>
                                 <button class="text-on-surface-variant hover:text-on-surface flex-shrink-0 md:ml-auto">
-                                    <span class="material-symbols-outlined">close</span>
+                                    <span class="material-symbols-outlined" translate="no">close</span>
                                 </button>
                             </div>
                             <form class="space-y-4 md:space-y-6">
@@ -386,7 +386,7 @@ const toggleAbout = (id: string) => {
                                                 <option>Educación</option>
                                                 <option>Retail</option>
                                             </select>
-                                            <span class="material-symbols-outlined absolute right-3 md:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-lg md:text-xl">expand_more</span>
+                                            <span class="material-symbols-outlined absolute right-3 md:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant text-lg md:text-xl" translate="no">expand_more</span>
                                         </div>
                                     </div>
                                     <div>
@@ -427,7 +427,7 @@ const toggleAbout = (id: string) => {
                         <div class="mt-6">
                             <a href="/ebooks" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded-full font-bold hover:shadow-xl transition-all">
                                 Ir a Ebooks
-                                <span class="material-symbols-outlined">arrow_forward</span>
+                                <span class="material-symbols-outlined" translate="no">arrow_forward</span>
                             </a>
                         </div>
                     </div>
@@ -459,7 +459,7 @@ const toggleAbout = (id: string) => {
                                     <span class="text-2xl font-bold text-primary">{{ item.type === 'free' ? 'Gratis' : `S/ ${item.price}` }}</span>
                                     <a :href="item.href" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-on-primary text-sm font-semibold hover:opacity-90 transition-all">
                                         {{ item.type === 'free' ? 'Descargar' : 'Comprar' }}
-                                        <span class="material-symbols-outlined text-sm">east</span>
+                                        <span class="material-symbols-outlined text-sm" translate="no">east</span>
                                     </a>
                                 </div>
                             </div>
@@ -499,7 +499,7 @@ const toggleAbout = (id: string) => {
                             </p>
                             <div class="flex items-center gap-2 md:gap-3 lg:gap-4">
                                 <div class="w-8 md:w-10 lg:w-12 h-8 md:h-10 lg:h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                    <span class="material-symbols-outlined text-primary text-sm md:text-lg lg:text-2xl">{{ testimonial.image }}</span>
+                                    <span class="material-symbols-outlined text-primary text-sm md:text-lg lg:text-2xl" translate="no">{{ testimonial.image }}</span>
                                 </div>
                                 <div class="min-w-0">
                                     <p class="font-serif font-bold text-on-surface text-xs md:text-sm lg:text-base truncate">{{ testimonial.name }}</p>

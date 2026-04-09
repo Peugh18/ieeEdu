@@ -101,7 +101,7 @@ onUnmounted(() => {
                             <div class="relative z-10 flex flex-col justify-between h-full w-full">
                                 <div>
                                     <div class="flex items-center gap-2 mb-2 md:mb-3">
-                                        <span class="material-symbols-outlined text-white text-xl md:text-2xl">{{ resource.icon }}</span>
+                                        <span class="material-symbols-outlined text-white text-xl md:text-2xl" translate="no">{{ resource.icon }}</span>
                                         <span class="text-[10px] md:text-xs font-semibold opacity-90 uppercase tracking-widest text-white/90">{{ resource.category }}</span>
                                     </div>
                                     <h3 class="font-serif text-base md:text-lg font-bold leading-tight text-white">{{ resource.title }}</h3>
