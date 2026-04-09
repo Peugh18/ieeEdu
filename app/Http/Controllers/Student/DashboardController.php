@@ -150,6 +150,90 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function profile()
+    {
+        $user = Auth::user();
+
+        $enrollments = Enrollment::where('user_id', $user->id)
+            ->with(['course.category'])
+            ->get()->map(function($e) use ($user) {
+                $course = $e->course;
+                if (!$course) return null;
+                
+                $allLessonsCount = \App\Models\CourseLesson::whereHas('module', function($q) use ($course) {
+                    $q->where('course_id', $course->id);
+                })->orWhere(function($q) use ($course) {
+                    $q->where('course_id', $course->id)->whereNull('module_id');
+                })->count();
+                
+                $completedCount = \App\Models\LessonProgress::where('user_id', $user->id)
+                    ->whereHas('lesson', function($q) use ($course) {
+                        $q->where('course_id', $course->id)
+                          ->orWhereHas('module', function($m) use ($course) {
+                              $m->where('course_id', $course->id);
+                          });
+                    })
+                    ->where('is_completed', true)
+                    ->count();
+                    
+                $progressPercent = $allLessonsCount > 0 ? round(($completedCount / $allLessonsCount) * 100) : 0;
+                
+                $lastProgress = \App\Models\LessonProgress::where('user_id', $user->id)
+                    ->whereHas('lesson', function($q) use ($course) {
+                        $q->where('course_id', $course->id);
+                    })
+                    ->latest('updated_at')
+                    ->first();
+                
+                return [
+                    'id' => $course->id,
+                    'title' => $course->title,
+                    'slug' => $course->slug,
+                    'image' => $course->image,
+                    'progress' => $progressPercent,
+                    'last_lesson' => $lastProgress ? $lastProgress->lesson->title : 'Sin empezar',
+                ];
+            })->filter(function($item) {
+                return $item !== null;
+            });
+
+        $activeSubscription = $user->subscriptions()
+            ->where('status', 'activa')
+            ->where('end_date', '>=', now())
+            ->first();
+
+        return Inertia::render('student/Profile', [
+            'enrolledCourses' => array_values($enrollments->toArray()),
+            'activeSubscription' => $activeSubscription,
+        ]);
+    }
+
+    public function updateProfile(\Illuminate\Http\Request $request)
+    {
+        $user = Auth::user();
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'avatar' => 'nullable|image|max:5120',
+        ]);
+
+        $user->name = $request->name;
+
+        if ($request->hasFile('avatar')) {
+             if ($user->avatar) { Storage::disk('public')->delete($user->avatar); }
+             $user->avatar = $request->file('avatar')->store('avatars', 'public');
+        }
+
+        if ($request->filled('password')) {
+            $request->validate(['password' => 'min:8|confirmed']);
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Perfil actualizado exitosamente.');
+    }
+
     public function courses()
     {
         $user = Auth::user();
@@ -318,12 +402,12 @@ class DashboardController extends Controller
             ->orderByDesc('issue_date')
             ->get()
             ->map(function($cert) {
-                $template = $cert->course->certificateTemplate;
+                $template = $cert->course ? $cert->course->certificateTemplate : null;
                 return [
                     'id' => $cert->id,
                     'title' => 'Diploma de Finalización',
-                    'course_title' => $cert->course->title,
-                    'issue_date' => $cert->issue_date->format('d M Y'),
+                    'course_title' => $cert->course ? $cert->course->title : 'Programa Terminado',
+                    'issue_date' => $cert->issue_date ? $cert->issue_date->format('d M Y') : 'Fecha no asignada',
                     'image' => ($template && $template->template_image) 
                                ? '/storage/' . $template->template_image 
                                : 'https://i.ibb.co/6P6X7p6/cert-placeholder.png',
