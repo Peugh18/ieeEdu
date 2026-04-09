@@ -10,6 +10,7 @@ Route::get('/', [PublicCourseController::class, 'welcome'])->name('home');
 Route::get('/cursos', [PublicCourseController::class, 'index'])->name('cursos.index');
 Route::get('/masterclass', [PublicCourseController::class, 'masterclasses'])->name('masterclass.index');
 Route::get('/cursos/{slug}', [PublicCourseController::class, 'show'])->name('cursos.show');
+Route::get('/planes', [PublicCourseController::class, 'planes'])->name('planes');
 
 Route::get('/publicaciones', [App\Http\Controllers\PublicPublicationController::class, 'index'])->name('publicaciones.index');
 Route::get('/consultoria', function () {

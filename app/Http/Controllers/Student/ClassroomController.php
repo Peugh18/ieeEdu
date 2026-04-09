@@ -23,14 +23,23 @@ class ClassroomController extends Controller
     {
         $user = Auth::user();
 
-        // Verificar inscripción
-        $enrollment = Enrollment::where('user_id', $user->id)
-            ->where('course_id', $course->id)
-            ->first();
+        // 🚀 SAAS LOGIC: Check Subscription Access
+        if ($user->hasSubscriptionActive()) {
+            // Unify tracking: automatically grant real enrollment to populate dashboard stats
+            $enrollment = Enrollment::firstOrCreate([
+                'user_id' => $user->id,
+                'course_id' => $course->id,
+            ]);
+        } else {
+            // Verificar inscripción normal
+            $enrollment = Enrollment::where('user_id', $user->id)
+                ->where('course_id', $course->id)
+                ->first();
 
-        if (!$enrollment) {
-            return redirect()->route('cursos.show', $course->slug)
-                ->with('error', 'No estás inscrito en este curso.');
+            if (!$enrollment) {
+                return redirect()->route('cursos.show', $course->slug)
+                    ->with('error', 'No estás inscrito en este curso.');
+            }
         }
 
         // Cargar módulos y lecciones

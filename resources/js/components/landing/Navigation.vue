@@ -29,6 +29,7 @@ const menuItems = [
     { label: 'Consultoría', href: route('consultoria') },
     { label: 'Publicaciones', href: route('publicaciones.index') },
     { label: 'Masterclass', href: route('masterclass.index') },
+    { label: 'Premium', href: route('planes'), isPremium: true },
 ];
 </script>
 
@@ -52,10 +53,15 @@ const menuItems = [
                     v-for="item in menuItems" 
                     :key="item.href"
                     :href="item.href" 
-                    class="text-on-surface-variant hover:text-primary font-medium text-sm transition-colors duration-300 relative group"
+                    :class="[
+                        item.isPremium 
+                            ? 'bg-gradient-to-r from-[#D4AF37] to-[#AA7C11] text-white px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest shadow-[0_4px_15px_rgba(212,175,55,0.4)] hover:shadow-[0_6px_25px_rgba(212,175,55,0.6)] hover:-translate-y-0.5 transform transition-all duration-300 flex items-center gap-1.5' 
+                            : 'text-on-surface-variant hover:text-primary font-medium text-sm transition-colors duration-300 relative group'
+                    ]"
                 >
+                    <span v-if="item.isPremium" class="material-symbols-outlined" translate="no" style="font-size: 16px;">hotel_class</span>
                     {{ item.label }}
-                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
+                    <span v-if="!item.isPremium" class="absolute bottom-0 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300"></span>
                 </Link>
             </div>
 
@@ -129,8 +135,14 @@ const menuItems = [
                         :key="item.href"
                         :href="item.href"
                         @click="mobileMenuOpen = false"
-                        class="block px-3 py-2 text-on-surface-variant hover:text-primary hover:bg-primary/5 rounded-lg transition-colors font-medium"
+                        :class="[
+                            'block px-3 py-2 transition-all font-medium rounded-lg',
+                            item.isPremium 
+                                ? 'bg-gradient-to-r from-[#D4AF37] to-[#AA7C11] text-white text-center shadow-md font-bold uppercase tracking-widest mt-2' 
+                                : 'text-on-surface-variant hover:text-primary hover:bg-primary/5'
+                        ]"
                     >
+                        <span v-if="item.isPremium" class="material-symbols-outlined mr-1" translate="no" style="font-size: 18px; vertical-align: text-bottom;">hotel_class</span>
                         {{ item.label }}
                     </Link>
                     <div class="flex gap-2 pt-2 border-t border-outline-variant/10">
