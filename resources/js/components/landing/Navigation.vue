@@ -3,6 +3,11 @@ import { computed, ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
 
+import { useCart } from '@/composables/useCart';
+import CartDrawer from '@/components/CartDrawer.vue';
+
+const { itemCount, toggleCart } = useCart();
+
 const page = usePage();
 const isAuthenticated = computed(() => (page.props as any).auth?.user);
 const mobileMenuOpen = ref(false);
@@ -56,6 +61,26 @@ const menuItems = [
 
             <!-- Right Section -->
             <div class="flex items-center gap-4">
+                <!-- Cart Button -->
+                <button 
+                    @click="toggleCart"
+                    class="relative p-2.5 text-[#57572A] hover:bg-[#57572A]/5 rounded-xl transition-all duration-300 group"
+                >
+                    <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform" translate="no">shopping_cart</span>
+                    <Transition
+                        enter-active-class="transition duration-300 ease-out"
+                        enter-from-class="scale-0"
+                        enter-to-class="scale-100"
+                    >
+                        <span 
+                            v-if="itemCount > 0" 
+                            class="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#D32F2F] text-[10px] font-black text-white shadow-lg ring-2 ring-white"
+                        >
+                            {{ itemCount }}
+                        </span>
+                    </Transition>
+                </button>
+
                 <!-- Auth Buttons Desktop -->
                 <div class="hidden sm:flex items-center gap-3">
                     <Link 
@@ -127,4 +152,6 @@ const menuItems = [
             </div>
         </Transition>
     </nav>
+    
+    <CartDrawer />
 </template>

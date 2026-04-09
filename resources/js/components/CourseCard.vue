@@ -21,7 +21,8 @@ const props = defineProps<{
     isDashboard?: boolean;
 }>();
 
-const emit = defineEmits(['add-to-cart']);
+import { useCart } from '@/composables/useCart';
+const { addItem } = useCart();
 
 // Promotion Logic
 const hasDiscount = computed(() => {
@@ -89,8 +90,9 @@ const courseRoute = computed(() => {
     });
 });
 
-const handleAddToCart = () => {
-    emit('add-to-cart', props.course);
+const handleAddToCart = (e: Event) => {
+    e.preventDefault();
+    addItem(props.course);
 };
 </script>
 
@@ -149,7 +151,7 @@ const handleAddToCart = () => {
             <!-- Features -->
             <div class="space-y-2 flex-1">
                 <div class="flex items-center gap-2.5 text-[13px] font-medium italic" :class="dateStatus.isPast ? 'text-red-600' : 'text-[#5F5E5E]'">
-                    <span class="material-symbols-outlined text-[18px] opacity-60">calendar_today</span>
+                    <span class="material-symbols-outlined text-[18px] opacity-60" translate="no">calendar_today</span>
                     {{ course.type === 'grabado' ? 'Acceso 24/7 de por vida' : `${dateStatus.label} ${dateStatus.value}` }}
                 </div>
             </div>
@@ -178,7 +180,7 @@ const handleAddToCart = () => {
                         class="group/cart relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#F4F4EF] hover:bg-[#D4AF37] transition-all duration-500 shadow-sm hover:shadow-[0_10px_20px_rgba(212,175,55,0.3)] hover:-translate-y-1"
                         title="Agregar al carrito"
                     >
-                        <span class="material-symbols-outlined text-[#57572A] group-hover/cart:text-white transition-colors duration-300">shopping_cart</span>
+                        <span class="material-symbols-outlined text-[#57572A] group-hover/cart:text-white transition-colors duration-300" translate="no">shopping_cart</span>
                         
                         <!-- Mini Tooltip on Hover -->
                         <span class="absolute -top-12 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#1A1C19] text-white text-[10px] font-bold rounded-lg opacity-0 group-hover/cart:opacity-100 transition-opacity pointer-events-none whitespace-nowrap after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-8 after:border-transparent after:border-t-[#1A1C19]">
@@ -195,7 +197,7 @@ const handleAddToCart = () => {
                         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/details:translate-x-full transition-transform duration-1000"></div>
                         
                         <span>Ver detalles</span>
-                        <span class="material-symbols-outlined text-[18px] group-hover/details:translate-x-1 transition-transform">arrow_forward</span>
+                        <span class="material-symbols-outlined text-[18px] group-hover/details:translate-x-1 transition-transform" translate="no">arrow_forward</span>
                     </Link>
                 </div>
             </div>
