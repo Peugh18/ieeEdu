@@ -340,8 +340,11 @@ class DashboardController extends Controller
 
     public function exploreCourses(\Illuminate\Http\Request $request)
     {
+        $enrolledCourseIds = \App\Models\Enrollment::where('user_id', Auth::id())->pluck('course_id');
+
         $query = \App\Models\Course::where('status', 'PUBLICADO')
             ->whereIn('type', ['grabado', 'en vivo', 'hibrido'])
+            ->whereNotIn('id', $enrolledCourseIds)
             ->with('category');
 
         if ($request->filled('search')) {

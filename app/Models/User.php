@@ -78,5 +78,27 @@ class User extends Authenticatable
     {
         return $this->hasMany(Certificate::class);
     }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
+    }
+
+    public function hasSubscriptionActive()
+    {
+        return $this->subscriptions()
+                    ->where('status', 'activa')
+                    ->where('end_date', '>=', now())
+                    ->exists();
+    }
+
+    public function hasAccess($courseId)
+    {
+        if ($this->hasSubscriptionActive()) {
+            return true;
+        }
+
+        return $this->enrollments()->where('course_id', $courseId)->exists();
+    }
 }
 

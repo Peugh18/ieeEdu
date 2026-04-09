@@ -6,16 +6,23 @@ use App\Models\Category;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class PublicCourseController extends Controller
 {
     public function welcome()
     {
         // Fetch published courses (not masterclasses)
-        $courses = Course::where('status', 'PUBLICADO')
+        $query = Course::where('status', 'PUBLICADO')
             ->whereIn('type', ['grabado', 'en vivo', 'hibrido'])
-            ->with('category')
-            ->get();
+            ->with('category');
+
+        if (Auth::check()) {
+            $enrolledCourseIds = \App\Models\Enrollment::where('user_id', Auth::id())->pluck('course_id');
+            $query->whereNotIn('id', $enrolledCourseIds);
+        }
+
+        $courses = $query->get();
 
         // Also if ebooks exist we'll fetch them, but for now we pass empty array or we don't pass them
         // if they are static. The user mentioned "EBOOKS TAMBIÉN", maybe later.
@@ -49,7 +56,14 @@ class PublicCourseController extends Controller
     public function index(Request $request)
     {
         // 🚫 MANTENER ARQUITECTURA: NO mostrar eventos (masterclasses) en el catálogo de cursos
-        $query = Course::where('status', 'PUBLICADO')->whereIn('type', ['grabado', 'en vivo', 'hibrido'])->with('category');
+        $query = Course::where('status', 'PUBLICADO')
+            ->whereIn('type', ['grabado', 'en vivo', 'hibrido'])
+            ->with('category');
+
+        if (Auth::check()) {
+            $enrolledCourseIds = \App\Models\Enrollment::where('user_id', Auth::id())->pluck('course_id');
+            $query->whereNotIn('id', $enrolledCourseIds);
+        }
 
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');
@@ -97,7 +111,7 @@ class PublicCourseController extends Controller
         return Inertia::render('CourseDetail', [
             'course' => $course,
             'isDashboard' => $request->boolean('dashboard'),
-            'isEnrolled' => auth()->check() ? \App\Models\Enrollment::where('user_id', auth()->id())->where('course_id', $course->id)->exists() : false,
+            'isEnrolled' => auth()->check() ? auth()->user()->hasAccess($course->id) : false,
         ]);
     }
 
@@ -127,5 +141,10 @@ class PublicCourseController extends Controller
             'categories' => $categories,
             'filters' => $request->only(['category']),
         ]);
+    }
+
+    public function planes()
+    {
+        return Inertia::render('Planes');
     }
 }
