@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem, type SharedData, type User } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Calendar, ClipboardCheck, Award, Settings, LogOut } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Calendar, ClipboardCheck, Award, Settings, LogOut, Crown } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const page = usePage<SharedData>();
@@ -37,6 +37,11 @@ const adminNavItems: NavItem[] = [
         title: 'Pagos',
         href: 'admin.payments.index',
         icon: Folder,
+    },
+    {
+        title: 'Suscripciones',
+        href: 'admin.subscriptions.index',
+        icon: Crown,
     },
     {
         title: 'Libros',

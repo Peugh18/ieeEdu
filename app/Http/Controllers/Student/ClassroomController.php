@@ -23,23 +23,15 @@ class ClassroomController extends Controller
     {
         $user = Auth::user();
 
-        // 🚀 SAAS LOGIC: Check Subscription Access
-        if ($user->hasSubscriptionActive()) {
-            // Unify tracking: automatically grant real enrollment to populate dashboard stats
-            $enrollment = Enrollment::firstOrCreate([
-                'user_id' => $user->id,
-                'course_id' => $course->id,
-            ]);
-        } else {
-            // Verificar inscripción normal
-            $enrollment = Enrollment::where('user_id', $user->id)
-                ->where('course_id', $course->id)
-                ->first();
+        // Centralized authorization through CoursePolicy
+        $this->authorize('viewClassroom', $course);
 
-            if (!$enrollment) {
-                return redirect()->route('cursos.show', $course->slug)
-                    ->with('error', 'No estás inscrito en este curso.');
-            }
+        // Ensure enrollment exists for stats tracking (SAAS Logic)
+        if ($user->hasSubscriptionActive() || $course->price <= 0) {
+             Enrollment::firstOrCreate([
+                 'user_id' => $user->id,
+                 'course_id' => $course->id,
+             ]);
         }
 
         // Cargar módulos y lecciones
@@ -86,9 +78,9 @@ class ClassroomController extends Controller
             ->withCount('likes')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->map(function($c) use ($user) {
+            ->map(function(\App\Models\LessonComment $c) use ($user) {
                 $c->is_liked = $c->isLikedBy($user);
-                $c->replies->map(function($r) use ($user) {
+                $c->replies->map(function(\App\Models\LessonComment $r) use ($user) {
                     $r->is_liked = $r->isLikedBy($user);
                     return $r;
                 });
@@ -111,51 +103,35 @@ class ClassroomController extends Controller
     public function updateProgress(Request $request)
     {
         $request->validate([
-            'lesson_id' => 'required|exists:course_lessons,id'
+            'lesson_id' => 'nullable|exists:course_lessons,id',
+            'lesson_ids' => 'nullable|array',
+            'lesson_ids.*' => 'exists:course_lessons,id'
         ]);
 
         $user = Auth::user();
-        $lesson = \App\Models\CourseLesson::find($request->lesson_id);
+        $lessonIds = $request->has('lesson_ids') ? $request->lesson_ids : [$request->lesson_id];
+        
+        $lastSyncProgress = 0;
 
-        $progress = \App\Models\LessonProgress::updateOrCreate(
-            ['user_id' => $user->id, 'course_lesson_id' => $request->lesson_id],
-            ['is_completed' => 1]
-        );
+        foreach ($lessonIds as $id) {
+            if (!$id) continue;
+            $lesson = CourseLesson::find($id);
+            if (!$lesson) continue;
 
-        // Update Enrollment Table Progress
-        if ($lesson) {
-            $enrollment = Enrollment::where('user_id', $user->id)
-                ->where('course_id', $lesson->course_id)
-                ->first();
+            \App\Models\LessonProgress::updateOrCreate(
+                ['user_id' => $user->id, 'course_lesson_id' => $id],
+                ['is_completed' => 1]
+            );
 
-            if ($enrollment) {
-                // Determine course structure (modules vs flat lessons)
-                $course = $lesson->course;
-                $allLessonsCount = \App\Models\CourseLesson::where('course_id', $course->id)->count();
-                
-                $completedCount = \App\Models\LessonProgress::where('user_id', $user->id)
-                    ->whereHas('lesson', function($q) use ($course) {
-                        $q->where('course_id', $course->id);
-                    })
-                    ->where('is_completed', true)
-                    ->count();
+            $progressService = app(\App\Services\ProgressService::class);
+            $lastSyncProgress = $progressService->syncProgress($user, $lesson->course, $lesson->id);
 
-                $progressPercent = $allLessonsCount > 0 ? round(($completedCount / $allLessonsCount) * 100) : 0;
-                
-                // Get eligibility status (videos + exams)
-                $isEligible = $this->certificateService->checkEligibility($user, $course);
-                
-                $enrollment->update([
-                    'progress' => $progressPercent,
-                    'last_lesson_id' => $lesson->id,
-                    'completed_at' => $isEligible ? ($enrollment->completed_at ?? now()) : null,
-                ]);
-            }
-
-            // Generate certificate if full criteria met
+            // Trigger certificate check/generation
             $this->certificateService->generateIfEligible($user, $lesson->course);
         }
 
-        return response()->json(['status' => 'success']);
+        return $request->wantsJson() 
+            ? response()->json(['success' => true, 'progress' => $lastSyncProgress]) 
+            : back();
     }
 }

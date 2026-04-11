@@ -4,492 +4,411 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Models\Enrollment;
+use App\Models\Course;
+use App\Models\CourseLesson;
+use App\Models\CourseQuiz;
+use App\Models\Certificate;
+use App\Models\CourseExamAttempt;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Services\CertificateService;
+use App\Services\ProgressService;
+use App\Actions\Student\GetDashboardStatsAction;
+use App\Actions\Student\GetContinueLearningAction;
+use App\Actions\Student\GetCourseRecommendationsAction;
 
 class DashboardController extends Controller
 {
-    protected $certificateService;
-    protected $examService;
+    public function __construct(
+        protected CertificateService $certificateService,
+        protected ProgressService $progressService,
+        protected \App\Services\ExamService $examService
+    ) {}
 
-    public function __construct(CertificateService $certificateService, \App\Services\ExamService $examService)
-    {
-        $this->certificateService = $certificateService;
-        $this->examService = $examService;
-    }
-    public function index()
-    {
+    /**
+     * Dashboard Principal del Estudiante
+     */
+    public function index(
+        GetDashboardStatsAction $getStats,
+        GetContinueLearningAction $getContinue,
+        GetCourseRecommendationsAction $getRecommendations
+    ) {
         $user = Auth::user();
-        
+
         if ($user && $user->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }
 
-        $enrollments = Enrollment::where('user_id', $user->id)->with('course.category')->get();
-        $enrollmentIds = $enrollments->pluck('course_id');
-        
-        // 1. Fetch real next live class
-        $nextLiveClass = \App\Models\CourseLesson::with('course')
-            ->whereIn('course_id', $enrollmentIds)
-            ->whereNotNull('live_link')
-            ->where('start_time', '>=', now()->subHours(1)) 
-            ->orderBy('start_time', 'asc')
+        // Obtener IDs inscritos (Cache local para el método)
+        $enrolledIds = Enrollment::where('user_id', $user->id)->pluck('course_id');
+
+        // 1. Sesión en vivo próxima
+        $nextLiveClass = CourseLesson::whereIn('course_id', $enrolledIds)
+            ->whereNotNull('start_time')
+            ->whereNull('video_url') // Si ya tiene video, no es una "próxima clase"
+            ->where('start_time', '>=', now()->subHours(5)) // Margen amplio por posibles desfases de zona horaria
+            ->orderBy('start_time')
             ->first();
-
-        // 2. Summary stats
-        $stats = [
-            'active_courses' => $enrollments->whereNull('completed_at')->count(),
-            'completed_courses' => $enrollments->whereNotNull('completed_at')->count(),
-            'upcoming_classes' => \App\Models\CourseLesson::whereIn('course_id', $enrollmentIds)
-                ->where('start_time', '>', now())
-                ->count(),
-            'available_exams' => \App\Models\CourseQuiz::whereIn('course_id', $enrollmentIds)->count(),
-        ];
-
-        // 3. Continue where you left off (MUY IMPORTANTE)
-        $lastLessonProgress = \App\Models\LessonProgress::where('user_id', $user->id)
-            ->with(['lesson.module.course.category'])
-            ->latest('updated_at')
-            ->first();
-
-        $continueLearning = null;
-        if ($lastLessonProgress && $lastLessonProgress->lesson) {
-            $course = $lastLessonProgress->lesson->course 
-                      ?? $lastLessonProgress->lesson->module?->course;
-            
-            if ($course) {
-                // Calculate detailed progress for this course
-                $allLessonsCount = \App\Models\CourseLesson::whereHas('module', function($q) use ($course) {
-                    $q->where('course_id', $course->id);
-                })->orWhere(function($q) use ($course) {
-                    $q->where('course_id', $course->id)->whereNull('module_id');
-                })->count();
-                
-                $completedCount = \App\Models\LessonProgress::where('user_id', $user->id)
-                    ->whereHas('lesson', function($q) use ($course) {
-                        $q->where('course_id', $course->id)
-                          ->orWhereHas('module', function($m) use ($course) {
-                              $m->where('course_id', $course->id);
-                          });
-                    })
-                    ->where('is_completed', true)
-                    ->count();
-                    
-                $progressPercent = $allLessonsCount > 0 ? round(($completedCount / $allLessonsCount) * 100) : 0;
-
-                $continueLearning = [
-                    'course_title' => $course->title,
-                    'course_slug' => $course->slug,
-                    'lesson_title' => $lastLessonProgress->lesson->title,
-                    'lesson_id' => $lastLessonProgress->lesson->id,
-                    'progress' => $progressPercent,
-                    'image' => $course->image,
-                ];
-            }
-        }
-
-        // 4. Recommendation Logic (Misma categoría + Más vendidos)
-        $enrolledCategories = $enrollments->pluck('course.category_id')->unique();
-        
-        $recommendations = \App\Models\Course::whereNotIn('id', $enrollmentIds)
-            ->where('status', 'PUBLICADO')
-            ->whereIn('category_id', $enrolledCategories)
-            ->with('category')
-            ->withCount('enrollments')
-            ->orderBy('enrollments_count', 'desc') // "Más vendidos" (Simulado por inscritos)
-            ->take(3)
-            ->get();
-
-        if ($recommendations->count() < 3) {
-            $moreRecs = \App\Models\Course::whereNotIn('id', $enrollmentIds)
-                ->whereNotIn('id', $recommendations->pluck('id'))
-                ->where('status', 'PUBLICADO')
-                ->withCount('enrollments')
-                ->orderBy('enrollments_count', 'desc')
-                ->latest()
-                ->take(3 - $recommendations->count())
-                ->get();
-            $recommendations = $recommendations->concat($moreRecs);
-        }
-
-        // 5. Get Certificates
-        $certificates = \App\Models\Certificate::where('user_id', $user->id)
-            ->with('course.certificateTemplate')
-            ->orderByDesc('issue_date')
-            ->take(3)
-            ->get()
-            ->map(function($cert) {
-                $template = $cert->course->certificateTemplate;
-                return [
-                    'id' => $cert->id,
-                    'course_title' => $cert->course->title,
-                    'issue_date' => $cert->issue_date->format('d M Y'),
-                    'code' => $cert->code,
-                    'image' => ($template && $template->template_image) 
-                               ? '/storage/' . $template->template_image 
-                               : 'https://i.ibb.co/6P6X7p6/cert-placeholder.png',
-                    'download_url' => '/storage/' . $cert->file_path,
-                ];
-            });
 
         return Inertia::render('Dashboard', [
-            'stats' => $stats,
-            'continueLearning' => $continueLearning,
-            'recommendations' => $recommendations,
-            'certificates' => $certificates,
-            'nextLiveClass' => $nextLiveClass ? [
+            'stats'            => $getStats->execute($user),
+            'continueLearning' => $getContinue->execute($user),
+            'recommendations'  => $getRecommendations->execute($user),
+            'certificates'     => $this->getRecentCertificates($user),
+            'nextLiveClass'    => $nextLiveClass ? [
                 'id' => $nextLiveClass->id,
                 'title' => $nextLiveClass->title,
-                'course_title' => $nextLiveClass->course->title,
+                'course_title' => $nextLiveClass->course?->title ?? 'Curso',
                 'start_time' => $nextLiveClass->start_time->format('Y-m-d H:i:s'),
                 'start_time_human' => $nextLiveClass->start_time->isoFormat('dddd D [de] MMMM [a las] h:mm A'),
-                'course_slug' => $nextLiveClass->course->slug,
+                'course_slug' => $nextLiveClass->course?->slug,
             ] : null,
         ]);
     }
 
+    /**
+     * Perfil del Usuario y sus Cursos
+     */
     public function profile()
     {
         $user = Auth::user();
 
-        $enrollments = Enrollment::where('user_id', $user->id)
+        $enrolledCourses = Enrollment::where('user_id', $user->id)
             ->with(['course.category'])
-            ->get()->map(function($e) use ($user) {
-                $course = $e->course;
+            ->get()
+            ->map(function (Enrollment $enrollment) use ($user) {
+                $course = $enrollment->course;
                 if (!$course) return null;
-                
-                $allLessonsCount = \App\Models\CourseLesson::whereHas('module', function($q) use ($course) {
-                    $q->where('course_id', $course->id);
-                })->orWhere(function($q) use ($course) {
-                    $q->where('course_id', $course->id)->whereNull('module_id');
-                })->count();
-                
-                $completedCount = \App\Models\LessonProgress::where('user_id', $user->id)
-                    ->whereHas('lesson', function($q) use ($course) {
-                        $q->where('course_id', $course->id)
-                          ->orWhereHas('module', function($m) use ($course) {
-                              $m->where('course_id', $course->id);
-                          });
-                    })
-                    ->where('is_completed', true)
-                    ->count();
-                    
-                $progressPercent = $allLessonsCount > 0 ? round(($completedCount / $allLessonsCount) * 100) : 0;
-                
-                $lastProgress = \App\Models\LessonProgress::where('user_id', $user->id)
-                    ->whereHas('lesson', function($q) use ($course) {
-                        $q->where('course_id', $course->id);
-                    })
-                    ->latest('updated_at')
-                    ->first();
-                
-                return [
-                    'id' => $course->id,
-                    'title' => $course->title,
-                    'slug' => $course->slug,
-                    'image' => $course->image,
-                    'progress' => $progressPercent,
-                    'last_lesson' => $lastProgress ? $lastProgress->lesson->title : 'Sin empezar',
-                ];
-            })->filter(function($item) {
-                return $item !== null;
-            });
 
-        $activeSubscription = $user->subscriptions()
-            ->where('status', 'activa')
-            ->where('end_date', '>=', now())
-            ->first();
+                return [
+                    'id'          => $course->id,
+                    'title'       => $course->title,
+                    'slug'        => $course->slug,
+                    'image'       => $course->image,
+                    'progress'    => $this->progressService->calculateCourseProgress($user, $course),
+                    'last_lesson' => 'Sin empezar', // Se podría mejorar con last_lesson_id en table
+                ];
+            })->filter()->values();
 
         return Inertia::render('student/Profile', [
-            'enrolledCourses' => array_values($enrollments->toArray()),
-            'activeSubscription' => $activeSubscription,
+            'enrolledCourses'    => $enrolledCourses,
+            'activeSubscription' => $user->subscriptions()->where('status', 'activa')->where('end_date', '>=', now())->first(),
         ]);
     }
 
-    public function updateProfile(\Illuminate\Http\Request $request)
-    {
-        $user = Auth::user();
-        
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'avatar' => 'nullable|image|max:5120',
-        ]);
-
-        $user->name = $request->name;
-
-        if ($request->hasFile('avatar')) {
-             if ($user->avatar) { Storage::disk('public')->delete($user->avatar); }
-             $user->avatar = $request->file('avatar')->store('avatars', 'public');
-        }
-
-        if ($request->filled('password')) {
-            $request->validate(['password' => 'min:8|confirmed']);
-            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
-        }
-
-        $user->save();
-
-        return back()->with('success', 'Perfil actualizado exitosamente.');
-    }
-
+    /**
+     * Listado de mis Cursos
+     */
     public function courses()
     {
         $user = Auth::user();
-        $enrolledCourses = $user->enrolledCourses()->with('category')->get();
+        $progressService = app(\App\Services\ProgressService::class);
+        
+        $courses = $user->enrolledCourses()
+            ->with(['category', 'modules.lessons'])
+            ->get()
+            ->map(function (Course $course) use ($user, $progressService) {
+                // Sincronización proactiva para corregir datos antiguos desfazados
+                $currentProgress = $progressService->calculateCourseProgress($user, $course);
+                
+                // Actualizamos la base de datos en segundo plano (si es necesario)
+                $progressService->syncProgress($user, $course);
 
-        return Inertia::render('student/Courses', [
-            'courses' => $enrolledCourses
-        ]);
+                return [
+                    'id'       => $course->id,
+                    'title'    => $course->title,
+                    'slug'     => $course->slug,
+                    'image'    => $course->image,
+                    'type'     => $course->type,
+                    'category' => $course->category,
+                    'pivot'    => [
+                        'enrolled_at'  => $course->pivot->enrolled_at,
+                        'completed_at' => $course->pivot->completed_at,
+                        'progress'     => $currentProgress,
+                    ]
+                ];
+            });
+
+        return Inertia::render('student/Courses', ['courses' => $courses]);
     }
 
-    public function liveClasses()
-    {
-        $user = Auth::user();
-        $enrollmentIds = \App\Models\Enrollment::where('user_id', $user->id)->pluck('course_id');
-
-        // Fetching real live classes from enrolled courses
-        $sessions = \App\Models\CourseLesson::with('course')
-            ->whereIn('course_id', $enrollmentIds)
-            ->whereNotNull('live_link')
-            ->where('start_time', '>=', now()->subHours(2)) // Show up to 2h after they started
-            ->orderBy('start_time', 'asc')
-            ->get();
-
-        $liveClasses = $sessions->map(function($session) {
-            return [
-                'id' => $session->id,
-                'title' => $session->title,
-                'day' => $session->start_time->isToday() ? 'HOY' : strtoupper($session->start_time->isoFormat('ddd')),
-                'date' => $session->start_time->format('Y-m-d'),
-                'time' => $session->start_time->format('H:i A'),
-                'course_title' => $session->course->title,
-                'course_slug' => $session->course->slug,
-                'is_today' => $session->start_time->isToday(),
-            ];
-        });
-
-        return Inertia::render('student/LiveClasses', [
-            'live_classes' => $liveClasses
-        ]);
-    }
-
+    /**
+     * Sección de Exámenes
+     */
     public function exams()
     {
         $user = Auth::user();
+        $enrolledCourseIds = Enrollment::where('user_id', $user->id)->pluck('course_id');
 
-        // Obtener todos los cursos del usuario
-        $enrolledCourseIds = \App\Models\Enrollment::where('user_id', $user->id)
-            ->pluck('course_id');
+        $quizzes = CourseQuiz::whereIn('course_id', $enrolledCourseIds)->with('course')->get()
+            ->map(function (CourseQuiz $quiz) use ($user) {
+                $attempts = CourseExamAttempt::where('user_id', $user->id)
+                    ->where('course_quiz_id', $quiz->id)
+                    ->whereNotNull('completed_at');
 
-        $quizzes = \App\Models\CourseQuiz::whereIn('course_id', $enrolledCourseIds)
-            ->with(['course'])
-            ->get();
-            
-        $exams = $quizzes->map(function ($quiz) use ($user) {
-            $completedCount = \App\Models\CourseExamAttempt::where('user_id', $user->id)
-                ->where('course_quiz_id', $quiz->id)
-                ->whereNotNull('completed_at')
-                ->count();
-            
-            $attemptsLeft = max(0, $quiz->max_attempts - $completedCount);
-
-            $passed = \App\Models\CourseExamAttempt::where('user_id', $user->id)
-                ->where('course_quiz_id', $quiz->id)
-                ->where('status', 'aprobado')
-                ->exists();
-
-            return [
-                'id' => $quiz->id,
-                'title' => $quiz->title,
-                'course_title' => $quiz->course->title ?? '',
-                'time_limit' => $quiz->time_limit,
-                'max_attempts' => $quiz->max_attempts,
-                'attempts_left' => $attemptsLeft,
-                'passed' => $passed
-            ];
-        });
-
-        $attempts = \App\Models\CourseExamAttempt::where('user_id', $user->id)
-            ->with(['quiz.course'])
-            ->orderByDesc('created_at')
-            ->get();
-            
-        $history = $attempts->map(function ($a) {
-            return [
-                'id' => $a->id,
-                'title' => $a->quiz->title ?? '',
-                'course_title' => $a->quiz->course->title ?? '',
-                'date' => $a->completed_at ? \Carbon\Carbon::parse($a->completed_at)->format('d M Y') : 'En progreso',
-                'score' => $a->score,
-                'passing_score' => $a->quiz->minimum_score ?? 14,
-                'status' => $a->status
-            ];
-        });
+                return [
+                    'id'            => $quiz->id,
+                    'title'         => $quiz->title,
+                    'course_title'  => $quiz->course->title ?? '',
+                    'time_limit'    => $quiz->time_limit,
+                    'attempts_left' => max(0, $quiz->max_attempts - $attempts->count()),
+                    'passed'        => $attempts->clone()->where('status', 'aprobado')->exists(),
+                    'progress'      => (int)($quiz->course->enrollments()->where('user_id', $user->id)->first()?->progress ?? 0),
+                    'date'          => $attempts->clone()->latest()->first()?->completed_at?->format('d M Y') ?? 'Pendiente',
+                    'score'         => (int)($attempts->clone()->latest()->first()?->score ?? 0),
+                    'passing_score' => (int)($quiz->minimum_score ?? config('education.passing_score', 14)),
+                    'status'        => 'pendiente'
+                ];
+            });
 
         return Inertia::render('student/Exams', [
-            'exams' => $exams,
-            'history' => $history
+            'exams'   => $quizzes,
+            'history' => $this->getExamHistory($user),
+            'stats'   => [
+                'average_score'     => round(CourseExamAttempt::where('user_id', $user->id)->whereNotNull('score')->avg('score') ?? 0, 1),
+                'certificate_count' => Certificate::where('user_id', $user->id)->count()
+            ]
         ]);
     }
 
-    public function takeExam(\App\Models\CourseQuiz $quiz)
+    // --- Helpers Privados ---
+
+    protected function getRecentCertificates($user)
+    {
+        return Certificate::where('user_id', $user->id)
+            ->with('course')
+            ->orderByDesc('issue_date')
+            ->take(3)
+            ->get()
+            ->map(fn($cert) => [
+                'id'           => $cert->id,
+                'title'        => 'Certificado de Aprobación',
+                'course_title' => $cert->course->title ?? 'Curso',
+                'issue_date'   => $cert->issue_date->format('d M Y'),
+                'image'        => $cert->course->image ?? '/images/cert-placeholder.png',
+                'code'         => $cert->code ?? 'N/A',
+                'is_available' => true,
+                'download_url' => asset('storage/' . $cert->file_path),
+            ]);
+    }
+
+    protected function getExamHistory($user)
+    {
+        return CourseExamAttempt::where('user_id', $user->id)
+            ->with(['quiz.course'])
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(fn($a) => [
+                'id'            => $a->id,
+                'title'         => $a->quiz->title ?? '',
+                'course_title'  => $a->quiz->course->title ?? '',
+                'date'          => $a->completed_at ? $a->completed_at->format('d M Y') : 'En progreso',
+                'score'         => $a->score,
+                'passing_score' => $a->quiz->minimum_score ?? config('education.passing_score'),
+                'status'        => $a->status
+            ]);
+    }
+
+    /**
+     * Clases en Vivo para el estudiante
+     */
+    public function liveClasses()
     {
         $user = Auth::user();
-        
-        if (!$this->examService->canTakeQuiz($user, $quiz)) {
-             return redirect()->route('student.exams.index')->with('error', 'Has superado el límite de intentos.');
-        }
+        $enrolledIds = Enrollment::where('user_id', $user->id)->pluck('course_id');
 
-        // Buscamos o creamos el intento actual (en progreso)
-        \App\Models\CourseExamAttempt::firstOrCreate(
-            ['user_id' => $user->id, 'course_quiz_id' => $quiz->id, 'completed_at' => null],
-            ['status' => 'started', 'score' => null]
-        );
+        $liveLessons = CourseLesson::whereIn('course_id', $enrolledIds)
+            ->whereNull('video_url') // Si tiene grabación, no va en calendario de vivos
+            ->whereNotNull('start_time')
+            ->where('start_time', '>=', now()->subHours(5))
+            ->with('course')
+            ->orderBy('start_time')
+            ->get()
+            ->map(fn($l) => [
+                'id' => $l->id,
+                'title' => $l->title,
+                'day' => $l->start_time->format('D'),
+                'date' => $l->start_time->format('Y-m-d'),
+                'time' => $l->start_time->format('h:i A'),
+                'course_title' => $l->course->title ?? '',
+                'course_slug' => $l->course->slug ?? '',
+                'course_id' => $l->course_id,
+                'is_today' => $l->start_time->isToday(),
+                'live_link' => $l->live_link,
+            ])->values(); // Asegurar que sea array secuencial en JS
 
-        $quiz->load(['course', 'questions.answers']);
-
-        $completedCount = \App\Models\CourseExamAttempt::where('user_id', $user->id)
-            ->where('course_quiz_id', $quiz->id)
-            ->whereNotNull('completed_at')
-            ->count();
-
-        return Inertia::render('student/TakeExam', [
-            'quiz' => $quiz,
-            'current_attempt' => $completedCount + 1
+        return Inertia::render('student/LiveClasses', [
+            'live_classes' => $liveLessons
         ]);
     }
 
-    public function submitExam(\Illuminate\Http\Request $request, \App\Models\CourseQuiz $quiz)
-    {
-        try {
-            $attempt = $this->examService->submit(
-                Auth::user(), 
-                $quiz, 
-                $request->input('answers', [])
-            );
-
-            // Cargar datos del certificado si aprobó
-            $certificate = \App\Models\Certificate::where('user_id', Auth::id())
-                ->where('course_id', $quiz->course_id)
-                ->first();
-
-            return back()->with('exam_result', [
-                'score' => $attempt->score,
-                'status' => $attempt->status,
-                'passing_score' => $quiz->minimum_score ?? 14,
-                'certificate_url' => $certificate ? '/storage/' . $certificate->file_path : null,
-            ]);
-            
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
-    }
-
+    /**
+     * Gestión de Certificados
+     */
     public function certificates()
     {
         $user = Auth::user();
-        
-        // Auto-generate missing certificates for completed courses
-        $enrollments = Enrollment::where('user_id', $user->id)->get();
-        foreach($enrollments as $enrollment) {
-            $this->certificateService->generateIfEligible($user, $enrollment->course);
-        }
-
-        $certificates = \App\Models\Certificate::where('user_id', $user->id)
-            ->with(['course.certificateTemplate'])
+        $certificates = Certificate::where('user_id', $user->id)
+            ->with(['course.category', 'course.certificateTemplate'])
             ->orderByDesc('issue_date')
             ->get()
-            ->map(function($cert) {
-                $template = $cert->course ? $cert->course->certificateTemplate : null;
-                return [
-                    'id' => $cert->id,
-                    'title' => 'Diploma de Finalización',
-                    'course_title' => $cert->course ? $cert->course->title : 'Programa Terminado',
-                    'issue_date' => $cert->issue_date ? $cert->issue_date->format('d M Y') : 'Fecha no asignada',
-                    'image' => ($template && $template->template_image) 
-                               ? '/storage/' . $template->template_image 
-                               : 'https://i.ibb.co/6P6X7p6/cert-placeholder.png',
-                    'code' => $cert->code,
-                    'is_available' => true,
-                    'download_url' => '/storage/' . $cert->file_path,
-                ];
-            });
+            ->map(fn($cert) => [
+                'id' => $cert->id,
+                'title' => 'Certificado de Aprobación',
+                'course_title' => $cert->course->title ?? 'Curso',
+                'issue_date' => $cert->issue_date->format('d M Y'),
+                'image' => $cert->course->image ?? '/images/cert-placeholder.png',
+                'code' => $cert->code ?? 'N/A',
+                'is_available' => true,
+                'download_url' => route('student.certificates.download', ['certificate' => $cert->id]),
+            ]);
 
         return Inertia::render('student/Certificates', [
             'certificates' => $certificates
         ]);
     }
 
-    public function exploreCourses(\Illuminate\Http\Request $request)
+    /**
+     * Iniciar un examen
+     */
+    public function takeExam(CourseQuiz $quiz)
     {
-        $enrolledCourseIds = \App\Models\Enrollment::where('user_id', Auth::id())->pluck('course_id');
+        $user = Auth::user();
+        
+        // 1. Verificar acceso al curso
+        $this->authorize('viewClassroom', $quiz->course);
 
-        $query = \App\Models\Course::where('status', 'PUBLICADO')
-            ->whereIn('type', ['grabado', 'en vivo', 'hibrido'])
-            ->whereNotIn('id', $enrolledCourseIds)
-            ->with('category');
-
-        if ($request->filled('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
+        // 2. Verificar progreso (Seguridad adicional)
+        $enrollment = $quiz->course->enrollments()->where('user_id', $user->id)->first();
+        if (!$enrollment || $enrollment->progress < 100) {
+            return redirect()->route('student.exams.index')
+                ->with('error', 'Debes completar el 100% del curso para rendir la evaluación final.');
         }
 
-        if ($request->filled('category') && $request->category !== 'Todas las áreas') {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('name', $request->category);
-            });
+        // 3. Cargar preguntas con sus alternativas (IMPORTANTE)
+        return Inertia::render('student/TakeExam', [
+            'quiz'            => $quiz->load(['questions.answers', 'course']),
+            'current_attempt' => CourseExamAttempt::where('user_id', $user->id)->where('course_quiz_id', $quiz->id)->count() + 1,
+        ]);
+    }
+
+    /**
+     * Enviar examen
+     */
+    public function submitExam(Request $request, CourseQuiz $quiz)
+    {
+        $user = Auth::user();
+        
+        try {
+            $result = $this->examService->submit($user, $quiz, $request->answers);
+            return back()->with('exam_result', $result);
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function downloadCertificate(Request $request, \App\Models\Certificate $certificate)
+    {
+        // Security check
+        if ($certificate->user_id !== Auth::id()) {
+            abort(403);
         }
 
-        $courses = $query->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
-        $categories = \App\Models\Category::has('courses')->orderBy('name')->get();
+        $action = $request->query('action', 'download');
+
+        $certificateService = app(\App\Services\CertificateService::class);
+        return $certificateService->downloadPdf($certificate, $action);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'telefono' => 'nullable|string|max:20',
+        ]);
+
+        $user->update($data);
+
+        return back()->with('success', 'Perfil actualizado.');
+    }
+
+    /**
+     * Explorar Catálogo
+     */
+    public function exploreCourses(Request $request)
+    {
+        $courses = Course::published()
+            ->with(['category', 'instructor'])
+            ->withCount('lessons')
+            ->paginate(12)
+            ->withQueryString();
 
         return Inertia::render('Cursos', [
             'courses' => $courses,
-            'categories' => $categories,
+            'categories' => \App\Models\Category::all(),
             'filters' => $request->only(['search', 'modality', 'category']),
-            'isDashboard' => true,
+            'isDashboard' => true
         ]);
     }
 
+    /**
+     * Explorar Publicaciones
+     */
     public function explorePublications()
     {
+        $books = \App\Models\Book::all()->map(fn($b) => [
+            'id' => $b->id,
+            'category' => $b->category ?? 'Libro',
+            'title' => $b->title,
+            'price' => $b->price,
+            'author' => $b->author ?? 'Instituto IEE',
+            'description' => $b->description,
+            'cover_image' => $b->cover_image,
+            'file_path' => $b->file_path,
+            'download_url' => $b->download_url,
+            'is_available' => (bool)$b->is_available,
+        ]);
+
+        $articles = \App\Models\Article::all()->map(fn($a) => [
+            'id' => $a->id,
+            'title' => $a->title,
+            'media' => $a->media ?? 'Análisis',
+            'published_at' => $a->published_at ? $a->published_at->format('Y-m-d') : now()->format('Y-m-d'),
+            'thumbnail' => $a->thumbnail,
+            'download_url' => $a->download_url,
+        ]);
+
         return Inertia::render('Publications', [
-            'books' => \App\Models\Book::latest()->get(),
-            'articles' => \App\Models\Article::latest()->get(),
-            'isDashboard' => true,
+            'books' => $books,
+            'articles' => $articles,
+            'isDashboard' => true
         ]);
     }
 
-    public function exploreMasterclasses(\Illuminate\Http\Request $request)
+    /**
+     * Explorar Masterclasses
+     */
+    public function exploreMasterclasses(Request $request)
     {
-        $query = \App\Models\Course::where('status', 'PUBLICADO')
-            ->where('type', 'evento')
-            ->with(['category', 'lessons']);
-
-        if ($request->filled('category') && $request->category !== 'Todas') {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('name', $request->category);
-            });
-        }
-
-        $courses = $query->orderBy('created_at', 'desc')->get();
-        $categories = \App\Models\Category::whereHas('courses', function($q){
-            $q->where('type', 'evento');
-        })->orderBy('name')->get();
-
         return Inertia::render('Masterclasses', [
-            'courses' => $courses,
-            'categories' => $categories,
+            'courses' => Course::published()->where('type', 'masterclass')->get(),
+            'categories' => \App\Models\Category::all(),
             'filters' => $request->only(['category']),
-            'isDashboard' => true,
+            'isDashboard' => true
         ]);
     }
 
+    /**
+     * Explorar Consultoría
+     */
     public function exploreConsultoria()
     {
         return Inertia::render('Consultoria', [
-            'isDashboard' => true,
+            'isDashboard' => true
         ]);
     }
+
+    // Se pueden agregar los demás métodos de exploración (publications, masterclasses) según sea necesario
 }

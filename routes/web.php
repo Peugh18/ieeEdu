@@ -30,6 +30,7 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'verified'])->gr
     Route::get('/exams/{quiz}/take', [StudentDashboardController::class, 'takeExam'])->name('exams.take');
     Route::post('/exams/{quiz}/submit', [StudentDashboardController::class, 'submitExam'])->name('exams.submit');
     Route::get('/certificates', [StudentDashboardController::class, 'certificates'])->name('certificates.index');
+    Route::get('/certificates/{certificate}/download', [StudentDashboardController::class, 'downloadCertificate'])->name('certificates.download');
     Route::get('/classroom/{course:slug}/{lesson?}', [\App\Http\Controllers\Student\ClassroomController::class, 'show'])->name('classroom');
     Route::post('/classroom/progress', [\App\Http\Controllers\Student\ClassroomController::class, 'updateProgress'])->name('classroom.progress');
 
@@ -62,14 +63,7 @@ use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Middleware\EnsureAdmin;
 
-Route::get('/dev/make-admin', function () {
-    $admin = App\Models\User::updateOrCreate(
-        ['email' => 'admin@example.com'],
-        ['name' => 'Admin User', 'password' => bcrypt('password'), 'role' => 'admin', 'status' => 'activo', 'telefono' => '999999999']
-    );
 
-    return "Admin user ready: {$admin->email} - password: password";
-});
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', EnsureAdmin::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -120,6 +114,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', EnsureAdmin::class])
     Route::get('payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
     Route::patch('payments/{payment}/approve', [PaymentController::class, 'approve'])->name('payments.approve');
     Route::patch('payments/{payment}/reject', [PaymentController::class, 'reject'])->name('payments.reject');
+
+    // Subscriptions (Planes Premium)
+    Route::get('subscriptions', [\App\Http\Controllers\Admin\SubscriptionController::class, 'index'])->name('subscriptions.index');
+    Route::post('subscriptions', [\App\Http\Controllers\Admin\SubscriptionController::class, 'store'])->name('subscriptions.store');
+    Route::patch('subscriptions/{subscription}/toggle', [\App\Http\Controllers\Admin\SubscriptionController::class, 'toggleStatus'])->name('subscriptions.toggle');
+    Route::delete('subscriptions/{subscription}', [\App\Http\Controllers\Admin\SubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
 
     // Certificate Templates
     Route::get('courses/{course}/certificate-template', [\App\Http\Controllers\Admin\CertificateTemplateController::class, 'edit'])->name('courses.certificate-template.edit');

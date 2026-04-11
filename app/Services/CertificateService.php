@@ -53,45 +53,37 @@ class CertificateService
     }
 
     /**
-     * Generate a certificate if eligible.
+     * Get or create a certificate record (without PDF generation).
      */
-    public function generateIfEligible(User $user, Course $course)
+    public function getOrCreateRecord(User $user, Course $course)
     {
-        if ($this->checkEligibility($user, $course)) {
-            return $this->generate($user, $course);
-        }
-        
-        return null;
-    }
-
-    /**
-     * Generate the PDF and save record.
-     */
-    public function generate(User $user, Course $course)
-    {
-        // Check if already exists
         $existing = Certificate::where('user_id', $user->id)
             ->where('course_id', $course->id)
             ->first();
-            
-        $template = $course->certificateTemplate;
 
-        // Force regeneration if template was updated after certificate creation
-        if ($existing && $template && $template->updated_at && $existing->created_at->lt($template->updated_at)) {
-             Storage::disk('public')->delete($existing->file_path);
-             $existing->delete();
-             $existing = null;
-        }
+        if ($existing) return $existing;
 
-        if ($existing) {
-            return $existing;
-        }
-
-        // Generate a professional unique code: IEE-[RANDOM]-[YEAR]
         $code = 'IEE-' . strtoupper(Str::random(8)) . '-' . date('Y');
-        $fileName = 'certificates/' . $user->id . '_' . $course->id . '_' . time() . '.pdf';
+        
+        return Certificate::create([
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'code' => $code,
+            'issue_date' => now(),
+            // file_path will be null until generated or we can just use a generic path
+            'file_path' => 'certificates/' . $user->id . '_' . $course->id . '.pdf'
+        ]);
+    }
 
+    /**
+     * Generate the PDF response for a certificate.
+     */
+    public function downloadPdf(Certificate $certificate, $action = 'download')
+    {
+        $user = $certificate->user;
+        $course = $certificate->course;
         $template = $course->certificateTemplate;
+
         $templateImageBase64 = null;
         if ($template && $template->template_image) {
             $imageDisk = Storage::disk('public');
@@ -99,29 +91,18 @@ class CertificateService
                 $imageData = $imageDisk->get($template->template_image);
                 $type = strtolower(pathinfo($template->template_image, PATHINFO_EXTENSION));
                 $templateImageBase64 = 'data:image/' . $type . ';base64,' . base64_encode($imageData);
-            } else {
-                 \Illuminate\Support\Facades\Log::warning('Certificate template image missing from disk', [
-                    'path' => $template->template_image,
-                    'course' => $course->id
-                ]);
             }
         }
 
         $data = [
             'user' => $user,
             'course' => $course,
-            'date' => date('d/m/Y'),
-            'code' => $code,
+            'date' => $certificate->issue_date->format('d/m/Y'),
+            'code' => $certificate->code,
             'template' => $template,
             'template_image_base64' => $templateImageBase64,
-            // Fallback coordinate data if no template exists
             'is_custom' => $template && $template->template_image ? true : false,
         ];
-
-        // Ensure the directory exists in public storage
-        if (!Storage::disk('public')->exists('certificates')) {
-            Storage::disk('public')->makeDirectory('certificates');
-        }
 
         $pdf = \Spatie\LaravelPdf\Facades\Pdf::view('pdf.certificate', $data)
             ->format('a4')
@@ -130,17 +111,24 @@ class CertificateService
             ->withBrowsershot(function ($browsershot) {
                 $browsershot->noSandbox()
                    ->setOption('args', ['--disable-web-security'])
-                   ->windowSize(1122, 794); // Standard A4 at 96dpi
+                   ->windowSize(1122, 794);
             });
-        
-        $pdf->save(Storage::disk('public')->path($fileName));
 
-        return Certificate::create([
-            'user_id' => $user->id,
-            'course_id' => $course->id,
-            'code' => $code,
-            'file_path' => $fileName,
-            'issue_date' => now(),
-        ]);
+        if ($action === 'stream') {
+            return $pdf->inline($certificate->code . '.pdf');
+        }
+        
+        return $pdf->download($certificate->code . '.pdf');
+    }
+
+    /**
+     * DEPRECATED: Use getOrCreateRecord instead for faster submissions.
+     */
+    public function generateIfEligible(User $user, Course $course)
+    {
+        if ($this->checkEligibility($user, $course)) {
+            return $this->getOrCreateRecord($user, $course);
+        }
+        return null;
     }
 }

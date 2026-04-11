@@ -66,7 +66,7 @@ class User extends Authenticatable
     public function enrolledCourses()
     {
         return $this->belongsToMany(Course::class, 'enrollments')
-            ->withPivot(['enrolled_at', 'completed_at', 'passed'])
+            ->withPivot(['enrolled_at', 'completed_at', 'passed', 'progress', 'last_lesson_id'])
             ->withTimestamps();
     }
 
@@ -96,6 +96,11 @@ class User extends Authenticatable
     public function hasAccess($courseId)
     {
         if ($this->hasSubscriptionActive()) {
+            return true;
+        }
+
+        $course = Course::find($courseId);
+        if ($course && $course->price <= 0) {
             return true;
         }
 

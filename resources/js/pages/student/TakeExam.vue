@@ -29,17 +29,58 @@ const props = defineProps<{
     current_attempt: number;
 }>();
 
-// Results from flash session
 const page = usePage() as any;
-const examResult = computed(() => page.props.flash?.exam_result);
+const flashResult = computed(() => page.props.flash?.exam_result);
+const localResult = ref<any>(null);
+
+const examResult = computed(() => flashResult.value || localResult.value);
 const showResultModal = computed(() => !!examResult.value);
+
+// Persistence logic
+const storageKey = computed(() => `iie_exam_state_${props.quiz.id}_${page.props.auth?.user?.id}`);
 
 // Reactive State
 const currentQuestionIndex = ref(0);
 const selectedAnswers = ref<Record<number, number>>({});
 const isSubmitting = ref(false);
 const timeRemaining = ref(props.quiz.time_limit * 60);
+const showConfirmModal = ref(false); 
 let timer: any = null;
+
+const saveState = () => {
+    if (examResult.value) return; 
+    const state = {
+        answers: selectedAnswers.value,
+        index: currentQuestionIndex.value,
+        time: timeRemaining.value,
+        timestamp: Date.now()
+    };
+    localStorage.setItem(storageKey.value, JSON.stringify(state));
+};
+
+const loadState = () => {
+    const saved = localStorage.getItem(storageKey.value);
+    if (saved) {
+        try {
+            const state = JSON.parse(saved);
+            if (Date.now() - state.timestamp < 2 * 60 * 60 * 1000) {
+                selectedAnswers.value = state.answers || {};
+                currentQuestionIndex.value = state.index || 0;
+                timeRemaining.value = state.time || props.quiz.time_limit * 60;
+            }
+        } catch (e) { }
+    }
+    const savedResult = localStorage.getItem(`${storageKey.value}_result`);
+    if (savedResult) {
+        try { localResult.value = JSON.parse(savedResult); } catch (e) {}
+    }
+};
+
+const clearState = () => {
+    localStorage.removeItem(storageKey.value);
+    localStorage.removeItem(`${storageKey.value}_result`);
+    localResult.value = null;
+};
 
 // Modal State
 const showModal = ref(false);
@@ -55,10 +96,12 @@ const formattedTime = computed(() => {
 });
 
 onMounted(() => {
-    if (props.quiz.questions.length > 0) {
+    loadState();
+    if (props.quiz.questions.length > 0 && !examResult.value) {
         timer = setInterval(() => {
             if (timeRemaining.value > 0) {
                 timeRemaining.value--;
+                if (timeRemaining.value % 5 === 0) saveState();
             } else {
                 clearInterval(timer);
                 triggerTimeUp();
@@ -90,6 +133,10 @@ const performSubmit = () => {
     }, {
         onSuccess: () => {
             isSubmitting.value = false;
+            if (flashResult.value) {
+                localStorage.setItem(`${storageKey.value}_result`, JSON.stringify(flashResult.value));
+            }
+            localStorage.removeItem(storageKey.value);
         },
         onError: () => {
              isSubmitting.value = false;
@@ -104,18 +151,22 @@ const breadcrumbs = [
 ];
 
 const selectAnswer = (questionId: number, answerId: number) => {
+    if (examResult.value) return;
     selectedAnswers.value[questionId] = answerId;
+    saveState();
 };
 
 const nextQuestion = () => {
     if (currentQuestionIndex.value < props.quiz.questions.length - 1) {
         currentQuestionIndex.value++;
+        saveState();
     }
 };
 
 const prevQuestion = () => {
     if (currentQuestionIndex.value > 0) {
         currentQuestionIndex.value--;
+        saveState();
     }
 };
 
@@ -302,17 +353,11 @@ const triggerSubmitConfirm = () => {
                         </template>
                         <template v-else>
                             <button 
-                                @click="router.reload()"
+                                @click="clearState(); router.visit(route('student.exams.index'));"
                                 class="w-full sm:w-auto px-10 py-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:opacity-90 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
                             >
-                                <RotateCcw class="w-4 h-4" /> Reintentar Quiz
+                                <RotateCcw class="w-4 h-4" /> Volver al listado
                             </button>
-                            <InertiaLink 
-                                :href="route('student.exams.index')" 
-                                class="w-full sm:w-auto px-10 py-5 text-on-surface-variant hover:text-primary font-bold rounded-2xl border-2 border-outline-variant/30 hover:bg-surface-container-low transition-all uppercase tracking-widest text-xs"
-                            >
-                                Volver al panel
-                            </InertiaLink>
                         </template>
                     </div>
                 </div>

@@ -25,12 +25,9 @@ class Course extends Model
         'type',
         'status',
         'category_id',
+        'instructor_id',
         'docente_id',
         'image',
-        'instructor_name',
-        'instructor_title',
-        'instructor_bio',
-        'instructor_image',
         'start_date',
         'start_time',
         'class_hours',
@@ -50,6 +47,11 @@ class Course extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function instructor()
+    {
+        return $this->belongsTo(Instructor::class);
     }
 
     public function teacher()
@@ -85,6 +87,14 @@ class Course extends Model
     public function certificateTemplate()
     {
         return $this->hasOne(CertificateTemplate::class);
+    }
+
+    /**
+     * SCOPES
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'PUBLICADO');
     }
 }
 
