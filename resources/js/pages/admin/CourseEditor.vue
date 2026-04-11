@@ -14,6 +14,7 @@ const modules = ref<any[]>(props.course.modules ?? []);
 const openLessonId = ref<number | null>(null);
 const openQuizId = ref<number | null>(null);
 const isExamView = ref(false);
+const activeTab = ref('general');
 const quizzes = ref<any[]>(props.course.quizzes ?? []);
 const materialsByLesson = ref<Record<number, any[]>>({});
 
@@ -550,9 +551,23 @@ async function toggleQuiz(id: number) {
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <aside class="lg:col-span-4 rounded-2xl border border-outline-variant/10 bg-white p-5 space-y-3">
-                    <h2 class="font-semibold">Información del curso</h2>
+            <!-- TABS MENU -->
+            <div class="flex overflow-x-auto gap-2 bg-white p-2 rounded-2xl border border-outline-variant/10 shadow-sm mb-6 pb-2 scrollbar-thin">
+                <button @click="activeTab = 'general'" :class="activeTab === 'general' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap">Información Básica</button>
+                <button @click="activeTab = 'pricing'" :class="activeTab === 'pricing' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap">Precio y Configuraciones</button>
+                <button @click="activeTab = 'details'" :class="activeTab === 'details' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap">Detalles Adicionales</button>
+                <button @click="activeTab = 'instructor'" :class="activeTab === 'instructor' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap">Instructor y Diploma</button>
+                <button @click="activeTab = 'curriculum'" :class="activeTab === 'curriculum' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap flex items-center gap-2">Plan de Estudios <span class="bg-black/20 text-current border border-current text-[10px] px-2 py-0.5 rounded-full">{{ lessons.length }}</span></button>
+                <button @click="activeTab = 'exams'" :class="activeTab === 'exams' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap">Exámenes / Evaluaciones</button>
+            </div>
+
+            <div class="grid grid-cols-1 gap-6">
+                <!-- TAB: GENERAL -->
+                <div v-show="activeTab === 'general'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div>
+                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Información Básica</h2>
+                        <p class="text-sm text-on-surface-variant">Define el título y estado principal del programa.</p>
+                    </div>
                     <div>
                         <input v-model="form.title" class="w-full rounded-xl border px-4 py-3 text-sm" :class="form.errors.title ? 'border-red-500' : 'border-outline-variant/30'" placeholder="Nombre del curso" />
                         <p v-if="form.errors.title" class="mt-1 text-xs text-red-600">{{ form.errors.title }}</p>
@@ -561,7 +576,15 @@ async function toggleQuiz(id: number) {
                         <textarea v-model="form.description" rows="4" class="w-full rounded-xl border px-4 py-3 text-sm" :class="form.errors.description ? 'border-red-500' : 'border-outline-variant/30'" placeholder="Descripción" />
                         <p v-if="form.errors.description" class="mt-1 text-xs text-red-600">{{ form.errors.description }}</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
+                </div>
+
+                <!-- TAB: PRICING -->
+                <div v-show="activeTab === 'pricing'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div>
+                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Precios y Ventas</h2>
+                        <p class="text-sm text-on-surface-variant">Configura el costo del programa y opciones de descuento.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <input v-model.number="form.price" type="number" min="0" class="w-full rounded-xl border px-4 py-3 text-sm" :class="form.errors.price ? 'border-red-500' : 'border-outline-variant/30'" placeholder="Precio" />
                             <p v-if="form.errors.price" class="mt-1 text-xs text-red-600">{{ form.errors.price }}</p>
@@ -620,8 +643,14 @@ async function toggleQuiz(id: number) {
                     </div>
                     <img v-if="course.image" :src="course.image" class="h-16 w-16 rounded-xl object-cover border border-outline-variant/20" />
 
-                    <hr class="border-outline-variant/20 my-2" />
-                    <h3 class="font-semibold text-sm">Detalles específicos</h3>
+                </div>
+
+                <!-- TAB: DETAILS -->
+                <div v-show="activeTab === 'details'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div>
+                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Detalles Específicos</h2>
+                        <p class="text-sm text-on-surface-variant">Fechas, objetivos y requerimientos técnicos del curso.</p>
+                    </div>
                     
                     <div v-if="form.type === 'en vivo' || form.type === 'masterclass' || form.type === 'evento'" class="grid grid-cols-2 gap-3">
                         <div>
@@ -654,8 +683,14 @@ async function toggleQuiz(id: number) {
                         <textarea v-model="form.requirements" rows="3" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="¿Qué necesita saber el alumno antes?"></textarea>
                     </div>
 
-                    <hr class="border-outline-variant/20 my-2" />
-                    <h3 class="font-semibold text-sm">Instructor (Opcional)</h3>
+                </div>
+
+                <!-- TAB: INSTRUCTOR -->
+                <div v-show="activeTab === 'instructor'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div>
+                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Perfil del Instructor</h2>
+                        <p class="text-sm text-on-surface-variant">Puedes opcionalmente mostrar quién dicta este curso y el certificado final.</p>
+                    </div>
                     <div>
                         <input v-model="form.instructor_name" class="w-full rounded-xl border px-4 py-3 text-sm border-outline-variant/30" placeholder="Nombre (Ej. Mg. Juan Pérez)" />
                     </div>
@@ -691,30 +726,17 @@ async function toggleQuiz(id: number) {
                          </div>
                     </div>
 
-                </aside>
+                </div>
 
-                <main class="lg:col-span-8 space-y-6">
-                    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <div class="flex items-center gap-2 bg-surface-container-low p-1 rounded-2xl border border-outline-variant/10">
-                            <button 
-                                @click="isExamView = false"
-                                class="px-5 py-2 text-sm font-bold rounded-xl transition"
-                                :class="!isExamView ? 'bg-white shadow text-primary font-bold' : 'text-on-surface-variant hover:text-primary'"
-                            >
-                                Contenido
-                            </button>
-                            <button 
-                                @click="isExamView = true"
-                                class="px-5 py-2 text-sm font-bold rounded-xl transition"
-                                :class="isExamView ? 'bg-white shadow text-primary font-bold' : 'text-on-surface-variant hover:text-primary'"
-                            >
-                                Exámenes
-                            </button>
-                        </div>
-                        <p v-if="!isExamView" class="text-xs text-on-surface-variant">Masterclass permite solo una clase</p>
+                <!-- TAB: CURRICULUM -->
+                <div v-show="activeTab === 'curriculum'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div>
+                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Plan de Estudios</h2>
+                        <p class="text-sm text-on-surface-variant">Construye los módulos, clases y agrega material descargable.</p>
+                        <p class="text-xs font-bold text-red-500 mt-2" v-if="isMasterclass">NOTA: Modalidad Masterclass admite exclusivamente 1 sola clase en vivo.</p>
                     </div>
 
-                    <div v-if="!isExamView" class="space-y-6">
+                    <div class="space-y-6 mt-4">
                         <div v-if="!isMasterclass">
                             <div class="flex gap-2">
                                 <input v-model="newModuleTitle" class="flex-1 rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition" placeholder="Nombre del módulo" />
@@ -901,8 +923,14 @@ async function toggleQuiz(id: number) {
                     </div>
                 </div>
 
-                <!-- Exam View section -->
-                <div v-else class="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                </div>
+
+                <!-- TAB: EXAMS -->
+                <div v-show="activeTab === 'exams'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div>
+                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Exámenes y Evaluaciones</h2>
+                        <p class="text-sm text-on-surface-variant">Crea cuestionarios automáticos para medir el aprendizaje.</p>
+                    </div>
                         <div class="bg-surface-container-low border border-outline-variant/20 rounded-[2rem] p-8 space-y-6">
                             <h3 class="font-bold text-lg">Nuevo Examen / Evaluación</h3>
                             <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
@@ -1087,8 +1115,7 @@ async function toggleQuiz(id: number) {
                             </div>
                         </div>
                     </div>
-                </main>
+                </div>
             </div>
-        </div>
     </AppLayout>
 </template>

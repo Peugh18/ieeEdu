@@ -36,50 +36,65 @@ class ExamService
      */
     public function submit(User $user, CourseQuiz $quiz, array $answers)
     {
+        // 1. Validaciones preventivas
         if (!$this->canTakeQuiz($user, $quiz)) {
             throw new \Exception('Has superado el límite de intentos permitido para esta evaluación.');
         }
 
+        // Asegurar que el curso esté completado (Doble validación de seguridad)
+        $progressService = app(\App\Services\ProgressService::class);
+        $progress = $progressService->calculateCourseProgress($user, $quiz->course);
+        if ($progress < 100) {
+            throw new \Exception('Debes completar el 100% de las lecciones antes de rendir el examen.');
+        }
+
         $quiz->load('questions.answers');
         
-        $scoreRaw = 0;
+        $correctCount = 0;
+        $totalQuestions = $quiz->questions->count();
+        
         foreach($quiz->questions as $q) {
             if (isset($answers[$q->id])) {
                 $selectedAns = $q->answers->where('id', $answers[$q->id])->first();
                 if ($selectedAns && $selectedAns->is_correct) {
-                    $scoreRaw += 1;
+                    $correctCount++;
                 }
             }
         }
         
-        $totalQuestions = $quiz->questions->count();
-        $finalScore = $totalQuestions > 0 ? round(($scoreRaw / $totalQuestions) * 20) : 0;
-        $status = $finalScore >= ($quiz->minimum_score ?? 14) ? 'aprobado' : 'reprobado';
+        // Escala 0-20
+        $finalScore = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 20) : 0;
+        $minScore = $quiz->minimum_score ?? 14;
+        $status = $finalScore >= $minScore ? 'aprobado' : 'reprobado';
 
-        $attempt = CourseExamAttempt::where('user_id', $user->id)
-            ->where('course_quiz_id', $quiz->id)
-            ->whereNull('completed_at')
-            ->first();
-
-        if (!$attempt) {
-            $attempt = new CourseExamAttempt([
-                'user_id' => $user->id,
-                'course_quiz_id' => $quiz->id,
-            ]);
-        }
-
-        $attempt->update([
+        // Guardar el intento
+        $attempt = CourseExamAttempt::create([
+            'user_id' => $user->id,
+            'course_quiz_id' => $quiz->id,
             'status' => $status,
             'score' => $finalScore,
             'answers_data' => $answers,
             'completed_at' => now(),
         ]);
 
+        $certificateUrl = null;
         if ($status === 'aprobado') {
-            $this->handlePassing($user, $quiz);
+            $certificate = $this->handlePassing($user, $quiz);
+            if ($certificate) {
+                $certificateUrl = route('student.certificates.download', ['certificate' => $certificate->id]) . '?action=stream';
+            }
         }
 
-        return $attempt;
+        return [
+            'attempt_id' => $attempt->id,
+            'score' => $finalScore,
+            'status' => $status,
+            'correct_count' => $correctCount,
+            'total_questions' => $totalQuestions,
+            'passing_score' => $minScore,
+            'certificate_url' => $certificateUrl,
+            'message' => $status === 'aprobado' ? '¡Felicidades! Has aprobado la evaluación.' : 'Evaluación finalizada. Sigue practicando.'
+        ];
     }
 
     /**
@@ -91,16 +106,18 @@ class ExamService
             ->where('course_id', $quiz->course_id)
             ->first();
         
+        $certificate = null;
         if ($enrollment) {
             $isEligible = $this->certificateService->checkEligibility($user, $quiz->course);
             if ($isEligible) {
                 if (!$enrollment->completed_at) {
                     $enrollment->update(['completed_at' => now()]);
                 }
+                // Only create the RECORD, no PDF generation here!
+                $certificate = $this->certificateService->getOrCreateRecord($user, $quiz->course);
             }
         }
         
-        // Final attempt to generate certificate if everything is ready
-        $this->certificateService->generateIfEligible($user, $quiz->course);
+        return $certificate;
     }
 }

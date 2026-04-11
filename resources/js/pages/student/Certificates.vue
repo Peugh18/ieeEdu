@@ -45,8 +45,8 @@ const breadcrumbs = [
                 >
                     <div class="relative aspect-[16/11] bg-gray-50 flex items-center justify-center p-4">
                         <div class="absolute inset-0 bg-gradient-to-t from-gray-900/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center gap-3 z-10">
-                            <a :href="cert.download_url" target="_blank" v-if="cert.download_url" class="p-3 bg-white text-gray-900 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all"><Eye class="w-5 h-5" /></a>
-                            <a :href="cert.download_url" download v-if="cert.download_url" class="p-3 bg-[#57572A] text-white rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all outline outline-white/20"><Download class="w-5 h-5" /></a>
+                            <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" target="_blank" v-if="cert.download_url" class="p-3 bg-white text-gray-900 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all"><Eye class="w-5 h-5" /></a>
+                            <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" download v-if="cert.download_url" class="p-3 bg-[#57572A] text-white rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all outline outline-white/20"><Download class="w-5 h-5" /></a>
                         </div>
 
                         <img :src="cert.image" :alt="cert.title" class="w-full h-full object-contain rounded-lg shadow-sm border border-gray-100 group-hover:blur-[2px] transition-all duration-500" />
@@ -69,10 +69,10 @@ const breadcrumbs = [
                             </div>
                             
                             <div class="flex gap-2">
-                                <a :href="cert.download_url" v-if="cert.download_url" target="_blank" class="flex-1 py-2.5 rounded-xl bg-gray-50 text-gray-600 text-[11px] font-bold uppercase tracking-widest hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
+                                <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" v-if="cert.download_url" target="_blank" class="flex-1 py-2.5 rounded-xl bg-gray-50 text-gray-600 text-[11px] font-bold uppercase tracking-widest hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
                                     <Printer class="w-4 h-4" /> Imprimir
                                 </a>
-                                <a :href="cert.download_url" v-if="cert.download_url" download class="flex-1 py-2.5 rounded-xl bg-[#57572A] text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#4a4a24] transition-colors flex items-center justify-center gap-2">
+                                <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" v-if="cert.download_url" download class="flex-1 py-2.5 rounded-xl bg-[#57572A] text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#4a4a24] transition-colors flex items-center justify-center gap-2">
                                     <Download class="w-4 h-4" /> Descargar
                                 </a>
                             </div>

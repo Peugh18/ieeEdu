@@ -33,8 +33,11 @@ const filters = [
 
 const filteredCourses = computed(() => {
     let result = props.courses;
-    if (currentFilter.value === 'active') result = result.filter(c => !c.pivot.completed_at);
-    else if (currentFilter.value === 'completed') result = result.filter(c => !!c.pivot.completed_at);
+    if (currentFilter.value === 'active') {
+        result = result.filter(c => !c.pivot?.completed_at && (c.pivot?.progress ?? 0) < 100);
+    } else if (currentFilter.value === 'completed') {
+        result = result.filter(c => !!c.pivot?.completed_at || (c.pivot?.progress ?? 0) >= 100);
+    }
     if (searchTerm.value) {
         const term = searchTerm.value.toLowerCase();
         result = result.filter(c => c.title.toLowerCase().includes(term));
@@ -136,12 +139,12 @@ const breadcrumbs = [
                                     <p class="text-[9px] font-bold text-on-surface-variant/40 uppercase tracking-widest">Estado académico</p>
                                     <p class="text-xs font-bold text-on-surface italic">{{ course.pivot.completed_at ? 'Módulo Completado' : 'Continuar Formación' }}</p>
                                 </div>
-                                <span class="text-lg font-serif font-bold text-primary italic">{{ course.pivot.completed_at ? '100%' : 'En curso' }}</span>
+                                <span class="text-lg font-serif font-bold text-primary italic">{{ course.pivot.progress || (course.pivot.completed_at ? '100' : '0') }}%</span>
                             </div>
                             <div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden p-[2px] border border-outline-variant/10">
                                 <div 
                                     class="h-full bg-primary rounded-full transition-all duration-1000" 
-                                    :style="{ width: course.pivot.completed_at ? '100%' : '35%' }"
+                                    :style="{ width: (course.pivot.progress || (course.pivot.completed_at ? 100 : 0)) + '%' }"
                                 ></div>
                             </div>
                         </div>

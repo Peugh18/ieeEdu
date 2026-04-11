@@ -5,7 +5,8 @@ import { type SharedData, type User } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { 
     BookOpen, Calendar, ClipboardCheck, Award, Clock, ArrowRight, 
-    Play, CheckCircle2, ChevronRight, BarChart3, TrendingUp, X, ExternalLink 
+    Play, CheckCircle2, ChevronRight, BarChart3, TrendingUp, X, ExternalLink,
+    Crown
 } from 'lucide-vue-next';
 import { ref } from 'vue';
 
@@ -14,6 +15,8 @@ interface SummaryStats {
     completed_courses: number;
     upcoming_classes: number;
     available_exams: number;
+    average_score: number;
+    certificate_count: number;
 }
 
 interface ContinueLearning {
@@ -73,7 +76,14 @@ const showLiveModal = ref(false);
             <header class="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div class="space-y-1">
                     <p class="text-[10px] font-bold text-[#57572A] uppercase tracking-[0.2em] mb-1 italic">Instituto de Economía y Empresa</p>
-                    <h1 class="text-4xl font-serif font-bold text-gray-900 leading-tight">Bienvenido de nuevo,<br/> <span class="text-[#D4AF37]">{{ user.name }}</span></h1>
+                    <h1 class="text-4xl font-serif font-bold text-gray-900 leading-tight">
+                        Bienvenido de nuevo,<br/> 
+                        <span class="text-[#D4AF37]">{{ user.name }}</span>
+                        <div v-if="user.has_subscription" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-amber-600 text-white text-[10px] font-bold uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-lg shadow-amber-200 ml-4 align-middle" title="Miembro Premium">
+                            <Crown class="w-3.5 h-3.5" />
+                            Premium
+                        </div>
+                    </h1>
                     <p class="text-gray-500 font-serif text-lg italic">Continúa tu aprendizaje y alcanza nuevas metas profesionales.</p>
                 </div>
                 
@@ -196,6 +206,16 @@ const showLiveModal = ref(false);
                         </div>
                     </div>
 
+                    <!-- Empty State for new users -->
+                    <div v-else-if="stats.active_courses === 0" class="bg-gradient-to-br from-[#57572A]/5 to-[#D4AF37]/5 border-2 border-dashed border-[#57572A]/10 rounded-[2.5rem] p-12 text-center space-y-6">
+                        <div class="inline-flex p-6 bg-white rounded-[2rem] shadow-sm mb-2">
+                            <BookOpen class="w-12 h-12 text-[#57572A]" />
+                        </div>
+                        <h2 class="text-3xl font-serif font-bold text-gray-900 italic">Empieza tu camino académico</h2>
+                        <p class="text-gray-500 max-w-lg mx-auto font-serif leading-relaxed">Aún no tienes cursos en progreso. Explora nuestro catálogo premium y comienza a especializarte con los mejores expertos de la industria.</p>
+                        <Link :href="route('student.explore.courses')" class="inline-flex px-10 py-4 bg-[#57572A] text-white text-xs font-bold uppercase tracking-widest rounded-2xl items-center gap-2 shadow-xl hover:shadow-[#57572A]/30 active:scale-95 transition-all">Ver catálogo de cursos</Link>
+                    </div>
+
                     <!-- 4. CERTIFICADOS (RECIENTES) -->
                     <div v-if="certificates.length > 0" class="space-y-6">
                         <div class="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -258,12 +278,12 @@ const showLiveModal = ref(false);
                             
                             <div class="flex items-center gap-6 mb-10">
                                 <div class="text-center">
-                                    <p class="text-4xl font-serif font-bold italic text-white/95">18.5</p>
+                                    <p class="text-4xl font-serif font-bold italic text-white/95">{{ stats.average_score > 0 ? stats.average_score : '--' }}</p>
                                     <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-white/30 italic">Puntaje Med.</p>
                                 </div>
                                 <div class="w-[1px] h-10 bg-white/10"></div>
                                 <div class="text-center text-white/95">
-                                    <p class="text-4xl font-serif font-bold italic">{{ stats.completed_courses < 10 ? '0' + stats.completed_courses : stats.completed_courses }}</p>
+                                    <p class="text-4xl font-serif font-bold italic">{{ stats.certificate_count < 10 ? '0' + stats.certificate_count : stats.certificate_count }}</p>
                                     <p class="text-[9px] font-bold uppercase tracking-[0.2em] text-white/40 italic">Diplomas</p>
                                 </div>
                             </div>

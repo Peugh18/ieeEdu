@@ -7,7 +7,7 @@ import {
     Download, ExternalLink, Play, Clock, 
     Send, Users, X, CheckCircle2, ChevronDown,
     ArrowRight, HandIcon, Flag, ListVideo,
-    Heart, Reply, Trash2, Edit2
+    Heart, Reply, Trash2, Edit2, Trophy, AlertCircle
 } from 'lucide-vue-next';
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
@@ -131,18 +131,45 @@ async function completeLesson() {
         if (localCompleted.value.length >= props.allLessonsCount) {
             localAllCompleted.value = true;
         }
-        // 4. Send to server (best-effort, non-blocking)
-        try {
-            await axios.post('/classroom/progress', { lesson_id: lessonId });
-        } catch (e) {
-            console.warn('[iieEdu] Progress save failed, localStorage kept:', e);
-            // We do NOT revert — localStorage is source of truth
-        }
+        // 4. Send to server via Inertia (Ensures state synchronization across views)
+        router.post(route('student.classroom.progress'), { 
+            lesson_id: lessonId 
+        }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                 console.log('[iieEdu] Progress synced with server');
+            }
+        });
     }
 }
 // ─────────────────────────────────────────────────────────────────────────────
+const handleMaterialClick = (mat: any) => {
+    try {
+        if (mat.external_url) {
+            window.open(mat.external_url, '_blank', 'noopener,noreferrer');
+            return;
+        }
+
+        if (mat.file_path) {
+            let path = mat.file_path.replace(/^public\//, '');
+            // Evitar doble /storage/
+            if (!path.startsWith('/storage/') && !path.startsWith('storage/')) {
+                path = '/storage/' + path;
+            } else if (path.startsWith('storage/')) {
+                path = '/' + path;
+            }
+            
+            window.open(path, '_blank', 'noopener,noreferrer');
+        }
+    } catch (e) {
+        console.error('[iieEdu] Error downloading material:', e);
+    }
+};
+// ─────────────────────────────────────────────────────────────────────────────
 
 
+
+import ExamModal from '@/components/student/ExamModal.vue';
 
 const breadcrumbs = computed(() => [
     { title: 'Dashboard', href: '/dashboard' },
@@ -201,6 +228,14 @@ const videoId = computed(() => {
 // UI State
 const viewingExam = ref(false);
 const activeTab = ref<'content' | 'resources'>('content');
+
+const handleOpenExam = () => {
+    if (!localAllCompleted.value) {
+        alert('Debes completar todas las lecciones del curso para poder rendir la evaluación final.');
+        return;
+    }
+    viewingExam.value = true;
+};
 
 // Comments handling
 const newComment = ref('');
@@ -334,7 +369,23 @@ onUnmounted(() => {
 });
 
 onMounted(() => {
-    // Load Plyr
+    // 1. Sync missing progress from localStorage to server
+    const missingOnServer = localCompleted.value.filter(
+        id => !props.completedLessons.map(Number).includes(Number(id))
+    );
+
+    if (missingOnServer.length > 0) {
+        console.log('Synchronizing missing progress to server...', missingOnServer);
+        axios.post(route('student.classroom.progress'), {
+            lesson_ids: missingOnServer
+        }).then(response => {
+           console.log('Progress synchronized successfully');
+        }).catch(err => {
+           console.error('Failed to sync progress:', err);
+        });
+    }
+
+    // 2. Load Plyr
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'https://cdn.plyr.io/3.7.8/plyr.css';
@@ -576,7 +627,7 @@ onMounted(() => {
                                  <p class="text-on-surface-variant text-sm font-serif italic max-w-md">Utiliza el foro de comentarios a la derecha para dejar tus inquietudes o aportes a la comunidad académica.</p>
                              </div>
                              <div class="flex-shrink-0 relative z-10">
-                                 <button @click="activeTab = 'content'" class="px-8 py-4 bg-primary text-on-primary rounded-2xl font-bold text-xs uppercase tracking-widest shadow-xl shadow-primary/10 hover:scale-105 transition-all">
+                                 <button @click="activeSidebarTab = 'chat'" class="px-8 py-4 bg-primary text-on-primary rounded-2xl font-bold text-xs uppercase tracking-widest shadow-xl shadow-primary/10 hover:scale-105 transition-all active:scale-95">
                                      Preguntar al Docente
                                  </button>
                              </div>
@@ -586,23 +637,27 @@ onMounted(() => {
                     </div>
 
                     <div v-show="activeTab === 'resources'" class="animate-in fade-in slide-in-from-bottom-2 duration-500 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <template v-if="currentLesson?.materials?.length">
-                             <div v-for="mat in currentLesson.materials" :key="mat.id" class="p-6 bg-surface-container-low border border-outline-variant/30 rounded-3xl group hover:border-primary/40 transition-all flex items-center justify-between gap-4">
+                         <template v-if="currentLesson?.materials?.length">
+                              <div 
+                                v-for="mat in currentLesson.materials" :key="mat.id" 
+                                @click="handleMaterialClick(mat)"
+                                class="p-6 bg-surface-container-low border border-outline-variant/30 rounded-3xl group hover:border-primary/40 hover:bg-primary/5 transition-all flex items-center justify-between gap-4 cursor-pointer active:scale-[0.98]"
+                              >
                                 <div class="flex items-center gap-4 min-w-0">
                                     <div class="p-3 bg-primary/5 rounded-2xl group-hover:bg-primary/10 transition-colors">
                                         <Download v-if="mat.file_path" class="w-5 h-5 text-primary" />
                                         <ExternalLink v-else class="w-5 h-5 text-indigo-400" />
                                     </div>
                                     <div class="min-w-0">
-                                        <h4 class="text-sm font-bold text-on-surface truncate">{{ mat.title }}</h4>
-                                        <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest mt-1">{{ mat.kind }}</p>
+                                        <h4 class="text-sm font-bold text-on-surface truncate pr-4">{{ mat.title }}</h4>
+                                        <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest mt-1 opacity-60">{{ mat.kind }}</p>
                                     </div>
                                 </div>
-                                <a :href="mat.external_url || '/storage/' + mat.file_path" target="_blank" class="p-2 hover:bg-surface-container rounded-xl transition text-on-surface-variant">
-                                    <ArrowRight class="w-4 h-4" />
-                                </a>
-                             </div>
-                        </template>
+                                <div class="p-2 bg-white rounded-xl shadow-sm border border-outline-variant/20 group-hover:bg-primary group-hover:text-on-primary transition-all">
+                                    <Download class="w-4 h-4" />
+                                </div>
+                              </div>
+                         </template>
                         <div v-else class="col-span-full py-20 text-center bg-surface-container-low/50 rounded-[3rem] border border-dashed border-outline-variant/30">
                             <Clock class="w-12 h-12 text-on-surface-variant/20 mx-auto mb-4" />
                             <p class="text-on-surface-variant font-serif italic text-lg">No hay archivos adjuntos en esta lección.</p>
@@ -782,15 +837,23 @@ onMounted(() => {
                                                :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant/50')">
                                                 <template v-if="localCompleted.includes(l.id)">
                                                     <CheckCircle2 class="w-3 h-3 fill-emerald-600/10" />
-                                                    Completado <span v-if="currentLesson?.id === l.id" class="text-[8px] opacity-70 ml-1">• Viendo</span>
+                                                    Completado
                                                 </template>
                                                 <template v-else-if="currentLesson?.id === l.id">
                                                     <div class="w-1 h-1 rounded-full bg-primary animate-pulse"></div>
                                                     Viendo ahora
                                                 </template>
-                                                <template v-else>
+                                                <template v-else-if="l.video_url">
                                                     <Play class="w-2.5 h-2.5" />
-                                                    {{ l.content_type === 'live' ? 'Sesión en Vivo' : 'Clase de Video' }}
+                                                    Clase Grabada
+                                                </template>
+                                                <template v-else-if="l.content_type === 'live' && l.start_time && new Date(l.start_time) > new Date()">
+                                                    <Clock class="w-2.5 h-2.5" />
+                                                    En Vivo (Programada)
+                                                </template>
+                                                <template v-else>
+                                                    <AlertCircle class="w-2.5 h-2.5" />
+                                                    {{ l.content_type === 'live' ? 'Procesando Grabación' : 'Clase de Video' }}
                                                 </template>
                                             </p>
                                         </div>
@@ -857,7 +920,7 @@ onMounted(() => {
                         <div v-if="course.quizzes?.length" class="mt-8 space-y-4">
                              <h3 class="text-sm font-bold text-on-surface uppercase tracking-[0.1em]">Evaluación Final</h3>
                              <button 
-                                @click="viewingExam = true"
+                                @click="handleOpenExam"
                                 class="w-full flex items-center gap-4 transition-all group relative z-10"
                              >
                                  <div class="flex-shrink-0 bg-surface-container-low py-1">
@@ -881,6 +944,15 @@ onMounted(() => {
                 </template>
             </aside>
         </main>
+        
+        <!-- NEW EXAM MODAL INTEGRATION -->
+        <ExamModal 
+            v-if="course.quizzes?.length"
+            :show="viewingExam"
+            :quiz="course.quizzes[0]"
+            :course-id="course.id"
+            @close="viewingExam = false"
+        />
         </div>
     </AppLayout>
 </template>
