@@ -126,4 +126,32 @@ class CourseController extends Controller
         $this->service->hide($course);
         return redirect()->back()->with('success', 'Curso ocultado.');
     }
+
+    public function duplicate(Course $course)
+    {
+        // Replicate original Course model
+        $newCourse = $course->replicate();
+        
+        // Adjust unique/new fields
+        $newCourse->title = $course->title . ' (Copia)';
+        
+        // Generate a new clean slug
+        $baseSlug = \Str::slug($newCourse->title);
+        $slug = $baseSlug;
+        $i = 1;
+        while (\App\Models\Course::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $i++;
+        }
+        $newCourse->slug = $slug;
+        
+        // Force draft status for security
+        $newCourse->status = 'BORRADOR';
+        
+        $newCourse->save();
+
+        // (Opcional) Clonar módulos y lecciones si se desea una duplicación idéntica estructural
+        // Para este requerimiento "igual con otro ID", empezamos por el registro principal
+        
+        return redirect()->back()->with('success', 'Curso clonado correctamente con el ID #' . $newCourse->id);
+    }
 }

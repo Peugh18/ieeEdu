@@ -4,9 +4,10 @@ import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import {
     UserPlus, Search, SlidersHorizontal, Download,
-    Users, ShieldCheck, GraduationCap, Activity,
+    Users as UsersIcon, ShieldCheck, GraduationCap, Activity,
     ChevronLeft, ChevronRight, Eye, Pencil, Trash2,
-    ToggleLeft, ToggleRight, X, BookOpen, Check
+    ToggleLeft, ToggleRight, X, BookOpen, Check, MoreVertical,
+    Calendar, PhoneCall, Mail
 } from 'lucide-vue-next';
 
 interface UserItem {
@@ -123,9 +124,12 @@ function initials(name: string) {
 }
 
 const avatarColors = [
-    'bg-purple-100 text-purple-700', 'bg-blue-100 text-blue-700',
-    'bg-emerald-100 text-emerald-700', 'bg-amber-100 text-amber-700',
-    'bg-rose-100 text-rose-700', 'bg-cyan-100 text-cyan-700',
+    'bg-indigo-50 text-indigo-700 ring-indigo-700/10',
+    'bg-emerald-50 text-emerald-700 ring-emerald-700/10',
+    'bg-amber-50 text-amber-700 ring-amber-700/10',
+    'bg-rose-50 text-rose-700 ring-rose-700/10',
+    'bg-blue-50 text-blue-700 ring-blue-700/10',
+    'bg-purple-50 text-purple-700 ring-purple-700/10',
 ];
 
 function avatarColor(id: number) { return avatarColors[id % avatarColors.length]; }
@@ -146,289 +150,378 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
 </script>
 
 <template>
-    <Head title="Usuarios - Admin IEE" />
+    <Head title="Gestión de Usuarios - iieEdu Admin" />
 
     <AppLayout>
-        <!-- ── Header ─────────────────────────────────────────── -->
-        <div class="mb-8">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                    <h1 class="font-serif text-4xl text-on-surface">
-                        Gestión de <span class="italic text-[#57572A]">Usuarios</span>
+        <div class="max-w-[1400px] mx-auto px-4 py-8 space-y-8">
+            
+            <!-- ── Superior Header ─────────────────────────────────────────── -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <div class="space-y-1">
+                    <h1 class="font-serif text-5xl tracking-tight text-slate-900 leading-tight">
+                        Gestión de <span class="italic text-[#57572A] relative">Usuarios
+                            <span class="absolute -bottom-1 left-0 w-full h-[3px] bg-[#57572A]/10 rounded-full"></span>
+                        </span>
                     </h1>
-                    <p class="mt-1 text-sm text-on-surface-variant">Administra cuentas, roles y accesos al campus digital.</p>
+                    <p class="text-slate-500 font-medium text-lg flex items-center gap-2">
+                        <UsersIcon class="w-4 h-4" />
+                        Directorio académico y control de accesos.
+                    </p>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <a :href="exportUrl" class="inline-flex items-center gap-2 rounded-xl border border-outline-variant/30 bg-white px-4 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low transition-colors">
-                        <Download class="h-4 w-4" />
-                        Exportar CSV
+                
+                <div class="flex flex-wrap items-center gap-3">
+                    <a :href="exportUrl" class="group h-12 inline-flex items-center gap-2.5 rounded-2xl bg-slate-50 border border-slate-200 px-6 text-sm font-bold text-slate-600 hover:bg-white hover:border-[#57572A] hover:text-[#57572A] hover:shadow-lg hover:shadow-[#57572A]/5 transition-all duration-300">
+                        <Download class="h-4 w-4 group-hover:-translate-y-0.5 transition-transform" />
+                        Exportar Listado
                     </a>
                     <button
                         @click="showCreate = true"
-                        class="inline-flex items-center gap-2 rounded-xl bg-[#57572A] px-5 py-2.5 text-sm font-bold text-white shadow hover:opacity-95 transition-opacity"
+                        class="h-12 inline-flex items-center gap-2.5 rounded-2xl bg-[#57572A] px-7 text-sm font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-95 hover:opacity-95 transition-all duration-300"
                     >
                         <UserPlus class="h-4 w-4" />
-                        Crear usuario
+                        Nuevo Usuario
                     </button>
                 </div>
             </div>
-        </div>
 
-        <!-- ── Stats ──────────────────────────────────────────── -->
-        <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div class="rounded-2xl bg-white border border-outline-variant/10 p-5 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total</p>
-                    <Users class="h-5 w-5 text-[#C9C7B8]" />
+            <!-- ── Global Statistics ──────────────────────────────────────────── -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Total Users -->
+                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-7 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500">
+                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                        <UsersIcon class="w-20 h-20 text-slate-900" />
+                    </div>
+                    <div class="relative z-10 flex flex-col justify-between h-full">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 rounded-full bg-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-500">Población Total</span>
+                            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
+                                <UsersIcon class="w-5 h-5" />
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <h3 class="text-4xl font-extrabold text-slate-900 tracking-tight">{{ props.stats.total }}</h3>
+                            <p class="text-xs font-medium text-slate-400 mt-1 italic">Cuentas registradas</p>
+                        </div>
+                    </div>
                 </div>
-                <p class="mt-3 text-3xl font-bold text-on-surface">{{ props.stats.total }}</p>
-            </div>
-            <div class="rounded-2xl bg-white border border-outline-variant/10 p-5 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Activos</p>
-                    <Activity class="h-5 w-5 text-emerald-400" />
-                </div>
-                <p class="mt-3 text-3xl font-bold text-emerald-600">{{ props.stats.active }}</p>
-            </div>
-            <div class="rounded-2xl bg-white border border-outline-variant/10 p-5 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Admins</p>
-                    <ShieldCheck class="h-5 w-5 text-purple-400" />
-                </div>
-                <p class="mt-3 text-3xl font-bold text-purple-700">{{ props.stats.admins }}</p>
-            </div>
-            <div class="rounded-2xl bg-white border border-outline-variant/10 p-5 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Estudiantes</p>
-                    <GraduationCap class="h-5 w-5 text-blue-400" />
-                </div>
-                <p class="mt-3 text-3xl font-bold text-blue-700">{{ props.stats.students }}</p>
-            </div>
-        </div>
 
-        <!-- ── Filter Bar ──────────────────────────────────────── -->
-        <div class="mb-6 rounded-2xl bg-white border border-outline-variant/10 p-4 shadow-sm">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div class="flex flex-1 items-center gap-2 rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-3 py-2">
-                    <Search class="h-4 w-4 flex-shrink-0 text-on-surface-variant" />
+                <!-- Active Users -->
+                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-7 shadow-sm hover:shadow-xl hover:shadow-emerald-200/30 transition-all duration-500">
+                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform text-emerald-600">
+                        <Activity class="w-20 h-20" />
+                    </div>
+                    <div class="relative z-10 flex flex-col justify-between h-full">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 rounded-full bg-emerald-50 text-[10px] font-bold uppercase tracking-widest text-emerald-600">Acceso Vigente</span>
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500">
+                                <Activity class="w-5 h-5" />
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <h3 class="text-4xl font-extrabold text-emerald-600 tracking-tight">{{ props.stats.active }}</h3>
+                            <p class="text-xs font-medium text-emerald-600/60 mt-1 italic">Usuarios activos hoy</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Users -->
+                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-7 shadow-sm hover:shadow-xl hover:shadow-indigo-200/30 transition-all duration-500">
+                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform text-indigo-600">
+                        <ShieldCheck class="w-20 h-20" />
+                    </div>
+                    <div class="relative z-10 flex flex-col justify-between h-full">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 rounded-full bg-indigo-50 text-[10px] font-bold uppercase tracking-widest text-indigo-600">Cuerpo Admin</span>
+                            <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500">
+                                <ShieldCheck class="w-5 h-5" />
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <h3 class="text-4xl font-extrabold text-indigo-700 tracking-tight">{{ props.stats.admins }}</h3>
+                            <p class="text-xs font-medium text-indigo-600/60 mt-1 italic">Personal de gestión</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Students -->
+                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-7 shadow-sm hover:shadow-xl hover:shadow-blue-200/30 transition-all duration-500">
+                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform text-blue-600">
+                        <GraduationCap class="w-20 h-20" />
+                    </div>
+                    <div class="relative z-10 flex flex-col justify-between h-full">
+                        <div class="flex items-center justify-between">
+                            <span class="px-3 py-1 rounded-full bg-blue-50 text-[10px] font-bold uppercase tracking-widest text-blue-600">Discentes</span>
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
+                                <GraduationCap class="w-5 h-5" />
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <h3 class="text-4xl font-extrabold text-blue-700 tracking-tight">{{ props.stats.students }}</h3>
+                            <p class="text-xs font-medium text-blue-600/60 mt-1 italic">Alumnos en formación</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Smart Filtering ──────────────────────────────────────── -->
+            <div class="bg-white/80 backdrop-blur-md rounded-[2rem] border border-slate-100 p-6 flex flex-col lg:flex-row items-center gap-4 shadow-sm">
+                <div class="relative w-full lg:w-96 group">
+                    <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#57572A] transition-colors" />
                     <input
                         v-model="searchInput"
-                        placeholder="Buscar por nombre o email..."
-                        class="w-full bg-transparent text-sm outline-none placeholder:text-on-surface-variant/60"
+                        placeholder="Filtrar por nombre, DNI o email..."
+                        class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all"
                     />
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <select v-model="roleFilter" class="rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface outline-none">
-                        <option value="">Todos los roles</option>
-                        <option value="admin">Admin</option>
-                        <option value="usuario">Estudiante</option>
-                    </select>
-                    <select v-model="statusFilter" class="rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface outline-none">
-                        <option value="">Todos los estados</option>
-                        <option value="activo">Activo</option>
-                        <option value="inactivo">Inactivo</option>
-                    </select>
-                    <select v-model="perPage" class="rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface outline-none">
-                        <option value="10">10 / pág.</option>
-                        <option value="20">20 / pág.</option>
-                        <option value="50">50 / pág.</option>
-                    </select>
+                
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <div class="flex items-center gap-2 bg-slate-50 px-2 rounded-2xl border border-slate-200">
+                        <span class="text-[10px] font-bold uppercase text-slate-400 pl-2">Rol</span>
+                        <select v-model="roleFilter" class="h-10 bg-transparent text-sm font-semibold text-slate-700 pr-8 outline-none cursor-pointer">
+                            <option value="">Cualquier Rol</option>
+                            <option value="admin">Administrador</option>
+                            <option value="usuario">Estudiante</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-slate-50 px-2 rounded-2xl border border-slate-200">
+                        <span class="text-[10px] font-bold uppercase text-slate-400 pl-2">Estado</span>
+                        <select v-model="statusFilter" class="h-10 bg-transparent text-sm font-semibold text-slate-700 pr-8 outline-none cursor-pointer">
+                            <option value="">Cualquier Estado</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Baja</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-slate-50 px-2 rounded-2xl border border-slate-200">
+                        <select v-model="perPage" class="h-10 bg-transparent text-sm font-semibold text-slate-700 px-2 outline-none cursor-pointer">
+                            <option value="10">10 por hoja</option>
+                            <option value="20">20 por hoja</option>
+                            <option value="50">50 por hoja</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- ── Table ──────────────────────────────────────────── -->
-        <div class="rounded-3xl border border-outline-variant/10 bg-white overflow-hidden shadow-sm">
-            <!-- Header -->
-            <div class="grid grid-cols-12 gap-2 bg-surface-container-low px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">
-                <div class="col-span-4">Usuario</div>
-                <div class="col-span-2">Teléfono</div>
-                <div class="col-span-1">Rol</div>
-                <div class="col-span-1">Estado</div>
-                <div class="col-span-2">Cursos / Registro</div>
-                <div class="col-span-2 text-right">Acciones</div>
-            </div>
+            <!-- ── Main Data View ──────────────────────────────────────────── -->
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                <!-- Data Header -->
+                <div class="hidden lg:grid grid-cols-12 gap-4 px-8 py-5 border-b border-slate-50 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 bg-slate-50/50">
+                    <div class="col-span-4">Identidad del Usuario</div>
+                    <div class="col-span-2 text-center">Contacto</div>
+                    <div class="col-span-2 text-center">Privilegios</div>
+                    <div class="col-span-2 text-center">Acceso</div>
+                    <div class="col-span-2 text-right">Acciones</div>
+                </div>
 
-            <div v-if="!props.users.data.length" class="py-16 text-center text-sm text-on-surface-variant">
-                No se encontraron usuarios con los filtros aplicados.
-            </div>
+                <!-- Empty State -->
+                <div v-if="!props.users.data.length" class="flex flex-col items-center justify-center py-24 text-center space-y-4">
+                    <div class="w-16 h-16 rounded-3xl bg-slate-50 flex items-center justify-center text-slate-200">
+                        <Search class="w-8 h-8" />
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-serif text-slate-900">Sin coincidencias</h4>
+                        <p class="text-slate-400 text-sm max-w-xs mx-auto">No hemos encontrado usuarios que cumplan con los criterios de búsqueda actuales.</p>
+                    </div>
+                </div>
 
-            <div v-else>
-                <div
-                    v-for="user in props.users.data"
-                    :key="user.id"
-                    class="grid grid-cols-12 items-center gap-2 border-t border-outline-variant/10 px-6 py-4 hover:bg-surface-container-lowest transition-colors"
-                >
-                    <!-- Avatar + Name + Email -->
-                    <div class="col-span-4 flex items-center gap-3 min-w-0">
-                        <div :class="`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${avatarColor(user.id)}`">
-                            {{ initials(user.name) }}
+                <!-- Data Rows -->
+                <div v-else class="divide-y divide-slate-50">
+                    <div
+                        v-for="user in props.users.data"
+                        :key="user.id"
+                        class="group grid grid-cols-1 lg:grid-cols-12 items-center gap-4 px-8 py-6 hover:bg-slate-50/80 transition-all duration-300"
+                    >
+                        <!-- Identity Column -->
+                        <div class="col-span-1 lg:col-span-4 flex items-center gap-4">
+                            <div class="relative">
+                                <div :class="`w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-bold shadow-inner ring-4 ring-white ${avatarColor(user.id)}`">
+                                    {{ initials(user.name) }}
+                                </div>
+                                <div v-if="user.status === 'activo'" class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
+                                <div v-else class="absolute -bottom-1 -right-1 w-4 h-4 bg-slate-300 border-2 border-white rounded-full"></div>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="text-base font-bold text-slate-900 truncate tracking-tight group-hover:text-[#57572A] transition-colors">{{ user.name }}</h4>
+                                <div class="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
+                                    <Mail class="w-3 h-3" />
+                                    {{ user.email }}
+                                </div>
+                            </div>
                         </div>
-                        <div class="min-w-0">
-                            <p class="truncate text-sm font-bold text-on-surface">{{ user.name }}</p>
-                            <p class="truncate text-xs text-on-surface-variant">{{ user.email }}</p>
+
+                        <!-- Contact Column -->
+                        <div class="col-span-1 lg:col-span-2 flex justify-center">
+                            <div v-if="user.telefono" class="flex items-center gap-2 text-sm font-medium text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200/50">
+                                <PhoneCall class="w-3 h-3 text-slate-400" />
+                                {{ user.telefono }}
+                            </div>
+                            <span v-else class="text-slate-300 text-xs italic">— Sin teléfono —</span>
                         </div>
-                    </div>
 
-                    <!-- Phone -->
-                    <div class="col-span-2 text-sm text-on-surface-variant">
-                        {{ user.telefono || '—' }}
-                    </div>
-
-                    <!-- Role badge -->
-                    <div class="col-span-1">
-                        <span
-                            class="inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
-                            :class="user.role === 'admin'
-                                ? 'bg-purple-100 text-purple-700'
-                                : 'bg-blue-100 text-blue-700'"
-                        >
-                            {{ user.role === 'admin' ? 'Admin' : 'Estudiante' }}
-                        </span>
-                    </div>
-
-                    <!-- Status toggle -->
-                    <div class="col-span-1">
-                        <button
-                            @click="toggleStatus(user)"
-                            :title="user.status === 'activo' ? 'Click para desactivar' : 'Click para activar'"
-                            class="flex items-center gap-1.5 group"
-                        >
-                            <ToggleRight v-if="user.status === 'activo'" class="h-6 w-6 text-emerald-500 group-hover:text-emerald-600" />
-                            <ToggleLeft v-else class="h-6 w-6 text-slate-400 group-hover:text-slate-500" />
-                            <span class="text-xs font-medium" :class="user.status === 'activo' ? 'text-emerald-600' : 'text-slate-400'">
-                                {{ user.status === 'activo' ? 'Activo' : 'Inactivo' }}
+                        <!-- Privileges Column -->
+                        <div class="col-span-1 lg:col-span-2 flex justify-center">
+                            <span
+                                v-if="user.role === 'admin'"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold ring-1 ring-inset ring-indigo-700/10"
+                            >
+                                <ShieldCheck class="w-3 h-3" />
+                                ADMIN
                             </span>
-                        </button>
-                    </div>
-
-                    <!-- Courses + Date -->
-                    <div class="col-span-2">
-                        <div class="flex items-center gap-1.5 text-sm text-on-surface-variant">
-                            <BookOpen class="h-3.5 w-3.5" />
-                            <span class="font-semibold text-on-surface">{{ user.enrollments_count }}</span>
-                            <span>curso{{ user.enrollments_count !== 1 ? 's' : '' }}</span>
+                            <span
+                                v-else
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-xs font-bold ring-1 ring-inset ring-blue-700/10"
+                            >
+                                <GraduationCap class="w-3 h-3" />
+                                ESTUDIANTE
+                            </span>
                         </div>
-                        <p class="mt-0.5 text-[11px] text-on-surface-variant/70">{{ formatDate(user.created_at) }}</p>
-                    </div>
 
-                    <!-- Actions -->
-                    <div class="col-span-2 flex items-center justify-end gap-2">
+                        <!-- Access Column -->
+                        <div class="col-span-1 lg:col-span-2 flex flex-col items-center gap-1">
+                            <button
+                                @click="toggleStatus(user)"
+                                class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
+                                :class="user.status === 'activo' ? 'bg-emerald-500' : 'bg-slate-200'"
+                            >
+                                <span class="sr-only">Cambiar estado</span>
+                                <span
+                                    aria-hidden="true"
+                                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                                    :class="user.status === 'activo' ? 'translate-x-5' : 'translate-x-0'"
+                                ></span>
+                            </button>
+                            <span class="text-[10px] font-bold uppercase tracking-wider" :class="user.status === 'activo' ? 'text-emerald-600' : 'text-slate-400'">
+                                {{ user.status === 'activo' ? 'Vigente' : 'Inactivo' }}
+                            </span>
+                        </div>
+
+                        <!-- Actions Column -->
+                        <div class="col-span-1 lg:col-span-2 flex justify-end gap-1.5">
+                            <Link
+                                :href="route('admin.users.show', user.id)"
+                                class="w-10 h-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-300"
+                                title="Ficha Técnica"
+                            >
+                                <Eye class="w-5 h-5" />
+                            </Link>
+                            <button
+                                @click="openEdit(user)"
+                                class="w-10 h-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-blue-50 hover:text-blue-600 transition-all duration-300"
+                                title="Editar Perfil"
+                            >
+                                <Pencil class="w-5 h-5" />
+                            </button>
+                            <button
+                                @click="destroyUser(user)"
+                                class="w-10 h-10 flex items-center justify-center rounded-xl text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-all duration-300"
+                                title="Baja de Sistema"
+                            >
+                                <Trash2 class="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Footer / Pagination -->
+                <div v-if="paginationLinks.length > 1" class="px-8 py-6 bg-slate-50/50 border-t border-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <p class="text-sm font-medium text-slate-500">
+                        Mostrando <span class="text-slate-900 font-bold">{{ props.users.data.length }}</span> de <span class="text-slate-900 font-bold">{{ props.users.total }}</span> registros
+                    </p>
+                    <div class="flex items-center gap-1.5">
                         <Link
-                            :href="route('admin.users.show', user.id)"
-                            class="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container-low hover:text-[#57572A] transition-colors"
-                            title="Ver perfil"
-                        >
-                            <Eye class="h-4 w-4" />
-                        </Link>
-                        <button
-                            @click="openEdit(user)"
-                            class="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container-low hover:text-blue-600 transition-colors"
-                            title="Editar"
-                        >
-                            <Pencil class="h-4 w-4" />
-                        </button>
-                        <button
-                            @click="destroyUser(user)"
-                            class="rounded-lg p-2 text-on-surface-variant hover:bg-red-50 hover:text-red-600 transition-colors"
-                            title="Desactivar"
-                        >
-                            <Trash2 class="h-4 w-4" />
-                        </button>
+                            v-for="link in paginationLinks"
+                            :key="link.label"
+                            :href="link.url"
+                            class="min-w-[40px] h-10 flex items-center justify-center rounded-xl text-xs font-bold transition-all duration-300"
+                            :class="link.active
+                                ? 'bg-[#57572A] text-white shadow-lg shadow-[#57572A]/20'
+                                : 'bg-white border border-slate-200 text-slate-600 hover:border-[#57572A] hover:text-[#57572A]'"
+                            v-html="link.label"
+                        />
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- ── Pagination ─────────────────────────────────────── -->
-        <div v-if="paginationLinks.length > 1" class="mt-4 flex items-center justify-between text-sm text-on-surface-variant">
-            <p>
-                {{ props.users.total }} usuario{{ props.users.total !== 1 ? 's' : '' }} en total
-            </p>
-            <div class="flex gap-1.5">
-                <Link
-                    v-for="link in paginationLinks"
-                    :key="link.label"
-                    :href="link.url"
-                    class="rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors"
-                    :class="link.active
-                        ? 'border-[#57572A] bg-[#57572A] text-white'
-                        : 'border-outline-variant/20 bg-white text-on-surface hover:bg-surface-container-low'"
-                    v-html="link.label"
-                />
-            </div>
-        </div>
-
-        <!-- Flash success -->
-        <Transition enter-active-class="transition duration-300" enter-from-class="translate-y-4 opacity-0" enter-to-class="translate-y-0 opacity-100">
-            <div v-if="flash.success" class="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl bg-emerald-600 px-5 py-3 text-white shadow-2xl">
-                <Check class="h-5 w-5" />
-                <span class="text-sm font-semibold">{{ flash.success }}</span>
+        <!-- ───────────────────────── SYSTEM NOTIFICATIONS ──────────────────── -->
+        <Transition enter-active-class="transition duration-500" enter-from-class="translate-x-full opacity-0" enter-to-class="translate-x-0 opacity-100">
+            <div v-if="flash.success" class="fixed bottom-10 right-10 z-[100] flex items-center gap-4 rounded-[2rem] bg-slate-900 p-2 pr-6 text-white shadow-2xl">
+                <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
+                    <Check class="h-6 w-6" />
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] uppercase font-bold tracking-widest text-emerald-500">Operación Exitosa</span>
+                    <span class="text-sm font-medium">{{ flash.success }}</span>
+                </div>
             </div>
         </Transition>
 
-        <!-- ───────────────────────── MODALS ──────────────────── -->
+        <!-- ───────────────────────── MODAL ENGINE ──────────────────── -->
 
-        <!-- Create Modal -->
+        <!-- Create User Modal -->
         <Teleport to="body">
-            <Transition name="fade">
-                <div v-if="showCreate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                    <div class="w-full max-w-lg rounded-3xl bg-white shadow-2xl">
-                        <div class="flex items-center justify-between border-b border-outline-variant/10 px-7 py-5">
-                            <div>
-                                <h2 class="font-serif text-2xl text-on-surface">Crear <span class="italic">Usuario</span></h2>
-                                <p class="mt-0.5 text-xs text-on-surface-variant">Nuevo acceso al campus digital IEE</p>
+            <Transition name="modal-bounce">
+                <div v-if="showCreate" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showCreate = false; createForm.reset()"></div>
+                    <div class="relative w-full max-w-2xl rounded-[3rem] bg-white shadow-2xl overflow-hidden">
+                        <div class="bg-gradient-to-br from-[#57572A] to-[#6a6a3b] p-10 text-white relative">
+                            <div class="absolute top-0 right-0 p-10 opacity-10">
+                                <UserPlus class="w-32 h-32" />
                             </div>
-                            <button @click="showCreate = false; createForm.reset()" class="rounded-xl p-2 hover:bg-surface-container-low">
-                                <X class="h-5 w-5 text-on-surface-variant" />
+                            <h2 class="font-serif text-4xl leading-tight">Alta de <span class="italic underline decoration-white/20 underline-offset-8">Nuevo Usuario</span></h2>
+                            <p class="mt-4 text-white/70 text-sm max-w-sm">Completa el expediente digital del usuario para habilitar el acceso a la plataforma.</p>
+                            <button @click="showCreate = false; createForm.reset()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+                                <X class="h-5 w-5" />
                             </button>
                         </div>
-                        <form @submit.prevent="submitCreate" class="grid gap-4 p-7">
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Nombre completo *</label>
-                                    <input v-model="createForm.name" required placeholder="Juan Pérez" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] transition-colors" />
-                                    <p v-if="createForm.errors.name" class="mt-1 text-xs text-red-500">{{ createForm.errors.name }}</p>
+                        
+                        <form @submit.prevent="submitCreate" class="p-10 space-y-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-1.5">
+                                    <label for="create_name" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Nombre del Perfil</label>
+                                    <input id="create_name" name="name" v-model="createForm.name" autocomplete="name" required placeholder="Ej: Dr. Manuel García" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <p v-if="createForm.errors.name" class="text-[10px] text-rose-500 font-bold pl-1">{{ createForm.errors.name }}</p>
                                 </div>
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Email *</label>
-                                    <input v-model="createForm.email" type="email" required placeholder="juan@email.com" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] transition-colors" />
-                                    <p v-if="createForm.errors.email" class="mt-1 text-xs text-red-500">{{ createForm.errors.email }}</p>
+                                <div class="space-y-1.5">
+                                    <label for="create_email" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Correo Electrónico</label>
+                                    <input id="create_email" name="email" v-model="createForm.email" type="email" autocomplete="email" required placeholder="ejemplo@iieedu.pe" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <p v-if="createForm.errors.email" class="text-[10px] text-rose-500 font-bold pl-1">{{ createForm.errors.email }}</p>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label for="create_telefono" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Teléfono Móvil</label>
+                                    <input id="create_telefono" name="telefono" v-model="createForm.telefono" type="tel" autocomplete="tel" placeholder="+51 9XX XXX XXX" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label for="create_password" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Clave de Seguridad</label>
+                                    <input id="create_password" name="password" v-model="createForm.password" type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <p v-if="createForm.errors.password" class="text-[10px] text-rose-500 font-bold pl-1">{{ createForm.errors.password }}</p>
                                 </div>
                             </div>
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Teléfono</label>
-                                    <input v-model="createForm.telefono" placeholder="999 999 999" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] transition-colors" />
-                                </div>
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Contraseña *</label>
-                                    <input v-model="createForm.password" type="password" required placeholder="Mín. 8 caracteres" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] transition-colors" />
-                                    <p v-if="createForm.errors.password" class="mt-1 text-xs text-red-500">{{ createForm.errors.password }}</p>
-                                </div>
-                            </div>
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Rol *</label>
-                                    <select v-model="createForm.role" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] transition-colors bg-white">
-                                        <option value="usuario">Estudiante</option>
-                                        <option value="admin">Admin</option>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                                <div class="space-y-1.5">
+                                    <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Jerarquía / Rol</label>
+                                    <select v-model="createForm.role" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] transition-all cursor-pointer appearance-none">
+                                        <option value="usuario">Estudiante Corporativo</option>
+                                        <option value="admin">Administrador de Sistema</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Estado *</label>
-                                    <select v-model="createForm.status" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] transition-colors bg-white">
-                                        <option value="activo">Activo</option>
-                                        <option value="inactivo">Inactivo</option>
+                                <div class="space-y-1.5">
+                                    <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Estado de Cuenta</label>
+                                    <select v-model="createForm.status" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] transition-all cursor-pointer appearance-none">
+                                        <option value="activo">Habilitar Inmediatamente</option>
+                                        <option value="inactivo">Baja Preventiva</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="flex justify-end gap-3 border-t border-outline-variant/10 pt-4">
-                                <button type="button" @click="showCreate = false; createForm.reset()" class="rounded-xl border border-outline-variant/30 px-5 py-2.5 text-sm font-semibold hover:bg-surface-container-low transition-colors">
+
+                            <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-50">
+                                <button type="button" @click="showCreate = false; createForm.reset()" class="h-12 px-8 rounded-2xl text-sm font-bold text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
                                     Cancelar
                                 </button>
-                                <button type="submit" :disabled="createForm.processing" class="rounded-xl bg-[#57572A] px-6 py-2.5 text-sm font-bold text-white shadow hover:opacity-95 disabled:opacity-60 transition-opacity">
-                                    {{ createForm.processing ? 'Guardando...' : 'Crear usuario' }}
+                                <button type="submit" :disabled="createForm.processing" class="h-12 px-10 rounded-2xl bg-[#57572A] text-sm font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all">
+                                    {{ createForm.processing ? 'Registrando...' : 'Finalizar Alta' }}
                                 </button>
                             </div>
                         </form>
@@ -437,65 +530,70 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
             </Transition>
         </Teleport>
 
-        <!-- Edit Modal -->
+        <!-- Edit User Modal -->
         <Teleport to="body">
-            <Transition name="fade">
-                <div v-if="showEdit" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                    <div class="w-full max-w-lg rounded-3xl bg-white shadow-2xl">
-                        <div class="flex items-center justify-between border-b border-outline-variant/10 px-7 py-5">
-                            <div>
-                                <h2 class="font-serif text-2xl text-on-surface">Editar <span class="italic">Usuario</span></h2>
-                                <p class="mt-0.5 text-xs text-on-surface-variant">{{ editTarget?.name }}</p>
+            <Transition name="modal-bounce">
+                <div v-if="showEdit" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showEdit = false; editForm.reset()"></div>
+                    <div class="relative w-full max-w-2xl rounded-[3rem] bg-white shadow-2xl overflow-hidden">
+                        <div class="bg-slate-50 p-10 border-b border-slate-100 flex items-center gap-6">
+                            <div :class="`w-20 h-20 rounded-[1.5rem] flex items-center justify-center text-3xl font-bold shadow-lg ${avatarColor(editTarget?.id ?? 0)}`">
+                                {{ initials(editTarget?.name ?? '') }}
                             </div>
-                            <button @click="showEdit = false; editForm.reset()" class="rounded-xl p-2 hover:bg-surface-container-low">
-                                <X class="h-5 w-5 text-on-surface-variant" />
+                            <div>
+                                <h2 class="font-serif text-3xl text-slate-900 leading-tight">Actualizar <span class="italic">Perfil</span></h2>
+                                <p class="text-slate-400 font-medium mt-1">{{ editTarget?.name }} • {{ editTarget?.email }}</p>
+                            </div>
+                            <button @click="showEdit = false; editForm.reset()" class="ml-auto w-10 h-10 rounded-full bg-slate-200/50 hover:bg-slate-200 flex items-center justify-center transition-colors">
+                                <X class="h-5 w-5 text-slate-500" />
                             </button>
                         </div>
-                        <form @submit.prevent="submitEdit" class="grid gap-4 p-7">
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Nombre *</label>
-                                    <input v-model="editForm.name" required class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] transition-colors" />
-                                    <p v-if="editForm.errors.name" class="mt-1 text-xs text-red-500">{{ editForm.errors.name }}</p>
+                        
+                        <form @submit.prevent="submitEdit" class="p-10 space-y-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-1.5">
+                                    <label for="edit_name" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Identidad Digital</label>
+                                    <input id="edit_name" name="name" v-model="editForm.name" autocomplete="name" required class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <p v-if="editForm.errors.name" class="text-[10px] text-rose-500 font-bold">{{ editForm.errors.name }}</p>
                                 </div>
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Email *</label>
-                                    <input v-model="editForm.email" type="email" required class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] transition-colors" />
-                                    <p v-if="editForm.errors.email" class="mt-1 text-xs text-red-500">{{ editForm.errors.email }}</p>
+                                <div class="space-y-1.5">
+                                    <label for="edit_email" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Dirección Electrónica</label>
+                                    <input id="edit_email" name="email" v-model="editForm.email" type="email" autocomplete="email" required class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <p v-if="editForm.errors.email" class="text-[10px] text-rose-500 font-bold">{{ editForm.errors.email }}</p>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label for="edit_telefono" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Teléfono de Contacto</label>
+                                    <input id="edit_telefono" name="telefono" v-model="editForm.telefono" type="tel" autocomplete="tel" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label for="edit_password" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Restablecer Contraseña</label>
+                                    <input id="edit_password" name="password" v-model="editForm.password" type="password" autocomplete="new-password" placeholder="Omitir para mantener actual" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
                                 </div>
                             </div>
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Teléfono</label>
-                                    <input v-model="editForm.telefono" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] transition-colors" />
-                                </div>
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Nueva contraseña</label>
-                                    <input v-model="editForm.password" type="password" placeholder="Dejar en blanco para no cambiar" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] transition-colors" />
-                                </div>
-                            </div>
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Rol *</label>
-                                    <select v-model="editForm.role" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] bg-white">
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                                <div class="space-y-1.5">
+                                    <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Grado de Acceso</label>
+                                    <select v-model="editForm.role" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] transition-all appearance-none cursor-pointer">
                                         <option value="usuario">Estudiante</option>
-                                        <option value="admin">Admin</option>
+                                        <option value="admin">Administrador</option>
                                     </select>
                                 </div>
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Estado *</label>
-                                    <select v-model="editForm.status" class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A] bg-white">
-                                        <option value="activo">Activo</option>
-                                        <option value="inactivo">Inactivo</option>
+                                <div class="space-y-1.5">
+                                    <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Estatus Administrativo</label>
+                                    <select v-model="editForm.status" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] transition-all appearance-none cursor-pointer">
+                                        <option value="activo">Vigencia Plena</option>
+                                        <option value="inactivo">Baja del Sistema</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="flex justify-end gap-3 border-t border-outline-variant/10 pt-4">
-                                <button type="button" @click="showEdit = false; editForm.reset()" class="rounded-xl border border-outline-variant/30 px-5 py-2.5 text-sm font-semibold hover:bg-surface-container-low">
-                                    Cancelar
+
+                            <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-50">
+                                <button type="button" @click="showEdit = false; editForm.reset()" class="h-12 px-8 rounded-2xl text-sm font-bold text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
+                                    Descartar
                                 </button>
-                                <button type="submit" :disabled="editForm.processing" class="rounded-xl bg-[#57572A] px-6 py-2.5 text-sm font-bold text-white shadow hover:opacity-95 disabled:opacity-60">
-                                    {{ editForm.processing ? 'Guardando...' : 'Guardar cambios' }}
+                                <button type="submit" :disabled="editForm.processing" class="h-12 px-10 rounded-2xl bg-[#57572A] text-sm font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all">
+                                    {{ editForm.processing ? 'Actualizando...' : 'Guardar Cambios' }}
                                 </button>
                             </div>
                         </form>
@@ -507,6 +605,18 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
 </template>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.modal-bounce-enter-active { animation: modal-bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.modal-bounce-leave-active { animation: modal-bounce-in 0.3s reverse ease-in; }
+
+@keyframes modal-bounce-in {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem;
+}
 </style>

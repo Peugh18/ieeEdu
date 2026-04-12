@@ -34,6 +34,10 @@ class Course extends Model
         'whatsapp_link',
         'objectives',
         'requirements',
+        'instructor_name',
+        'instructor_title',
+        'instructor_bio',
+        'instructor_image',
     ];
 
     protected $casts = [

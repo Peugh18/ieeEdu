@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import axios from 'axios';
 
@@ -97,6 +97,20 @@ const canPublish = computed(() => {
     if (lessons.value.length < 1) return false;
     if (isMasterclass.value && lessons.value.length !== 1) return false;
     return true;
+});
+
+const instructorPreviewUrl = computed(() => {
+    if (form.instructor_image_file) {
+        return URL.createObjectURL(form.instructor_image_file);
+    }
+    return null;
+});
+
+const courseImagePreviewUrl = computed(() => {
+    if (form.image_file) {
+        return URL.createObjectURL(form.image_file);
+    }
+    return null;
 });
 
 function resetNewLesson(moduleId: number | null = null) {
@@ -533,257 +547,326 @@ async function toggleQuiz(id: number) {
             </div>
         </transition>
 
-        <div class="space-y-6">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h1 class="text-2xl font-bold text-on-surface">Editor del curso</h1>
-                    <p class="text-sm text-on-surface-variant">
-                        Estado: <span class="font-bold text-on-surface">{{ form.status }}</span> · Clases: {{ lessons.length }}
-                    </p>
+        <div class="space-y-6 max-w-7xl mx-auto bg-surface p-4 sm:p-8 rounded-[2.5rem]">
+            <!-- HEADER SAAS (Academic Marble) -->
+            <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between bg-surface-container-lowest p-6 sm:p-10 rounded-[2rem] shadow-xl shadow-surface-tint/5 relative overflow-hidden border border-outline-variant/10">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-surface-tint/10 to-transparent rounded-full blur-[40px] -mr-16 -mt-16 pointer-events-none"></div>
+                <div class="relative z-10">
+                    <h1 class="text-3xl md:text-4xl font-serif font-bold text-on-surface tracking-tight mb-2 italic"><span class="italic font-light">Editor Avanzado</span> de Curso</h1>
+                    <div class="flex flex-wrap items-center gap-3 text-xs font-bold text-on-surface-variant uppercase tracking-widest">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-container-low border border-outline-variant/30">
+                            Estado: <span :class="{'text-amber-600': form.status === 'BORRADOR', 'text-emerald-600': form.status === 'PUBLICADO', 'text-slate-500': form.status === 'OCULTO'}">{{ form.status }}</span>
+                        </span>
+                        <span>·</span>
+                        <span class="flex items-center gap-1"><span class="text-on-surface">{{ modules.length }}</span> Módulos</span>
+                        <span>·</span>
+                        <span class="flex items-center gap-1"><span class="text-on-surface">{{ lessons.length }}</span> Clases</span>
+                    </div>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <button class="rounded-xl border border-outline-variant/30 px-4 py-2 text-sm font-semibold" @click="hideCourse">Ocultar</button>
-                    <button class="rounded-xl flex items-center justify-center gap-2 bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-60 disabled:cursor-not-allowed transition" :disabled="form.processing" @click="saveCourse">
+                <div class="flex flex-wrap gap-3 relative z-10">
+                    <button class="rounded-full bg-surface-container-low px-8 py-3 text-[12px] font-bold text-on-surface hover:bg-surface-container-high transition-colors" @click="hideCourse">Ocultar</button>
+                    <button class="rounded-full flex items-center justify-center gap-2 bg-gradient-to-br from-[#57572A] to-[#707040] px-8 py-3 text-[12px] font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:scale-100 transition-all font-sans tracking-wide" :disabled="form.processing" @click="saveCourse">
                         <svg v-if="form.processing" class="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                        Guardar cambios
+                        Guardar Cambios
                     </button>
-                    <button class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60" :disabled="!canPublish" @click="publishCourse">Publicar</button>
+                    <button class="rounded-full bg-surface-container-lowest border border-outline-variant/10 px-8 py-3 text-[12px] font-bold text-[#57572A] shadow-lg shadow-[#57572A]/5 hover:bg-surface-container-low transition-all" :disabled="!canPublish" @click="publishCourse">Publicar Oficial</button>
                 </div>
             </div>
 
-            <!-- TABS MENU -->
-            <div class="flex overflow-x-auto gap-2 bg-white p-2 rounded-2xl border border-outline-variant/10 shadow-sm mb-6 pb-2 scrollbar-thin">
-                <button @click="activeTab = 'general'" :class="activeTab === 'general' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap">Información Básica</button>
-                <button @click="activeTab = 'pricing'" :class="activeTab === 'pricing' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap">Precio y Configuraciones</button>
-                <button @click="activeTab = 'details'" :class="activeTab === 'details' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap">Detalles Adicionales</button>
-                <button @click="activeTab = 'instructor'" :class="activeTab === 'instructor' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap">Instructor y Diploma</button>
-                <button @click="activeTab = 'curriculum'" :class="activeTab === 'curriculum' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap flex items-center gap-2">Plan de Estudios <span class="bg-black/20 text-current border border-current text-[10px] px-2 py-0.5 rounded-full">{{ lessons.length }}</span></button>
-                <button @click="activeTab = 'exams'" :class="activeTab === 'exams' ? 'bg-[#57572A] text-white shadow-md' : 'text-on-surface hover:bg-surface-container-low'" class="px-5 py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all whitespace-nowrap">Exámenes / Evaluaciones</button>
+            <!-- TABS MENU (SAAS STYLE) -->
+            <div class="flex overflow-x-auto gap-2 bg-surface-container-lowest p-2 rounded-3xl border border-outline-variant/20 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] mb-6 scrollbar-none custom-scrollbar">
+                <button @click="activeTab = 'general'" :class="activeTab === 'general' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Datos Básicos</button>
+                <button @click="activeTab = 'pricing'" :class="activeTab === 'pricing' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Precios & Tipo</button>
+                <button @click="activeTab = 'details'" :class="activeTab === 'details' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Detalles Acad.</button>
+                <button @click="activeTab = 'instructor'" :class="activeTab === 'instructor' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Autoría & Cert.</button>
+                <button @click="activeTab = 'curriculum'" :class="activeTab === 'curriculum' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200 flex items-center gap-2">Sílabo <span class="bg-[#57572A]/10 text-[#57572A] px-2.5 py-0.5 rounded-lg border border-[#57572A]/20">{{ lessons.length }}</span></button>
+                <button @click="activeTab = 'exams'" :class="activeTab === 'exams' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Evaluaciones</button>
             </div>
 
-            <div class="grid grid-cols-1 gap-6">
+            <div class="grid grid-cols-1 gap-8 w-full mt-4">
                 <!-- TAB: GENERAL -->
-                <div v-show="activeTab === 'general'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div>
-                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Información Básica</h2>
-                        <p class="text-sm text-on-surface-variant">Define el título y estado principal del programa.</p>
-                    </div>
-                    <div>
-                        <input v-model="form.title" class="w-full rounded-xl border px-4 py-3 text-sm" :class="form.errors.title ? 'border-red-500' : 'border-outline-variant/30'" placeholder="Nombre del curso" />
-                        <p v-if="form.errors.title" class="mt-1 text-xs text-red-600">{{ form.errors.title }}</p>
-                    </div>
-                    <div>
-                        <textarea v-model="form.description" rows="4" class="w-full rounded-xl border px-4 py-3 text-sm" :class="form.errors.description ? 'border-red-500' : 'border-outline-variant/30'" placeholder="Descripción" />
-                        <p v-if="form.errors.description" class="mt-1 text-xs text-red-600">{{ form.errors.description }}</p>
+                <div v-show="activeTab === 'general'" class="rounded-[2.5rem] bg-surface-container-lowest p-8 md:p-14 shadow-2xl shadow-surface-tint/5 border border-outline-variant/10 animate-in fade-in slide-in-from-bottom-4 duration-500 relative overflow-hidden">
+                    <div class="max-w-3xl relative z-10">
+                        <h2 class="text-3xl font-serif font-bold text-on-surface mb-3 tracking-tight">Identidad <span class="italic font-light">Principal</span></h2>
+                        <p class="text-[15px] text-on-surface-variant font-sans font-medium mb-12 leading-relaxed">El título y descripción formarán la base del marketing de tu curso. Asegúrate de que sean claros, persuasivos y detallados para maximizar la conversión en matrícula.</p>
+                    
+                        <div class="space-y-10">
+                            <div class="space-y-3">
+                                <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Título Comercial Oficial</label>
+                                <input v-model="form.title" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" :class="form.errors.title ? 'ring-2 ring-red-500 bg-red-50/50' : ''" placeholder="Ej. Máster Especializado en Finanzas Públicas..." />
+                                <p v-if="form.errors.title" class="mt-1.5 ml-1 text-sm font-bold text-red-600 font-sans">{{ form.errors.title }}</p>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">Pitch De Venta (Descripción completa)</label>
+                                <textarea v-model="form.description" rows="6" class="w-full resize-none rounded-2xl border bg-surface-container-lowest px-5 py-4 text-[14px] text-on-surface shadow-sm focus:border-[#57572A] focus:ring-4 focus:ring-[#57572A]/10 transition-all outline-none leading-relaxed" :class="form.errors.description ? 'border-red-500 bg-red-50/50' : 'border-outline-variant/30'" placeholder="Utiliza este espacio para destacar el valor diferencial del programa. Describe los beneficios transformacionales, habilidades que se ganarán y por qué es la mejor decisión..."></textarea>
+                                <p v-if="form.errors.description" class="mt-1.5 ml-1 text-xs font-bold text-red-600">{{ form.errors.description }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- TAB: PRICING -->
-                <div v-show="activeTab === 'pricing'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div>
-                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Precios y Ventas</h2>
-                        <p class="text-sm text-on-surface-variant">Configura el costo del programa y opciones de descuento.</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <input v-model.number="form.price" type="number" min="0" class="w-full rounded-xl border px-4 py-3 text-sm" :class="form.errors.price ? 'border-red-500' : 'border-outline-variant/30'" placeholder="Precio" />
-                            <p v-if="form.errors.price" class="mt-1 text-xs text-red-600">{{ form.errors.price }}</p>
-                        </div>
-                        <select v-model="form.type" class="rounded-xl border border-outline-variant/30 px-4 py-3 text-sm">
-                            <option value="grabado">Grabado</option>
-                            <option value="en vivo">En vivo</option>
-                            <option value="masterclass">Masterclass</option>
-                            <option value="evento">Evento/Charla</option>
-                        </select>
-                    </div>
-                    <div v-if="isMasterclass" class="rounded-xl border border-outline-variant/20 bg-surface-container-low p-3">
-                        <label class="flex items-center gap-2 text-sm font-semibold">
-                            <input type="checkbox" v-model="form.certificate_enabled" />
-                            Certificado habilitado (opcional)
-                        </label>
-                        <p class="mt-1 text-xs text-on-surface-variant">Para masterclass/evento puedes activarlo o desactivarlo.</p>
-                    </div>
-                    <div class="rounded-xl border border-outline-variant/20 bg-surface-container-low p-3">
-                        <label class="flex items-center gap-2 text-sm font-semibold">
-                            <input type="checkbox" v-model="form.discount_enabled" />
-                            Aplicar descuento (%)
-                        </label>
-                        <div class="flex gap-2 mt-2">
-                            <input
-                                v-model.number="form.discount"
-                                :disabled="!form.discount_enabled"
-                                type="number"
-                                min="0"
-                                max="100"
-                                class="w-full rounded-xl border border-outline-variant/30 px-4 py-2 text-sm disabled:opacity-60"
-                                placeholder="Porcentaje (Ej. 20)"
-                            />
-                            <div class="w-full flex flex-col justify-center pl-2">
-                                <span class="text-xs text-on-surface-variant font-bold">Precio final calculdo: <br/> S/ {{ form.sale_price }}</span>
+                <div v-show="activeTab === 'pricing'" class="rounded-[2.5rem] bg-surface-container-lowest p-8 md:p-14 shadow-2xl shadow-surface-tint/5 border border-outline-variant/10 animate-in fade-in slide-in-from-bottom-4 duration-500 relative overflow-hidden">
+                    <div class="max-w-3xl relative z-10">
+                        <h2 class="text-3xl font-serif font-bold text-on-surface mb-3 tracking-tight">Comercialización y <span class="italic font-light">Ventas</span></h2>
+                        <p class="text-[15px] text-on-surface-variant font-sans font-medium mb-12 leading-relaxed">Configura los precios del programa, estrategias promocionales y la naturaleza del acceso al curso.</p>
+                    
+                        <div class="space-y-10">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Inversión Regular (Precio en S/)</label>
+                                    <input v-model.number="form.price" type="number" min="0" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" :class="form.errors.price ? 'ring-2 ring-red-500 bg-red-50/50' : ''" placeholder="Ej. 199.00" />
+                                    <p v-if="form.errors.price" class="mt-1.5 ml-1 text-sm font-bold text-red-600 font-sans">{{ form.errors.price }}</p>
+                                </div>
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Modalidad de Impartición</label>
+                                    <select v-model="form.type" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent appearance-none">
+                                        <option value="grabado">Curso Grabado (Video)</option>
+                                        <option value="en vivo">Curso En Vivo (Streaming)</option>
+                                        <option value="masterclass">Masterclass Gratuita</option>
+                                        <option value="evento">Evento Presencial/Virtual</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div v-if="isMasterclass" class="rounded-[1.5rem] border border-transparent bg-surface-container-highest p-6 shadow-sm">
+                                <label class="flex items-center gap-4 text-[15px] font-semibold text-on-surface cursor-pointer">
+                                    <input type="checkbox" v-model="form.certificate_enabled" class="w-5 h-5 accent-[#57572A] rounded focus:ring-[#57572A]" />
+                                    <span>Habilitar Certificado de Participación</span>
+                                </label>
+                                <p class="mt-3 text-[14px] text-on-surface-variant font-medium ml-9 leading-relaxed">Permite a los asistentes descargar una constancia válida de su participación gratuita.</p>
+                            </div>
+
+                            <div class="rounded-[2rem] border border-outline-variant/10 bg-white p-8 shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
+                                <label class="flex items-center gap-4 text-[15px] font-bold text-on-surface cursor-pointer mb-6">
+                                    <input type="checkbox" v-model="form.discount_enabled" class="w-5 h-5 accent-[#57572A] rounded focus:ring-[#57572A]" />
+                                    <span>Activar Promoción de Descuento</span>
+                                </label>
+                                
+                                <div class="flex flex-col sm:flex-row gap-6 items-center bg-surface-container-lowest p-6 rounded-[1.5rem] border border-outline-variant/10">
+                                    <div class="w-full sm:w-1/2 space-y-3">
+                                        <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Porcentaje (%)</label>
+                                        <input
+                                            v-model.number="form.discount"
+                                            :disabled="!form.discount_enabled"
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant disabled:opacity-50 disabled:bg-surface-container-low"
+                                            placeholder="Ej. 20"
+                                        />
+                                    </div>
+                                    <div class="hidden sm:block h-12 w-px bg-outline-variant/20"></div>
+                                    <div class="w-full sm:w-1/2 flex flex-col justify-center px-4">
+                                        <span class="text-[14px] text-on-surface font-bold font-sans">Inversión Final Recomendada</span>
+                                        <span class="text-3xl font-serif font-bold text-[#57572A] mt-2">S/ {{ form.sale_price }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Estado en Catálogo</label>
+                                    <select v-model="form.status" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent appearance-none font-bold" :class="{'text-amber-600': form.status === 'BORRADOR', 'text-emerald-700': form.status === 'PUBLICADO'}">
+                                        <option value="BORRADOR">Borrador (Privado)</option>
+                                        <option value="PUBLICADO">Publicado (Visible)</option>
+                                        <option value="OCULTO">Oculto (Secreto)</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Categoría Principal</label>
+                                    <select v-model="form.category_id" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent appearance-none" :class="form.errors.category_id ? 'ring-2 ring-red-500 bg-red-50/50' : ''">
+                                        <option value="">Seleccione Categoría</option>
+                                        <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
+                                    </select>
+                                    <p v-if="form.errors.category_id" class="mt-1.5 ml-1 text-sm font-bold text-red-600 font-sans">{{ form.errors.category_id }}</p>
+                                </div>
+                            </div>
+
+                            <div class="space-y-5 pt-6">
+                                <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Banner o Portada Gráfica (16:9)</label>
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-8">
+                                    <div class="relative w-full sm:w-56 aspect-video rounded-3xl overflow-hidden border border-outline-variant/20 shadow-md bg-surface-container-low flex items-center justify-center">
+                                        <img v-if="courseImagePreviewUrl" :src="courseImagePreviewUrl" class="absolute inset-0 w-full h-full object-cover" />
+                                        <img v-else-if="course.image" :src="course.image" class="absolute inset-0 w-full h-full object-cover" />
+                                        <div v-else class="text-center p-6">
+                                            <svg class="mx-auto h-10 w-10 text-surface-variant mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            <span class="text-[13px] font-bold text-on-surface-variant font-sans">Subir Imagen</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 space-y-4 w-full">
+                                        <input type="file" accept="image/*" class="w-full text-[14px] font-sans file:mr-5 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-[13px] file:font-bold file:bg-[#57572A] file:text-white hover:file:opacity-90 transition-all cursor-pointer" @change="(e) => { form.image_file = (e.target as HTMLInputElement).files?.[0] ?? null; }" />
+                                        <p class="text-[13px] text-on-surface-variant font-medium leading-relaxed max-w-md">Formatos: JPG, PNG, WEBP. Resolución recomendada: 1280x720px.</p>
+                                        <p v-if="form.errors.image_file" class="text-[14px] font-bold text-red-600 font-sans mt-2">{{ form.errors.image_file }}</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <select v-model="form.status" class="rounded-xl border border-outline-variant/30 px-4 py-3 text-sm">
-                            <option value="BORRADOR">Borrador</option>
-                            <option value="PUBLICADO">Publicado</option>
-                            <option value="OCULTO">Oculto</option>
-                        </select>
-                        <div>
-                            <select v-model="form.category_id" class="w-full rounded-xl border px-4 py-3 text-sm" :class="form.errors.category_id ? 'border-red-500' : 'border-outline-variant/30'">
-                                <option value="">Sin categoría</option>
-                                <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
-                            </select>
-                            <p v-if="form.errors.category_id" class="mt-1 text-xs text-red-600">{{ form.errors.category_id }}</p>
-                        </div>
-                    </div>
-                    <div>
-                        <input type="file" accept="image/*" class="w-full text-sm" @change="(e) => { form.image_file = (e.target as HTMLInputElement).files?.[0] ?? null; }" />
-                        <p v-if="form.errors.image_file" class="mt-1 text-xs text-red-600">{{ form.errors.image_file }}</p>
-                    </div>
-                    <img v-if="course.image" :src="course.image" class="h-16 w-16 rounded-xl object-cover border border-outline-variant/20" />
-
                 </div>
 
                 <!-- TAB: DETAILS -->
-                <div v-show="activeTab === 'details'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div>
-                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Detalles Específicos</h2>
-                        <p class="text-sm text-on-surface-variant">Fechas, objetivos y requerimientos técnicos del curso.</p>
-                    </div>
-                    
-                    <div v-if="form.type === 'en vivo' || form.type === 'masterclass' || form.type === 'evento'" class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Fecha de inicio</label>
-                            <input v-model="form.start_date" type="date" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" />
+                <div v-show="activeTab === 'details'" class="rounded-[2.5rem] bg-surface-container-lowest p-8 md:p-14 shadow-2xl shadow-surface-tint/5 border border-outline-variant/10 animate-in fade-in slide-in-from-bottom-4 duration-500 relative overflow-hidden">
+                    <div class="max-w-3xl relative z-10">
+                        <h2 class="text-3xl font-serif font-bold text-on-surface mb-3 tracking-tight">Requisitos y <span class="italic font-light">Exigencias</span></h2>
+                        <p class="text-[15px] text-on-surface-variant font-sans font-medium mb-12 leading-relaxed">Aporta métricas e información valiosa para que los alumnos entiendan el esfuerzo requerido y los objetivos.</p>
+                        
+                        <div class="space-y-10">
+                            <div v-if="form.type === 'en vivo' || form.type === 'masterclass' || form.type === 'evento'" class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-surface-container-highest p-8 rounded-[1.5rem] border border-transparent shadow-sm">
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-[#57572A] font-sans ml-1">Fecha de Lanzamiento / Inicio</label>
+                                    <input v-model="form.start_date" type="date" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" />
+                                </div>
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-[#57572A] font-sans ml-1">Hora Programada (Local)</label>
+                                    <input v-model="form.start_time" type="time" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" />
+                                </div>
+                            </div>
+
+                            <div v-if="form.type === 'grabado'" class="space-y-3">
+                                <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Carga Horaria Aproximada (Hrs)</label>
+                                <input v-model.number="form.class_hours" type="number" min="0" class="w-full md:w-1/3 rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Ej. 120" />
+                            </div>
+
+                            <div v-if="form.type === 'masterclass' || form.type === 'evento'" class="space-y-3">
+                                <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Enlace a Comunidad Oficial (WhatsApp)</label>
+                                <input v-model="form.whatsapp_link" type="url" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-[#57572A] focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-[#57572A]/50" placeholder="https://chat.whatsapp.com/..." />
+                            </div>
+
+                            <div v-if="form.type !== 'masterclass' && form.type !== 'evento'" class="space-y-3">
+                                <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">Metas y Logros del Curso</label>
+                                <textarea v-model="form.objectives" rows="4" class="w-full resize-none rounded-2xl border border-outline-variant/30 bg-surface-container-lowest px-5 py-4 text-[14px] text-on-surface shadow-sm focus:border-[#57572A] focus:ring-4 focus:ring-[#57572A]/10 transition-all outline-none leading-relaxed" placeholder="Desglosa las habilidades que los estudiantes poseerán al finalizar (Ingresa un objetivo por línea)..."></textarea>
+                            </div>
+
+                            <div v-if="form.type !== 'masterclass' && form.type !== 'evento'" class="space-y-3">
+                                <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">Prerrequisitos Académicos</label>
+                                <textarea v-model="form.requirements" rows="4" class="w-full resize-none rounded-2xl border border-outline-variant/30 bg-surface-container-lowest px-5 py-4 text-[14px] text-on-surface shadow-sm focus:border-[#57572A] focus:ring-4 focus:ring-[#57572A]/10 transition-all outline-none leading-relaxed" placeholder="Conocimientos técnicos, grado académico o software especial requerido..."></textarea>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Hora</label>
-                            <input v-model="form.start_time" type="time" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" />
-                        </div>
                     </div>
-
-                    <div v-if="form.type === 'grabado'">
-                        <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Horas de clase (Duración)</label>
-                        <input v-model.number="form.class_hours" type="number" min="0" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="Ej. 12" />
-                    </div>
-
-                    <div v-if="form.type === 'masterclass' || form.type === 'evento'">
-                        <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Link Grupo de WhatsApp</label>
-                        <input v-model="form.whatsapp_link" type="url" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="https://chat.whatsapp.com/..." />
-                    </div>
-
-                    <div v-if="form.type !== 'masterclass' && form.type !== 'evento'">
-                        <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Objetivos del curso</label>
-                        <textarea v-model="form.objectives" rows="3" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="¿Qué aprenderá el alumno? (Puedes separar por saltos de línea)"></textarea>
-                    </div>
-
-                    <div v-if="form.type !== 'masterclass' && form.type !== 'evento'">
-                        <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Requisitos</label>
-                        <textarea v-model="form.requirements" rows="3" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="¿Qué necesita saber el alumno antes?"></textarea>
-                    </div>
-
                 </div>
 
                 <!-- TAB: INSTRUCTOR -->
-                <div v-show="activeTab === 'instructor'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div>
-                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Perfil del Instructor</h2>
-                        <p class="text-sm text-on-surface-variant">Puedes opcionalmente mostrar quién dicta este curso y el certificado final.</p>
+                <div v-show="activeTab === 'instructor'" class="rounded-[2.5rem] bg-surface-container-lowest p-8 md:p-14 shadow-2xl shadow-surface-tint/5 border border-outline-variant/10 animate-in fade-in slide-in-from-bottom-4 duration-500 relative overflow-hidden">
+                    <div class="max-w-3xl relative z-10 mb-10">
+                        <h2 class="text-3xl font-serif font-bold text-on-surface mb-3 tracking-tight">Equipo <span class="italic font-light">Docente</span></h2>
+                        <p class="text-[15px] text-on-surface-variant font-sans font-medium leading-relaxed">Agrega credibilidad mostrando la experiencia directa de quien lidera este programa.</p>
                     </div>
-                    <div>
-                        <input v-model="form.instructor_name" class="w-full rounded-xl border px-4 py-3 text-sm border-outline-variant/30" placeholder="Nombre (Ej. Mg. Juan Pérez)" />
-                    </div>
-                    <div>
-                        <input v-model="form.instructor_title" class="w-full rounded-xl border px-4 py-3 text-sm border-outline-variant/30" placeholder="Cargo/Título (Ej. Ex-Ministro de Minería)" />
-                    </div>
-                    <div>
-                        <textarea v-model="form.instructor_bio" rows="3" class="w-full rounded-xl border px-4 py-3 text-sm border-outline-variant/30" placeholder="Pequeña reseña o biografía del docente..."></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-on-surface-variant mb-1 ml-1">Foto de Perfil</label>
-                        <input type="file" accept="image/*" class="w-full text-sm" @change="(e) => { form.instructor_image_file = (e.target as HTMLInputElement).files?.[0] ?? null; }" />
-                    </div>
-                    <img v-if="course.instructor_image" :src="course.instructor_image" class="h-16 w-16 rounded-full object-cover border border-outline-variant/20" />
+                        
+                    <div class="space-y-10">
+                        <div class="flex flex-col sm:flex-row gap-8 items-start bg-surface-container-highest p-8 rounded-[2rem] border border-transparent shadow-sm relative overflow-hidden">
+                            <!-- BG Decor -->
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#57572A]/10 to-transparent rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none"></div>
 
-                    <hr class="border-outline-variant/20 my-4" />
-                    <div class="space-y-4">
-                         <h3 class="font-bold text-sm text-primary uppercase tracking-widest flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            Certificación
-                         </h3>
-                         <div class="p-4 rounded-2xl bg-primary/5 border border-primary/10 space-y-3">
-                             <p class="text-[11px] text-on-surface-variant font-medium italic leading-relaxed">
-                                Personaliza el diseño del diploma que recibirán los alumnos al completar este curso.
-                             </p>
-                             <Link 
-                                :href="route('admin.courses.certificate-template.edit', { course: props.course.id })"
-                                class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary text-white text-xs font-bold shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
-                             >
-                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                Diseñar Diploma
-                             </Link>
-                         </div>
-                    </div>
-
-                </div>
-
-                <!-- TAB: CURRICULUM -->
-                <div v-show="activeTab === 'curriculum'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div>
-                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Plan de Estudios</h2>
-                        <p class="text-sm text-on-surface-variant">Construye los módulos, clases y agrega material descargable.</p>
-                        <p class="text-xs font-bold text-red-500 mt-2" v-if="isMasterclass">NOTA: Modalidad Masterclass admite exclusivamente 1 sola clase en vivo.</p>
-                    </div>
-
-                    <div class="space-y-6 mt-4">
-                        <div v-if="!isMasterclass">
-                            <div class="flex gap-2">
-                                <input v-model="newModuleTitle" class="flex-1 rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition" placeholder="Nombre del módulo" />
-                                <button class="rounded-xl bg-[#4B5320] px-5 py-3 text-sm font-semibold text-white shadow hover:opacity-90 transition" @click="createModule">Agregar módulo</button>
+                            <div class="w-full sm:w-auto flex flex-col items-center gap-5 relative z-10 shrink-0 mt-2">
+                                <div class="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-white shadow-xl bg-surface-container-low flex items-center justify-center">
+                                    <img v-if="instructorPreviewUrl" :src="instructorPreviewUrl" class="w-full h-full object-cover" />
+                                    <img v-else-if="course.instructor_image" :src="course.instructor_image" class="w-full h-full object-cover" />
+                                    <svg v-else class="w-14 h-14 text-surface-variant/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                </div>
+                                <label class="cursor-pointer w-full text-center">
+                                    <input type="file" accept="image/*" class="hidden" @change="(e) => { form.instructor_image_file = (e.target as HTMLInputElement).files?.[0] ?? null; }" />
+                                    <span class="inline-block w-full px-5 py-2.5 bg-white rounded-full text-[12px] font-bold uppercase tracking-wider text-[#57572A] border border-[#57572A]/10 hover:bg-[#57572A]/5 shadow-sm transition-all">Cambiar Retrato</span>
+                                </label>
+                            </div>
+                            <div class="flex-1 space-y-6 relative z-10 w-full">
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Nombre del Profesional</label>
+                                    <input v-model="form.instructor_name" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Ej. Dr. Javier Montenegro" />
+                                </div>
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Titulación Oficial</label>
+                                    <input v-model="form.instructor_title" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Ej. Ingeniero de Software Principal" />
+                                </div>
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Biografía Breve</label>
+                                    <textarea v-model="form.instructor_bio" rows="4" class="w-full resize-none rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant leading-relaxed" placeholder="Detalla su experiencia y reconocimientos..."></textarea>
+                                </div>
                             </div>
                         </div>
 
-                    <div class="space-y-3">
-                        <h3 class="text-sm font-bold text-on-surface">Agregar clase</h3>
-                        <div v-if="!isMasterclass" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <select v-model="newLesson.module_id" class="rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition">
+                        <hr class="border-outline-variant/10 my-4" />
+                        <div class="space-y-5">
+                             <h3 class="font-bold text-[18px] text-[#57572A] font-sans flex items-center gap-3">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                Certificación Oficial
+                             </h3>
+                             <div class="p-8 rounded-[2rem] bg-[#57572A]/5 border border-transparent shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] flex flex-col md:flex-row items-center justify-between gap-6">
+                                <p class="text-[15px] text-on-surface-variant font-medium leading-relaxed font-sans md:w-2/3">
+                                    Personaliza el diseño del diploma que recibirán los alumnos al completar este curso exitosamente.
+                                </p>
+                                <Link 
+                                    :href="route('admin.courses.certificate-template.edit', { course: props.course.id })"
+                                    class="flex items-center justify-center gap-3 md:w-1/3 py-4 px-6 rounded-full bg-gradient-to-r from-[#57572A] to-[#6b6b34] text-white text-[14px] font-bold shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all font-sans"
+                                >
+                                    <svg class="w-5 h-5 text-white/90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    Diseñar Diploma
+                                </Link>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: CURRICULUM -->
+                <div v-show="activeTab === 'curriculum'" class="rounded-[2.5rem] bg-surface-container-lowest p-8 md:p-14 shadow-2xl shadow-surface-tint/5 border border-outline-variant/10 animate-in fade-in slide-in-from-bottom-4 duration-500 relative overflow-hidden">
+                    <div class="max-w-3xl relative z-10 mb-10">
+                        <h2 class="text-3xl font-serif font-bold text-on-surface mb-3 tracking-tight">Estructura Curricular <span class="italic font-light">(Sílabo)</span></h2>
+                        <p class="text-[15px] text-on-surface-variant font-sans font-medium mb-8 leading-relaxed">Construye los módulos, clases y agrega material descargable. Un buen sílabo reduce el soporte técnico y mejora la tasa de retención.</p>
+                        <p class="text-[13px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-5 py-3 flex items-center gap-3 rounded-[1rem] font-sans" v-if="isMasterclass">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            NOTA: La condición de Masterclass gratuita limita a la creación obligatoria de 1 única clase en el currículo.
+                        </p>
+                    </div>
+
+                    <div class="space-y-8 mt-4 relative z-10 w-full bg-surface-container-highest p-8 rounded-[2rem] border border-transparent shadow-sm">
+                        <div v-if="!isMasterclass">
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <input v-model="newModuleTitle" class="flex-1 rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm placeholder:text-outline-variant" placeholder="Nombre del módulo" />
+                                <button class="rounded-full bg-gradient-to-br from-[#57572A] to-[#707040] px-8 py-4 text-[13px] font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all tracking-wide font-sans md:w-auto" @click="createModule">Agregar módulo</button>
+                            </div>
+                        </div>
+
+                    <div class="space-y-5">
+                        <h3 class="text-[16px] font-bold text-on-surface font-sans">Agregar clase</h3>
+                        <div v-if="!isMasterclass" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <select v-model="newLesson.module_id" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm appearance-none">
                                 <option :value="null" disabled>Selecciona un módulo (obligatorio)</option>
                                 <option v-for="m in modules" :key="m.id" :value="m.id">{{ m.title }}</option>
                             </select>
-                            <select v-model="newLesson.content_type" class="rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition">
+                            <select v-model="newLesson.content_type" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm appearance-none">
                                 <option value="video">Video (grabado)</option>
                                 <option value="live">En vivo (link + horario)</option>
                                 <option value="text">Texto</option>
                             </select>
                         </div>
-                        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div class="rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm text-on-surface-variant font-medium">
+                        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="rounded-[1.5rem] border border-transparent bg-white shadow-sm px-6 py-4 text-[14px] text-[#57572A] font-bold font-sans">
                                 Masterclass: 1 clase con link de WhatsApp
                             </div>
                         </div>
 
-                        <input v-model="newLesson.title" class="w-full rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition" placeholder="Título de la clase" />
-                        <textarea v-model="newLesson.description" rows="2" class="w-full rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition" placeholder="Descripción"></textarea>
+                        <input v-model="newLesson.title" class="w-full rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm placeholder:text-outline-variant" placeholder="Título de la clase" />
+                        <textarea v-model="newLesson.description" rows="2" class="w-full rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm placeholder:text-outline-variant resize-none" placeholder="Descripción"></textarea>
 
                         <input
                             v-if="!isMasterclass && newLesson.content_type === 'video'"
                             v-model="newLesson.video_url"
-                            class="w-full rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition"
-                            placeholder="URL de video"
+                            class="w-full rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm placeholder:text-outline-variant"
+                            placeholder="URL de video (Ej. YouTube, Vimeo)"
                         />
-                        <div v-if="isMasterclass || newLesson.content_type === 'live'" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div v-if="isMasterclass || newLesson.content_type === 'live'" class="grid grid-cols-1 md:grid-cols-3 gap-5">
                             <input
                                 v-model="newLesson.live_link"
-                                class="rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm md:col-span-3 focus:outline-none focus:border-primary/50 transition"
+                                class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-[#57572A] md:col-span-3 focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm placeholder:text-[#57572A]/50"
                                 :placeholder="isMasterclass ? 'Link de WhatsApp (grupo)' : 'Link Zoom/Meet'"
                             />
-                            <input v-if="!isMasterclass" v-model="newLesson.start_time" type="datetime-local" class="rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition" />
-                            <input v-if="!isMasterclass" v-model="newLesson.end_time" type="datetime-local" class="rounded-xl bg-white border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary/50 transition" />
+                            <input v-if="!isMasterclass" v-model="newLesson.start_time" type="datetime-local" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm" />
+                            <input v-if="!isMasterclass" v-model="newLesson.end_time" type="datetime-local" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm" />
                         </div>
 
-                        <div>
-                            <button class="rounded-xl bg-[#4B5320] px-5 py-2.5 text-sm font-semibold text-white shadow hover:opacity-90 transition disabled:opacity-60" :disabled="isMasterclass && lessons.length >= 1" @click="createLesson">
+                        <div class="pt-2">
+                            <button class="rounded-full bg-gradient-to-r from-[#57572A] to-[#6b6b34] px-8 py-4 text-[14px] font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all tracking-wide disabled:opacity-60 disabled:hover:scale-100 font-sans" :disabled="isMasterclass && lessons.length >= 1" @click="createLesson">
                                 Crear clase
                             </button>
                         </div>
@@ -926,32 +1009,32 @@ async function toggleQuiz(id: number) {
                 </div>
 
                 <!-- TAB: EXAMS -->
-                <div v-show="activeTab === 'exams'" class="rounded-2xl border border-outline-variant/10 bg-white p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div>
-                        <h2 class="text-xl font-serif font-bold text-on-surface mb-2">Exámenes y Evaluaciones</h2>
-                        <p class="text-sm text-on-surface-variant">Crea cuestionarios automáticos para medir el aprendizaje.</p>
+                <div v-show="activeTab === 'exams'" class="rounded-[2.5rem] bg-surface-container-lowest p-8 md:p-14 shadow-2xl shadow-surface-tint/5 border border-outline-variant/10 animate-in fade-in slide-in-from-bottom-4 duration-500 relative overflow-hidden">
+                    <div class="max-w-3xl relative z-10 mb-10">
+                        <h2 class="text-3xl font-serif font-bold text-on-surface mb-3 tracking-tight">Centro de <span class="italic font-light">Evaluaciones</span></h2>
+                        <p class="text-[15px] text-on-surface-variant font-sans font-medium leading-relaxed">Implementa controles de aprendizaje. Las calificaciones formarán parte esencial del progreso académico del estudiante.</p>
                     </div>
-                        <div class="bg-surface-container-low border border-outline-variant/20 rounded-[2rem] p-8 space-y-6">
-                            <h3 class="font-bold text-lg">Nuevo Examen / Evaluación</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
-                                <div class="md:col-span-2">
-                                     <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Título</label>
-                                     <input v-model="newQuiz.title" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm focus:outline-none focus:border-primary transition" placeholder="Nombre (Ej. Evaluación Final)" />
+                        <div class="bg-surface-container-highest border border-transparent rounded-[2rem] p-8 space-y-8 shadow-sm">
+                            <h3 class="font-bold text-[18px] text-on-surface font-sans">Nuevo Examen / Evaluación</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-6 gap-6 items-center">
+                                <div class="md:col-span-2 space-y-3">
+                                     <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Título</label>
+                                     <input v-model="newQuiz.title" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Nombre (Ej. Evaluación Final)" />
                                 </div>
-                                <div>
-                                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Nota min.</label>
-                                    <input v-model.number="newQuiz.minimum_score" type="number" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="14" />
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Nota min.</label>
+                                    <input v-model.number="newQuiz.minimum_score" type="number" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" placeholder="14" />
                                 </div>
-                                <div>
-                                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Tiempo (m)</label>
-                                    <input v-model.number="newQuiz.time_limit" type="number" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="30" />
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Tiempo (m)</label>
+                                    <input v-model.number="newQuiz.time_limit" type="number" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" placeholder="30" />
                                 </div>
-                                <div>
-                                    <label class="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">Intentos permitidos</label>
-                                    <input v-model.number="newQuiz.max_attempts" type="number" min="1" class="w-full rounded-xl border border-outline-variant/30 px-4 py-3 text-sm" placeholder="1" />
+                                <div class="space-y-3">
+                                    <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Intentos permitidos</label>
+                                    <input v-model.number="newQuiz.max_attempts" type="number" min="1" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" placeholder="1" />
                                 </div>
-                                <div class="pt-4">
-                                    <button @click="createQuiz" class="w-full rounded-xl bg-primary px-4 py-3 text-sm font-bold text-white shadow-xl hover:opacity-90 transition">Crear Examen</button>
+                                <div class="pt-8">
+                                    <button @click="createQuiz" class="w-full rounded-full bg-gradient-to-br from-[#57572A] to-[#707040] px-6 py-4 text-[13px] font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all tracking-wide font-sans">Crear Examen</button>
                                 </div>
                             </div>
                         </div>

@@ -19,12 +19,16 @@ class Enrollment extends Model
         'enrolled_at',
         'completed_at',
         'passed',
+        'subscription_granted',
+        'subscription_active',
     ];
 
     protected $casts = [
-        'enrolled_at' => 'datetime',
-        'completed_at' => 'datetime',
-        'passed' => 'boolean',
+        'enrolled_at'          => 'datetime',
+        'completed_at'         => 'datetime',
+        'passed'               => 'boolean',
+        'subscription_granted' => 'boolean',
+        'subscription_active'  => 'boolean',
     ];
 
     public function user()

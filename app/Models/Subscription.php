@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Observers\SubscriptionObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy([SubscriptionObserver::class])]
 class Subscription extends Model
 {
     protected $fillable = [

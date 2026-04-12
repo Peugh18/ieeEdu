@@ -5,12 +5,11 @@ import axios from 'axios';
 import {
     AlertCircle, Check, CheckCircle2, Clock,
     Download, Eye, FileImage, Plus, RefreshCw,
-    Search, X, XCircle
+    Search, X, XCircle, Wallet, TrendingUp, Filter,
+    Calendar, CreditCard, Hash, ExternalLink, ChevronRight
 } from 'lucide-vue-next';
 import { computed, ref, watch, onMounted } from 'vue';
 import { useForm as useInertiaForm } from '@inertiajs/vue3';
-
-
 
 interface PaymentItem {
     id: number; status: string; amount: number; comprobante: string | null; created_at: string;
@@ -50,7 +49,6 @@ watch(searchInput, () => { clearTimeout(searchTimer); searchTimer = setTimeout(a
 
 // ─── Create Payment Modal ────────────────────────────────────────
 const showCreate  = ref(false);
-
 const createForm = useInertiaForm({
     user_id: 0,
     course_id: '',
@@ -61,36 +59,24 @@ const createForm = useInertiaForm({
 
 // ── User AJAX search ─────────────────────────────────────────────
 const userQuery    = ref('');
-
 onMounted(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('openCreate') === '1') {
         showCreate.value = true;
-        
-        // Si hay una búsqueda, podemos intentar pre-seleccionar o al menos dejar la búsqueda escrita
-        if (props.filters.search) {
-             userQuery.value = props.filters.search;
-        }
+        if (props.filters.search) userQuery.value = props.filters.search;
     }
 });
 const userResults  = ref<UserResult[]>([]);
 const selectedUser = ref<UserResult | null>(null);
 const showDropdown = ref(false);
 let userTimer: any;
-let isSelecting = false; // Flag to prevent circular reset
+let isSelecting = false;
 
-function onUserFocus() {
-    if (userResults.value.length) showDropdown.value = true;
-}
-function onUserBlur() {
-    setTimeout(() => { showDropdown.value = false; }, 200);
-}
+function onUserFocus() { if (userResults.value.length) showDropdown.value = true; }
+function onUserBlur() { setTimeout(() => { showDropdown.value = false; }, 200); }
 
 watch(userQuery, (val) => {
-    if (isSelecting) {
-        isSelecting = false;
-        return;
-    }
+    if (isSelecting) { isSelecting = false; return; }
     clearTimeout(userTimer);
     selectedUser.value = null;
     createForm.user_id = 0;
@@ -110,7 +96,6 @@ function selectUser(u: UserResult) {
     showDropdown.value = false;
 }
 
-// ── Auto-fill amount from course ─────────────────────────────────
 watch(() => createForm.course_id, (id) => {
     const c = props.courses.find(c => String(c.id) === String(id));
     if (c) createForm.amount = String(c.sale_price && c.sale_price < c.price ? c.sale_price : c.price);
@@ -131,343 +116,364 @@ function resetCreate() {
 }
 
 function submitCreate() {
-    if (!createForm.user_id) {
-        createForm.setError('user_id', 'Selecciona un estudiante.');
-        return;
-    }
-
+    if (!createForm.user_id) { createForm.setError('user_id', 'Selecciona un estudiante.'); return; }
     createForm.post(route('admin.payments.store'), {
         forceFormData: true,
-        onSuccess: () => {
-            showCreate.value = false;
-            resetCreate();
-        },
+        onSuccess: () => { showCreate.value = false; resetCreate(); },
         preserveScroll: true
     });
 }
 
-// ─── Quick Actions ────────────────────────────────────────────────
+// ─── Actions ────────────────────────────────────────────────
 function approve(p: PaymentItem) { router.patch(route('admin.payments.approve', { payment: p.id }), {}, { preserveScroll: true }); }
 function reject(p: PaymentItem) {
     if (!confirm(`¿Rechazar pago de ${p.user.name}?`)) return;
     router.patch(route('admin.payments.reject', { payment: p.id }), {}, { preserveScroll: true });
 }
 
-// ─── Detail Drawer ────────────────────────────────────────────────
 const detailPayment = ref<PaymentItem | null>(null);
 
 // ─── Helpers ─────────────────────────────────────────────────────
 const statusCfg: Record<string, { label: string; cls: string; icon: any }> = {
-    pendiente:   { label: 'Pendiente',   cls: 'bg-slate-100 text-slate-600',    icon: Clock },
-    en_revision: { label: 'En revisión', cls: 'bg-amber-100 text-amber-700',    icon: RefreshCw },
-    aprobado:    { label: 'Aprobado',    cls: 'bg-emerald-100 text-emerald-700', icon: CheckCircle2 },
-    rechazado:   { label: 'Rechazado',   cls: 'bg-red-100 text-red-600',        icon: XCircle },
+    pendiente:   { label: 'Pendiente',   cls: 'bg-blue-50 text-blue-700 ring-blue-700/10',    icon: Clock },
+    en_revision: { label: 'En revisión', cls: 'bg-amber-50 text-amber-700 ring-amber-700/10',    icon: RefreshCw },
+    aprobado:    { label: 'Aprobado',    cls: 'bg-emerald-50 text-emerald-700 ring-emerald-700/10', icon: CheckCircle2 },
+    rechazado:   { label: 'Rechazado',   cls: 'bg-rose-50 text-rose-700 ring-rose-700/10',        icon: XCircle },
 };
 const initials = (n: string) => n.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
-const colors   = ['bg-purple-100 text-purple-700','bg-blue-100 text-blue-700','bg-emerald-100 text-emerald-700','bg-amber-100 text-amber-700','bg-rose-100 text-rose-700'];
-const aCls     = (id: number) => colors[id % colors.length];
+const avatarColors = ['bg-indigo-50 text-indigo-700','bg-blue-50 text-blue-700','bg-emerald-50 text-emerald-700','bg-amber-50 text-amber-700','bg-rose-50 text-rose-700'];
+const aCls     = (id: number) => avatarColors[id % avatarColors.length];
 const fDate    = (d: string) => new Date(d).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' });
 const fMoney   = (n: number|string) => 'S/ ' + Number(n).toFixed(2);
 const pgLinks  = computed(() => props.payments.links?.filter((l: any) => l.url) ?? []);
-// Expose browser global for use in template
 const createPreviewUrl = (file: File) => URL.createObjectURL(file);
 </script>
 
 <template>
-    <Head title="Pagos - Admin IEE" />
+    <Head title="Gestión de Pagos - iieEdu Admin" />
     <AppLayout>
-
-        <!-- ── Header ─────────────────────────────────────────── -->
-        <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-                <h1 class="font-serif text-4xl text-on-surface">Gestión de <span class="italic text-[#57572A]">Pagos</span></h1>
-                <p class="mt-1 text-sm text-on-surface-variant">Aprueba comprobantes y desbloquea cursos manualmente.</p>
-            </div>
-            <button @click="showCreate = true" class="inline-flex items-center gap-2 rounded-xl bg-[#57572A] px-5 py-2.5 text-sm font-bold text-white shadow hover:opacity-95">
-                <Plus class="h-4 w-4" /> Registrar pago
-            </button>
-        </div>
-
-        <!-- ── Stats (clickeables para filtrar) ──────────────── -->
-        <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-5">
-            <div v-for="s in [
-                { key:'',            label:'Total',       val:props.stats.total,       cls:'text-on-surface' },
-                { key:'pendiente',   label:'Pendientes',  val:props.stats.pendiente,   cls:'text-slate-600' },
-                { key:'en_revision', label:'En revisión', val:props.stats.en_revision, cls:'text-amber-600' },
-                { key:'aprobado',    label:'Aprobados',   val:props.stats.aprobado,    cls:'text-emerald-600' },
-                { key:'rechazado',   label:'Rechazados',  val:props.stats.rechazado,   cls:'text-red-600' },
-            ]" :key="s.key"
-                class="cursor-pointer rounded-2xl border border-outline-variant/10 bg-white p-4 shadow-sm hover:border-[#57572A]/30 transition-colors"
-                :class="statusFilter === s.key ? 'ring-2 ring-[#57572A]/30' : ''"
-                @click="statusFilter = s.key"
-            >
-                <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">{{ s.label }}</p>
-                <p class="mt-2 text-3xl font-bold" :class="s.cls">{{ s.val }}</p>
-            </div>
-        </div>
-
-        <!-- ── Filters ────────────────────────────────────────── -->
-        <div class="mb-6 rounded-2xl border border-outline-variant/10 bg-white p-4 shadow-sm">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div class="flex flex-1 items-center gap-2 rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-3 py-2">
-                    <Search class="h-4 w-4 flex-shrink-0 text-on-surface-variant" />
-                    <input v-model="searchInput" placeholder="Buscar por usuario o curso..." class="w-full bg-transparent text-sm outline-none placeholder:text-on-surface-variant/60" />
+        <div class="max-w-7xl mx-auto px-4 py-8 space-y-10">
+            <!-- ── Header ── -->
+            <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                        <span>Finanzas</span>
+                        <span class="text-slate-300">/</span>
+                        <span class="text-slate-900">Historial de Pagos</span>
+                    </div>
+                    <h1 class="font-serif text-5xl text-slate-900 leading-tight">Control de <span class="italic">Transacciones</span></h1>
                 </div>
-                <div class="flex flex-wrap gap-2">
-                    <select v-model="statusFilter" class="rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-3 py-2 text-sm outline-none">
-                        <option value="">Todos los estados</option>
-                        <option value="pendiente">Pendiente</option>
-                        <option value="en_revision">En revisión</option>
-                        <option value="aprobado">Aprobado</option>
-                        <option value="rechazado">Rechazado</option>
-                    </select>
-                    <input v-model="dateFilter" type="date" class="rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-3 py-2 text-sm outline-none" />
-                    <select v-model="perPage" class="rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-3 py-2 text-sm outline-none">
-                        <option value="10">10 / pág.</option>
-                        <option value="20">20 / pág.</option>
-                        <option value="50">50 / pág.</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- ── Table ──────────────────────────────────────────── -->
-        <div class="rounded-3xl border border-outline-variant/10 bg-white overflow-hidden shadow-sm">
-            <div class="grid grid-cols-12 gap-2 bg-surface-container-low px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">
-                <div class="col-span-4">Usuario / Curso</div>
-                <div class="col-span-2">Monto</div>
-                <div class="col-span-2">Estado</div>
-                <div class="col-span-2">Fecha</div>
-                <div class="col-span-2 text-right">Acciones</div>
+                <button @click="showCreate = true" class="h-14 inline-flex items-center justify-center gap-3 rounded-2xl bg-[#57572A] px-8 text-sm font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-95 transition-all">
+                    <Plus class="h-5 w-5" /> Registrar Nuevo Pago
+                </button>
             </div>
 
-            <div v-if="!props.payments.data.length" class="py-16 text-center text-sm text-on-surface-variant">
-                No se encontraron pagos con los filtros aplicados.
-            </div>
-
-            <div v-else>
-                <div v-for="p in props.payments.data" :key="p.id"
-                    class="grid grid-cols-12 items-center gap-2 border-t border-outline-variant/10 px-6 py-4 hover:bg-surface-container-lowest transition-colors">
-
-                    <div class="col-span-4 flex items-center gap-3 min-w-0">
-                        <div :class="`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold ${aCls(p.id)}`">
-                            {{ initials(p.user.name) }}
+            <!-- ── Stats Grid ── -->
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div v-for="s in [
+                    { key:'',            label:'Total Global',  val:props.stats.total,       icon:Wallet,      cls:'text-slate-900' },
+                    { key:'pendiente',   label:'Pendientes',    val:props.stats.pendiente,   icon:Clock,       cls:'text-blue-600' },
+                    { key:'en_revision', label:'Por Validar',   val:props.stats.en_revision, icon:RefreshCw,   cls:'text-amber-600' },
+                    { key:'aprobado',    label:'Aprobados',     val:props.stats.aprobado,    icon:CheckCircle2, cls:'text-emerald-600' },
+                    { key:'rechazado',   label:'Rechazados',    val:props.stats.rechazado,   icon:XCircle,     cls:'text-rose-600' },
+                ]" :key="s.key"
+                    @click="statusFilter = s.key"
+                    class="group relative cursor-pointer overflow-hidden rounded-[2rem] bg-white p-6 border border-slate-100 shadow-sm transition-all duration-300"
+                    :class="statusFilter === s.key ? 'ring-2 ring-[#57572A] border-transparent' : 'hover:shadow-md hover:border-slate-200'"
+                >
+                    <div class="relative z-10 flex flex-col justify-between h-full space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 group-hover:text-slate-600 transition-colors">{{ s.label }}</span>
+                            <component :is="s.icon" class="h-4 w-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
                         </div>
-                        <div class="min-w-0">
-                            <p class="truncate text-sm font-bold text-on-surface">{{ p.user.name }}</p>
-                            <p class="truncate text-xs text-on-surface-variant">{{ p.course?.title ?? '—' }}</p>
-                        </div>
+                        <p class="text-4xl font-black tracking-tight" :class="s.cls">{{ s.val }}</p>
                     </div>
-
-                    <div class="col-span-2 text-sm font-bold text-on-surface">{{ fMoney(p.amount) }}</div>
-
-                    <div class="col-span-2">
-                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide"
-                            :class="statusCfg[p.status]?.cls ?? 'bg-slate-100 text-slate-500'">
-                            <component :is="statusCfg[p.status]?.icon ?? AlertCircle" class="h-3 w-3" />
-                            {{ statusCfg[p.status]?.label ?? p.status }}
-                        </span>
+                    <div class="absolute -bottom-4 -right-4 w-20 h-20 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                        <component :is="s.icon" class="w-full h-full" />
                     </div>
+                </div>
+            </div>
 
-                    <div class="col-span-2 text-sm text-on-surface-variant">{{ fDate(p.created_at) }}</div>
-
-                    <div class="col-span-2 flex items-center justify-end gap-1">
-                        <span v-if="p.comprobante" title="Tiene comprobante"><FileImage class="h-4 w-4 text-blue-400" /></span>
-                        <button @click="detailPayment = p" class="rounded-lg p-2 text-on-surface-variant hover:bg-surface-container-low hover:text-[#57572A]" title="Ver detalle"><Eye class="h-4 w-4" /></button>
-                        <button v-if="p.status !== 'aprobado'" @click="approve(p)" class="rounded-lg p-2 text-on-surface-variant hover:bg-emerald-50 hover:text-emerald-600" title="Aprobar"><CheckCircle2 class="h-4 w-4" /></button>
-                        <button v-if="p.status !== 'rechazado' && p.status !== 'aprobado'" @click="reject(p)" class="rounded-lg p-2 text-on-surface-variant hover:bg-red-50 hover:text-red-600" title="Rechazar"><XCircle class="h-4 w-4" /></button>
+            <!-- ── Filter Bar ── -->
+            <div class="bg-slate-50 rounded-[2.5rem] p-4 border border-slate-100 flex flex-col lg:flex-row items-center gap-4">
+                <div class="relative flex-1 w-full lg:w-auto">
+                    <Search class="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <input v-model="searchInput" placeholder="Buscar por estudiante, curso o ID..." class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-medium outline-none focus:border-[#57572A] focus:ring-4 focus:ring-[#57572A]/5 transition-all" />
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <div class="relative flex-1 lg:flex-none min-w-[160px]">
+                        <Filter class="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                        <select v-model="statusFilter" class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-10 pr-10 text-xs font-bold text-slate-600 appearance-none outline-none cursor-pointer">
+                            <option value="">Todos los Estados</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="en_revision">En revisión</option>
+                            <option value="aprobado">Aprobado</option>
+                            <option value="rechazado">Rechazado</option>
+                        </select>
                     </div>
+                    <div class="relative flex-1 lg:flex-none min-w-[160px]">
+                        <Calendar class="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                        <input v-model="dateFilter" type="date" class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-10 pr-4 text-xs font-bold text-slate-600 outline-none appearance-none" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Table View ── -->
+            <div class="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden relative">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50/80 border-b border-slate-100">
+                        <tr>
+                            <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Estudiante / Programa</th>
+                            <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 text-center">Inversión</th>
+                            <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 text-center">Estatus</th>
+                            <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 text-center">Fecha</th>
+                            <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        <tr v-if="!props.payments.data.length">
+                            <td colspan="5" class="py-24 text-center">
+                                <Activity class="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                                <p class="text-slate-400 font-medium">No se han detectado transacciones con los criterios seleccionados.</p>
+                            </td>
+                        </tr>
+                        <tr v-for="p in props.payments.data" :key="p.id" class="group hover:bg-slate-50/50 transition-all duration-300">
+                            <td class="px-8 py-5">
+                                <div class="flex items-center gap-4">
+                                    <div :class="`h-12 w-12 flex-shrink-0 flex items-center justify-center rounded-2xl text-xs font-bold ${aCls(p.id)} shadow-sm`">
+                                        {{ initials(p.user.name) }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-sm font-bold text-slate-900 leading-tight group-hover:text-[#57572A] transition-colors line-clamp-1">{{ p.user.name }}</p>
+                                        <p class="text-[10px] text-slate-400 font-medium mt-0.5 uppercase tracking-wider line-clamp-1">{{ p.course?.title ?? 'Pago Directo / Externo' }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col items-center">
+                                    <span class="text-base font-black text-slate-900 leading-none">{{ fMoney(p.amount) }}</span>
+                                    <span v-if="p.comprobante" class="mt-1 flex items-center gap-1 text-[9px] font-bold text-blue-500 uppercase tracking-tighter">
+                                        <FileImage class="w-2.5 h-2.5" /> Con Evidencia
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex justify-center">
+                                    <span class="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider ring-1 ring-inset"
+                                        :class="statusCfg[p.status]?.cls ?? 'bg-slate-50 text-slate-500'">
+                                        <component :is="statusCfg[p.status]?.icon ?? AlertCircle" class="h-3 w-3" />
+                                        {{ statusCfg[p.status]?.label ?? p.status }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col items-center">
+                                    <span class="text-xs font-bold text-slate-500">{{ fDate(p.created_at) }}</span>
+                                    <span class="text-[9px] text-slate-300 font-medium uppercase tracking-widest mt-0.5">ID: #{{ p.id }}</span>
+                                </div>
+                            </td>
+                            <td class="px-8 py-5">
+                                <div class="flex items-center justify-end gap-1.5 opacity-40 group-hover:opacity-100 transition-opacity">
+                                    <button @click="detailPayment = p" class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-[#57572A] hover:text-[#57572A] hover:bg-slate-50 transition-all" title="Gestionar">
+                                        <Eye class="h-4 w-4" />
+                                    </button>
+                                    <template v-if="p.status !== 'aprobado'">
+                                        <button @click="approve(p)" class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-emerald-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all" title="Aprobar">
+                                            <CheckCircle2 class="h-4 w-4" />
+                                        </button>
+                                        <button v-if="p.status !== 'rechazado'" @click="reject(p)" class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-rose-500 hover:text-rose-600 hover:bg-rose-50 transition-all" title="Rechazar">
+                                            <XCircle class="h-4 w-4" />
+                                        </button>
+                                    </template>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ── Pagination ── -->
+            <div v-if="pgLinks.length > 1" class="flex flex-col md:flex-row items-center justify-between gap-4 px-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Mostrando {{ props.payments.data.length }} de {{ props.stats.total }} transacciones</p>
+                <div class="flex items-center gap-1.5">
+                    <Link v-for="link in pgLinks" :key="link.label" :href="link.url"
+                        class="h-10 min-w-[2.5rem] flex items-center justify-center rounded-xl px-3 text-[10px] font-black tracking-widest transition-all"
+                        :class="link.active ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100 hover:border-slate-300 hover:text-slate-600'"
+                        v-html="link.label" />
                 </div>
             </div>
         </div>
 
-        <!-- ── Pagination ─────────────────────────────────────── -->
-        <div v-if="pgLinks.length > 1" class="mt-4 flex items-center justify-between text-sm text-on-surface-variant">
-            <p>{{ props.payments.total }} pago{{ props.payments.total !== 1 ? 's' : '' }} en total</p>
-            <div class="flex gap-1.5">
-                <Link v-for="link in pgLinks" :key="link.label" :href="link.url"
-                    class="rounded-xl border px-3 py-1.5 text-xs font-semibold transition-colors"
-                    :class="link.active ? 'border-[#57572A] bg-[#57572A] text-white' : 'border-outline-variant/20 bg-white text-on-surface hover:bg-surface-container-low'"
-                    v-html="link.label" />
-            </div>
-        </div>
-
-        <!-- Flash -->
-        <Transition enter-active-class="transition duration-300" enter-from-class="translate-y-4 opacity-0" enter-to-class="translate-y-0 opacity-100">
-            <div v-if="flash.success" class="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl bg-emerald-600 px-5 py-3 text-white shadow-2xl">
-                <Check class="h-5 w-5" /><span class="text-sm font-semibold">{{ flash.success }}</span>
-            </div>
-        </Transition>
-
-        <!-- ───────────────── DETAIL DRAWER ─────────────────────── -->
+        <!-- ───────────────── DETAIL DRAWER (MODERNO) ─────────────────────── -->
         <Teleport to="body">
             <Transition name="slide">
-                <div v-if="detailPayment" class="fixed inset-0 z-50 flex items-center justify-end bg-black/40" @click.self="detailPayment = null">
-                    <div class="h-full w-full max-w-md overflow-y-auto bg-white shadow-2xl">
-                        <div class="sticky top-0 z-10 flex items-center justify-between border-b border-outline-variant/10 bg-white px-7 py-5">
-                            <h2 class="font-serif text-xl text-on-surface">Pago <span class="italic">#{{ detailPayment.id }}</span></h2>
-                            <button @click="detailPayment = null" class="rounded-xl p-2 hover:bg-surface-container-low"><X class="h-5 w-5 text-on-surface-variant" /></button>
+                <div v-if="detailPayment" class="fixed inset-0 z-50 flex items-center justify-end bg-slate-900/40 backdrop-blur-sm" @click.self="detailPayment = null">
+                    <div class="h-full w-full max-w-md bg-white shadow-2xl overflow-y-auto flex flex-col">
+                        <div class="sticky top-0 z-20 bg-slate-900 p-8 text-white">
+                            <div class="absolute top-0 right-0 p-8 opacity-10"><Hash class="w-24 h-24" /></div>
+                            <button @click="detailPayment = null" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+                                <X class="h-5 w-5" />
+                            </button>
+                            <span class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#C9C7B8]/60">Validación de Pago</span>
+                            <h2 class="font-serif text-3xl mt-1">Transacción <span class="italic text-[#C9C7B8]">#{{ detailPayment.id }}</span></h2>
                         </div>
 
-                        <div :class="`flex items-center gap-3 px-7 py-4 ${statusCfg[detailPayment.status]?.cls}`">
-                            <component :is="statusCfg[detailPayment.status]?.icon ?? AlertCircle" class="h-5 w-5" />
-                            <span class="font-bold text-sm">{{ statusCfg[detailPayment.status]?.label }}</span>
-                        </div>
-
-                        <div class="space-y-5 p-7">
-                            <!-- User -->
-                            <div class="rounded-2xl border border-outline-variant/10 p-4">
-                                <p class="mb-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Estudiante</p>
-                                <p class="font-bold text-on-surface">{{ detailPayment.user.name }}</p>
-                                <p class="text-xs text-on-surface-variant">{{ detailPayment.user.email }}</p>
+                        <div class="p-8 space-y-8 flex-1">
+                            <div :class="`flex items-center gap-3 p-4 rounded-2xl ring-1 ring-inset ${statusCfg[detailPayment.status]?.cls}`">
+                                <component :is="statusCfg[detailPayment.status]?.icon ?? AlertCircle" class="h-5 w-5" />
+                                <span class="font-extrabold text-[10px] uppercase tracking-widest">Estatus Actual: {{ statusCfg[detailPayment.status]?.label }}</span>
                             </div>
 
-                            <!-- Course + Amount -->
-                            <div class="rounded-2xl border border-outline-variant/10 p-4 space-y-3">
-                                <div><p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Curso</p><p class="mt-1 font-semibold text-on-surface">{{ detailPayment.course?.title ?? '—' }}</p></div>
-                                <div><p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Monto</p><p class="mt-1 text-2xl font-bold text-[#57572A]">{{ fMoney(detailPayment.amount) }}</p></div>
-                                <div><p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Fecha</p><p class="mt-1 text-sm text-on-surface">{{ fDate(detailPayment.created_at) }}</p></div>
-                            </div>
+                            <div class="space-y-6">
+                                <div class="space-y-4">
+                                    <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+                                        <p class="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 mb-3">Estudiante</p>
+                                        <div class="flex items-center gap-3">
+                                            <div :class="`h-10 w-10 rounded-xl flex items-center justify-center font-bold text-xs ${aCls(detailPayment.user.id || 0)}`">{{ initials(detailPayment.user.name) }}</div>
+                                            <div>
+                                                <p class="font-bold text-slate-900 text-sm leading-tight">{{ detailPayment.user.name }}</p>
+                                                <p class="text-xs text-slate-400 font-medium">{{ detailPayment.user.email }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                            <!-- Comprobante -->
-                            <div class="rounded-2xl border border-outline-variant/10 p-4">
-                                <p class="mb-3 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Comprobante</p>
-                                <template v-if="detailPayment.comprobante">
-                                    <a :href="detailPayment.comprobante" target="_blank">
-                                        <img :src="detailPayment.comprobante" alt="Comprobante" class="w-full rounded-xl object-contain max-h-72 cursor-zoom-in hover:opacity-90 transition-opacity" />
-                                    </a>
-                                    <a :href="detailPayment.comprobante" download class="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[#57572A] hover:underline">
-                                        <Download class="h-3.5 w-3.5" /> Descargar
-                                    </a>
-                                </template>
-                                <div v-else class="flex items-center gap-2 rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">
-                                    <FileImage class="h-5 w-5 opacity-40" /> Sin comprobante adjunto
+                                    <div class="bg-slate-50 rounded-2xl p-5 border border-slate-100 grid grid-cols-2 gap-4">
+                                        <div class="col-span-2 pb-2 border-b border-slate-200/50">
+                                            <p class="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 mb-1">Programa</p>
+                                            <p class="font-bold text-slate-900 leading-tight">{{ detailPayment.course?.title ?? '—' }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 mb-1">Inversión</p>
+                                            <p class="text-lg font-black text-[#57572A]">{{ fMoney(detailPayment.amount) }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 mb-1">Registro</p>
+                                            <p class="text-sm font-bold text-slate-600">{{ fDate(detailPayment.created_at) }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <p class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Comprobante de Pago</p>
+                                    <div v-if="detailPayment.comprobante" class="relative group">
+                                        <a :href="detailPayment.comprobante" target="_blank" class="block rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm bg-slate-50">
+                                            <img :src="detailPayment.comprobante" alt="Comprobante" class="w-full object-contain max-h-[400px] group-hover:scale-105 transition-transform duration-700" />
+                                            <div class="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors flex items-center justify-center">
+                                                <ExternalLink class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            </div>
+                                        </a>
+                                        <a :href="detailPayment.comprobante" download class="mt-4 w-full h-12 flex items-center justify-center gap-2 rounded-2xl bg-slate-50 text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all">
+                                            <Download class="h-4 w-4" /> Guardar Copia Local
+                                        </a>
+                                    </div>
+                                    <div v-else class="flex flex-col items-center justify-center py-12 rounded-[2rem] bg-slate-50 border border-slate-100 border-dashed">
+                                        <FileImage class="h-10 w-10 text-slate-200 mb-3" />
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Sin Archivo Adjunto</p>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Actions -->
-                            <div v-if="detailPayment.status !== 'aprobado'" class="space-y-2">
-                                <button @click="approve(detailPayment); detailPayment = null" class="w-full rounded-2xl bg-emerald-600 py-3 text-sm font-bold text-white hover:opacity-90">✓ Aprobar y desbloquear</button>
-                                <button v-if="detailPayment.status !== 'rechazado'" @click="reject(detailPayment); detailPayment = null" class="w-full rounded-2xl border border-red-200 bg-red-50 py-3 text-sm font-bold text-red-600 hover:bg-red-100">✕ Rechazar pago</button>
+                        <div class="p-8 border-t border-slate-100 bg-slate-50/50 space-y-3">
+                            <template v-if="detailPayment.status !== 'aprobado'">
+                                <button @click="approve(detailPayment); detailPayment = null" class="w-full h-14 rounded-2xl bg-emerald-600 text-sm font-bold text-white shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
+                                    <CheckCircle2 class="w-5 h-5" /> Aprobar y Habilitar Acceso
+                                </button>
+                                <button v-if="detailPayment.status !== 'rechazado'" @click="reject(detailPayment); detailPayment = null" class="w-full h-14 rounded-2xl bg-white border border-rose-100 text-sm font-bold text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-all flex items-center justify-center gap-2">
+                                    <XCircle class="w-5 h-5" /> Rechazar Operación
+                                </button>
+                            </template>
+                            <div v-else class="h-14 flex items-center justify-center gap-2 rounded-2xl bg-emerald-50 text-emerald-700 font-bold text-sm">
+                                <Check class="h-5 w-5" /> Transacción Finalizada Correctamente
                             </div>
-                            <div v-else class="rounded-2xl bg-emerald-50 p-4 text-center text-sm font-bold text-emerald-700">✓ Curso desbloqueado</div>
                         </div>
                     </div>
                 </div>
             </Transition>
         </Teleport>
 
-        <!-- ───────────────── CREATE PAYMENT MODAL ───────────────── -->
+        <!-- ───────────────── CREATE MODAL (ESTILO COMPARTIDO) ───────────────── -->
         <Teleport to="body">
-            <Transition name="fade">
-                <div v-if="showCreate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-                    <div class="w-full max-w-lg rounded-3xl bg-white shadow-2xl flex flex-col max-h-[95vh]">
-                        <!-- Header -->
-                        <div class="flex-shrink-0 flex items-center justify-between border-b border-outline-variant/10 px-7 py-5">
-                            <div>
-                                <h2 class="font-serif text-2xl text-on-surface">Registrar <span class="italic">Pago</span></h2>
-                                <p class="mt-0.5 text-xs text-on-surface-variant">Yape · Transferencia · Efectivo</p>
-                            </div>
-                            <button @click="showCreate = false; resetCreate()" class="rounded-xl p-2 hover:bg-surface-container-low"><X class="h-5 w-5 text-on-surface-variant" /></button>
+            <Transition name="modal-bounce">
+                <div v-if="showCreate" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+                    <div class="w-full max-w-lg rounded-[2.5rem] bg-white shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
+                        <div class="bg-[#57572A] p-8 text-white relative">
+                            <div class="absolute top-0 right-0 p-8 opacity-10"><Plus class="w-24 h-24" /></div>
+                            <h2 class="font-serif text-3xl">Registrar <span class="italic underline decoration-white/20 underline-offset-8">Venta</span></h2>
+                            <p class="mt-2 text-[#C9C7B8] text-sm italic">Gestión de Ingreso Manual</p>
+                            <button @click="showCreate = false; resetCreate()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+                                <X class="h-5 w-5" />
+                            </button>
                         </div>
-
-                        <!-- Scrollable body -->
-                        <div class="overflow-y-auto flex-1 p-7 space-y-5">
-
-                            <!-- ── User search (AJAX) ──────────────────── -->
+                        <div class="p-8 space-y-6 overflow-y-auto">
                             <div class="relative">
-                                <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Estudiante *</label>
-                                <div class="flex items-center gap-2 rounded-xl border border-outline-variant/30 px-3 py-2.5 focus-within:border-[#57572A] transition-colors">
-                                    <Search class="h-4 w-4 flex-shrink-0 text-on-surface-variant" />
-                                    <input
-                                        v-model="userQuery"
-                                        placeholder="Escribe nombre o email..."
-                                        class="w-full bg-transparent text-sm outline-none"
-                                        @focus="onUserFocus"
-                                        @blur="onUserBlur"
-                                    />
-                                    <span v-if="selectedUser" class="text-[10px] font-bold text-emerald-600">✓ seleccionado</span>
+                                <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-2 block">Estudiante *</label>
+                                <div class="relative group">
+                                    <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 transition-colors group-focus-within:text-[#57572A]" />
+                                    <input v-model="userQuery" placeholder="Buscar por nombre o email..." @focus="onUserFocus" @blur="onUserBlur"
+                                        class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] transition-all" />
+                                    <span v-if="selectedUser" class="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg ring-1 ring-emerald-500/20 transition-all">Vinculado</span>
                                 </div>
-
-                                <!-- Dropdown results -->
-                                <div v-if="showDropdown && userResults.length" class="absolute z-10 mt-1 w-full rounded-2xl border border-outline-variant/20 bg-white shadow-xl overflow-hidden">
-                                    <button
-                                        v-for="u in userResults" :key="u.id" type="button"
-                                        @mousedown.prevent="selectUser(u)"
-                                        class="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-surface-container-low transition-colors border-b border-outline-variant/10 last:border-0"
-                                    >
-                                        <div :class="`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold ${aCls(u.id)}`">{{ initials(u.name) }}</div>
-                                        <div>
-                                            <p class="text-sm font-bold text-on-surface">{{ u.name }}</p>
-                                            <p class="text-xs text-on-surface-variant">{{ u.email }}</p>
+                                <div v-if="showDropdown && userResults.length" class="absolute z-10 mt-2 w-full rounded-2xl border border-slate-100 bg-white shadow-2xl overflow-hidden">
+                                    <button v-for="u in userResults" :key="u.id" type="button" @mousedown.prevent="selectUser(u)"
+                                        class="flex w-full items-center gap-3 px-6 py-4 text-left hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0 group">
+                                        <div :class="`h-10 w-10 rounded-xl flex items-center justify-center text-[10px] font-black ${aCls(u.id)} group-hover:scale-90 transition-transform`">{{ initials(u.name) }}</div>
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-bold text-slate-900 truncate leading-tight">{{ u.name }}</p>
+                                            <p class="text-xs text-slate-400 font-medium truncate">{{ u.email }}</p>
                                         </div>
+                                        <ChevronRight class="ml-auto w-4 h-4 text-slate-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                                     </button>
                                 </div>
-                                <div v-else-if="userQuery.length >= 2 && !userResults.length && !selectedUser" class="mt-1 rounded-xl border border-outline-variant/20 bg-surface-container-low p-3 text-xs text-on-surface-variant">
-                                    No se encontraron estudiantes.
-                                </div>
-                                <p class="mt-1 text-[11px] text-on-surface-variant/60">Escribe al menos 2 caracteres para buscar</p>
-                                <p v-if="createForm.errors.user_id" class="mt-1 text-xs text-red-500">{{ createForm.errors.user_id }}</p>
+                                <p v-if="createForm.errors.user_id" class="mt-2 text-[10px] font-bold text-rose-500 uppercase tracking-widest">{{ createForm.errors.user_id }}</p>
                             </div>
 
-                            <!-- ── Course ─────────────────────────────── -->
-                            <div>
-                                <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Curso *</label>
-                                <select v-model="createForm.course_id" class="w-full rounded-xl border border-outline-variant/30 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#57572A] transition-colors">
-                                    <option value="">— Selecciona un curso —</option>
+                            <div class="space-y-2">
+                                <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Especialidad Requerida *</label>
+                                <select v-model="createForm.course_id" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] appearance-none cursor-pointer transition-all">
+                                    <option value="">— Selecciona un curso del catálogo —</option>
                                     <option v-for="c in props.courses" :key="c.id" :value="c.id">{{ c.title }}</option>
                                 </select>
-                                <p v-if="createForm.errors.course_id" class="mt-1 text-xs text-red-500">{{ createForm.errors.course_id }}</p>
+                                <p v-if="createForm.errors.course_id" class="text-xs text-rose-500">{{ createForm.errors.course_id }}</p>
                             </div>
 
-                            <!-- ── Amount + Status ───────────────────── -->
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Monto (S/) *</label>
-                                    <input v-model="createForm.amount" type="number" step="0.01" min="0" placeholder="0.00"
-                                        class="w-full rounded-xl border border-outline-variant/30 px-3 py-2.5 text-sm outline-none focus:border-[#57572A]" />
-                                    <p v-if="createForm.errors.amount" class="mt-1 text-xs text-red-500">{{ createForm.errors.amount }}</p>
+                                <div class="space-y-2">
+                                    <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Monto Final (S/) *</label>
+                                    <input v-model="createForm.amount" type="number" step="0.01" placeholder="0.00" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 focus:border-[#57572A] outline-none" />
+                                    <p v-if="createForm.errors.amount" class="text-xs text-rose-500">{{ createForm.errors.amount }}</p>
                                 </div>
-                                <div>
-                                    <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Estado inicial</label>
-                                    <select v-model="createForm.status" class="w-full rounded-xl border border-outline-variant/30 bg-white px-3 py-2.5 text-sm outline-none focus:border-[#57572A]">
+                                <div class="space-y-2">
+                                    <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Estado Inicial</label>
+                                    <select v-model="createForm.status" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 focus:border-[#57572A] outline-none">
                                         <option value="pendiente">⏳ Pendiente</option>
                                         <option value="en_revision">🔍 En revisión</option>
-                                        <option value="aprobado">✅ Aprobar ya</option>
+                                        <option value="aprobado">✅ Aprobado</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <!-- ── Comprobante ────────────────────────── -->
-                            <div>
-                                <label class="mb-1.5 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Comprobante (opcional)</label>
-                                <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-outline-variant/40 bg-surface-container-lowest p-4 hover:border-[#57572A]/40 transition-colors">
-                                    <FileImage class="h-6 w-6 text-on-surface-variant/50" />
-                                    <div>
-                                        <p class="text-sm font-semibold text-on-surface-variant">{{ createForm.comprobante ? createForm.comprobante.name : 'Subir imagen del comprobante' }}</p>
-                                        <p class="text-[11px] text-on-surface-variant/50">JPG, PNG, WEBP — Máx. 5 MB</p>
+                            <div class="space-y-2">
+                                <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Cargar Evidencia (Opcional)</label>
+                                <label class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 hover:border-[#57572A]/30 transition-colors group">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-500"><FileImage class="h-5 w-5 text-slate-400" /></div>
+                                        <div class="min-w-0">
+                                            <p class="text-sm font-bold text-slate-700 truncate max-w-[200px]">{{ createForm.comprobante ? createForm.comprobante.name : 'Vincular Comprobante' }}</p>
+                                            <p class="text-[10px] text-slate-400 uppercase tracking-widest font-medium">PNG, JPG o WEBP (Máx 5MB)</p>
+                                        </div>
                                     </div>
                                     <input type="file" accept="image/*" class="hidden" @change="onFileChange" />
                                 </label>
-                                <img v-if="createForm.comprobante" :src="createPreviewUrl(createForm.comprobante)" class="mt-2 max-h-32 w-full rounded-xl object-contain border border-outline-variant/10" />
-                            </div>
-
-                            <!-- Info note -->
-                            <div v-if="createForm.status === 'aprobado'" class="flex items-start gap-2 rounded-xl bg-emerald-50 p-3 text-xs text-emerald-700">
-                                <CheckCircle2 class="mt-0.5 h-4 w-4 flex-shrink-0" />
-                                <span>El curso se desbloqueará <strong>inmediatamente</strong> para el estudiante.</span>
+                                <img v-if="createForm.comprobante" :src="createPreviewUrl(createForm.comprobante)" class="mt-4 max-h-32 w-full rounded-2xl object-contain border border-slate-100 bg-slate-50" />
                             </div>
                         </div>
 
-                        <!-- Footer -->
-                        <div class="flex-shrink-0 flex justify-end gap-3 border-t border-outline-variant/10 px-7 py-5">
-                            <button type="button" @click="showCreate = false; resetCreate()" class="rounded-xl border border-outline-variant/30 px-5 py-2.5 text-sm font-semibold hover:bg-surface-container-low">Cancelar</button>
-                            <button
-                                @click="submitCreate"
-                                :disabled="createForm.processing || !createForm.user_id || !createForm.course_id || !createForm.amount"
-                                class="rounded-xl bg-[#57572A] px-6 py-2.5 text-sm font-bold text-white shadow hover:opacity-95 disabled:opacity-50 transition-opacity"
-                            >
-                                {{ createForm.processing ? 'Registrando...' : 'Registrar pago' }}
+                        <div class="flex-shrink-0 flex justify-end gap-3 p-8 border-t border-slate-50 bg-slate-50/50">
+                            <button type="button" @click="showCreate = false; resetCreate()" class="h-12 px-6 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all">Cancelar</button>
+                            <button @click="submitCreate" :disabled="createForm.processing || !createForm.user_id || !createForm.course_id || !createForm.amount"
+                                class="h-12 px-10 rounded-2xl bg-[#57572A] text-sm font-black text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all">
+                                {{ createForm.processing ? 'Procesando...' : 'Registrar Pago' }}
                             </button>
                         </div>
                     </div>
@@ -475,11 +481,37 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
             </Transition>
         </Teleport>
 
+        <!-- Flash -->
+        <Transition enter-active-class="transition duration-500" enter-from-class="translate-y-full opacity-0" enter-to-class="translate-y-0 opacity-100">
+            <div v-if="flash.success" class="fixed bottom-10 right-10 z-[100] flex items-center gap-4 rounded-3xl bg-slate-900 p-2 pr-6 text-white shadow-2xl">
+                <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
+                    <Check class="h-6 w-6" />
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] uppercase font-bold tracking-widest text-emerald-500">Operación Exitosa</span>
+                    <span class="text-sm font-medium">{{ flash.success }}</span>
+                </div>
+            </div>
+        </Transition>
     </AppLayout>
 </template>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active, .slide-enter-active, .slide-leave-active { transition: all 0.25s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-.slide-enter-from, .slide-leave-to { opacity: 0; transform: translateX(100%); }
+.slide-enter-active, .slide-leave-active { transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.slide-enter-from, .slide-leave-to { transform: translateX(100%); opacity: 0; }
+
+.modal-bounce-enter-active { animation: modal-bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.modal-bounce-leave-active { animation: modal-bounce-in 0.3s reverse ease-in; }
+
+@keyframes modal-bounce-in {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1.2rem center;
+    background-size: 1rem;
+}
 </style>

@@ -67,6 +67,7 @@ use App\Http\Middleware\EnsureAdmin;
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', EnsureAdmin::class])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/report', [DashboardController::class, 'downloadReport'])->name('dashboard.report');
 
     Route::resource('users', UserController::class)->only(['index','store','show','update','destroy']);
     Route::get('users-search', [UserController::class, 'search'])->name('users.search');
@@ -79,6 +80,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', EnsureAdmin::class])
 
     Route::patch('courses/{course}/publish', [CourseController::class, 'publish'])->name('courses.publish');
     Route::patch('courses/{course}/hide', [CourseController::class, 'hide'])->name('courses.hide');
+    Route::post('courses/{course}/duplicate', [CourseController::class, 'duplicate'])->name('courses.duplicate');
 
     Route::resource('books', BookController::class)->only(['index','store','update','destroy']);
     Route::resource('articles', ArticleController::class)->only(['index','store','update','destroy']);
