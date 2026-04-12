@@ -168,118 +168,170 @@ const getCourseLightColor = (courseId: number) => {
 <template>
     <Head title="Clases en Vivo - IEE" />
 
+
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-6 max-w-7xl mx-auto space-y-8">
-            <header class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 class="text-3xl font-serif font-bold text-gray-900">Clases en Vivo</h1>
-                    <p class="text-gray-500 mt-1">Accede a tus sesiones programadas y únete a la comunidad de aprendizaje.</p>
-                </div>
-                
-                <div class="flex items-center gap-4 bg-white p-2 rounded-xl border shadow-sm">
-                    <button @click="prevMonth" class="p-2 hover:bg-gray-100 rounded-lg text-gray-500 font-bold transition-all"><ChevronLeft class="w-5 h-5" /></button>
-                    <span class="text-sm font-bold text-gray-900 px-2 min-w-[120px] text-center">{{ monthYearLabel }}</span>
-                    <button @click="nextMonth" class="p-2 hover:bg-gray-100 rounded-lg text-gray-500 font-bold transition-all"><ChevronRight class="w-5 h-5" /></button>
-                </div>
-            </header>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Calendar View -->
-                <div class="lg:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden p-6">
-                     <div class="grid grid-cols-7 gap-1 border-b border-gray-100 pb-4 mb-4">
-                        <div v-for="day in daysOfWeek" :key="day" class="text-center text-xs font-bold text-[#57572A] uppercase tracking-widest">
-                            {{ day }}
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-7 gap-2">
-                         <div v-for="(day, idx) in calendarDays" :key="idx" 
-                            class="aspect-square flex flex-col p-2 rounded-xl border border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer relative group overflow-hidden"
-                             :class="[
-                                !day.currentMonth ? 'opacity-30' : '',
-                                day.isToday ? 'bg-[#57572A]/5 border-[#57572A]/20' : ''
-                            ]"
-                        >
-                             <span class="text-sm font-bold transition-colors" :class="day.isToday ? 'text-[#57572A]' : 'text-gray-600 group-hover:text-gray-900'">{{ day.day }}</span>
-                             
-                             <div class="mt-1 flex flex-col gap-1 overflow-hidden">
-                                <div v-for="c in getClassesForDay(day)" :key="c.id" 
-                                    class="text-[8px] font-bold px-1 py-0.5 rounded truncate"
-                                    :class="getCourseLightColor(c.course_id)"
-                                >
-                                    {{ c.time.split(' ')[0] }} {{ c.title }}
-                                </div>
-                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Session Details / Sidebar -->
-                <div class="space-y-6">
-                    <h3 class="text-xl font-serif font-bold text-gray-900">Agenda de Sesiones</h3>
-                    
+        <div class="h-[calc(100svh-4rem)] bg-[#FAFAF5] text-[#1A1C19] flex flex-col items-center overflow-hidden">
+            
+            <div class="w-full max-w-7xl mx-auto p-8 md:p-12 h-full flex flex-col gap-10">
+                <header class="flex flex-col md:flex-row md:items-end justify-between gap-10 shrink-0">
                     <div class="space-y-4">
-                        <div v-for="session in live_classes" :key="session.id" 
-                            class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
-                            :class="{ 'ring-2 ring-indigo-500 ring-offset-2': session.is_today }"
-                        >
-                            <div v-if="session.is_today" class="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-widest">
-                                Hoy
-                            </div>
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-[#57572A]/5 border border-[#57572A]/10 rounded-full">
+                            <div class="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"></div>
+                            <span class="text-[9px] font-black text-[#57572A] uppercase tracking-[0.25em]">Agenda Académica Digital</span>
+                        </div>
+                        <h1 class="text-4xl lg:text-5xl font-serif font-bold text-[#1A1C19] italic tracking-tight">Clases en Vivo</h1>
+                        <p class="text-[#5F5E5E] font-serif italic text-lg max-w-2xl leading-relaxed">Sincronice su cronograma con las sesiones magistrales en tiempo real para una formación integral.</p>
+                    </div>
+                    
+                    <div class="flex items-center gap-6 bg-white p-3 rounded-[2rem] border border-[#C9C7B8]/20 shadow-xl shadow-[#57572A]/5 px-8">
+                        <button @click="prevMonth" class="p-3 hover:bg-[#FAFAF5] rounded-2xl text-[#C9C7B8] hover:text-[#57572A] transition-all"><ChevronLeft class="w-5 h-5" /></button>
+                        <span class="text-sm font-black text-[#1A1C19] uppercase tracking-[0.2em] min-w-[160px] text-center italic">{{ monthYearLabel }}</span>
+                        <button @click="nextMonth" class="p-3 hover:bg-[#FAFAF5] rounded-2xl text-[#C9C7B8] hover:text-[#57572A] transition-all"><ChevronRight class="w-5 h-5" /></button>
+                    </div>
+                </header>
 
-                            <div class="flex items-start gap-4">
-                                <div class="flex flex-col items-center justify-center min-w-[60px] p-3 bg-gray-50 rounded-xl">
-                                    <span class="text-[10px] font-bold text-gray-400 uppercase">{{ session.day }}</span>
-                                    <span class="text-xl font-serif font-bold text-gray-900">{{ session.date.split('-').pop() }}</span>
+                <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 overflow-hidden pb-10">
+                    <!-- Calendar View: Institutional Grid -->
+                    <div class="lg:col-span-8 flex flex-col bg-white rounded-[4rem] border border-[#C9C7B8]/20 shadow-2xl relative overflow-hidden group">
+                         <!-- Decorative watermark -->
+                         <div class="absolute -right-20 -bottom-20 opacity-[0.03] pointer-events-none group-hover:scale-110 transition-transform duration-[3s]">
+                             <CalendarIcon class="w-96 h-96 text-[#57572A]" />
+                         </div>
+
+                         <div class="grid grid-cols-7 gap-0 border-b border-[#C9C7B8]/10 bg-[#FAFAF5]/50 shrink-0">
+                            <div v-for="day in daysOfWeek" :key="day" class="py-5 text-center text-[10px] font-black text-[#57572A]/60 uppercase tracking-[0.3em] italic border-r border-[#C9C7B8]/10 last:border-r-0">
+                                {{ day }}
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 grid grid-cols-7 gap-px bg-[#C9C7B8]/10 overflow-y-auto custom-scrollbar">
+                             <div v-for="(day, idx) in calendarDays" :key="idx" 
+                                class="bg-white min-h-[120px] p-4 transition-all hover:bg-[#FAFAF5] relative flex flex-col gap-3 group/cell"
+                                 :class="[
+                                    !day.currentMonth ? 'opacity-20 translate-z-0 grayscale' : '',
+                                    day.isToday ? 'after:absolute after:inset-0 after:border-2 after:border-[#D4AF37]/30' : ''
+                                ]"
+                            >
+                                 <span class="text-sm font-serif font-bold italic transition-colors" :class="day.isToday ? 'text-[#D4AF37]' : 'text-[#C9C7B8]/80 group-hover/cell:text-[#1A1C19]'">{{ day.day }}</span>
+                                 
+                                 <div class="flex flex-col gap-2 relative z-10">
+                                    <div v-for="c in getClassesForDay(day)" :key="c.id" 
+                                        @click="goToClassroom(c)"
+                                        class="p-2 rounded-xl text-[8px] font-black uppercase tracking-widest cursor-pointer transform hover:-translate-y-1 transition-all shadow-sm hover:shadow-lg hover:shadow-[#57572A]/10 border border-transparent hover:border-[#57572A]/20"
+                                        :class="getCourseLightColor(c.course_id)"
+                                    >
+                                        {{ c.time.split(' ')[0] }} {{ c.title }}
+                                    </div>
+                                 </div>
+
+                                 <div v-if="day.isToday" class="absolute top-4 right-4 w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Agenda Sidebar: Cinematic List -->
+                    <div class="lg:col-span-4 flex flex-col gap-8 h-full overflow-hidden">
+                        <div class="flex items-center justify-between shrink-0">
+                            <h3 class="text-2xl font-serif font-bold text-[#1A1C19] italic tracking-tight">Cronograma Próximo</h3>
+                            <span class="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.2em] px-3 py-1 bg-[#D4AF37]/5 rounded-full border border-[#D4AF37]/10">{{ live_classes.length }} Sesiones</span>
+                        </div>
+                        
+                        <div class="flex-1 overflow-y-auto custom-scrollbar space-y-6 pr-4 pb-12">
+                            <div v-for="session in live_classes" :key="session.id" 
+                                class="group bg-white rounded-[3rem] border border-[#C9C7B8]/20 p-8 shadow-sm hover:shadow-2xl hover:shadow-[#57572A]/5 hover:-translate-y-2 transition-all relative overflow-hidden"
+                            >
+                                <div v-if="session.is_today" class="absolute top-0 right-0 bg-[#D4AF37] text-white text-[9px] font-black px-5 py-2 rounded-bl-3xl uppercase tracking-[0.3em] italic animate-in slide-in-from-right duration-500">
+                                    En progreso
                                 </div>
-                                
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="font-bold text-gray-900 leading-tight mb-1 truncate" :title="session.title">{{ session.title }}</h4>
-                                    <p class="text-[11px] text-[#57572A] font-bold uppercase tracking-wider mb-2">{{ session.course_title }}</p>
+
+                                <div class="flex items-start gap-6">
+                                    <div class="flex flex-col items-center justify-center min-w-[70px] aspect-square rounded-[1.75rem] border border-[#C9C7B8]/30 shadow-inner group-hover:border-[#57572A]/30 transition-colors" :class="session.is_today ? 'bg-[#57572A]/5' : 'bg-[#FAFAF5]'">
+                                        <span class="text-[9px] font-black text-[#C9C7B8] uppercase group-hover:text-[#57572A] transition-colors">{{ session.day }}</span>
+                                        <span class="text-3xl font-serif font-bold text-[#1A1C19] italic">{{ session.date.split('-').pop() }}</span>
+                                    </div>
                                     
-                                    <div class="flex items-center gap-3 text-xs text-gray-500">
-                                        <div class="flex items-center gap-1.5">
-                                            <Clock class="w-3.5 h-3.5 text-gray-400" />
-                                            <span>{{ session.time }}</span>
+                                    <div class="flex-1 min-w-0 pt-1">
+                                        <h4 class="text-lg font-serif font-bold text-[#1A1C19] leading-[1.3] mb-2 truncate group-hover:text-[#57572A] transition-colors" :title="session.title">{{ session.title }}</h4>
+                                        <div class="flex items-center gap-2 mb-4">
+                                            <div class="w-1.5 h-1.5 rounded-full" :class="getCourseColor(session.course_id)"></div>
+                                            <p class="text-[9px] text-[#5F5E5E]/60 font-black uppercase tracking-[0.25em] truncate italic">{{ session.course_title }}</p>
                                         </div>
-                                        <div class="flex items-center gap-1.5">
-                                            <Users class="w-3.5 h-3.5 text-gray-400" />
-                                            <span>Zoom Sessions</span>
+                                        
+                                        <div class="flex items-center gap-6 text-[10px] font-bold italic text-[#5F5E5E]/40 group-hover:text-[#5F5E5E] transition-colors">
+                                            <div class="flex items-center gap-2.5">
+                                                <Clock class="w-4 h-4" />
+                                                <span>{{ session.time }}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2.5">
+                                                <Monitor class="w-4 h-4" />
+                                                <span>{{ session.is_today && session.live_link ? 'Link Activo' : 'Cátedra Multimedia' }}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div class="mt-5 flex flex-col sm:flex-row gap-2">
-                                <button 
-                                    @click="goToClassroom(session)"
-                                    class="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all shadow-md active:scale-95 border border-[#57572A]/20 text-[#57572A] hover:bg-gray-50"
-                                >
-                                     <Monitor class="w-3.5 h-3.5" />
-                                     <span>{{ session.is_today ? 'Aula Virtual' : 'Ir al Aula Virtual' }}</span>
-                                </button>
                                 
-                                <button 
-                                    v-if="session.is_today && session.live_link"
-                                    @click="openLiveSession(session.live_link)"
-                                    class="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] transition-all shadow-md active:scale-95 bg-[#57572A] text-white hover:bg-[#4a4a24] shadow-green-900/20"
-                                >
-                                     <ExternalLink class="w-3.5 h-3.5" />
-                                     <span>Unirse a Sesión </span>
-                                </button>
+                                <div class="mt-8 flex gap-4 transition-all" :class="session.is_today ? 'translate-y-0 opacity-100' : 'group-hover:translate-y-0 translate-y-2 opacity-80 group-hover:opacity-100'">
+                                    <button 
+                                        @click="goToClassroom(session)"
+                                        class="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all bg-[#FAFAF5] border border-[#C9C7B8]/20 text-[#57572A] hover:bg-white hover:shadow-xl shadow-[#57572A]/5"
+                                    >
+                                         <Monitor class="w-4 h-4" />
+                                         <span>Aula Virtual</span>
+                                    </button>
+                                    
+                                    <button 
+                                        v-if="session.is_today && session.live_link"
+                                        @click="openLiveSession(session.live_link)"
+                                        class="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all bg-[#57572A] text-white hover:bg-[#1A1C19] shadow-2xl shadow-[#57572A]/30 relative group/btn overflow-hidden"
+                                    >
+                                         <span class="relative z-10">Ingresar ahora</span>
+                                         <ExternalLink class="w-4 h-4 relative z-10" />
+                                         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div v-if="live_classes.length === 0" class="py-12 px-6 text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
-                         <div class="inline-flex p-3 bg-white rounded-2xl shadow-sm mb-4">
-                            <Calendar class="w-6 h-6 text-gray-400" />
-                         </div>
-                         <h4 class="text-sm font-bold text-gray-900">Sin sesiones programadas</h4>
-                         <p class="text-xs text-gray-500 mt-1 mx-auto max-w-xs">No tienes sesiones en vivo registradas para esta semana. Revisa tu cronograma de cursos.</p>
+                        <div v-if="live_classes.length === 0" class="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white rounded-[4rem] border border-dashed border-[#C9C7B8]/40 animate-in fade-in duration-1000">
+                             <div class="w-24 h-24 bg-[#FAFAF5] rounded-[2rem] border border-[#C9C7B8]/20 flex items-center justify-center mb-8 shadow-inner">
+                                <CalendarIcon class="w-10 h-10 text-[#C9C7B8]" />
+                             </div>
+                             <h4 class="text-xl font-serif font-bold text-[#1A1C19] italic mb-3">Expediente sin sesiones</h4>
+                             <p class="text-[#5F5E5E] font-serif italic text-sm leading-relaxed max-w-[240px]">No se registran cátedras magistrales en vivo para su período académico actual.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </AppLayout>
 </template>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(87, 87, 42, 0.08);
+    border-radius: 20px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(87, 87, 42, 0.15);
+}
+
+/* Institutional Transitions */
+.group-hover\:scale-110 {
+    transition: transform 3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-in {
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>

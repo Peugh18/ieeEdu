@@ -436,350 +436,365 @@ onMounted(() => {
     <Head :title="`${currentLesson?.title || 'Aula Virtual'} - ${course.title}`" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="h-[calc(100svh-4rem)] bg-surface-container-lowest text-on-surface font-sans selection:bg-primary/20 selection:text-primary flex flex-col">
+        <div class="h-[calc(100svh-4rem)] bg-[#FAFAF5] text-[#1A1C19] selection:bg-[#57572A]/20 selection:text-[#57572A] flex flex-col overflow-hidden">
             
-            <!-- Navbar: Theme Colors (Olive/Gold) -->
-            <header class="h-16 shrink-0 bg-surface-container-low border-b border-outline-variant/30 flex items-center px-4 md:px-8 justify-between relative z-40">
-            <div class="flex items-center gap-4">
-                <Link :href="route('student.courses.index')" class="p-2 hover:bg-surface-container rounded-xl transition text-on-surface-variant hover:text-primary">
-                    <ChevronLeft class="w-5 h-5" />
+            <!-- Navbar: Institutional Header -->
+            <header class="h-20 shrink-0 bg-white border-b border-[#C9C7B8]/20 flex items-center px-6 md:px-10 justify-between relative z-40 shadow-sm">
+            <div class="flex items-center gap-6">
+                <Link :href="route('student.courses.index')" class="p-3 bg-[#FAFAF5] hover:bg-[#F4F4EF] rounded-[1.25rem] border border-[#C9C7B8]/20 transition-all text-[#57572A] group shadow-inner">
+                    <ChevronLeft class="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 </Link>
                 <div class="flex flex-col">
-                    <p class="text-[10px] font-bold text-primary uppercase tracking-widest leading-none mb-1 italic">Clase {{ currentLessonIndex }} de {{ allLessonsCount }} - {{ course.title }}</p>
-                    <h1 class="text-sm font-bold text-on-surface truncate max-w-[150px] md:max-w-md">{{ currentLesson?.title }}</h1>
+                    <p class="text-[10px] font-black text-[#57572A]/60 uppercase tracking-[0.25em] leading-none mb-2 italic">
+                        Módulo {{ currentLessonIndex }} de {{ allLessonsCount }} • {{ course.title }}
+                    </p>
+                    <h1 class="text-base font-serif font-bold text-[#1A1C19] truncate max-w-[150px] md:max-w-md italic">{{ currentLesson?.title }}</h1>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <div class="hidden sm:flex items-center bg-surface-container p-1 rounded-2xl border border-outline-variant/20 shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:flex items-center bg-[#FAFAF5] p-1.5 rounded-[1.25rem] border border-[#C9C7B8]/20 shadow-inner">
                     <Link 
                         v-if="prevLessonId"
                         :href="route('student.classroom', { course: course.slug, lesson: prevLessonId })"
-                        class="px-4 py-2 hover:bg-surface-container-high rounded-xl transition flex items-center gap-2 text-xs font-bold text-on-surface-variant hover:text-primary"
+                        class="px-5 py-2.5 hover:bg-white hover:shadow-sm rounded-xl transition-all flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-[#5F5E5E] hover:text-[#57572A]"
                     >
-                        <ChevronLeft class="w-4 h-4" /> <span class="hidden lg:inline">Clase anterior</span>
+                        <ChevronLeft class="w-4 h-4" /> <span class="hidden lg:inline">Anterior</span>
                     </Link>
+                    
                     <button 
                         @click="activeSidebarTab = activeSidebarTab === 'curriculum' ? 'chat' : 'curriculum'"
-                        class="px-4 py-2 bg-primary/5 hover:bg-primary/10 text-primary rounded-xl transition flex items-center gap-2 text-xs font-bold border border-primary/10"
+                        class="px-6 py-2.5 bg-[#57572A]/5 hover:bg-[#57572A]/10 text-[#57572A] rounded-xl transition-all flex items-center gap-3 text-[11px] font-black uppercase tracking-widest border border-[#57572A]/10 mx-1"
                     >
-                        <ListVideo v-if="activeSidebarTab === 'chat'" class="w-4 h-4" />
+                        <ListVideo v-if="activeSidebarTab === 'chat' || activeSidebarTab === 'comments'" class="w-4 h-4" />
                         <MessageSquare v-else class="w-4 h-4" />
-                        <span class="hidden lg:inline">{{ activeSidebarTab === 'chat' ? 'Ver clases' : 'Ver foro/chat' }}</span>
+                        <span class="hidden lg:inline">{{ activeSidebarTab === 'curriculum' ? 'Foro / Chat' : 'Contenido' }}</span>
                     </button>
+
                     <Link 
                         v-if="nextLessonId"
                         :href="route('student.classroom', { course: course.slug, lesson: nextLessonId })"
-                        class="px-5 py-2 bg-primary text-on-primary rounded-xl hover:bg-primary/90 transition flex items-center gap-2 text-xs font-bold shadow-lg shadow-primary/20"
+                        class="px-6 py-2.5 bg-[#57572A] text-white rounded-xl hover:bg-[#1A1C19] transition-all flex items-center gap-3 text-[11px] font-black uppercase tracking-widest shadow-xl shadow-[#57572A]/20"
                     >
-                        <span class="hidden lg:inline">Siguiente clase</span> <ChevronRight class="w-4 h-4" />
+                        <span class="hidden lg:inline">Siguiente</span> <ChevronRight class="w-4 h-4" />
                     </Link>
                 </div>
                 
-                <!-- Mobile Only -->
-                 <button @click="activeSidebarTab = activeSidebarTab === 'curriculum' ? 'chat' : 'curriculum'" class="sm:hidden p-2 bg-primary text-on-primary rounded-xl">
+                <!-- Mobile Actions -->
+                 <button @click="activeSidebarTab = activeSidebarTab === 'curriculum' ? 'chat' : 'curriculum'" class="sm:hidden p-3 bg-[#57572A] text-white rounded-2xl shadow-lg">
                      <ListVideo class="w-5 h-5" v-if="activeSidebarTab === 'chat'" />
                      <MessageSquare class="w-5 h-5" v-else />
                  </button>
             </div>
         </header>
 
-        <main class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+        <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-[#FAFAF5]">
             
             <!-- Main Content Area: Video and Summary -->
-            <div class="flex-1 overflow-y-auto custom-scrollbar bg-surface-container-lowest relative">
+            <div class="flex-1 overflow-y-auto custom-scrollbar bg-white relative rounded-br-[4rem] shadow-2xl">
                 
-                <div v-if="viewingExam" class="min-h-full flex flex-col items-center justify-center p-8 lg:p-16 animate-in fade-in duration-500 bg-surface-container-lowest">
-                     <div class="max-w-3xl w-full p-12 bg-white rounded-[3rem] border border-outline-variant/20 text-center shadow-[0_20px_60px_rgba(87,87,42,0.05)] relative overflow-hidden">
-                          <!-- Decorative gradient bg -->
-                          <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-surface-container-highest pointer-events-none opacity-50"></div>
+                <!-- Section: Exam Modal Trigger Case -->
+                <div v-if="viewingExam" class="min-h-full flex flex-col items-center justify-center p-8 lg:p-24 bg-[#FAFAF5] animate-in fade-in duration-700">
+                     <div class="max-w-4xl w-full p-16 bg-white rounded-[4rem] border border-[#C9C7B8]/20 text-center shadow-[0_40px_100px_rgba(87,87,42,0.1)] relative overflow-hidden">
+                          <div class="absolute inset-0 bg-gradient-to-br from-[#57572A]/5 via-transparent to-transparent pointer-events-none opacity-40"></div>
                           
-                          <div class="relative z-10">
-                              <div class="inline-flex p-6 rounded-full border mb-8" :class="localAllCompleted ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-orange-500/10 border-orange-500/20'">
-                                 <CheckCircle2 v-if="localAllCompleted" class="w-16 h-16 text-emerald-600" />
-                                 <Clock v-else class="w-16 h-16 text-orange-600" />
-                             </div>
-                             <div class="space-y-6 mb-10">
-                                <h2 class="text-4xl lg:text-5xl font-serif font-bold italic text-on-surface">Evaluación Final</h2>
-                                <p v-if="localAllCompleted" class="text-on-surface-variant italic font-serif text-[1.1rem] max-w-xl mx-auto leading-relaxed">Has completado el currículo modular satisfactoriamente. Para obtener tu certificación, debes aprobar el examen final correspondiente.</p>
-                                <p v-else class="text-on-surface-variant italic font-serif text-[1.1rem] max-w-xl mx-auto leading-relaxed">Debes completar todas las clases curriculares (al menos visualizar el 80% de cada video) para poder acceder a la evaluación final.</p>
-                             </div>
-                             
-                             <div v-if="!localAllCompleted" class="inline-flex flex-col items-center">
-                                 <div class="px-8 py-5 bg-orange-50 rounded-2xl border border-orange-200 shadow-sm animate-in zoom-in-95">
-                                     <p class="text-sm font-bold text-orange-800 uppercase tracking-widest">Requisito Pendiente</p>
-                                     <p class="text-sm font-serif italic text-orange-700 mt-2">Has completado <span class="font-bold text-lg tabular-nums">{{ localCompleted.length }}</span> de <span class="font-bold text-lg tabular-nums">{{ allLessonsCount }}</span> clases necesarias.</p>
-                                 </div>
-                                 <button disabled class="mt-8 inline-flex px-12 py-6 bg-surface-container-highest text-on-surface-variant font-bold text-sm uppercase tracking-widest rounded-2xl cursor-not-allowed">
-                                     Evaluación Bloqueada
-                                 </button>
-                             </div>
-                             <Link v-else :href="route('student.exams.index')" class="inline-flex px-14 py-6 bg-emerald-600 text-white font-bold text-sm uppercase tracking-widest rounded-2xl hover:bg-emerald-700 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-emerald-900/20 relative group">
-                                 Iniciar Evaluación Ahora
-                                 <span class="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                             </Link>
+                          <div class="relative z-10 space-y-10">
+                               <div class="inline-flex p-8 rounded-[2.5rem] border shadow-inner" :class="localAllCompleted ? 'bg-[#57572A]/5 border-[#57572A]/20' : 'bg-orange-500/5 border-orange-500/10'">
+                                  <Trophy v-if="localAllCompleted" class="w-20 h-20 text-[#D4AF37]" />
+                                  <AlertCircle v-else class="w-20 h-20 text-orange-400" />
+                              </div>
+
+                              <div class="space-y-6">
+                                 <h2 class="text-4xl lg:text-6xl font-serif font-bold italic text-[#1A1C19]">Certificación Final</h2>
+                                 <p v-if="localAllCompleted" class="text-[#5F5E5E] italic font-serif text-xl max-w-2xl mx-auto leading-relaxed h-[5em]">
+                                    Excelencia académica alcanzada. Has completado exitosamente todos los módulos curriculares. Ahora puedes proceder con la evaluación final para acreditar tus conocimientos.
+                                 </p>
+                                 <p v-else class="text-[#5F5E5E] italic font-serif text-xl max-w-2xl mx-auto leading-relaxed h-[5em]">
+                                    Aún no cumples con el 100% de la visualización del currículo académico. Por favor, asegúrate de ver todas las lecciones antes de rendir el examen.
+                                 </p>
+                              </div>
+                              
+                              <div v-if="!localAllCompleted" class="pt-10">
+                                  <div class="px-10 py-6 bg-[#FAFAF5] rounded-[2rem] border border-[#C9C7B8]/20 shadow-inner inline-block">
+                                      <p class="text-[10px] font-black text-[#57572A]/40 uppercase tracking-[0.3em] mb-3">Progreso del programa</p>
+                                      <div class="flex items-center gap-6">
+                                          <div class="text-3xl font-serif font-bold italic text-[#57572A] tabular-nums">{{ localCompleted.length }} / {{ allLessonsCount }}</div>
+                                          <div class="w-48 h-2 bg-[#C9C7B8]/20 rounded-full overflow-hidden">
+                                              <div class="h-full bg-[#D4AF37] rounded-full" :style="{ width: `${(localCompleted.length / allLessonsCount) * 100}%` }"></div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              
+                              <div class="pt-8">
+                                <Link v-if="localAllCompleted" :href="route('student.exams.index')" class="inline-flex px-16 py-6 bg-[#57572A] text-white font-black text-[12px] uppercase tracking-[0.25em] rounded-2xl hover:bg-[#1A1C19] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-[#57572A]/20 group">
+                                    Iniciar Evaluación Ahora
+                                    <ArrowRight class="w-5 h-5 ml-4 group-hover:translate-x-2 transition-transform" />
+                                </Link>
+                                <button v-else disabled class="px-16 py-6 bg-[#C9C7B8]/20 text-[#C9C7B8] font-black text-[12px] uppercase tracking-[0.25em] rounded-2xl cursor-not-allowed">
+                                    Evaluación Bloqueada
+                                </button>
+                              </div>
                           </div>
                      </div>
                 </div>
 
                 <template v-else>
-                    <!-- Video Section -->
-                <div class="w-full bg-black relative group aspect-video">
+                    <!-- Video Section: The Cinematic Stage -->
+                <div class="w-full bg-[#1A1C19] relative aspect-video shadow-2xl overflow-hidden md:rounded-br-[4rem]">
                     <!-- RECORDED: Show Video Player -->
                     <template v-if="lessonState === 'recorded'">
-                        <div v-if="videoId" class="w-full h-full relative group">
-                            <div class="absolute -inset-1 z-0 bg-gradient-to-tr from-primary/20 via-transparent to-primary/20 rounded-[2.5rem] blur-sm"></div>
-                            <div class="relative z-10 w-full h-full rounded-[2rem] overflow-hidden bg-black border-4 border-surface-container-high shadow-[0_20px_50px_rgba(87,87,42,0.3)]">
-                                <div class="js-plyr w-full h-full" :data-plyr-provider="'youtube'" :data-plyr-embed-id="videoId"></div>
-                            </div>
+                        <div v-if="videoId" class="w-full h-full relative">
+                            <div class="js-plyr w-full h-full" :data-plyr-provider="'youtube'" :data-plyr-embed-id="videoId"></div>
                         </div>
-                        <div v-else class="w-full h-full flex flex-col items-center justify-center p-12 text-center bg-surface-container-high/20">
-                            <Play class="w-16 h-16 text-primary/30 mb-6" />
-                            <h2 class="text-2xl font-serif font-bold text-on-surface mb-2 italic text-on-surface/40">Contenido en preparación</h2>
-                            <p class="text-on-surface-variant italic font-serif max-w-sm">{{ currentLesson?.description || 'Esta lección será activada próximamente.' }}</p>
+                        <div v-else class="w-full h-full flex flex-col items-center justify-center p-12 text-center bg-gradient-to-br from-[#1A1C19] to-[#2D302B]">
+                            <div class="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-8 border border-white/10">
+                                <Play class="w-10 h-10 text-white/20" />
+                            </div>
+                            <h2 class="text-3xl font-serif font-bold text-white/50 mb-3 italic">Material en Aula</h2>
+                            <p class="text-[#C9C7B8]/40 italic font-serif max-w-sm">{{ currentLesson?.description || 'Esta sesión está siendo preparada por el equipo docente.' }}</p>
                         </div>
                     </template>
 
                     <!-- SCHEDULED & LIVE -->
                     <template v-else-if="lessonState === 'scheduled' || lessonState === 'live'">
-                         <div class="absolute inset-0 bg-gradient-to-tr from-surface-container-highest via-surface-container-highest/90 to-primary/10 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
-                            <div class="px-3 py-1 bg-primary text-on-primary rounded-full text-[10px] font-bold uppercase tracking-widest mb-10" :class="lessonState === 'live' ? 'animate-pulse' : ''">
-                                {{ lessonState === 'live' ? 'EN VIVO' : 'PROGRAMADA' }}
-                            </div>
-                            <h2 class="text-4xl md:text-5xl font-serif font-bold text-on-surface mb-6 italic leading-tight">{{ currentLesson?.title }}</h2>
-                            <p class="text-on-surface-variant font-serif italic text-lg mb-12">{{ lessonState === 'live' ? 'La sesión interactiva está activa' : 'La sesión interactiva está por comenzar' }}</p>
-
-                            <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-[3rem] p-10 flex flex-col items-center shadow-2xl">
-                                <div v-if="lessonState === 'scheduled'" class="text-7xl font-serif font-bold text-primary tracking-tighter mb-4 italic tabular-nums">{{ countdown }}</div>
-                                <div v-else class="text-7xl font-serif font-bold text-emerald-600 tracking-tighter mb-4 italic tabular-nums animate-in zoom-in">STREAMING</div>
-                                
-                                <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.3em] mb-10 italic">Inicia el {{ currentLesson?.start_time ? new Date(currentLesson.start_time).toLocaleDateString() : 'hoy' }}</p>
-                                
-                                <div class="flex flex-col sm:flex-row gap-4" v-if="lessonState === 'live'">
-                                    <a 
-                                        :href="currentLesson?.live_link" 
-                                        target="_blank" 
-                                        @click="completeLesson"
-                                        class="px-10 py-5 bg-primary text-on-primary font-bold text-xs uppercase tracking-widest rounded-2xl hover:scale-105 transition-all flex items-center gap-2 shadow-xl shadow-primary/20"
-                                    >
-                                        <ExternalLink class="w-4 h-4" /> Entrar a Clase
-                                    </a>
+                         <div class="absolute inset-0 bg-gradient-to-br from-[#1A1D1A] to-[#2D302B] flex flex-col items-center justify-center p-10 text-center">
+                            
+                            <div class="relative z-10 w-full max-w-4xl space-y-12">
+                                <div class="inline-flex items-center gap-3 px-6 py-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full shadow-2xl">
+                                    <div class="w-2 h-2 rounded-full" :class="lessonState === 'live' ? 'bg-red-500 animate-pulse' : 'bg-[#D4AF37]'"></div>
+                                    <span class="text-[10px] font-black text-white/80 uppercase tracking-[0.3em]">{{ lessonState === 'live' ? 'Sesión en Vivo Interactiva' : 'Programada para hoy' }}</span>
                                 </div>
-                                <p v-else class="text-sm font-serif italic text-on-surface-variant/60">El acceso se habilitará automáticamente al iniciar</p>
+                                
+                                <h2 class="text-4xl md:text-7xl font-serif font-bold text-white italic leading-tight tracking-tight">{{ currentLesson?.title }}</h2>
+
+                                <div class="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-[4rem] p-12 inline-block shadow-2xl mx-auto">
+                                    <div v-if="lessonState === 'scheduled'" class="text-8xl font-serif font-bold text-[#D4AF37] tracking-tighter mb-6 italic tabular-nums drop-shadow-[0_10px_30px_rgba(212,175,55,0.2)]">{{ countdown }}</div>
+                                    <div v-else class="text-8xl font-serif font-bold text-emerald-400 tracking-tighter mb-6 italic tabular-nums animate-pulse">STREAMING</div>
+                                    
+                                    <p class="text-[11px] font-black text-[#C9C7B8]/60 uppercase tracking-[0.4em] mb-12 italic border-t border-white/5 pt-6">Fecha Institucional: {{ currentLesson?.start_time ? new Date(currentLesson.start_time).toLocaleDateString() : 'Pendiente' }}</p>
+                                    
+                                    <div v-if="lessonState === 'live'">
+                                        <a 
+                                            :href="currentLesson?.live_link" 
+                                            target="_blank" 
+                                            @click="completeLesson"
+                                            class="px-16 py-6 bg-white text-[#1A1C19] font-black text-[12px] uppercase tracking-[0.3em] rounded-2xl hover:bg-[#D4AF37] hover:text-white transition-all transform hover:-translate-y-2 flex items-center gap-4 shadow-2xl shadow-black/40 group"
+                                        >
+                                            <ExternalLink class="w-5 h-5" /> Entrar al Aula Privada
+                                        </a>
+                                    </div>
+                                    <div v-else class="px-16 py-6 border border-white/10 text-white/40 font-black text-[11px] uppercase tracking-[0.3em] rounded-2xl bg-white/5">
+                                        Acceso en Espera
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </template>
 
-                    <!-- PROCESSING: The Gap -->
+                    <!-- PROCESSING -->
                     <template v-else-if="lessonState === 'processing'">
-                        <div class="absolute inset-0 bg-gradient-to-tr from-surface-container-high to-surface-container-lowest flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
-                            <div class="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-10">
-                                <Clock class="w-12 h-12 text-primary animate-spin-slow" />
+                        <div class="absolute inset-0 bg-[#0F110F] flex flex-col items-center justify-center p-10 text-center">
+                            <div class="relative mb-12">
+                                <div class="w-28 h-28 bg-[#57572A]/10 rounded-full flex items-center justify-center animate-pulse"></div>
+                                <Clock class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 text-[#D4AF37] animate-spin-slow" />
                             </div>
-                            <h2 class="text-4xl lg:text-5xl font-serif font-bold text-on-surface mb-6 italic leading-tight">Procesamiento Académico</h2>
-                            <p class="text-on-surface-variant font-serif italic text-xl max-w-xl mx-auto leading-relaxed h-20">
-                                La sesión en vivo ha finalizado satisfactoriamente. Nuestro equipo está procesando la grabación académica para tu consulta asíncrona. Estará disponible en breve.
+                            <h2 class="text-4xl md:text-5xl font-serif font-bold text-white mb-6 italic tracking-tight">Procesado de Grabación</h2>
+                            <p class="text-[#C9C7B8]/60 font-serif italic text-xl max-w-2xl mx-auto leading-relaxed">
+                                La cátedra en vivo ha concluido con éxito. Nuestro equipo de soporte académico está editando la grabación para su alojamiento definitivo. Estará disponible en minutos.
                             </p>
-                            
-                            <div class="mt-12 flex flex-col sm:flex-row gap-6">
-                                <div class="px-6 py-4 bg-white/50 backdrop-blur rounded-2xl border border-primary/20 flex flex-col items-center">
-                                    <span class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Finalizó a las</span>
-                                    <span class="text-lg font-serif italic text-on-surface">{{ currentLesson?.end_time ? new Date(currentLesson.end_time).toLocaleTimeString() : 'Hace poco' }}</span>
-                                </div>
-                                <div class="px-6 py-4 bg-white/50 backdrop-blur rounded-2xl border border-primary/20 flex flex-col items-center">
-                                    <span class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2">Material PDF</span>
-                                    <span class="text-lg font-serif italic text-on-surface">{{ currentLesson?.materials?.length || 0 }} Archivos listos</span>
-                                </div>
-                            </div>
                         </div>
                     </template>
                 </div>
 
-                <!-- Info Details -->
-                <div class="p-8 md:p-12 space-y-12 max-w-5xl mx-auto">
-                    <!-- Internal Tabs -->
-                    <div class="flex items-center gap-8 border-b border-outline-variant/30">
+                <!-- Info Details: The Reading Space -->
+                <div class="p-10 md:p-20 space-y-20 max-w-6xl mx-auto">
+                    <!-- Premium Tabs Navigation -->
+                    <div class="flex items-center gap-12 border-b border-[#C9C7B8]/20">
                         <button 
                             v-for="tab in ['content', 'resources']" :key="tab"
                             @click="activeTab = tab as any"
-                            class="pb-4 text-xs font-bold uppercase tracking-[0.2em] transition-all relative"
-                            :class="activeTab === tab ? 'text-primary' : 'text-on-surface-variant/50 hover:text-on-surface-variant'"
+                            class="pb-6 text-[11px] font-black uppercase tracking-[0.3em] transition-all relative group"
+                            :class="activeTab === tab ? 'text-[#57572A]' : 'text-[#5F5E5E]/40 hover:text-[#5F5E5E]'"
                         >
-                            {{ tab === 'content' ? 'Resumen de la Clase' : 'Material de Apoyo' }}
-                            <span v-if="activeTab === tab" class="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-full"></span>
+                            {{ tab === 'content' ? 'Nota Académica' : 'Documentación' }}
+                            <span class="absolute bottom-0 left-0 w-full h-[4px] scale-x-0 group-hover:scale-x-50 transition-transform bg-[#57572A]/10"></span>
+                            <span v-if="activeTab === tab" class="absolute bottom-0 left-0 w-full h-[4px] bg-[#57572A] rounded-full animate-in zoom-in duration-500"></span>
                         </button>
                     </div>
 
                     <!-- Tab Content -->
-                    <div v-show="activeTab === 'content'" class="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-8">
-                         <div class="space-y-4">
-                            <h2 class="text-3xl font-serif font-bold text-on-surface italic leading-tight">{{ currentLesson?.title }}</h2>
-                            <div class="prose prose-p:text-on-surface-variant prose-p:font-serif prose-p:italic prose-p:leading-relaxed max-w-none">
-                                <p v-if="currentLesson?.description">{{ currentLesson.description }}</p>
-                                <p v-else class="text-on-surface-variant/40 italic">Para esta clase no se ha proporcionado una descripción detallada, por favor atienda a las instrucciones del docente durante la sesión.</p>
+                    <div v-show="activeTab === 'content'" class="animate-in fade-in slide-in-from-bottom-6 duration-700 space-y-12">
+                         <div class="space-y-6">
+                            <h2 class="text-4xl md:text-5xl font-serif font-bold text-[#1A1C19] italic leading-tight">{{ currentLesson?.title }}</h2>
+                            <div class="relative pl-10 border-l-[3px] border-[#57572A]/10">
+                                <div class="prose prose-p:text-[#5F5E5E] prose-p:font-serif prose-p:italic prose-p:text-xl prose-p:leading-loose max-w-none">
+                                    <p v-if="currentLesson?.description">{{ currentLesson.description }}</p>
+                                    <p v-else class="text-[#5F5E5E]/40 italic">Descripción en revisión académica.</p>
+                                </div>
                             </div>
                          </div>
 
-                         <!-- "Profundiza" Banner integrated in main view too for better UX -->
-                         <div class="bg-primary/5 rounded-[2.5rem] p-8 border border-primary/10 flex flex-col md:flex-row items-center justify-between gap-6 overflow-hidden relative">
-                             <div class="space-y-2 relative z-10">
-                                 <h3 class="text-primary font-bold text-lg italic">¿Tienes dudas adicionales?</h3>
-                                 <p class="text-on-surface-variant text-sm font-serif italic max-w-md">Utiliza el foro de comentarios a la derecha para dejar tus inquietudes o aportes a la comunidad académica.</p>
+                         <!-- Interactive Invitation -->
+                         <div class="bg-[#FAFAF5] rounded-[3.5rem] p-12 border border-[#C9C7B8]/30 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
+                             <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-[#57572A]/5 rounded-full blur-3xl group-hover:bg-[#57572A]/10 transition-colors"></div>
+                             
+                             <div class="space-y-3 relative z-10 max-w-2xl">
+                                 <h3 class="text-[#57572A] font-serif font-bold text-2xl italic tracking-tight">¿Desea profundizar en algún punto?</h3>
+                                 <p class="text-[#5F5E5E]/80 text-lg font-serif italic leading-relaxed">Le invitamos a participar en el foro académico de esta sesión. Sus aportes enriquecen la comunidad estudiantil del Instituto IEE.</p>
                              </div>
-                             <div class="flex-shrink-0 relative z-10">
-                                 <button @click="activeSidebarTab = 'chat'" class="px-8 py-4 bg-primary text-on-primary rounded-2xl font-bold text-xs uppercase tracking-widest shadow-xl shadow-primary/10 hover:scale-105 transition-all active:scale-95">
-                                     Preguntar al Docente
+                             <div class="relative z-10">
+                                 <button @click="activeSidebarTab = 'chat'" class="px-10 py-5 bg-[#57572A] text-white rounded-2xl font-black text-[12px] uppercase tracking-[0.25em] shadow-2xl shadow-[#57572A]/20 hover:bg-[#1A1C19] transform hover:-translate-y-2 transition-all active:scale-95 whitespace-nowrap">
+                                     Dialogar con el Mentor
                                  </button>
                              </div>
-                             <!-- Abstract decoration -->
-                             <HandIcon class="absolute -right-8 top-0 w-32 h-32 text-primary/5 -rotate-12" />
                          </div>
                     </div>
 
-                    <div v-show="activeTab === 'resources'" class="animate-in fade-in slide-in-from-bottom-2 duration-500 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div v-show="activeTab === 'resources'" class="animate-in fade-in slide-in-from-bottom-6 duration-700 grid grid-cols-1 md:grid-cols-2 gap-8 pb-32">
                          <template v-if="currentLesson?.materials?.length">
                               <div 
                                 v-for="mat in currentLesson.materials" :key="mat.id" 
                                 @click="handleMaterialClick(mat)"
-                                class="p-6 bg-surface-container-low border border-outline-variant/30 rounded-3xl group hover:border-primary/40 hover:bg-primary/5 transition-all flex items-center justify-between gap-4 cursor-pointer active:scale-[0.98]"
+                                class="p-8 bg-white border border-[#C9C7B8]/20 rounded-[2.5rem] group hover:border-[#57572A]/40 hover:shadow-[0_20px_40px_rgba(87,87,42,0.08)] transition-all flex items-center justify-between gap-6 cursor-pointer transform hover:-translate-y-2"
                               >
-                                <div class="flex items-center gap-4 min-w-0">
-                                    <div class="p-3 bg-primary/5 rounded-2xl group-hover:bg-primary/10 transition-colors">
-                                        <Download v-if="mat.file_path" class="w-5 h-5 text-primary" />
-                                        <ExternalLink v-else class="w-5 h-5 text-indigo-400" />
+                                <div class="flex items-center gap-6 min-w-0">
+                                    <div class="w-14 h-14 bg-[#FAFAF5] rounded-[1.25rem] group-hover:bg-[#57572A] transition-colors flex items-center justify-center border border-[#C9C7B8]/20">
+                                        <Download v-if="mat.file_path" class="w-6 h-6 text-[#57572A] group-hover:text-white transition-colors" />
+                                        <ExternalLink v-else class="w-6 h-6 text-indigo-400 group-hover:text-white transition-colors" />
                                     </div>
-                                    <div class="min-w-0">
-                                        <h4 class="text-sm font-bold text-on-surface truncate pr-4">{{ mat.title }}</h4>
-                                        <p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest mt-1 opacity-60">{{ mat.kind }}</p>
+                                    <div class="min-w-0 flex-1">
+                                        <h4 class="text-base font-bold text-[#1A1C19] truncate mb-1">{{ mat.title }}</h4>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-[9px] text-[#57572A] font-black uppercase tracking-[0.2em] px-2 py-0.5 bg-[#57572A]/5 rounded">{{ mat.kind }}</span>
+                                            <span class="text-[9px] text-[#5F5E5E]/40 font-bold uppercase tracking-widest whitespace-nowrap">Recurso Institucional</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="p-2 bg-white rounded-xl shadow-sm border border-outline-variant/20 group-hover:bg-primary group-hover:text-on-primary transition-all">
-                                    <Download class="w-4 h-4" />
-                                </div>
+                                <ArrowRight class="w-5 h-5 text-[#C9C7B8] group-hover:text-[#57572A] group-hover:translate-x-1 transition-all" />
                               </div>
                          </template>
-                        <div v-else class="col-span-full py-20 text-center bg-surface-container-low/50 rounded-[3rem] border border-dashed border-outline-variant/30">
-                            <Clock class="w-12 h-12 text-on-surface-variant/20 mx-auto mb-4" />
-                            <p class="text-on-surface-variant font-serif italic text-lg">No hay archivos adjuntos en esta lección.</p>
+                        <div v-else class="col-span-full py-40 text-center bg-[#FAFAF5] rounded-[4rem] border border-dashed border-[#C9C7B8]/40">
+                            <Clock class="w-20 h-20 text-[#C9C7B8]/40 mx-auto mb-8 animate-pulse" />
+                            <p class="text-[#5F5E5E]/60 font-serif italic text-2xl max-w-sm mx-auto leading-relaxed">No se han adjuntado recursos documentales para esta sesión técnica.</p>
                         </div>
                     </div>
 
                 </div>
                 </template>
 
-                <!-- Footer spacing -->
-                <div class="h-24"></div>
+                <!-- Custom Gutter -->
+                <div class="h-32"></div>
             </div>
 
-            <!-- Interaction Sidebar (Comments / Q&A) -->
-            <aside class="w-full lg:w-[420px] bg-surface-container-low border-l border-outline-variant/30 flex flex-col h-full z-40">
+            <!-- Interaction Sidebar (The Modular Control) -->
+            <aside class="w-full lg:w-[460px] bg-[#FAFAF5] border-l border-[#C9C7B8]/20 flex flex-col h-full z-40 relative">
+                
                 <template v-if="activeSidebarTab === 'chat'">
-                    <header class="p-6 border-b border-outline-variant/30 flex items-center justify-between">
-                         <div class="flex items-center gap-2">
-                             <MessageSquare class="w-5 h-5 text-primary" />
-                             <span class="text-sm font-bold uppercase tracking-widest text-on-surface">Foro de la Clase</span>
+                    <header class="h-24 px-8 border-b border-[#C9C7B8]/20 flex items-center justify-between bg-white shadow-sm">
+                         <div class="flex items-center gap-4">
+                             <div class="w-12 h-12 rounded-2xl bg-[#57572A]/5 flex items-center justify-center border border-[#57572A]/10">
+                                <MessageSquare class="w-6 h-6 text-[#57572A]" />
+                             </div>
+                             <div>
+                                <h3 class="text-sm font-black uppercase tracking-[0.15em] text-[#1A1C19]">Foro Académico</h3>
+                                <p class="text-[10px] text-[#5F5E5E]/40 font-bold">{{ comments.length }} aportes científicos</p>
+                             </div>
                          </div>
-                         <span class="text-[10px] font-bold text-on-surface-variant bg-surface-container-high px-2 py-1 rounded-full">{{ comments.length }} aportes</span>
+                         <button @click="activeSidebarTab = 'curriculum'" class="p-3 hover:bg-[#F4F4EF] rounded-2xl transition-all">
+                            <AlertCircle class="w-5 h-5 text-[#C9C7B8]" />
+                         </button>
                     </header>
 
-                    <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
-                        <!-- New Comment / Reply Input -->
-                        <div class="relative group">
-                             <div v-if="replyingTo" class="mb-2 flex items-center justify-between px-3 py-2 bg-primary/5 rounded-t-2xl border-x border-t border-primary/20">
-                                 <p class="text-[10px] font-bold text-primary italic truncate">Respondiendo a @{{ replyingTo.user.name }}</p>
-                                 <button @click="replyingTo = null" class="p-1 hover:bg-primary/10 rounded-full transition-colors"><X class="w-3 h-3 text-primary" /></button>
-                             </div>
-                             <div class="bg-surface-container-lowest rounded-3xl border border-outline-variant/30 focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5 transition-all p-5 space-y-4" :class="replyingTo ? 'rounded-t-none' : ''">
+                    <div class="flex-1 overflow-y-auto custom-scrollbar bg-[#FAFAF5]">
+                        <div class="p-8 space-y-12">
+                            <!-- New Comment / Reply Input -->
+                            <div class="bg-white rounded-[2.5rem] border border-[#C9C7B8]/20 p-8 shadow-sm transition-all focus-within:shadow-2xl focus-within:shadow-[#57572A]/5 relative">
+                                 <div v-if="replyingTo" class="mb-4 flex items-center justify-between p-3 bg-[#57572A]/5 rounded-xl">
+                                     <p class="text-[10px] font-black text-[#57572A] italic truncate">En respuesta a: {{ replyingTo.user.name }}</p>
+                                     <button @click="replyingTo = null" class="text-[#57572A]/40 hover:text-red-500"><X class="w-4 h-4" /></button>
+                                 </div>
                                  <textarea 
                                     v-model="newComment"
-                                    :placeholder="replyingTo ? 'Escribe tu respuesta...' : 'Escribe tu consulta o aporte académico aquí...'"
-                                    class="w-full bg-transparent border-none p-0 text-sm placeholder:text-on-surface-variant/30 focus:ring-0 min-h-[100px] resize-none font-serif italic"
+                                    :placeholder="replyingTo ? 'Escriba su respuesta técnica...' : 'Inicie una consulta académica con sus pares y mentores...'"
+                                    class="w-full bg-transparent border-none p-0 text-base placeholder:text-[#5F5E5E]/30 focus:ring-0 min-h-[120px] resize-none font-serif italic leading-relaxed"
                                  ></textarea>
-                                 <div class="flex items-center justify-between">
-                                     <p class="text-[10px] text-on-surface-variant/40 italic">Sea respetuoso y claro con sus dudas.</p>
+                                 <div class="flex items-center justify-between pt-6 border-t border-[#FAFAF5]">
+                                     <div class="flex items-center gap-2">
+                                         <div class="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"></div>
+                                         <span class="text-[9px] font-black text-[#5F5E5E]/30 uppercase tracking-[0.15em]">Espacio de debate</span>
+                                     </div>
                                      <button 
                                         @click="postComment"
-                                        class="p-2.5 bg-primary text-on-primary rounded-xl hover:scale-110 active:scale-95 transition-all shadow-lg shadow-primary/10"
+                                        class="px-8 py-3.5 bg-[#57572A] text-white rounded-xl hover:bg-[#1A1C19] hover:-translate-y-1 transition-all shadow-xl shadow-[#57572A]/10 active:scale-95 font-black text-[10px] uppercase tracking-widest flex items-center gap-3"
                                      >
-                                        <Send class="w-4 h-4" />
+                                        Enviar <Send class="w-3.5 h-3.5" />
                                      </button>
                                  </div>
-                             </div>
-                        </div>
+                            </div>
 
-                        <!-- Comments Listing -->
-                        <div class="space-y-6 pb-24">
-                            <div v-for="c in comments" :key="c.id" class="space-y-3">
-                                <div class="p-6 bg-surface-container-lowest border border-outline-variant/20 rounded-[2.5rem] space-y-4 hover:shadow-xl hover:shadow-primary/5 transition-all border-l-4 border-l-primary/10 group">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-2xl bg-primary/10 border border-primary/10 flex items-center justify-center text-[11px] font-bold text-primary italic uppercase">
-                                                {{ c.user.name.charAt(0) }}
-                                            </div>
-                                            <div class="min-w-0">
-                                                <p class="text-[11px] font-bold text-on-surface flex items-center gap-1.5">
-                                                    {{ c.user.name }}
-                                                    <CheckCircle2 v-if="c.user.role === 'admin' || c.user.role === 'editor'" class="w-3 h-3 text-primary fill-primary/10" />
-                                                </p>
-                                                <p class="text-[9px] text-on-surface-variant uppercase tracking-widest">{{ c.user.role === 'admin' ? 'Staff IEE' : 'Estudiante Scholar' }} · {{ timeSince(c.created_at) }} <span v-if="c.is_edited" class="italic">(editado)</span></p>
-                                            </div>
-                                        </div>
-                                        <div class="flex flex-col items-center gap-0.5">
-                                             <button @click="toggleLike(c.id)" class="p-1 transition-colors" :class="c.is_liked ? 'text-red-500' : 'text-on-surface-variant/30 hover:text-red-400'">
-                                                 <Heart class="w-4 h-4" :fill="c.is_liked ? 'currentColor' : 'none'" />
-                                             </button>
-                                             <span class="text-[10px] font-bold text-on-surface-variant/40">{{ c.likes_count }}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div v-if="editingComment?.id === c.id" class="space-y-3">
-                                        <textarea v-model="editingComment.content" class="w-full bg-surface-container-low rounded-xl p-3 text-xs font-serif italic border border-primary/20 focus:ring-0 focus:border-primary/40 min-h-[80px] resize-none"></textarea>
-                                        <div class="flex justify-end gap-2 text-[10px] font-bold uppercase tracking-widest">
-                                            <button @click="editingComment = null" class="px-4 py-2 text-on-surface-variant">Cancelar</button>
-                                            <button @click="updateComment" class="px-4 py-2 bg-primary text-on-primary rounded-lg">Guardar</button>
-                                        </div>
-                                    </div>
-                                    <p v-else class="text-xs text-on-surface-variant leading-relaxed font-serif italic">{{ c.content }}</p>
-                                    
-                                    <div v-if="editingComment?.id !== c.id" class="flex items-center justify-between text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/40">
-                                        <div class="flex items-center gap-4">
-                                            <button @click="replyingTo = c" class="hover:text-primary transition flex items-center gap-1"><Reply class="w-3 h-3" /> Responder</button>
-                                            <button v-if="c.user_id === currentUser.id" @click="editingComment = { ...c }" class="hover:text-amber-600 transition flex items-center gap-1"><Edit2 class="w-3 h-3" /> Editar</button>
-                                        </div>
-                                        <button v-if="c.user_id === currentUser.id" @click="deleteComment(c.id)" class="hover:text-red-600 transition opacity-0 group-hover:opacity-100 flex items-center gap-1"><Trash2 class="w-3 h-3" /> Borrar</button>
-                                    </div>
-                                </div>
-
-                                <!-- Recursive Replies (Simple Level 1 Indentation) -->
-                                <div v-if="c.replies?.length" class="pl-8 space-y-3 mt-4">
-                                    <div v-for="r in c.replies" :key="r.id" class="p-4 bg-surface-container-low border border-outline-variant/10 rounded-[1.5rem] space-y-3 group/reply relative before:absolute before:-left-4 before:top-1/2 before:w-4 before:h-[2px] before:bg-outline-variant/20">
+                            <!-- Comments Listing with Masterclass Aesthetics -->
+                            <div class="space-y-8 pb-32">
+                                <div v-for="c in comments" :key="c.id" class="space-y-4">
+                                    <div class="p-8 bg-white border border-[#C9C7B8]/20 rounded-[3rem] space-y-6 hover:border-[#57572A]/30 transition-all group shadow-sm">
                                         <div class="flex items-center justify-between">
-                                            <div class="flex items-center gap-2">
-                                                <div class="w-8 h-8 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center text-[9px] font-bold text-primary italic uppercase">
-                                                    {{ r.user.name.charAt(0) }}
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-14 h-14 rounded-2xl bg-[#FAFAF5] border border-[#C9C7B8]/30 flex items-center justify-center text-lg font-serif font-bold text-[#57572A] italic">
+                                                    {{ c.user.name.charAt(0) }}
                                                 </div>
-                                                <div class="min-w-0">
-                                                    <p class="text-[10px] font-bold text-on-surface flex items-center gap-1">{{ r.user.name }}</p>
-                                                    <p class="text-[8px] text-on-surface-variant uppercase tracking-tight">{{ timeSince(r.created_at) }} <span v-if="r.is_edited">(editado)</span></p>
+                                                <div>
+                                                    <p class="text-[13px] font-bold text-[#1A1C19] flex items-center gap-2">
+                                                        {{ c.user.name }}
+                                                        <CheckCircle2 v-if="c.user.role === 'admin'" class="w-3.5 h-3.5 text-[#57572A]" />
+                                                    </p>
+                                                    <p class="text-[9px] text-[#5F5E5E]/40 font-bold uppercase tracking-[0.15em]">{{ c.user.role === 'admin' ? 'Coordinador Académico' : 'Alumno Verificado' }} • {{ timeSince(c.created_at) }}</p>
                                                 </div>
                                             </div>
-                                            <button @click="toggleLike(r.id)" class="p-1 transition-colors" :class="r.is_liked ? 'text-red-500' : 'text-on-surface-variant/20 hover:text-red-400'">
-                                                 <Heart class="w-3.5 h-3.5" :fill="r.is_liked ? 'currentColor' : 'none'" />
-                                            </button>
-                                        </div>
-
-                                        <div v-if="editingComment?.id === r.id" class="space-y-3">
-                                            <textarea v-model="editingComment.content" class="w-full bg-surface-container-lowest rounded-xl p-3 text-xs font-serif italic border border-primary/20 focus:ring-0 min-h-[60px] resize-none"></textarea>
-                                            <div class="flex justify-end gap-2 text-[10px] font-bold uppercase tracking-widest">
-                                                <button @click="editingComment = null" class="px-3 py-1.5 text-on-surface-variant">Cancelar</button>
-                                                <button @click="updateComment" class="px-3 py-1.5 bg-primary text-on-primary rounded-lg">Guardar</button>
+                                            <div class="flex flex-col items-center">
+                                                 <button @click="toggleLike(c.id)" class="p-2 transition-transform hover:scale-125" :class="c.is_liked ? 'text-red-500' : 'text-[#C9C7B8] hover:text-[#57572A]'">
+                                                     <Heart class="w-5 h-5" :fill="c.is_liked ? 'currentColor' : 'none'" />
+                                                 </button>
+                                                 <span class="text-[9px] font-black text-[#5F5E5E]/30 -mt-1">{{ c.likes_count }}</span>
                                             </div>
                                         </div>
-                                        <p v-else class="text-xs text-on-surface-variant/80 leading-relaxed font-serif italic">{{ r.content }}</p>
+                                        
+                                        <div v-if="editingComment?.id === c.id" class="space-y-4">
+                                            <textarea v-model="editingComment.content" class="w-full bg-[#FAFAF5] rounded-2xl p-4 text-sm font-serif italic border border-[#57572A]/20 focus:ring-0 min-h-[100px]"></textarea>
+                                            <div class="flex justify-end gap-3 text-[10px] font-black uppercase tracking-widest">
+                                                <button @click="editingComment = null" class="text-[#5F5E5E]/40 hover:text-red-500 transition-colors">Abortar</button>
+                                                <button @click="updateComment" class="px-6 py-2.5 bg-[#57572A] text-white rounded-xl">Actualizar</button>
+                                            </div>
+                                        </div>
+                                        <p v-else class="text-base text-[#5F5E5E] leading-[1.8] font-serif italic">{{ c.content }}</p>
+                                        
+                                        <div v-if="editingComment?.id !== c.id" class="flex items-center justify-between pt-6 border-t border-[#FAFAF5]">
+                                            <div class="flex items-center gap-6">
+                                                <button @click="replyingTo = c" class="text-[10px] font-black uppercase tracking-[0.2em] text-[#57572A] hover:text-[#1A1C19] transition-all flex items-center gap-2"><Reply class="w-3.5 h-3.5" /> Opinar</button>
+                                                <button v-if="c.user_id === currentUser.id" @click="editingComment = { ...c }" class="text-[10px] font-black uppercase tracking-[0.2em] text-[#5F5E5E]/40 hover:text-amber-600 transition-all flex items-center gap-2"><Edit2 class="w-3.5 h-3.5" /> Editar</button>
+                                            </div>
+                                            <button v-if="c.user_id === currentUser.id" @click="deleteComment(c.id)" class="text-[10px] font-black uppercase tracking-[0.2em] text-red-500/30 hover:text-red-600 transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2"><Trash2 class="w-3.5 h-3.5" /> Eliminar</button>
+                                        </div>
+                                    </div>
 
-                                        <div v-if="editingComment?.id !== r.id && r.user_id === currentUser.id" class="flex justify-end gap-3 text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/30 opacity-0 group-hover/reply:opacity-100 transition-opacity">
-                                            <button @click="editingComment = { ...r }" class="hover:text-amber-600 transition flex items-center gap-1"><Edit2 class="w-3 h-3" /> Editar</button>
-                                            <button @click="deleteComment(r.id)" class="hover:text-red-600 transition flex items-center gap-1"><Trash2 class="w-3 h-3" /> Borrar</button>
+                                    <!-- Indented Replies -->
+                                    <div v-if="c.replies?.length" class="pl-12 space-y-4">
+                                        <div v-for="r in c.replies" :key="r.id" class="p-6 bg-white border border-[#C9C7B8]/10 rounded-[2.5rem] shadow-sm group/reply relative">
+                                            <div class="absolute -left-6 top-1/2 w-6 h-[1px] bg-[#C9C7B8]/30"></div>
+                                            <div class="flex items-center justify-between mb-4">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-10 h-10 rounded-xl bg-[#FAFAF5] border border-[#C9C7B8]/20 flex items-center justify-center text-sm font-serif font-bold text-[#57572A] italic">
+                                                        {{ r.user.name.charAt(0) }}
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-[11px] font-bold text-[#1A1C19]">{{ r.user.name }}</p>
+                                                        <p class="text-[8px] text-[#5F5E5E]/40 font-bold uppercase tracking-widest">{{ timeSince(r.created_at) }}</p>
+                                                    </div>
+                                                </div>
+                                                <button @click="toggleLike(r.id)" class="p-1 transition-all" :class="r.is_liked ? 'text-red-500' : 'text-[#C9C7B8] hover:text-[#57572A]'">
+                                                     <Heart class="w-4 h-4" :fill="r.is_liked ? 'currentColor' : 'none'" />
+                                                </button>
+                                            </div>
+                                            <p class="text-sm text-[#5F5E5E]/80 leading-relaxed font-serif italic">{{ r.content }}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -789,163 +804,135 @@ onMounted(() => {
                 </template>
 
                 <template v-else>
-                    <header class="p-6 border-b border-outline-variant/30 flex flex-col justify-center bg-surface-container-low">
-                         <div class="space-y-1">
-                             <h2 class="text-xl font-serif font-bold italic text-on-surface">Progreso del curso</h2>
-                             <div class="flex items-center gap-2 mt-2">
-                                 <span class="text-xs font-bold text-on-surface-variant text-right tabular-nums min-w-[2.5rem]">{{ Math.round((localCompleted.length / allLessonsCount) * 100) }}%</span>
-                                 <div class="h-1 flex-1 bg-surface-container flex rounded-full overflow-hidden">
-                                     <div class="h-full bg-emerald-500 rounded-full transition-all duration-1000" :style="{ width: `${(localCompleted.length / allLessonsCount) * 100}%` }"></div>
-                                 </div>
+                    <!-- Sidebar Tab: Curriculum Meta-Informática -->
+                    <header class="h-48 px-10 flex flex-col justify-center bg-white border-b border-[#C9C7B8]/20 relative overflow-hidden">
+                         <div class="absolute inset-x-0 bottom-0 h-1 bg-[#FAFAF5]">
+                             <div class="h-full bg-[#D4AF37] transition-all duration-1000" :style="{ width: `${(localCompleted.length / allLessonsCount) * 100}%` }"></div>
+                         </div>
+                         
+                         <div class="relative z-10 space-y-2">
+                             <div class="flex justify-between items-end">
+                                 <h2 class="text-2xl font-serif font-bold italic text-[#1A1C19]">Módulos Académicos</h2>
+                                 <span class="text-[10px] font-black text-[#57572A] uppercase tracking-[0.2em]">{{ Math.round((localCompleted.length / allLessonsCount) * 100) }}% Finalizado</span>
                              </div>
+                             <p class="text-[10px] font-bold text-[#5F5E5E]/40 uppercase tracking-[0.25em]">Estás en la clase {{ currentLessonIndex }} de {{ allLessonsCount }}</p>
                          </div>
                     </header>
-                    <nav class="flex-1 overflow-y-auto custom-scrollbar p-6 pb-24 space-y-8">
+
+                    <nav class="flex-1 overflow-y-auto custom-scrollbar bg-[#FAFAF5] p-8 pb-32 space-y-12">
+                        <!-- Module Section -->
                         <div v-for="m in course.modules" :key="m.id" class="space-y-6">
-                            <h3 class="text-sm font-bold text-on-surface">{{ m.title }}</h3>
-                            <div class="space-y-4 relative before:absolute before:inset-y-0 before:left-4 before:w-0.5 before:bg-outline-variant/30">
+                            <h3 class="flex items-center gap-4 text-[11px] font-black text-[#1A1C19]/60 uppercase tracking-[0.3em] pl-4">
+                                <span class="w-2 h-2 rounded-full bg-[#57572A]/20"></span>
+                                {{ m.title }}
+                            </h3>
+                            
+                            <div class="space-y-4 relative pl-4 border-l border-[#C9C7B8]/20 ml-5">
                                 <Link 
                                     v-for="(l, i) in m.lessons" :key="l.id"
                                     :href="route('student.classroom', { course: course.slug, lesson: l.id })"
-                                    class="flex items-center gap-4 transition-all group relative z-10"
+                                    class="flex items-start gap-5 transition-all group relative py-2"
                                 >
-                                    <div class="flex-shrink-0 bg-surface-container-low py-1">
-                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] transition-all duration-500"
+                                    <!-- Status Icon Container -->
+                                    <div class="flex-shrink-0 mt-1 relative">
+                                        <div class="absolute -left-[1.65rem] top-1/2 -translate-y-1/2 w-4 h-[1px] bg-[#C9C7B8]/40"></div>
+                                        <div class="w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-700 overflow-hidden"
                                         :class="currentLesson?.id === l.id && !localCompleted.includes(l.id)
-                                            ? 'bg-primary text-on-primary shadow-lg shadow-primary/20 scale-110 z-10' 
+                                            ? 'bg-[#57572A] text-white shadow-2xl shadow-[#57572A]/30 scale-110' 
                                             : (localCompleted.includes(l.id) 
-                                                ? 'bg-emerald-500 text-white border border-emerald-400/20' 
-                                                : 'bg-surface-container-highest text-on-surface-variant border border-outline-variant/30')">
-                                            <CheckCircle2 v-if="localCompleted.includes(l.id)" class="w-4 h-4" />
-                                            <span v-else>{{ i + 1 }}</span>
+                                                ? 'bg-[#57572A]/5 text-[#57572A] border border-[#57572A]/20' 
+                                                : 'bg-white text-[#C9C7B8] border border-[#C9C7B8]/30 group-hover:border-[#57572A]')">
+                                            <CheckCircle2 v-if="localCompleted.includes(l.id)" class="w-5 h-5 text-[#D4AF37]" />
+                                            <Play v-else-if="currentLesson?.id === l.id" class="w-4 h-4 text-white" />
+                                            <span v-else class="text-[10px] font-black italic">{{ i + 1 }}</span>
                                         </div>
                                     </div>
-                                    <div class="min-w-0 flex-1 p-2.5 rounded-2xl transition-all flex items-start gap-3" 
-                                        :class="currentLesson?.id === l.id 
-                                            ? 'bg-white border border-primary/30 shadow-sm' 
-                                            : (localCompleted.includes(l.id) ? 'bg-emerald-50/30' : 'hover:bg-surface-container border border-transparent')">
-                                        <div class="w-14 h-9 rounded-xl flex items-center justify-center flex-shrink-0 border transition-colors mt-0.5"
-                                            :class="currentLesson?.id === l.id ? 'bg-primary/10 border-primary/20' : (localCompleted.includes(l.id) ? 'bg-emerald-100/50 border-emerald-200' : 'bg-surface-container-high border-outline-variant/20')">
-                                            <Play class="w-3 h-3" :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant')" />
-                                        </div>
-                                        <div class="min-w-0 flex-1 pt-0.5">
-                                            <p class="text-[13px] font-bold leading-tight group-hover:text-primary transition-colors pr-2" 
-                                               :class="{ 'text-primary': currentLesson?.id === l.id && !localCompleted.includes(l.id), 'text-emerald-700': localCompleted.includes(l.id), 'text-on-surface': !localCompleted.includes(l.id) && currentLesson?.id !== l.id }">
-                                               {{ l.title }}
-                                            </p>
-                                            <p class="text-[9px] uppercase tracking-[0.1em] mt-1.5 flex items-center gap-1.5 font-bold" 
-                                               :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant/50')">
-                                                <template v-if="localCompleted.includes(l.id)">
-                                                    <CheckCircle2 class="w-3 h-3 fill-emerald-600/10" />
-                                                    Completado
-                                                </template>
-                                                <template v-else-if="currentLesson?.id === l.id">
-                                                    <div class="w-1 h-1 rounded-full bg-primary animate-pulse"></div>
-                                                    Viendo ahora
-                                                </template>
-                                                <template v-else-if="l.video_url">
-                                                    <Play class="w-2.5 h-2.5" />
-                                                    Clase Grabada
-                                                </template>
-                                                <template v-else-if="l.content_type === 'live' && l.start_time && new Date(l.start_time) > new Date()">
-                                                    <Clock class="w-2.5 h-2.5" />
-                                                    En Vivo (Programada)
-                                                </template>
-                                                <template v-else>
-                                                    <AlertCircle class="w-2.5 h-2.5" />
-                                                    {{ l.content_type === 'live' ? 'Procesando Grabación' : 'Clase de Video' }}
-                                                </template>
-                                            </p>
+
+                                    <!-- Lesson Metadata -->
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="text-[13px] font-bold leading-tight group-hover:text-[#57572A] transition-colors" 
+                                            :class="{ 'text-[#57572A]': currentLesson?.id === l.id, 'text-[#5F5E5E]/60': localCompleted.includes(l.id) && currentLesson?.id !== l.id, 'text-[#1A1C19]': !localCompleted.includes(l.id) && currentLesson?.id !== l.id }">
+                                           {{ l.title }}
+                                        </h4>
+                                        <div class="flex items-center gap-3 mt-2 text-[9px] font-black uppercase tracking-[0.15em]"
+                                             :class="currentLesson?.id === l.id ? 'text-[#D4AF37]' : (localCompleted.includes(l.id) ? 'text-[#57572A]/40' : 'text-[#5F5E5E]/30')">
+                                            <template v-if="localCompleted.includes(l.id)">
+                                                Finalizado • Reingresar
+                                            </template>
+                                            <template v-else-if="currentLesson?.id === l.id">
+                                                <div class="w-1 h-1 rounded-full bg-[#D4AF37] animate-pulse"></div>
+                                                En sesión ahora
+                                            </template>
+                                            <template v-else>
+                                                {{ l.content_type === 'live' ? 'Sesión Interactiva' : 'Cátedra Multimedia' }}
+                                            </template>
                                         </div>
                                     </div>
                                 </Link>
                             </div>
                         </div>
 
-                        <!-- Lessons without modules -->
+                        <!-- One-off Lessons (Módulos Flexibles) -->
                         <div v-if="course.lessons.filter(l => !l.module_id).length" class="space-y-6">
-                             <h3 class="text-sm font-bold text-on-surface">Módulos Extra</h3>
-                             <div class="space-y-4 relative before:absolute before:inset-y-0 before:left-4 before:w-0.5 before:bg-outline-variant/30">
+                             <h3 class="flex items-center gap-4 text-[11px] font-black text-[#1A1C19]/60 uppercase tracking-[0.3em] pl-4">
+                                <span class="w-2 h-2 rounded-full bg-[#57572A]/20"></span>
+                                Sesiones Complementarias
+                             </h3>
+                             <div class="space-y-4 relative pl-4 border-l border-[#C9C7B8]/20 ml-5">
                                 <Link 
                                     v-for="(l, i) in course.lessons.filter(l => !l.module_id)" :key="l.id"
                                     :href="route('student.classroom', { course: course.slug, lesson: l.id })"
-                                    class="flex items-center gap-4 transition-all group relative z-10"
+                                    class="flex items-start gap-5 transition-all group relative py-2"
                                 >
-                                    <div class="flex-shrink-0 bg-surface-container-low py-1">
-                                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] transition-all duration-500"
+                                    <div class="flex-shrink-0 mt-1 relative">
+                                        <div class="absolute -left-[1.65rem] top-1/2 -translate-y-1/2 w-4 h-[1px] bg-[#C9C7B8]/40"></div>
+                                        <div class="w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-700 overflow-hidden"
                                         :class="currentLesson?.id === l.id && !localCompleted.includes(l.id)
-                                            ? 'bg-primary text-on-primary shadow-lg shadow-primary/20 scale-110 z-10' 
+                                            ? 'bg-[#57572A] text-white shadow-2xl shadow-[#57572A]/30 scale-110' 
                                             : (localCompleted.includes(l.id) 
-                                                ? 'bg-emerald-500 text-white border border-emerald-400/20' 
-                                                : 'bg-surface-container-highest text-on-surface-variant border border-outline-variant/30')">
-                                            <CheckCircle2 v-if="localCompleted.includes(l.id)" class="w-4 h-4" />
-                                            <span v-else>{{ course.modules.reduce((acc, m) => acc + m.lessons.length, 0) + i + 1 }}</span>
+                                                ? 'bg-[#57572A]/5 text-[#57572A] border border-[#57572A]/20' 
+                                                : 'bg-white text-[#C9C7B8] border border-[#C9C7B8]/30 group-hover:border-[#57572A]')">
+                                            <CheckCircle2 v-if="localCompleted.includes(l.id)" class="w-5 h-5 text-[#D4AF37]" />
+                                            <Play v-else-if="currentLesson?.id === l.id" class="w-4 h-4 text-white" />
+                                            <span v-else class="text-[10px] font-black italic">{{ course.modules.reduce((acc, m) => acc + m.lessons.length, 0) + i + 1 }}</span>
                                         </div>
                                     </div>
-                                    <div class="min-w-0 flex-1 p-2.5 rounded-2xl transition-all flex items-start gap-3" 
-                                        :class="currentLesson?.id === l.id 
-                                            ? 'bg-white border border-primary/30 shadow-sm' 
-                                            : (localCompleted.includes(l.id) ? 'bg-emerald-50/30' : 'hover:bg-surface-container border border-transparent')">
-                                        <div class="w-14 h-9 rounded-xl flex items-center justify-center flex-shrink-0 border transition-colors mt-0.5"
-                                            :class="currentLesson?.id === l.id ? 'bg-primary/10 border-primary/20' : (localCompleted.includes(l.id) ? 'bg-emerald-100/50 border-emerald-200' : 'bg-surface-container-high border-outline-variant/20')">
-                                            <Play class="w-3 h-3" :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant')" />
-                                        </div>
-                                        <div class="min-w-0 flex-1 pt-0.5">
-                                            <p class="text-[13px] font-bold leading-tight group-hover:text-primary transition-colors pr-2" 
-                                               :class="{ 'text-primary': currentLesson?.id === l.id && !localCompleted.includes(l.id), 'text-emerald-700': localCompleted.includes(l.id), 'text-on-surface': !localCompleted.includes(l.id) && currentLesson?.id !== l.id }">
-                                               {{ l.title }}
-                                            </p>
-                                            <p class="text-[9px] uppercase tracking-[0.1em] mt-1.5 flex items-center gap-1.5 font-bold" 
-                                               :class="currentLesson?.id === l.id ? 'text-primary' : (localCompleted.includes(l.id) ? 'text-emerald-600' : 'text-on-surface-variant/50')">
-                                                <template v-if="localCompleted.includes(l.id)">
-                                                    <CheckCircle2 class="w-3 h-3 fill-emerald-600/10" />
-                                                    Completado <span v-if="currentLesson?.id === l.id" class="text-[8px] opacity-70 ml-1">• Viendo</span>
-                                                </template>
-                                                <template v-else-if="currentLesson?.id === l.id">
-                                                    <div class="w-1 h-1 rounded-full bg-primary animate-pulse"></div>
-                                                    Viendo ahora
-                                                </template>
-                                                <template v-else>
-                                                    <Play class="w-2.5 h-2.5" />
-                                                    {{ l.content_type === 'live' ? 'Sesión en Vivo' : 'Clase de Video' }}
-                                                </template>
-                                            </p>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="text-[13px] font-bold leading-tight group-hover:text-[#57572A] transition-colors" 
+                                            :class="{ 'text-[#57572A]': currentLesson?.id === l.id, 'text-[#5F5E5E]/60': localCompleted.includes(l.id) && currentLesson?.id !== l.id, 'text-[#1A1C19]': !localCompleted.includes(l.id) && currentLesson?.id !== l.id }">
+                                           {{ l.title }}
+                                        </h4>
+                                        <div class="flex items-center gap-3 mt-2 text-[9px] font-black uppercase tracking-[0.15em]">
+                                            {{ l.content_type === 'live' ? 'Transmisión Guardada' : 'Grabado Editorial' }}
                                         </div>
                                     </div>
                                 </Link>
                              </div>
                         </div>
 
-                        <!-- Botón Examen al final del sidebar -->
-                        <div v-if="course.quizzes?.length" class="mt-8 space-y-4">
-                             <h3 class="text-sm font-bold text-on-surface uppercase tracking-[0.1em]">Evaluación Final</h3>
-                             <button 
-                                @click="handleOpenExam"
-                                class="w-full flex items-center gap-4 transition-all group relative z-10"
-                             >
-                                 <div class="flex-shrink-0 bg-surface-container-low py-1">
-                                     <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shadow-sm transition-all" :class="viewingExam ? 'bg-primary text-on-primary shadow-primary/20 scale-105' : 'bg-white text-on-surface-variant border border-outline-variant/30'">
-                                         <CheckCircle2 class="w-4 h-4" />
+                        <!-- Evaluación Block: Sidebar Design -->
+                        <div v-if="course.quizzes?.length" class="pt-8">
+                             <div class="bg-white rounded-[2.5rem] border border-[#C9C7B8]/20 p-8 shadow-sm group hover:border-[#D4AF37]/50 transition-all cursor-pointer relative overflow-hidden" @click="handleOpenExam">
+                                 <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-[#D4AF37]/5 rounded-full blur-2xl group-hover:bg-[#D4AF37]/10 transition-colors"></div>
+                                 <div class="relative z-10 space-y-4 text-center">
+                                     <div class="w-16 h-16 rounded-[1.25rem] bg-[#FAFAF5] border border-[#C9C7B8]/20 mx-auto flex items-center justify-center transition-all group-hover:scale-110" :class="localAllCompleted ? 'bg-emerald-50 border-emerald-100' : ''">
+                                         <Trophy class="w-8 h-8" :class="localAllCompleted ? 'text-[#D4AF37]' : 'text-[#C9C7B8]'" />
                                      </div>
-                                 </div>
-                                 <div class="min-w-0 flex-1 p-3 rounded-2xl transition-all flex items-start gap-3 border shadow-sm" :class="viewingExam ? 'bg-primary/5 border-primary/30' : 'bg-surface-container-lowest border-outline-variant/20 hover:bg-surface-container hover:border-outline-variant/40'">
-                                     <div class="min-w-0 flex-1 text-left">
-                                         <p class="text-[13px] font-bold leading-tight transition-colors" :class="viewingExam ? 'text-primary' : 'text-on-surface group-hover:text-primary'">Tomar Examen</p>
-                                         <p class="text-[9px] uppercase tracking-[0.15em] mt-1.5 flex items-center gap-1 font-bold" :class="localAllCompleted ? 'text-emerald-600' : 'text-orange-600'">
-                                             <CheckCircle2 v-if="localAllCompleted" class="w-3 h-3" />
-                                             <Clock v-else class="w-3 h-3" />
-                                             {{ localAllCompleted ? 'Disponible para rendir' : 'Bloqueado (Faltan Videos)' }}
+                                     <div>
+                                         <h4 class="text-[12px] font-black uppercase tracking-[0.2em] text-[#1A1C19]">Examen de Titulación</h4>
+                                         <p class="text-[9px] font-bold uppercase tracking-[0.1em] mt-2 opacity-50" :class="localAllCompleted ? 'text-emerald-600 opacity-100' : 'text-orange-600'">
+                                             {{ localAllCompleted ? 'Candidato Apto' : 'Requisito: Ver Clases' }}
                                          </p>
                                      </div>
                                  </div>
-                             </button>
+                             </div>
                         </div>
                     </nav>
                 </template>
             </aside>
         </main>
         
-        <!-- NEW EXAM MODAL INTEGRATION -->
+        <!-- MODAL: Technical Hijack (Logic maintained) -->
         <ExamModal 
             v-if="course.quizzes?.length"
             :show="viewingExam"
@@ -959,17 +946,17 @@ onMounted(() => {
 
 <style scoped>
 .custom-scrollbar::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(87, 87, 42, 0.1);
-    border-radius: 10px;
+    background: rgba(87, 87, 42, 0.08);
+    border-radius: 20px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(87, 87, 42, 0.2);
+    background: rgba(87, 87, 42, 0.15);
 }
 
 .prose {
@@ -984,11 +971,19 @@ iframe {
 :deep(.plyr) {
     --plyr-color-main: #57572A;
     --plyr-video-background: #000;
-    --plyr-menu-background: #57572A;
+    --plyr-menu-background: #1A1C19;
     --plyr-menu-color: #fff;
-    border-radius: 1.5rem;
+    --plyr-video-control-background-hover: rgba(87,87,42,0.5);
+    border-radius: 0; /* Full cover in mobile, we use md:rounded above if needed */
     height: 100%;
     width: 100%;
+    border-bottom: 4px solid #57572A/10;
+}
+
+@media (min-width: 768px) {
+    :deep(.plyr) {
+        border-radius: 0 0 4rem 0;
+    }
 }
 
 :deep(.plyr__video-wrapper) {
@@ -996,14 +991,28 @@ iframe {
     padding-bottom: 0 !important;
 }
 
-/* Intercept clicks and hover to YouTube iframe explicitly, and scale it up to push the title/logos out of the visible area */
+/* Institutional Video Polish: Push away context UI */
 :deep(.plyr iframe) {
     pointer-events: none !important;
-    transform: scale(1.35) !important;
+    transform: scale(1.4) !important;
 }
 
-/* Hide typical YT elements inside Plyr if they peek through */
 :deep(.plyr__poster) {
     background-size: cover;
+}
+
+/* Animations */
+.animate-spin-slow {
+    animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Transition smoothness */
+main, aside, section {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 </style>
