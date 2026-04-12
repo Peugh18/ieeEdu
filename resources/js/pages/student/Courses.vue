@@ -55,124 +55,164 @@ const breadcrumbs = [
     <Head title="Mis Cursos Académicos - IEE" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="p-6 md:p-12 max-w-[1400px] mx-auto space-y-12 pb-32">
+        <div class="min-h-screen bg-[#FAFAF5]">
+        <div class="p-6 md:p-12 max-w-[1440px] mx-auto space-y-12 pb-32">
             
-            <!-- Academic Header -->
-            <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-outline-variant/30 pb-12">
-                <div class="space-y-4">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-primary/5 rounded-full border border-primary/10">
-                        <Star class="w-3 h-3 text-primary" />
-                        <span class="text-[9px] font-bold text-primary uppercase tracking-[0.2em] italic">Panel del Estudiante</span>
-                    </div>
-                    <h1 class="text-4xl md:text-5xl font-serif font-bold text-on-surface leading-tight italic">Mi Expediente<br/><span class="text-primary">Académico</span></h1>
-                    <p class="text-on-surface-variant font-serif text-lg italic max-w-2xl">Gestione su progreso, acceda a sus sesiones en vivo y continúe su formación con excelencia.</p>
-                </div>
+            <!-- Premium Header -->
+            <header class="relative overflow-hidden bg-gradient-to-br from-[#1A1C19] to-[#2D302B] rounded-[3rem] p-10 md:p-16 mb-12 shadow-2xl shadow-[#1A1C19]/20">
+                <!-- Decor -->
+                <div class="absolute top-0 right-0 w-96 h-96 bg-[#57572A]/10 rounded-full blur-[100px] -mr-48 -mt-48"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-[#D4AF37]/5 rounded-full blur-[80px] -ml-32 -mb-32"></div>
 
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <div class="relative group">
-                        <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary opacity-40 group-focus-within:opacity-100 transition-opacity" />
-                        <input 
-                            v-model="searchTerm"
-                            type="text" 
-                            placeholder="Buscar en sus cursos..." 
-                            class="pl-12 pr-6 py-4 bg-surface-container-low border border-outline-variant/30 rounded-2xl text-sm focus:ring-4 focus:ring-primary/5 focus:border-primary w-full sm:w-80 transition-all font-serif italic"
-                        />
+                <div class="relative z-10 space-y-6 max-w-4xl">
+                    <div class="inline-flex items-center gap-3 px-4 py-2 bg-white/5 backdrop-blur-xl rounded-full border border-white/10 shadow-inner">
+                        <div class="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse"></div>
+                        <span class="text-[10px] font-bold text-white/90 uppercase tracking-[0.25em]">Expediente Académico</span>
+                    </div>
+                    
+                    <h1 class="text-4xl md:text-6xl font-serif font-bold text-white leading-tight tracking-tight">
+                        Mi <span class="italic text-[#D4AF37]">Trayectoria</span> Profesional
+                    </h1>
+                    
+                    <p class="text-[#FAFAF5]/70 font-serif text-lg md:text-xl italic max-w-2xl leading-relaxed">
+                        Gestione su progreso y acceda a programas diseñados para alcanzar la excelencia en el sector público y privado.
+                    </p>
+
+                    <!-- Integrated Search -->
+                    <div class="pt-6">
+                        <div class="relative max-w-md group">
+                            <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C9C7B8] transition-colors group-focus-within:text-[#D4AF37]" />
+                            <input 
+                                v-model="searchTerm"
+                                type="text" 
+                                placeholder="Buscar en mi catálogo..." 
+                                class="w-full pl-12 pr-6 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl text-white text-sm focus:ring-4 focus:ring-[#D4AF37]/10 focus:border-[#D4AF37]/40 transition-all placeholder:text-white/30 font-serif italic"
+                            />
+                        </div>
                     </div>
                 </div>
             </header>
 
             <!-- Refined Filter Tabs -->
-            <div class="flex flex-wrap gap-4 items-center">
-                <button 
-                    v-for="filter in filters" 
-                    :key="filter.id"
-                    @click="currentFilter = filter.id"
-                    class="flex items-center gap-3 px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all border shadow-sm group"
-                    :class="currentFilter === filter.id 
-                        ? 'bg-primary text-on-primary border-primary shadow-primary/20 scale-105' 
-                        : 'bg-white text-on-surface-variant border-outline-variant/30 hover:border-primary/40 hover:bg-primary/5'"
-                >
-                    <component :is="filter.icon" class="w-4 h-4 transition-transform group-hover:scale-110" />
-                    {{ filter.label }}
-                </button>
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-8 bg-white/50 backdrop-blur-sm p-4 rounded-[2.5rem] border border-white shadow-sm">
+                <div class="flex flex-wrap gap-3 items-center w-full sm:w-auto">
+                    <button 
+                        v-for="filter in filters" 
+                        :key="filter.id"
+                        @click="currentFilter = filter.id"
+                        class="flex items-center gap-3 px-6 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all duration-500 group relative overflow-hidden"
+                        :class="currentFilter === filter.id 
+                            ? 'bg-[#57572A] text-white shadow-xl shadow-[#57572A]/20 scale-105' 
+                            : 'bg-transparent text-[#5F5E5E] hover:bg-[#F4F4EF] border border-[#C9C7B8]/20'"
+                    >
+                        <component :is="filter.icon" class="w-3.5 h-3.5" :class="currentFilter === filter.id ? 'text-[#D4AF37]' : 'text-[#57572A]/40'" />
+                        {{ filter.label }}
+                    </button>
+                </div>
+                
+                <div class="hidden md:flex items-center gap-4 px-6 text-[11px] font-bold text-[#5F5E5E]/40 uppercase tracking-widest whitespace-nowrap">
+                    <span class="w-8 h-[1px] bg-[#C9C7B8]"></span>
+                    Exhibiendo {{ filteredCourses.length }} programas
+                </div>
             </div>
 
             <!-- Enhanced Course Grid -->
-            <div v-if="filteredCourses.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-10">
+            <div v-if="filteredCourses.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 <article 
                     v-for="course in filteredCourses" 
                     :key="course.id"
-                    class="bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-sm overflow-hidden group hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 flex flex-col hover:-translate-y-2"
+                    class="bg-white rounded-[2.5rem] border border-[#C9C7B8]/20 shadow-sm overflow-hidden group hover:shadow-[0_30px_60px_rgba(87,87,42,0.12)] transition-all duration-700 flex flex-col hover:-translate-y-3"
                 >
                     <!-- Visual Cover -->
-                    <div class="relative h-56 overflow-hidden bg-surface-container">
+                    <div class="relative h-64 overflow-hidden bg-[#F4F4EF]">
                         <img 
                             v-if="course.image" 
                             :src="course.image" 
                             :alt="course.title"
-                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
+                            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-in-out"
                         />
-                        <div class="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent"></div>
+                        <!-- Overlay gradient -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-[#1A1C19]/60 via-transparent to-transparent opacity-60"></div>
+                        
                         <div class="absolute top-6 left-6">
-                            <span class="px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md text-[9px] font-bold tracking-[0.2em] uppercase text-primary border border-white/50">
+                            <span class="px-4 py-2 rounded-sm bg-white/10 backdrop-blur-xl text-[10px] font-bold tracking-widest uppercase text-white border border-white/20">
                                 {{ course.type }}
                             </span>
+                        </div>
+
+                        <!-- Progress Circle Mini Badge -->
+                        <div class="absolute bottom-6 right-6">
+                            <div class="w-16 h-16 rounded-full bg-white/90 backdrop-blur-xl p-1 shadow-lg flex items-center justify-center border border-white/50">
+                                <svg class="w-full h-full transform -rotate-90">
+                                    <circle cx="32" cy="32" r="28" stroke="currentColor" stroke-width="3" fill="transparent" class="text-[#F4F4EF]" />
+                                    <circle 
+                                        cx="32" cy="32" r="28" stroke="currentColor" stroke-width="3" fill="transparent" 
+                                        class="text-[#D4AF37]"
+                                        :stroke-dasharray="2 * Math.PI * 28"
+                                        :stroke-dashoffset="(2 * Math.PI * 28) * (1 - (course.pivot.progress || (course.pivot.completed_at ? 100 : 0)) / 100)"
+                                        stroke-linecap="round"
+                                    />
+                                </svg>
+                                <span class="absolute text-[11px] font-bold text-[#1A1C19]">{{ course.pivot.progress || (course.pivot.completed_at ? '100' : '0') }}%</span>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Academic Content -->
-                    <div class="p-8 flex flex-col flex-1 space-y-6">
-                        <div class="space-y-2">
-                             <div class="flex items-center gap-2 text-[10px] font-bold text-primary uppercase tracking-widest">
-                                 <span class="w-8 h-[1px] bg-primary/30"></span>
+                    <div class="p-8 flex flex-col flex-1">
+                        <div class="space-y-4 mb-8">
+                             <div class="flex items-center gap-3 text-[10px] font-bold text-[#57572A]/60 uppercase tracking-[0.2em]">
                                  {{ course.category?.name }}
                              </div>
-                             <h3 class="font-serif font-bold text-2xl text-on-surface leading-snug group-hover:text-primary transition-colors italic">
+                             <h3 class="font-serif font-bold text-2xl text-[#1A1C19] leading-tight group-hover:text-[#57572A] transition-colors italic line-clamp-2">
                                 {{ course.title }}
                              </h3>
                         </div>
 
-                        <!-- Progress Section -->
-                        <div class="bg-surface-container-low p-6 rounded-3xl space-y-4 border border-outline-variant/10">
-                            <div class="flex justify-between items-end">
-                                <div class="space-y-1">
-                                    <p class="text-[9px] font-bold text-on-surface-variant/40 uppercase tracking-widest">Estado académico</p>
-                                    <p class="text-xs font-bold text-on-surface italic">{{ course.pivot.completed_at ? 'Módulo Completado' : 'Continuar Formación' }}</p>
-                                </div>
-                                <span class="text-lg font-serif font-bold text-primary italic">{{ course.pivot.progress || (course.pivot.completed_at ? '100' : '0') }}%</span>
-                            </div>
-                            <div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden p-[2px] border border-outline-variant/10">
-                                <div 
-                                    class="h-full bg-primary rounded-full transition-all duration-1000" 
-                                    :style="{ width: (course.pivot.progress || (course.pivot.completed_at ? 100 : 0)) + '%' }"
-                                ></div>
+                        <!-- Info Strip -->
+                        <div class="flex items-center gap-4 mb-8 pt-6 border-t border-[#F4F4EF]">
+                            <div class="flex items-center gap-2 text-[13px] font-medium italic text-[#5F5E5E]">
+                                <CheckCircle v-if="course.pivot.completed_at" class="w-4 h-4 text-[#D4AF37]" />
+                                <PlayCircle v-else class="w-4 h-4 text-[#57572A]" />
+                                {{ course.pivot.completed_at ? 'Módulo Completado' : 'Sesiones en curso' }}
                             </div>
                         </div>
 
                         <Link 
                             :href="route('student.classroom', { course: course.slug })"
-                            class="w-full py-5 rounded-2xl bg-primary text-on-primary text-xs font-bold uppercase tracking-widest flex justify-center items-center gap-3 hover:bg-primary/90 transition-all shadow-xl shadow-primary/10 active:scale-95 group"
+                            class="w-full py-5 rounded-2xl bg-[#57572A] text-white text-[11px] font-black uppercase tracking-[0.2em] flex justify-center items-center gap-3 hover:bg-[#1A1C19] transition-all duration-500 shadow-xl shadow-[#57572A]/10 relative group/btn overflow-hidden"
                         >
-                            {{ course.pivot.completed_at ? 'Repasar Lecciones' : 'Entrar al Aula Virtual' }}
-                            <ArrowRight class="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            <span class="relative z-10">{{ course.pivot.completed_at ? 'Repasar Lecciones' : 'Aula Virtual' }}</span>
+                            <ArrowRight class="w-4 h-4 relative z-10 group-hover/btn:translate-x-1 transition-transform" />
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
                         </Link>
                     </div>
                 </article>
             </div>
 
             <!-- Academic Empty State -->
-            <div v-else class="py-32 text-center bg-surface-container-low rounded-[4rem] border-2 border-dashed border-outline-variant/40 space-y-8 max-w-4xl mx-auto">
-                <div class="inline-flex p-8 bg-white rounded-[2.5rem] shadow-xl shadow-primary/5 mb-4 group ring-8 ring-primary/5 transition-all">
-                    <BookOpen class="w-12 h-12 text-primary/30 group-hover:text-primary transition-colors" />
+            <div v-else class="py-32 text-center bg-white rounded-[4rem] border border-[#C9C7B8]/20 shadow-sm space-y-10 max-w-4xl mx-auto overflow-hidden relative">
+                <!-- Decorative background -->
+                <div class="absolute inset-0 opacity-[0.03] pointer-events-none flex items-center justify-center">
+                    <BookOpen class="w-[500px] h-[500px]" />
                 </div>
-                <div class="space-y-4 px-8">
-                    <h3 class="text-3xl font-serif font-bold text-on-surface italic">Su registro académico está vacío</h3>
-                    <p class="text-on-surface-variant font-serif italic text-lg max-w-md mx-auto">Aún no se ha inscrito en programas académicos o no hay resultados que coincidan con su búsqueda.</p>
+
+                <div class="relative z-10 space-y-8 px-8">
+                    <div class="inline-flex p-10 bg-[#FAFAF5] rounded-[3rem] border border-[#C9C7B8]/30 shadow-inner mb-4">
+                        <BookOpen class="w-16 h-16 text-[#C9C7B8]" />
+                    </div>
+                    <div class="space-y-4 max-w-lg mx-auto">
+                        <h3 class="text-4xl font-serif font-bold text-[#1A1C19] italic">Su registro académico está vacío</h3>
+                        <p class="text-[#5F5E5E] font-serif italic text-lg leading-relaxed">Aún no se ha inscrito en programas académicos o sus filtros no arrojan resultados en su expediente actual.</p>
+                    </div>
+                    <Link :href="route('cursos.index')" class="inline-flex items-center gap-4 text-xs font-black text-[#57572A] hover:text-[#D4AF37] uppercase tracking-[0.25em] group transition-all">
+                        Explorar Catálogo de Especialización 
+                        <span class="w-12 h-[1px] bg-[#C9C7B8] group-hover:bg-[#D4AF37] group-hover:w-16 transition-all"></span>
+                        <ArrowRight class="w-4 h-4" />
+                    </Link>
                 </div>
-                <Link :href="route('cursos.index')" class="inline-flex items-center gap-2 text-xs font-bold text-primary hover:text-primary/70 uppercase tracking-widest border-b border-primary/20 pb-2 transition-all">
-                    Explorar Catálogo de Especialización <ArrowRight class="w-4 h-4" />
-                </Link>
             </div>
+        </div>
         </div>
     </AppLayout>
 </template>
