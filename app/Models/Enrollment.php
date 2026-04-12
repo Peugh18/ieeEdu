@@ -31,6 +31,17 @@ class Enrollment extends Model
         'subscription_active'  => 'boolean',
     ];
 
+    public function scopeVisible($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('subscription_granted', false)
+              ->orWhere(function ($q2) {
+                  $q2->where('subscription_granted', true)
+                     ->where('subscription_active', true);
+              });
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

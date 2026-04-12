@@ -18,8 +18,15 @@ class PublicCourseController extends Controller
             ->with('category');
 
         if (Auth::check()) {
-            $enrolledCourseIds = \App\Models\Enrollment::where('user_id', Auth::id())->pluck('course_id');
-            $query->whereNotIn('id', $enrolledCourseIds);
+            $user = Auth::user();
+            if ($user->hasSubscriptionActive()) {
+                $query->whereRaw('1 = 0');
+            } else {
+                $visibleCourseIds = \App\Models\Enrollment::where('user_id', $user->id)
+                    ->visible()
+                    ->pluck('course_id');
+                $query->whereNotIn('id', $visibleCourseIds);
+            }
         }
 
         $courses = $query->get();
@@ -61,8 +68,15 @@ class PublicCourseController extends Controller
             ->with('category');
 
         if (Auth::check()) {
-            $enrolledCourseIds = \App\Models\Enrollment::where('user_id', Auth::id())->pluck('course_id');
-            $query->whereNotIn('id', $enrolledCourseIds);
+            $user = Auth::user();
+            if ($user->hasSubscriptionActive()) {
+                $query->whereRaw('1 = 0');
+            } else {
+                $visibleCourseIds = \App\Models\Enrollment::where('user_id', $user->id)
+                    ->visible()
+                    ->pluck('course_id');
+                $query->whereNotIn('id', $visibleCourseIds);
+            }
         }
 
         if ($request->filled('search')) {

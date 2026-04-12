@@ -13,19 +13,27 @@ class GetDashboardStatsAction
 {
     /**
      * Obtiene estadísticas consolidadas para el dashboard del estudiante.
+     *
+     * Regla: los cursos otorgados por suscripción (subscription_granted=true)
+     * solo se cuentan como "activos" si la suscripción sigue activa
+     * (subscription_active=true). Nunca se ocultan los cursos comprados
+     * individualmente (subscription_granted=false).
      */
     public function execute(User $user): array
     {
-        $enrollments = Enrollment::where('user_id', $user->id)->get();
-        $enrolledIds = $enrollments->pluck('course_id');
+        $visibleEnrollments = Enrollment::where('user_id', $user->id)
+            ->visible()
+            ->get();
+
+        $visibleCourseIds = $visibleEnrollments->pluck('course_id');
 
         return [
-            'active_courses'    => $enrollments->whereNull('completed_at')->count(),
-            'completed_courses' => $enrollments->whereNotNull('completed_at')->count(),
-            'upcoming_classes'  => CourseLesson::whereIn('course_id', $enrolledIds)
+            'active_courses'    => $visibleEnrollments->whereNull('completed_at')->count(),
+            'completed_courses' => $visibleEnrollments->whereNotNull('completed_at')->count(),
+            'upcoming_classes'  => CourseLesson::whereIn('course_id', $visibleCourseIds)
                 ->where('start_time', '>', now())
                 ->count(),
-            'available_exams'   => CourseQuiz::whereIn('course_id', $enrolledIds)->count(),
+            'available_exams'   => CourseQuiz::whereIn('course_id', $visibleCourseIds)->count(),
             'average_score'     => round(CourseExamAttempt::where('user_id', $user->id)
                 ->whereNotNull('score')
                 ->avg('score') ?? 0, 1),
@@ -33,3 +41,4 @@ class GetDashboardStatsAction
         ];
     }
 }
+
