@@ -23,6 +23,7 @@ interface Article {
     media: string;
     published_at: string;
     thumbnail: string | null;
+    file_path?: string | null;
     download_url: string;
 }
 
@@ -44,6 +45,11 @@ function formatDate(date: string) {
 function getDownloadLink(book: Book) {
     if (book.file_path) return `/storage/${book.file_path}`;
     return book.download_url;
+}
+
+function getArticleDownloadLink(article: Article) {
+    if (article.file_path) return `/storage/${article.file_path}`;
+    return article.download_url;
 }
 
 const breadcrumbs = [
@@ -199,7 +205,7 @@ const breadcrumbs = [
                                         {{ article.title }}
                                     </h3>
                                     <a 
-                                        :href="article.download_url" 
+                                        :href="getArticleDownloadLink(article)" 
                                         target="_blank"
                                         class="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-primary border-b border-primary/20 pb-1.5 w-fit hover:border-primary transition-all group-hover:gap-4"
                                     >

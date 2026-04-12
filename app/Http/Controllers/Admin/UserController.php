@@ -65,7 +65,7 @@ class UserController extends Controller
         ]);
 
         $availableCourses = Course::where('status', 'PUBLICADO')
-            ->select('id', 'title', 'type')
+            ->select('id', 'title', 'type', 'price', 'sale_price')
             ->orderBy('title')
             ->get();
 

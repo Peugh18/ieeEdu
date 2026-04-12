@@ -16,6 +16,7 @@ class Article extends Model
         'media',
         'published_at',
         'thumbnail',
+        'file_path',
         'download_url',
     ];
 

@@ -1,131 +1,650 @@
 <script setup lang="ts">
-import NavFooter from '@/components/NavFooter.vue';
-import NavMain from '@/components/NavMain.vue';
-import NavUser from '@/components/NavUser.vue';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem, type SharedData, type User } from '@/types';
-import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Calendar, ClipboardCheck, Award, Settings, LogOut, Crown } from 'lucide-vue-next';
-import AppLogo from './AppLogo.vue';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from '@/components/ui/sidebar';
+import { type SharedData, type User } from '@/types';
+import { Link, usePage, router } from '@inertiajs/vue3';
+import {
+    LayoutGrid, BookOpen, Calendar, ClipboardCheck, Award,
+    Folder, Crown, LogOut, ChevronRight, Settings,
+    Users, CreditCard, FileText, Newspaper, Sparkles
+} from 'lucide-vue-next';
+import { ref, computed } from 'vue';
 
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
 const isAdmin = user.role === 'admin';
 
+const avatarUrl = computed(() =>
+    user.avatar
+        ? '/storage/' + user.avatar
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=57572A&color=e7e6ab&bold=true&size=128`
+);
+
+const userInitials = computed(() => {
+    return user.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase();
+});
+
+interface NavItem {
+    title: string;
+    href: string;
+    icon: any;
+    badge?: string | number;
+}
+
 const adminNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: 'admin.dashboard',
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Usuarios',
-        href: 'admin.users.index',
-        icon: Folder,
-    },
-    {
-        title: 'Cursos',
-        href: 'admin.courses.index',
-        icon: BookOpen,
-    },
-    {
-        title: 'Categorías',
-        href: 'admin.categories.index',
-        icon: Folder,
-    },
-    {
-        title: 'Pagos',
-        href: 'admin.payments.index',
-        icon: Folder,
-    },
-    {
-        title: 'Suscripciones',
-        href: 'admin.subscriptions.index',
-        icon: Crown,
-    },
-    {
-        title: 'Libros',
-        href: 'admin.books.index',
-        icon: BookOpen,
-    },
-    {
-        title: 'Artículos',
-        href: 'admin.articles.index',
-        icon: Folder,
-    },
+    { title: 'Dashboard',      href: 'admin.dashboard',           icon: LayoutGrid },
+    { title: 'Usuarios',       href: 'admin.users.index',         icon: Users },
+    { title: 'Cursos',         href: 'admin.courses.index',       icon: BookOpen },
+    { title: 'Categorías',     href: 'admin.categories.index',    icon: Folder },
+    { title: 'Pagos',          href: 'admin.payments.index',      icon: CreditCard },
+    { title: 'Suscripciones',  href: 'admin.subscriptions.index', icon: Crown },
+    { title: 'Libros',         href: 'admin.books.index',         icon: FileText },
+    { title: 'Artículos',      href: 'admin.articles.index',      icon: Newspaper },
 ];
 
 const studentNavItems: NavItem[] = [
-    {
-        title: 'Mi Dashboard',
-        href: 'dashboard',
-        icon: LayoutGrid,
-    },
-    {
-        title: 'Mis Cursos',
-        href: 'student.courses.index',
-        icon: BookOpen,
-    },
-    {
-        title: 'Clases en Vivo',
-        href: 'student.live-classes.index',
-        icon: Calendar,
-    },
-    {
-        title: 'Mis Exámenes',
-        href: 'student.exams.index',
-        icon: ClipboardCheck,
-    },
-    {
-        title: 'Certificados',
-        href: 'student.certificates.index',
-        icon: Award,
-    },
+    { title: 'Mi Dashboard',   href: 'dashboard',                    icon: LayoutGrid },
+    { title: 'Mis Cursos',     href: 'student.courses.index',        icon: BookOpen },
+    { title: 'Clases en Vivo', href: 'student.live-classes.index',   icon: Calendar },
+    { title: 'Mis Exámenes',   href: 'student.exams.index',          icon: ClipboardCheck },
+    { title: 'Certificados',   href: 'student.certificates.index',   icon: Award },
 ];
 
 const mainNavItems = isAdmin ? adminNavItems : studentNavItems;
+
+function isActive(href: string): boolean {
+    try {
+        const resolved = route(href, undefined, false);
+        return page.url.startsWith(resolved);
+    } catch {
+        return false;
+    }
+}
+
+function logout() {
+    router.post(route('logout'));
+}
 </script>
 
 <template>
-    <Sidebar collapsible="icon" variant="inset" class="border-r border-sidebar-border/30">
-        <SidebarHeader class="p-4 relative">
-            <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child>
-                        <Link :href="isAdmin ? route('admin.dashboard') : route('dashboard')" class="flex items-center gap-3 group">
-                            <AppLogo />
-                            <div class="flex flex-col gap-0.5 group-hover:translate-x-1 transition-transform">
-                                <span class="font-serif font-bold text-sm tracking-tighter italic text-[#57572a] leading-none uppercase">{{ isAdmin ? 'Admin' : 'Aula Virtual' }}</span>
-                                <span class="text-[9px] font-bold text-muted-foreground tracking-[0.2em] uppercase leading-none">IIE - Institute</span>
-                            </div>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
-            
-            <div class="mt-4 pt-4 border-t border-sidebar-border/30">
-                <Link :href="isAdmin ? route('profile.edit') : route('student.profile.index')" class="flex items-center gap-3 p-2 rounded-xl hover:bg-outline-variant/10 transition-colors group cursor-pointer w-full text-left">
-                    <img :src="user.avatar ? '/storage/'+user.avatar : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=57572A&color=fff`" class="w-9 h-9 rounded-full object-cover shadow-sm group-hover:scale-105 transition-transform shrink-0" />
-                    <div class="flex flex-col overflow-hidden w-full">
-                        <span class="text-xs font-bold text-on-surface truncate uppercase">{{ user.name }}</span>
-                        <span class="text-[9px] text-on-surface-variant hover:text-primary transition-colors tracking-widest uppercase">
-                            Configuración
-                        </span>
-                    </div>
+    <!-- ═══════════════════════════════════════════════
+         IIE Elite Sidebar — Premium Dark Edition
+    ════════════════════════════════════════════════ -->
+    <Sidebar collapsible="icon" variant="inset">
+
+        <!-- ── HEADER: Logo + Brand ─────────────────────── -->
+        <SidebarHeader class="p-0">
+            <div class="iie-sidebar-logo group">
+                <Link :href="isAdmin ? route('admin.dashboard') : route('dashboard')" class="flex flex-col items-center w-full gap-1">
+                    <!-- Single Logo — clean and big -->
+                    <img
+                        src="/images/empresa/IEE-Logo02.png"
+                        alt="Instituto de Economía y Empresa"
+                        class="iie-logo-img-full"
+                    />
+                    <span class="iie-brand-sub">{{ isAdmin ? 'Panel Administrativo' : 'Aula Virtual' }}</span>
                 </Link>
             </div>
+
+            <!-- ── USER PROFILE CARD ───────────────────────── -->
+            <Link
+                :href="isAdmin ? route('profile.edit') : route('student.profile.index')"
+                class="iie-user-card group block"
+            >
+                <!-- Avatar -->
+                <div class="iie-avatar-ring">
+                    <img :src="avatarUrl" :alt="user.name" class="iie-avatar-img" />
+                    <div class="iie-avatar-status"></div>
+                </div>
+
+                <!-- User info -->
+                <div class="iie-user-info">
+                    <span class="iie-user-name">{{ user.name }}</span>
+                    <span class="iie-user-role">
+                        <Settings class="iie-user-role-icon" />
+                        Configuración
+                    </span>
+                </div>
+
+                <!-- Arrow indicator -->
+                <ChevronRight class="iie-user-arrow" />
+            </Link>
         </SidebarHeader>
 
-        <SidebarContent class="px-3">
-            <NavMain :items="mainNavItems" />
+        <!-- ── NAVIGATION ────────────────────────────────── -->
+        <SidebarContent class="iie-nav-content">
+            <!-- Section Label -->
+            <div class="iie-section-label">
+                <span>Platform</span>
+            </div>
+
+            <!-- Nav Items -->
+            <nav class="iie-nav-list">
+                <Link
+                    v-for="item in mainNavItems"
+                    :key="item.title"
+                    :href="route(item.href)"
+                    :class="['iie-nav-item', { 'iie-nav-item--active': isActive(item.href) }]"
+                >
+                    <!-- Active Glow Layer -->
+                    <div v-if="isActive(item.href)" class="iie-nav-active-glow"></div>
+
+                    <!-- Active Bar -->
+                    <div v-if="isActive(item.href)" class="iie-nav-active-bar"></div>
+
+                    <!-- Icon -->
+                    <div class="iie-nav-icon-wrap">
+                        <component :is="item.icon" class="iie-nav-icon" />
+                    </div>
+
+                    <!-- Label -->
+                    <span class="iie-nav-label">{{ item.title }}</span>
+
+                    <!-- Badge (if exists) -->
+                    <span v-if="item.badge" class="iie-nav-badge">{{ item.badge }}</span>
+
+                    <!-- Active Arrow -->
+                    <ChevronRight v-if="isActive(item.href)" class="iie-nav-chevron" />
+                </Link>
+            </nav>
         </SidebarContent>
 
-        <SidebarFooter class="p-4 border-t border-sidebar-border/30">
-            <Link method="post" as="button" :href="route('logout')" class="flex items-center gap-3 w-full p-3 rounded-xl text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors group font-bold text-xs uppercase tracking-widest">
-                <LogOut class="w-4 h-4 opacity-70 group-hover:opacity-100" />
-                Cerrar Sesión
-            </Link>
+        <!-- ── FOOTER: Logout ─────────────────────────────── -->
+        <SidebarFooter class="iie-sidebar-footer">
+            <div class="iie-footer-divider"></div>
+            <button @click="logout" class="iie-logout-btn group">
+                <div class="iie-logout-icon-wrap">
+                    <LogOut class="iie-logout-icon" />
+                </div>
+                <span class="iie-logout-label">Cerrar Sesión</span>
+            </button>
         </SidebarFooter>
+
+        <SidebarRail />
     </Sidebar>
-    <slot />
 </template>
+
+<style scoped>
+/* ═══════════════════════════════════════════════════
+   IIE ELITE SIDEBAR — Design System Variables
+   Palette: dark charcoal-olive, golden olive, cream
+════════════════════════════════════════════════════ */
+
+/* ── CSS VARIABLES ──────────────────────────────── */
+.iie-sidebar-logo,
+.iie-user-card,
+.iie-nav-content,
+.iie-sidebar-footer {
+    --iie-dark:       #161610;
+    --iie-dark-2:     #1f1f14;
+    --iie-dark-3:     #282818;
+    --iie-primary:    #57572a;
+    --iie-primary-l:  #707040;
+    --iie-gold:       #e7e6ab;
+    --iie-gold-dim:   #caca91;
+    --iie-cream:      #f5f4e8;
+    --iie-muted:      rgba(231, 230, 171, 0.35);
+    --iie-muted-2:    rgba(231, 230, 171, 0.15);
+    --iie-muted-3:    rgba(231, 230, 171, 0.06);
+    --iie-border:     rgba(231, 230, 171, 0.08);
+    --iie-shadow:     0 0 40px rgba(87, 87, 42, 0.25);
+    --iie-glow:       0 0 20px rgba(231, 230, 171, 0.12);
+    --iie-transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ═══════════════════════════════════════════════════
+   SIDEBAR BASE OVERRIDE — Shadow the shadcn defaults
+════════════════════════════════════════════════════ */
+:deep([data-sidebar="sidebar"]) {
+    background: #161610 !important;
+    border-right: 1px solid rgba(231, 230, 171, 0.06) !important;
+    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.5) !important;
+}
+
+:deep([data-sidebar="content"]) {
+    background: transparent !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   LOGO SECTION
+════════════════════════════════════════════════════ */
+.iie-sidebar-logo {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem 1rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.iie-sidebar-logo::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 1rem; right: 1rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(231, 230, 171, 0.15), transparent);
+}
+
+/* Single full logo — big and centered */
+.iie-logo-img-full {
+    height: 3.5rem;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    margin: 0 auto;
+    filter: brightness(0) invert(1) sepia(0.3) saturate(0.7) hue-rotate(15deg) brightness(0.9);
+    transition: filter 0.35s ease, transform 0.35s ease;
+}
+
+.iie-sidebar-logo .group:hover .iie-logo-img-full {
+    filter: brightness(0) invert(1) sepia(0.4) saturate(1) hue-rotate(15deg) brightness(1.1);
+    transform: scale(1.04);
+}
+
+.iie-brand-sub {
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: rgba(231, 230, 171, 0.35);
+    white-space: nowrap;
+    line-height: 1;
+    text-align: center;
+    width: 100%;
+}
+
+/* ═══════════════════════════════════════════════════
+   USER CARD
+════════════════════════════════════════════════════ */
+.iie-user-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    margin: 0.75rem 0.75rem 0;
+    border-radius: 1rem;
+    background: rgba(231, 230, 171, 0.04);
+    border: 1px solid rgba(231, 230, 171, 0.08);
+    transition: var(--iie-transition);
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.iie-user-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(87, 87, 42, 0.08), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: inherit;
+}
+
+.iie-user-card:hover::before {
+    opacity: 1;
+}
+
+.iie-user-card:hover {
+    background: rgba(231, 230, 171, 0.07);
+    border-color: rgba(231, 230, 171, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Avatar Ring */
+.iie-avatar-ring {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.iie-avatar-img {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(231, 230, 171, 0.2);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    transition: var(--iie-transition);
+}
+
+.iie-user-card:hover .iie-avatar-img {
+    border-color: rgba(231, 230, 171, 0.4);
+    transform: scale(1.06);
+}
+
+.iie-avatar-status {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: #4ade80;
+    border: 2px solid #161610;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
+}
+
+/* User Info */
+.iie-user-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.iie-user-name {
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(231, 230, 171, 0.9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.iie-user-role {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(231, 230, 171, 0.3);
+    transition: color 0.2s ease;
+}
+
+.iie-user-card:hover .iie-user-role {
+    color: rgba(231, 230, 171, 0.6);
+}
+
+.iie-user-role-icon {
+    width: 0.65rem;
+    height: 0.65rem;
+    flex-shrink: 0;
+}
+
+.iie-user-arrow {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: rgba(231, 230, 171, 0.2);
+    flex-shrink: 0;
+    transition: var(--iie-transition);
+}
+
+.iie-user-card:hover .iie-user-arrow {
+    color: rgba(231, 230, 171, 0.5);
+    transform: translateX(3px);
+}
+
+/* ═══════════════════════════════════════════════════
+   NAVIGATION CONTENT
+════════════════════════════════════════════════════ */
+.iie-nav-content {
+    padding: 0.5rem 0.75rem;
+    overflow-y: auto;
+}
+
+.iie-nav-content::-webkit-scrollbar { width: 2px; }
+.iie-nav-content::-webkit-scrollbar-track { background: transparent; }
+.iie-nav-content::-webkit-scrollbar-thumb { background: rgba(231, 230, 171, 0.1); border-radius: 10px; }
+
+/* Section Label */
+.iie-section-label {
+    padding: 0.875rem 0.5rem 0.5rem;
+}
+
+.iie-section-label span {
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgba(231, 230, 171, 0.2);
+    line-height: 1;
+}
+
+/* Nav List */
+.iie-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+/* Nav Item */
+.iie-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0.75rem;
+    border-radius: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    transition: var(--iie-transition);
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+/* Default State */
+.iie-nav-item:not(.iie-nav-item--active) {
+    background: transparent;
+    color: rgba(231, 230, 171, 0.45);
+}
+
+.iie-nav-item:not(.iie-nav-item--active):hover {
+    background: rgba(231, 230, 171, 0.05);
+    color: rgba(231, 230, 171, 0.8);
+    border-color: rgba(231, 230, 171, 0.06);
+    transform: translateX(3px);
+}
+
+/* ── ACTIVE STATE ───────────────────────────────── */
+.iie-nav-item--active {
+    background: linear-gradient(135deg, rgba(87, 87, 42, 0.9), rgba(112, 112, 64, 0.85));
+    border-color: rgba(231, 230, 171, 0.15);
+    color: #e7e6ab;
+    box-shadow:
+        0 4px 20px rgba(87, 87, 42, 0.5),
+        0 0 0 1px rgba(231, 230, 171, 0.08) inset;
+    transform: translateX(0);
+}
+
+/* Active Glow Overlay */
+.iie-nav-active-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(231, 230, 171, 0.12), transparent 60%);
+    pointer-events: none;
+    border-radius: inherit;
+}
+
+/* Active Left Bar */
+.iie-nav-active-bar {
+    position: absolute;
+    left: 0; top: 20%; bottom: 20%;
+    width: 3px;
+    border-radius: 0 6px 6px 0;
+    background: linear-gradient(180deg, #e7e6ab, #caca91);
+    box-shadow: 0 0 12px rgba(231, 230, 171, 0.6);
+}
+
+/* Nav Icon Wrap */
+.iie-nav-icon-wrap {
+    width: 1.875rem;
+    height: 1.875rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: var(--iie-transition);
+}
+
+.iie-nav-item:not(.iie-nav-item--active) .iie-nav-icon-wrap {
+    background: rgba(231, 230, 171, 0.05);
+}
+
+.iie-nav-item--active .iie-nav-icon-wrap {
+    background: rgba(231, 230, 171, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.iie-nav-item:not(.iie-nav-item--active):hover .iie-nav-icon-wrap {
+    background: rgba(231, 230, 171, 0.08);
+    transform: scale(1.1);
+}
+
+/* Nav Icon */
+.iie-nav-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    transition: var(--iie-transition);
+}
+
+.iie-nav-item--active .iie-nav-icon {
+    filter: drop-shadow(0 0 4px rgba(231, 230, 171, 0.4));
+}
+
+/* Nav Label */
+.iie-nav-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: var(--iie-transition);
+}
+
+/* Badge */
+.iie-nav-badge {
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: rgba(231, 230, 171, 0.15);
+    color: rgba(231, 230, 171, 0.7);
+    border: 1px solid rgba(231, 230, 171, 0.1);
+    line-height: 1.4;
+}
+
+.iie-nav-item--active .iie-nav-badge {
+    background: rgba(231, 230, 171, 0.25);
+    color: #e7e6ab;
+}
+
+/* Active Chevron */
+.iie-nav-chevron {
+    width: 0.875rem;
+    height: 0.875rem;
+    color: rgba(231, 230, 171, 0.5);
+    flex-shrink: 0;
+    animation: pulseRight 1.8s ease-in-out infinite;
+}
+
+@keyframes pulseRight {
+    0%, 100% { transform: translateX(0); opacity: 0.5; }
+    50%       { transform: translateX(2px); opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════
+   FOOTER — LOGOUT
+════════════════════════════════════════════════════ */
+.iie-sidebar-footer {
+    padding: 0.75rem;
+}
+
+.iie-footer-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(231, 230, 171, 0.08), transparent);
+    margin-bottom: 0.75rem;
+}
+
+.iie-logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: var(--iie-transition);
+    text-align: left;
+}
+
+.iie-logout-btn:hover {
+    background: rgba(186, 26, 26, 0.12);
+    border-color: rgba(186, 26, 26, 0.2);
+    transform: translateX(2px);
+}
+
+.iie-logout-icon-wrap {
+    width: 1.875rem;
+    height: 1.875rem;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(231, 230, 171, 0.04);
+    border: 1px solid rgba(231, 230, 171, 0.06);
+    transition: var(--iie-transition);
+}
+
+.iie-logout-btn:hover .iie-logout-icon-wrap {
+    background: rgba(186, 26, 26, 0.15);
+    border-color: rgba(186, 26, 26, 0.25);
+}
+
+.iie-logout-icon {
+    width: 1rem;
+    height: 1rem;
+    color: rgba(231, 230, 171, 0.3);
+    transition: var(--iie-transition);
+}
+
+.iie-logout-btn:hover .iie-logout-icon {
+    color: #f87171;
+    filter: drop-shadow(0 0 6px rgba(248, 113, 113, 0.4));
+}
+
+.iie-logout-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(231, 230, 171, 0.3);
+    transition: var(--iie-transition);
+}
+
+.iie-logout-btn:hover .iie-logout-label {
+    color: #f87171;
+}
+
+/* ═══════════════════════════════════════════════════
+   COLLAPSED / ICON MODE — Preserve brand feel
+════════════════════════════════════════════════════ */
+:deep([data-collapsible="icon"]) .iie-brand-text,
+:deep([data-collapsible="icon"]) .iie-user-info,
+:deep([data-collapsible="icon"]) .iie-user-arrow,
+:deep([data-collapsible="icon"]) .iie-nav-label,
+:deep([data-collapsible="icon"]) .iie-nav-badge,
+:deep([data-collapsible="icon"]) .iie-nav-chevron,
+:deep([data-collapsible="icon"]) .iie-logout-label,
+:deep([data-collapsible="icon"]) .iie-section-label {
+    display: none;
+}
+
+/* In icon mode, the icon-wrap shows the circular emblem only */
+:deep([data-collapsible="icon"]) .iie-logo-icon-wrap {
+    width: 2rem;
+    height: 2rem;
+}
+</style>

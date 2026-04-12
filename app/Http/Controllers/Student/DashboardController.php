@@ -104,15 +104,21 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $progressService = app(\App\Services\ProgressService::class);
-        
+
+        // Filtrar: cursos individuales siempre visibles,
+        // cursos de suscripción solo si subscription_active = true
         $courses = $user->enrolledCourses()
+            ->where(function ($q) {
+                $q->where('enrollments.subscription_granted', false)
+                  ->orWhere(function ($q2) {
+                      $q2->where('enrollments.subscription_granted', true)
+                         ->where('enrollments.subscription_active', true);
+                  });
+            })
             ->with(['category', 'modules.lessons'])
             ->get()
             ->map(function (Course $course) use ($user, $progressService) {
-                // Sincronización proactiva para corregir datos antiguos desfazados
                 $currentProgress = $progressService->calculateCourseProgress($user, $course);
-                
-                // Actualizamos la base de datos en segundo plano (si es necesario)
                 $progressService->syncProgress($user, $course);
 
                 return [

@@ -24,11 +24,17 @@ class ArticleController extends Controller
             'media' => 'required|string|max:255',
             'published_at' => 'required|date',
             'thumbnail' => 'required|image|max:2048',
+            'file_path' => 'nullable|file|mimes:pdf|max:10000',
             'download_url' => 'required|string|max:255',
         ]);
 
         if ($request->hasFile('thumbnail')) {
             $data['thumbnail'] = $request->file('thumbnail')->store('articles', 'public');
+        }
+
+        if ($request->hasFile('file_path')) {
+            $data['file_path'] = $request->file('file_path')->store('articles/pdfs', 'public');
+            $data['download_url'] = asset('storage/' . $data['file_path']);
         }
 
         Article::create($data);
@@ -43,6 +49,7 @@ class ArticleController extends Controller
             'media' => 'required|string|max:255',
             'published_at' => 'required|date',
             'thumbnail' => 'nullable|image|max:2048',
+            'file_path' => 'nullable|file|mimes:pdf|max:10000',
             'download_url' => 'required|string|max:255',
         ]);
 
@@ -55,6 +62,16 @@ class ArticleController extends Controller
             unset($data['thumbnail']);
         }
 
+        if ($request->hasFile('file_path')) {
+            if ($article->file_path) {
+                Storage::disk('public')->delete($article->file_path);
+            }
+            $data['file_path'] = $request->file('file_path')->store('articles/pdfs', 'public');
+            $data['download_url'] = asset('storage/' . $data['file_path']);
+        } else {
+            unset($data['file_path']);
+        }
+
         $article->update($data);
 
         return redirect()->back()->with('success', 'Artículo actualizado correctamente.');
@@ -64,6 +81,9 @@ class ArticleController extends Controller
     {
         if ($article->thumbnail) {
             Storage::disk('public')->delete($article->thumbnail);
+        }
+        if ($article->file_path) {
+            Storage::disk('public')->delete($article->file_path);
         }
         $article->delete();
 
