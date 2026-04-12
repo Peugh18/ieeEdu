@@ -22,6 +22,13 @@ class SubscriptionAccessService
      */
     public function grantAccess(int $userId): void
     {
+        // Cursos pagados individualmente → nunca cambiar su subscription_granted
+        $individualCourseIds = Payment::where('user_id', $userId)
+            ->where('status', 'aprobado')
+            ->whereNotNull('course_id')
+            ->pluck('course_id')
+            ->toArray();
+
         $courses = Course::where('status', 'PUBLICADO')->pluck('id');
 
         foreach ($courses as $courseId) {
@@ -30,13 +37,18 @@ class SubscriptionAccessService
                 ->first();
 
             if ($enrollment) {
-                // Ya existe (pago individual o anterior suscripción): solo activar acceso
-                $enrollment->update([
-                    'subscription_active' => true,
-                    'subscription_granted' => true,
-                ]);
+                // Si fue comprado individualmente: solo activar el flag de acceso,
+                // pero NO cambiar subscription_granted para que no sea revocado después.
+                if (in_array($courseId, $individualCourseIds)) {
+                    $enrollment->update(['subscription_active' => true]);
+                } else {
+                    $enrollment->update([
+                        'subscription_active'  => true,
+                        'subscription_granted' => true,
+                    ]);
+                }
             } else {
-                // Nueva inscripción por suscripción
+                // Nueva inscripción creada por suscripción
                 Enrollment::create([
                     'user_id'              => $userId,
                     'course_id'            => $courseId,

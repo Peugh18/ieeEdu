@@ -13,25 +13,7 @@ class CoursePolicy
      */
     public function viewClassroom(User $user, Course $course): bool
     {
-        // 1. Administradores tienen acceso total
-        if ($user->role === 'admin') {
-            return true;
-        }
-
-        // 2. Usuarios con suscripción activa tienen acceso
-        if ($user->hasSubscriptionActive()) {
-            return true;
-        }
-
-        // 3. Cursos gratuitos
-        if ($course->price <= 0 || $course->sale_price <= 0) {
-            return true;
-        }
-
-        // 4. Verificar matrícula explícita
-        return Enrollment::where('user_id', $user->id)
-            ->where('course_id', $course->id)
-            ->exists();
+        return $user->hasAccess($course->id);
     }
 
     /**
@@ -39,8 +21,6 @@ class CoursePolicy
      */
     public function enroll(User $user, Course $course): bool
     {
-        return !Enrollment::where('user_id', $user->id)
-            ->where('course_id', $course->id)
-            ->exists();
+        return !$user->hasAccess($course->id);
     }
 }

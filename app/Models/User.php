@@ -99,16 +99,30 @@ class User extends Authenticatable
 
     public function hasAccess($courseId)
     {
+        // Administradores tienen acceso total
+        if ($this->role === 'admin') {
+            return true;
+        }
+
+        // Si tiene suscripción premium activa, accede a todo
         if ($this->hasSubscriptionActive()) {
             return true;
         }
 
+        // Cursos gratuitos
         $course = Course::find($courseId);
         if ($course && $course->price <= 0) {
             return true;
         }
 
-        return $this->enrollments()->where('course_id', $courseId)->exists();
+        // Verificar inscripción (debe ser compra individual o suscripción activa)
+        return $this->enrollments()
+            ->where('course_id', $courseId)
+            ->where(function ($q) {
+                $q->where('subscription_granted', false)
+                  ->orWhere('subscription_active', true);
+            })
+            ->exists();
     }
 }
 

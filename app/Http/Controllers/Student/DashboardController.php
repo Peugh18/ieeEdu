@@ -40,8 +40,8 @@ class DashboardController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        // Obtener IDs inscritos (Cache local para el método)
-        $enrolledIds = Enrollment::where('user_id', $user->id)->pluck('course_id');
+        // Obtener IDs inscritos filtrados por acceso (pago o suscripción activa)
+        $enrolledIds = Enrollment::where('user_id', $user->id)->visible()->pluck('course_id');
 
         // 1. Sesión en vivo próxima
         $nextLiveClass = CourseLesson::whereIn('course_id', $enrolledIds)
@@ -75,6 +75,7 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         $enrolledCourses = Enrollment::where('user_id', $user->id)
+            ->visible()
             ->with(['course.category'])
             ->get()
             ->map(function (Enrollment $enrollment) use ($user) {
@@ -108,12 +109,8 @@ class DashboardController extends Controller
         // Filtrar: cursos individuales siempre visibles,
         // cursos de suscripción solo si subscription_active = true
         $courses = $user->enrolledCourses()
-            ->where(function ($q) {
-                $q->where('enrollments.subscription_granted', false)
-                  ->orWhere(function ($q2) {
-                      $q2->where('enrollments.subscription_granted', true)
-                         ->where('enrollments.subscription_active', true);
-                  });
+            ->whereHas('enrollments', function($q) use ($user) {
+                $q->where('user_id', $user->id)->visible();
             })
             ->with(['category', 'modules.lessons'])
             ->get()
@@ -145,7 +142,7 @@ class DashboardController extends Controller
     public function exams()
     {
         $user = Auth::user();
-        $enrolledCourseIds = Enrollment::where('user_id', $user->id)->pluck('course_id');
+        $enrolledCourseIds = Enrollment::where('user_id', $user->id)->visible()->pluck('course_id');
 
         $quizzes = CourseQuiz::whereIn('course_id', $enrolledCourseIds)->with('course')->get()
             ->map(function (CourseQuiz $quiz) use ($user) {
@@ -222,7 +219,7 @@ class DashboardController extends Controller
     public function liveClasses()
     {
         $user = Auth::user();
-        $enrolledIds = Enrollment::where('user_id', $user->id)->pluck('course_id');
+        $enrolledIds = Enrollment::where('user_id', $user->id)->visible()->pluck('course_id');
 
         $liveLessons = CourseLesson::whereIn('course_id', $enrolledIds)
             ->whereNull('video_url') // Si tiene grabación, no va en calendario de vivos
@@ -345,10 +342,22 @@ class DashboardController extends Controller
      */
     public function exploreCourses(Request $request)
     {
-        $courses = Course::published()
+        $user = Auth::user();
+        $query = Course::published()
             ->with(['category', 'instructor'])
-            ->withCount('lessons')
-            ->paginate(12)
+            ->withCount('lessons');
+
+        // Filtrar cursos que ya tiene acceso activo
+        if ($user->hasSubscriptionActive()) {
+            $query->whereRaw('1 = 0');
+        } else {
+            $visibleCourseIds = Enrollment::where('user_id', $user->id)
+                ->visible()
+                ->pluck('course_id');
+            $query->whereNotIn('id', $visibleCourseIds);
+        }
+
+        $courses = $query->paginate(12)
             ->withQueryString();
 
         return Inertia::render('Cursos', [
