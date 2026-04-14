@@ -5,13 +5,22 @@ import { Link, usePage, router } from '@inertiajs/vue3';
 import {
     LayoutGrid, BookOpen, Calendar, ClipboardCheck, Award,
     Folder, Crown, LogOut, ChevronRight, Settings,
-    Users, CreditCard, FileText, Newspaper, Sparkles
+    Users, CreditCard, FileText, Newspaper
 } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
+import { useSidebar } from '@/components/ui/sidebar';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
+import AppLogo from '@/components/AppLogo.vue';
 
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
 const isAdmin = user.role === 'admin';
+const { state, isMobile } = useSidebar();
 
 const avatarUrl = computed(() =>
     user.avatar
@@ -69,98 +78,144 @@ function logout() {
     <!-- ═══════════════════════════════════════════════
          IIE Elite Sidebar — Premium Dark Edition
     ════════════════════════════════════════════════ -->
+    <TooltipProvider :delay-duration="0">
     <Sidebar collapsible="icon" variant="inset">
 
         <!-- ── HEADER: Logo + Brand ─────────────────────── -->
-        <SidebarHeader class="p-0">
-            <div class="iie-sidebar-logo group">
-                <Link :href="isAdmin ? route('admin.dashboard') : route('dashboard')" class="flex flex-col items-center w-full gap-1">
-                    <!-- Single Logo — clean and big -->
-                    <img
-                        src="/images/empresa/IEE-Logo02.png"
-                        alt="Instituto de Economía y Empresa"
-                        class="iie-logo-img-full"
-                    />
-                    <span class="iie-brand-sub">{{ isAdmin ? 'Panel Administrativo' : 'Aula Virtual' }}</span>
+        <SidebarHeader class="p-0 overflow-hidden">
+            <div :class="['iie-sidebar-logo group', { 'iie-sidebar-logo--collapsed': state === 'collapsed' }]">
+                <Link :href="isAdmin ? route('admin.dashboard') : route('dashboard')" class="flex flex-col items-center w-full gap-2 py-4">
+                    <!-- Dynamic Logo Logic -->
+                    <div class="relative w-full flex items-center justify-center min-h-[4rem]">
+                        <!-- Full Logo (Expanded) -->
+                        <div 
+                            class="iie-logo-full-container transition-all duration-300"
+                            :class="state === 'collapsed' ? 'opacity-0 scale-75 -translate-y-4 pointer-events-none absolute' : 'opacity-100 scale-100 translate-y-0'"
+                        >
+                            <img
+                                src="/images/empresa/IEE-Logo02.png"
+                                alt="Instituto de Economía y Empresa"
+                                class="iie-logo-img-full"
+                            />
+                            <span class="iie-brand-sub block mt-1">{{ isAdmin ? 'Panel Administrativo' : 'Aula Virtual' }}</span>
+                        </div>
+
+                        <!-- Icon Logo (Collapsed) -->
+                        <div 
+                            class="iie-logo-icon-container transition-all duration-300"
+                            :class="state === 'expanded' ? 'opacity-0 scale-125 translate-y-4 pointer-events-none absolute' : 'opacity-100 scale-100 translate-y-0'"
+                        >
+                            <img
+                                src="/images/empresa/IEE-Logo.png"
+                                alt="IIE Icon"
+                                class="iie-logo-icon-img"
+                            />
+                        </div>
+                    </div>
                 </Link>
             </div>
 
             <!-- ── USER PROFILE CARD ───────────────────────── -->
-            <Link
-                :href="isAdmin ? route('profile.edit') : route('student.profile.index')"
-                class="iie-user-card group block"
-            >
-                <!-- Avatar -->
-                <div class="iie-avatar-ring">
-                    <img :src="avatarUrl" :alt="user.name" class="iie-avatar-img" />
-                    <div class="iie-avatar-status"></div>
-                </div>
+            <Tooltip :disabled="state === 'expanded'">
+                <TooltipTrigger as-child>
+                    <Link
+                        :href="isAdmin ? route('profile.edit') : route('student.profile.index')"
+                        :class="['iie-user-card group', { 'iie-user-card--collapsed': state === 'collapsed' }]"
+                    >
+                        <!-- Avatar -->
+                        <div class="iie-avatar-ring">
+                            <img :src="avatarUrl" :alt="user.name" class="iie-avatar-img" />
+                            <div class="iie-avatar-status"></div>
+                        </div>
 
-                <!-- User info -->
-                <div class="iie-user-info">
-                    <span class="iie-user-name">{{ user.name }}</span>
-                    <span class="iie-user-role">
-                        <Settings class="iie-user-role-icon" />
-                        Configuración
-                    </span>
-                </div>
+                        <!-- User info -->
+                        <div class="iie-user-info" v-if="state === 'expanded'">
+                            <span class="iie-user-name">{{ user.name }}</span>
+                            <span class="iie-user-role">
+                                <Settings class="iie-user-role-icon" />
+                                <span class="truncate">Configuración</span>
+                            </span>
+                        </div>
 
-                <!-- Arrow indicator -->
-                <ChevronRight class="iie-user-arrow" />
-            </Link>
+                        <!-- Arrow indicator -->
+                        <ChevronRight class="iie-user-arrow" v-if="state === 'expanded'" />
+                    </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right" class="bg-[#282818] border-[#e7e6ab]/20 text-[#e7e6ab] font-bold">
+                    <p>{{ user.name }}</p>
+                </TooltipContent>
+            </Tooltip>
         </SidebarHeader>
 
         <!-- ── NAVIGATION ────────────────────────────────── -->
         <SidebarContent class="iie-nav-content">
             <!-- Section Label -->
-            <div class="iie-section-label">
-                <span>Platform</span>
+            <div class="iie-section-label" v-if="state === 'expanded'">
+                <span>Plataforma</span>
             </div>
+            <div v-else class="h-4"></div>
 
             <!-- Nav Items -->
             <nav class="iie-nav-list">
-                <Link
-                    v-for="item in mainNavItems"
-                    :key="item.title"
-                    :href="route(item.href)"
-                    :class="['iie-nav-item', { 'iie-nav-item--active': isActive(item.href) }]"
-                >
-                    <!-- Active Glow Layer -->
-                    <div v-if="isActive(item.href)" class="iie-nav-active-glow"></div>
+                <Tooltip v-for="item in mainNavItems" :key="item.title" :disabled="state === 'expanded'">
+                    <TooltipTrigger as-child>
+                        <Link
+                            :href="route(item.href)"
+                            :class="[
+                                'iie-nav-item', 
+                                { 'iie-nav-item--active': isActive(item.href) },
+                                { 'iie-nav-item--collapsed': state === 'collapsed' }
+                            ]"
+                        >
+                            <!-- Active Bar -->
+                            <div v-if="isActive(item.href)" class="iie-nav-active-bar"></div>
 
-                    <!-- Active Bar -->
-                    <div v-if="isActive(item.href)" class="iie-nav-active-bar"></div>
+                            <!-- Icon -->
+                            <div class="iie-nav-icon-wrap">
+                                <component :is="item.icon" class="iie-nav-icon" />
+                            </div>
 
-                    <!-- Icon -->
-                    <div class="iie-nav-icon-wrap">
-                        <component :is="item.icon" class="iie-nav-icon" />
-                    </div>
+                            <!-- Label -->
+                            <span class="iie-nav-label" v-if="state === 'expanded'">{{ item.title }}</span>
 
-                    <!-- Label -->
-                    <span class="iie-nav-label">{{ item.title }}</span>
+                            <!-- Badge -->
+                            <span v-if="item.badge && state === 'expanded'" class="iie-nav-badge">{{ item.badge }}</span>
 
-                    <!-- Badge (if exists) -->
-                    <span v-if="item.badge" class="iie-nav-badge">{{ item.badge }}</span>
-
-                    <!-- Active Arrow -->
-                    <ChevronRight v-if="isActive(item.href)" class="iie-nav-chevron" />
-                </Link>
+                            <!-- Active Arrow -->
+                            <ChevronRight v-if="isActive(item.href) && state === 'expanded'" class="iie-nav-chevron" />
+                        </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" class="bg-[#282818] border-[#e7e6ab]/20 text-[#e7e6ab] font-bold">
+                        <div class="flex items-center gap-2">
+                            <span>{{ item.title }}</span>
+                            <span v-if="item.badge" class="bg-[#e7e6ab]/20 px-1.5 py-0.5 rounded text-[10px]">{{ item.badge }}</span>
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
             </nav>
         </SidebarContent>
 
         <!-- ── FOOTER: Logout ─────────────────────────────── -->
         <SidebarFooter class="iie-sidebar-footer">
             <div class="iie-footer-divider"></div>
-            <button @click="logout" class="iie-logout-btn group">
-                <div class="iie-logout-icon-wrap">
-                    <LogOut class="iie-logout-icon" />
-                </div>
-                <span class="iie-logout-label">Cerrar Sesión</span>
-            </button>
+            <Tooltip :disabled="state === 'expanded'">
+                <TooltipTrigger as-child>
+                    <button @click="logout" :class="['iie-logout-btn group', { 'iie-logout-btn--collapsed': state === 'collapsed' }]">
+                        <div class="iie-logout-icon-wrap">
+                            <LogOut class="iie-logout-icon" />
+                        </div>
+                        <span class="iie-logout-label" v-if="state === 'expanded'">Cerrar Sesión</span>
+                    </button>
+                </TooltipTrigger>
+                <TooltipContent side="right" class="bg-[#ba1a1a] border-white/20 text-white font-bold">
+                    <p>Cerrar Sesión</p>
+                </TooltipContent>
+            </Tooltip>
         </SidebarFooter>
 
         <SidebarRail />
     </Sidebar>
+    </TooltipProvider>
 </template>
 
 <style scoped>
@@ -251,6 +306,19 @@ function logout() {
     line-height: 1;
     text-align: center;
     width: 100%;
+}
+
+/* Collapsed Logo Image */
+.iie-logo-icon-img {
+    height: 2.5rem;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 0 12px rgba(231, 230, 171, 0.15));
+    transition: transform 0.3s ease;
+}
+
+.iie-sidebar-logo:hover .iie-logo-icon-img {
+    transform: scale(1.1);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -630,21 +698,60 @@ function logout() {
 
 /* ═══════════════════════════════════════════════════
    COLLAPSED / ICON MODE — Preserve brand feel
+   Note: Shadcn uses [data-collapsible=icon] on the sidebar,
+   but we also use our local state for smoother animations.
 ════════════════════════════════════════════════════ */
-:deep([data-collapsible="icon"]) .iie-brand-text,
-:deep([data-collapsible="icon"]) .iie-user-info,
-:deep([data-collapsible="icon"]) .iie-user-arrow,
-:deep([data-collapsible="icon"]) .iie-nav-label,
-:deep([data-collapsible="icon"]) .iie-nav-badge,
-:deep([data-collapsible="icon"]) .iie-nav-chevron,
-:deep([data-collapsible="icon"]) .iie-logout-label,
-:deep([data-collapsible="icon"]) .iie-section-label {
-    display: none;
+
+/* Dynamic Width for Logo */
+.iie-sidebar-logo {
+    transition: var(--iie-transition);
 }
 
-/* In icon mode, the icon-wrap shows the circular emblem only */
-:deep([data-collapsible="icon"]) .iie-logo-icon-wrap {
-    width: 2rem;
-    height: 2rem;
+.iie-sidebar-logo--collapsed {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.iie-logo-full-container,
+.iie-logo-icon-container {
+    will-change: transform, opacity;
+}
+
+/* User Card Collapsed */
+.iie-user-card--collapsed {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    padding: 0.75rem 0;
+    justify-content: center;
+    border-radius: 0.75rem;
+}
+
+/* Nav Item Collapsed */
+.iie-nav-item--collapsed {
+    padding-left: 0;
+    padding-right: 0;
+    justify-content: center;
+    gap: 0;
+}
+
+.iie-nav-item--collapsed .iie-nav-icon-wrap {
+    margin: 0 auto;
+}
+
+/* Logout Button Collapsed */
+.iie-logout-btn--collapsed {
+    padding-left: 0;
+    padding-right: 0;
+    justify-content: center;
+}
+
+/* Smooth Progressive Hiding for labels (if any remained) */
+.iie-nav-label, .iie-user-info, .iie-logout-label {
+    animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-4px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 </style>
