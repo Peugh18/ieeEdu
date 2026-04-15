@@ -59,7 +59,7 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
         <!-- Header -->
         <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="font-serif text-4xl text-on-surface">Pago <span class="italic text-[#57572A]">#{{ props.payment.id }}</span></h1>
+                <h1 class="font-serif text-4xl text-on-surface">Pago <span class="italic text-primary">#{{ props.payment.id }}</span></h1>
                 <p class="mt-1 text-sm text-on-surface-variant">Registrado el {{ formatDate(props.payment.created_at) }}</p>
             </div>
             <!-- Status badge large -->
@@ -90,7 +90,7 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
                             <p class="text-sm text-on-surface-variant">{{ props.payment.user.email }}</p>
                             <p v-if="props.payment.user.telefono" class="text-xs text-on-surface-variant/70">{{ props.payment.user.telefono }}</p>
                         </div>
-                        <Link :href="route('admin.users.show', props.payment.user.id)" class="ml-auto text-xs font-bold text-[#57572A] hover:underline">
+                        <Link :href="route('admin.users.show', props.payment.user.id)" class="ml-auto text-xs font-bold text-primary hover:underline">
                             Ver perfil →
                         </Link>
                     </div>
@@ -120,7 +120,7 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
                             <p class="text-xs text-on-surface-variant">Monto</p>
-                            <p class="mt-1 text-3xl font-bold text-[#57572A]">{{ formatMoney(props.payment.amount) }}</p>
+                            <p class="mt-1 text-3xl font-bold text-primary">{{ formatMoney(props.payment.amount) }}</p>
                         </div>
                         <div>
                             <p class="text-xs text-on-surface-variant">Método</p>
@@ -179,7 +179,7 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
                         <a
                             :href="props.payment.comprobante"
                             download
-                            class="mt-3 inline-flex items-center gap-2 text-xs font-bold text-[#57572A] hover:underline"
+                            class="mt-3 inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline"
                         >
                             <Download class="h-3.5 w-3.5" />
                             Descargar imagen

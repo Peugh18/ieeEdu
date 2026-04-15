@@ -96,7 +96,7 @@ function formatDate(dateStr?: string, timeStr?: string) {
                         <!-- Info -->
                         <div class="flex-1 min-w-0 py-1 flex flex-col justify-between">
                             <div>
-                                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-[#57572A] mb-1 truncate">{{ getCategoryName(item.category) }}</p>
+                                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-primary mb-1 truncate">{{ getCategoryName(item.category) }}</p>
                                 <h3 class="font-serif font-bold text-on-surface text-sm leading-tight line-clamp-2" :title="item.title">{{ item.title }}</h3>
                             </div>
                             
@@ -124,11 +124,11 @@ function formatDate(dateStr?: string, timeStr?: string) {
                 
                 <div v-else class="h-full flex flex-col items-center justify-center text-center px-4 py-12">
                     <div class="w-24 h-24 rounded-full bg-surface-container-highest flex items-center justify-center mb-6">
-                        <span class="material-symbols-outlined text-[#57572A] opacity-20 text-5xl" translate="no">shopping_bag</span>
+                        <span class="material-symbols-outlined text-primary opacity-20 text-5xl" translate="no">shopping_bag</span>
                     </div>
                     <h3 class="font-serif text-xl font-bold text-on-surface mb-2">Tu carrito está vacío</h3>
                     <p class="text-on-surface-variant text-sm max-w-[250px] mx-auto leading-relaxed">Descubre nuestros programas de especialización y potencia tu perfil profesional.</p>
-                    <button @click="toggleCart" class="mt-8 px-6 py-2.5 rounded-full border-2 border-[#57572A]/20 text-[#57572A] font-bold text-xs uppercase tracking-widest hover:border-[#57572A] hover:bg-[#57572A]/5 transition-all">
+                    <button @click="toggleCart" class="mt-8 px-6 py-2.5 rounded-full border-2 border-primary/20 text-primary font-bold text-xs uppercase tracking-widest hover:border-primary hover:bg-primary/5 transition-all">
                         Explorar Catálogo
                     </button>
                 </div>

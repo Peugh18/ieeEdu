@@ -159,8 +159,8 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
                 <div class="space-y-1">
                     <h1 class="font-serif text-5xl tracking-tight text-slate-900 leading-tight">
-                        Gestión de <span class="italic text-[#57572A] relative">Usuarios
-                            <span class="absolute -bottom-1 left-0 w-full h-[3px] bg-[#57572A]/10 rounded-full"></span>
+                        Gestión de <span class="italic text-primary relative">Usuarios
+                            <span class="absolute -bottom-1 left-0 w-full h-[3px] bg-primary/10 rounded-full"></span>
                         </span>
                     </h1>
                     <p class="text-slate-500 font-medium text-lg flex items-center gap-2">
@@ -170,13 +170,13 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-3">
-                    <a :href="exportUrl" class="group h-12 inline-flex items-center gap-2.5 rounded-2xl bg-slate-50 border border-slate-200 px-6 text-sm font-bold text-slate-600 hover:bg-white hover:border-[#57572A] hover:text-[#57572A] hover:shadow-lg hover:shadow-[#57572A]/5 transition-all duration-300">
+                    <a :href="exportUrl" class="group h-12 inline-flex items-center gap-2.5 rounded-2xl bg-slate-50 border border-slate-200 px-6 text-sm font-bold text-slate-600 hover:bg-white hover:border-primary hover:text-primary hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
                         <Download class="h-4 w-4 group-hover:-translate-y-0.5 transition-transform" />
                         Exportar Listado
                     </a>
                     <button
                         @click="showCreate = true"
-                        class="h-12 inline-flex items-center gap-2.5 rounded-2xl bg-[#57572A] px-7 text-sm font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-95 hover:opacity-95 transition-all duration-300"
+                        class="h-12 inline-flex items-center gap-2.5 rounded-2xl bg-primary px-7 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 hover:opacity-95 transition-all duration-300"
                     >
                         <UserPlus class="h-4 w-4" />
                         Nuevo Usuario
@@ -266,11 +266,11 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
             <!-- ── Smart Filtering ──────────────────────────────────────── -->
             <div class="bg-white/80 backdrop-blur-md rounded-[2rem] border border-slate-100 p-6 flex flex-col lg:flex-row items-center gap-4 shadow-sm">
                 <div class="relative w-full lg:w-96 group">
-                    <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-[#57572A] transition-colors" />
+                    <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                     <input
                         v-model="searchInput"
                         placeholder="Filtrar por nombre, DNI o email..."
-                        class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all"
+                        class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all"
                     />
                 </div>
                 
@@ -342,7 +342,7 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
                                 <div v-else class="absolute -bottom-1 -right-1 w-4 h-4 bg-slate-300 border-2 border-white rounded-full"></div>
                             </div>
                             <div class="min-w-0">
-                                <h4 class="text-base font-bold text-slate-900 truncate tracking-tight group-hover:text-[#57572A] transition-colors">{{ user.name }}</h4>
+                                <h4 class="text-base font-bold text-slate-900 truncate tracking-tight group-hover:text-primary transition-colors">{{ user.name }}</h4>
                                 <div class="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
                                     <Mail class="w-3 h-3" />
                                     {{ user.email }}
@@ -435,8 +435,8 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
                             :href="link.url"
                             class="min-w-[40px] h-10 flex items-center justify-center rounded-xl text-xs font-bold transition-all duration-300"
                             :class="link.active
-                                ? 'bg-[#57572A] text-white shadow-lg shadow-[#57572A]/20'
-                                : 'bg-white border border-slate-200 text-slate-600 hover:border-[#57572A] hover:text-[#57572A]'"
+                                ? 'bg-primary text-white shadow-lg shadow-primary/20'
+                                : 'bg-white border border-slate-200 text-slate-600 hover:border-primary hover:text-primary'"
                             v-html="link.label"
                         />
                     </div>
@@ -465,7 +465,7 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
                 <div v-if="showCreate" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
                     <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showCreate = false; createForm.reset()"></div>
                     <div class="relative w-full max-w-2xl rounded-[3rem] bg-white shadow-2xl overflow-hidden">
-                        <div class="bg-gradient-to-br from-[#57572A] to-[#6a6a3b] p-10 text-white relative">
+                        <div class="bg-gradient-to-br from-primary to-[#6a6a3b] p-10 text-white relative">
                             <div class="absolute top-0 right-0 p-10 opacity-10">
                                 <UserPlus class="w-32 h-32" />
                             </div>
@@ -480,21 +480,21 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="space-y-1.5">
                                     <label for="create_name" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Nombre del Perfil</label>
-                                    <input id="create_name" name="name" v-model="createForm.name" autocomplete="name" required placeholder="Ej: Dr. Manuel García" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <input id="create_name" name="name" v-model="createForm.name" autocomplete="name" required placeholder="Ej: Dr. Manuel García" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all" />
                                     <p v-if="createForm.errors.name" class="text-[10px] text-rose-500 font-bold pl-1">{{ createForm.errors.name }}</p>
                                 </div>
                                 <div class="space-y-1.5">
                                     <label for="create_email" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Correo Electrónico</label>
-                                    <input id="create_email" name="email" v-model="createForm.email" type="email" autocomplete="email" required placeholder="ejemplo@iieedu.pe" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <input id="create_email" name="email" v-model="createForm.email" type="email" autocomplete="email" required placeholder="ejemplo@iieedu.pe" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all" />
                                     <p v-if="createForm.errors.email" class="text-[10px] text-rose-500 font-bold pl-1">{{ createForm.errors.email }}</p>
                                 </div>
                                 <div class="space-y-1.5">
                                     <label for="create_telefono" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Teléfono Móvil</label>
-                                    <input id="create_telefono" name="telefono" v-model="createForm.telefono" type="tel" autocomplete="tel" placeholder="+51 9XX XXX XXX" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <input id="create_telefono" name="telefono" v-model="createForm.telefono" type="tel" autocomplete="tel" placeholder="+51 9XX XXX XXX" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all" />
                                 </div>
                                 <div class="space-y-1.5">
                                     <label for="create_password" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Clave de Seguridad</label>
-                                    <input id="create_password" name="password" v-model="createForm.password" type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <input id="create_password" name="password" v-model="createForm.password" type="password" autocomplete="new-password" required placeholder="Mínimo 8 caracteres" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all" />
                                     <p v-if="createForm.errors.password" class="text-[10px] text-rose-500 font-bold pl-1">{{ createForm.errors.password }}</p>
                                 </div>
                             </div>
@@ -502,14 +502,14 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                                 <div class="space-y-1.5">
                                     <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Jerarquía / Rol</label>
-                                    <select v-model="createForm.role" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] transition-all cursor-pointer appearance-none">
+                                    <select v-model="createForm.role" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-primary transition-all cursor-pointer appearance-none">
                                         <option value="usuario">Estudiante Corporativo</option>
                                         <option value="admin">Administrador de Sistema</option>
                                     </select>
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Estado de Cuenta</label>
-                                    <select v-model="createForm.status" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] transition-all cursor-pointer appearance-none">
+                                    <select v-model="createForm.status" class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-primary transition-all cursor-pointer appearance-none">
                                         <option value="activo">Habilitar Inmediatamente</option>
                                         <option value="inactivo">Baja Preventiva</option>
                                     </select>
@@ -520,7 +520,7 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
                                 <button type="button" @click="showCreate = false; createForm.reset()" class="h-12 px-8 rounded-2xl text-sm font-bold text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
                                     Cancelar
                                 </button>
-                                <button type="submit" :disabled="createForm.processing" class="h-12 px-10 rounded-2xl bg-[#57572A] text-sm font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all">
+                                <button type="submit" :disabled="createForm.processing" class="h-12 px-10 rounded-2xl bg-primary text-sm font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all">
                                     {{ createForm.processing ? 'Registrando...' : 'Finalizar Alta' }}
                                 </button>
                             </div>
@@ -553,35 +553,35 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="space-y-1.5">
                                     <label for="edit_name" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Identidad Digital</label>
-                                    <input id="edit_name" name="name" v-model="editForm.name" autocomplete="name" required class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <input id="edit_name" name="name" v-model="editForm.name" autocomplete="name" required class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all" />
                                     <p v-if="editForm.errors.name" class="text-[10px] text-rose-500 font-bold">{{ editForm.errors.name }}</p>
                                 </div>
                                 <div class="space-y-1.5">
                                     <label for="edit_email" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Dirección Electrónica</label>
-                                    <input id="edit_email" name="email" v-model="editForm.email" type="email" autocomplete="email" required class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <input id="edit_email" name="email" v-model="editForm.email" type="email" autocomplete="email" required class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all" />
                                     <p v-if="editForm.errors.email" class="text-[10px] text-rose-500 font-bold">{{ editForm.errors.email }}</p>
                                 </div>
                                 <div class="space-y-1.5">
                                     <label for="edit_telefono" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Teléfono de Contacto</label>
-                                    <input id="edit_telefono" name="telefono" v-model="editForm.telefono" type="tel" autocomplete="tel" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <input id="edit_telefono" name="telefono" v-model="editForm.telefono" type="tel" autocomplete="tel" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all" />
                                 </div>
                                 <div class="space-y-1.5">
                                     <label for="edit_password" class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Restablecer Contraseña</label>
-                                    <input id="edit_password" name="password" v-model="editForm.password" type="password" autocomplete="new-password" placeholder="Omitir para mantener actual" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-[#57572A]/5 focus:border-[#57572A] transition-all" />
+                                    <input id="edit_password" name="password" v-model="editForm.password" type="password" autocomplete="new-password" placeholder="Omitir para mantener actual" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all" />
                                 </div>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
                                 <div class="space-y-1.5">
                                     <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Grado de Acceso</label>
-                                    <select v-model="editForm.role" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] transition-all appearance-none cursor-pointer">
+                                    <select v-model="editForm.role" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-primary transition-all appearance-none cursor-pointer">
                                         <option value="usuario">Estudiante</option>
                                         <option value="admin">Administrador</option>
                                     </select>
                                 </div>
                                 <div class="space-y-1.5">
                                     <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Estatus Administrativo</label>
-                                    <select v-model="editForm.status" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] transition-all appearance-none cursor-pointer">
+                                    <select v-model="editForm.status" class="w-full h-12 bg-white border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-primary transition-all appearance-none cursor-pointer">
                                         <option value="activo">Vigencia Plena</option>
                                         <option value="inactivo">Baja del Sistema</option>
                                     </select>
@@ -592,7 +592,7 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
                                 <button type="button" @click="showEdit = false; editForm.reset()" class="h-12 px-8 rounded-2xl text-sm font-bold text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-all">
                                     Descartar
                                 </button>
-                                <button type="submit" :disabled="editForm.processing" class="h-12 px-10 rounded-2xl bg-[#57572A] text-sm font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all">
+                                <button type="submit" :disabled="editForm.processing" class="h-12 px-10 rounded-2xl bg-primary text-sm font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all">
                                     {{ editForm.processing ? 'Actualizando...' : 'Guardar Cambios' }}
                                 </button>
                             </div>

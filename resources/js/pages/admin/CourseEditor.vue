@@ -565,22 +565,22 @@ async function toggleQuiz(id: number) {
                 </div>
                 <div class="flex flex-wrap gap-3 relative z-10">
                     <button class="rounded-full bg-surface-container-low px-8 py-3 text-[12px] font-bold text-on-surface hover:bg-surface-container-high transition-colors" @click="hideCourse">Ocultar</button>
-                    <button class="rounded-full flex items-center justify-center gap-2 bg-gradient-to-br from-[#57572A] to-[#707040] px-8 py-3 text-[12px] font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:scale-100 transition-all font-sans tracking-wide" :disabled="form.processing" @click="saveCourse">
+                    <button class="rounded-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-[#707040] px-8 py-3 text-[12px] font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:scale-100 transition-all font-sans tracking-wide" :disabled="form.processing" @click="saveCourse">
                         <svg v-if="form.processing" class="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         Guardar Cambios
                     </button>
-                    <button class="rounded-full bg-surface-container-lowest border border-outline-variant/10 px-8 py-3 text-[12px] font-bold text-[#57572A] shadow-lg shadow-[#57572A]/5 hover:bg-surface-container-low transition-all" :disabled="!canPublish" @click="publishCourse">Publicar Oficial</button>
+                    <button class="rounded-full bg-surface-container-lowest border border-outline-variant/10 px-8 py-3 text-[12px] font-bold text-primary shadow-lg shadow-primary/5 hover:bg-surface-container-low transition-all" :disabled="!canPublish" @click="publishCourse">Publicar Oficial</button>
                 </div>
             </div>
 
             <!-- TABS MENU (SAAS STYLE) -->
             <div class="flex overflow-x-auto gap-2 bg-surface-container-lowest p-2 rounded-3xl border border-outline-variant/20 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] mb-6 scrollbar-none custom-scrollbar">
-                <button @click="activeTab = 'general'" :class="activeTab === 'general' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Datos Básicos</button>
-                <button @click="activeTab = 'pricing'" :class="activeTab === 'pricing' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Precios & Tipo</button>
-                <button @click="activeTab = 'details'" :class="activeTab === 'details' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Detalles Acad.</button>
-                <button @click="activeTab = 'instructor'" :class="activeTab === 'instructor' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Autoría & Cert.</button>
-                <button @click="activeTab = 'curriculum'" :class="activeTab === 'curriculum' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200 flex items-center gap-2">Sílabo <span class="bg-[#57572A]/10 text-[#57572A] px-2.5 py-0.5 rounded-lg border border-[#57572A]/20">{{ lessons.length }}</span></button>
-                <button @click="activeTab = 'exams'" :class="activeTab === 'exams' ? 'bg-white text-[#57572A] shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Evaluaciones</button>
+                <button @click="activeTab = 'general'" :class="activeTab === 'general' ? 'bg-white text-primary shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Datos Básicos</button>
+                <button @click="activeTab = 'pricing'" :class="activeTab === 'pricing' ? 'bg-white text-primary shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Precios & Tipo</button>
+                <button @click="activeTab = 'details'" :class="activeTab === 'details' ? 'bg-white text-primary shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Detalles Acad.</button>
+                <button @click="activeTab = 'instructor'" :class="activeTab === 'instructor' ? 'bg-white text-primary shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Autoría & Cert.</button>
+                <button @click="activeTab = 'curriculum'" :class="activeTab === 'curriculum' ? 'bg-white text-primary shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200 flex items-center gap-2">Sílabo <span class="bg-primary/10 text-primary px-2.5 py-0.5 rounded-lg border border-primary/20">{{ lessons.length }}</span></button>
+                <button @click="activeTab = 'exams'" :class="activeTab === 'exams' ? 'bg-white text-primary shadow-md border border-outline-variant/10' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border border-transparent'" class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200">Evaluaciones</button>
             </div>
 
             <div class="grid grid-cols-1 gap-8 w-full mt-4">
@@ -593,13 +593,13 @@ async function toggleQuiz(id: number) {
                         <div class="space-y-10">
                             <div class="space-y-3">
                                 <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Título Comercial Oficial</label>
-                                <input v-model="form.title" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" :class="form.errors.title ? 'ring-2 ring-red-500 bg-red-50/50' : ''" placeholder="Ej. Máster Especializado en Finanzas Públicas..." />
+                                <input v-model="form.title" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant" :class="form.errors.title ? 'ring-2 ring-red-500 bg-red-50/50' : ''" placeholder="Ej. Máster Especializado en Finanzas Públicas..." />
                                 <p v-if="form.errors.title" class="mt-1.5 ml-1 text-sm font-bold text-red-600 font-sans">{{ form.errors.title }}</p>
                             </div>
                             
                             <div class="space-y-3">
                                 <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">Pitch De Venta (Descripción completa)</label>
-                                <textarea v-model="form.description" rows="6" class="w-full resize-none rounded-2xl border bg-surface-container-lowest px-5 py-4 text-[14px] text-on-surface shadow-sm focus:border-[#57572A] focus:ring-4 focus:ring-[#57572A]/10 transition-all outline-none leading-relaxed" :class="form.errors.description ? 'border-red-500 bg-red-50/50' : 'border-outline-variant/30'" placeholder="Utiliza este espacio para destacar el valor diferencial del programa. Describe los beneficios transformacionales, habilidades que se ganarán y por qué es la mejor decisión..."></textarea>
+                                <textarea v-model="form.description" rows="6" class="w-full resize-none rounded-2xl border bg-surface-container-lowest px-5 py-4 text-[14px] text-on-surface shadow-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none leading-relaxed" :class="form.errors.description ? 'border-red-500 bg-red-50/50' : 'border-outline-variant/30'" placeholder="Utiliza este espacio para destacar el valor diferencial del programa. Describe los beneficios transformacionales, habilidades que se ganarán y por qué es la mejor decisión..."></textarea>
                                 <p v-if="form.errors.description" class="mt-1.5 ml-1 text-xs font-bold text-red-600">{{ form.errors.description }}</p>
                             </div>
                         </div>
@@ -616,12 +616,12 @@ async function toggleQuiz(id: number) {
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div class="space-y-3">
                                     <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Inversión Regular (Precio en S/)</label>
-                                    <input v-model.number="form.price" type="number" min="0" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" :class="form.errors.price ? 'ring-2 ring-red-500 bg-red-50/50' : ''" placeholder="Ej. 199.00" />
+                                    <input v-model.number="form.price" type="number" min="0" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant" :class="form.errors.price ? 'ring-2 ring-red-500 bg-red-50/50' : ''" placeholder="Ej. 199.00" />
                                     <p v-if="form.errors.price" class="mt-1.5 ml-1 text-sm font-bold text-red-600 font-sans">{{ form.errors.price }}</p>
                                 </div>
                                 <div class="space-y-3">
                                     <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Modalidad de Impartición</label>
-                                    <select v-model="form.type" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent appearance-none">
+                                    <select v-model="form.type" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent appearance-none">
                                         <option value="grabado">Curso Grabado (Video)</option>
                                         <option value="en vivo">Curso En Vivo (Streaming)</option>
                                         <option value="masterclass">Masterclass Gratuita</option>
@@ -632,7 +632,7 @@ async function toggleQuiz(id: number) {
 
                             <div v-if="isMasterclass" class="rounded-[1.5rem] border border-transparent bg-surface-container-highest p-6 shadow-sm">
                                 <label class="flex items-center gap-4 text-[15px] font-semibold text-on-surface cursor-pointer">
-                                    <input type="checkbox" v-model="form.certificate_enabled" class="w-5 h-5 accent-[#57572A] rounded focus:ring-[#57572A]" />
+                                    <input type="checkbox" v-model="form.certificate_enabled" class="w-5 h-5 accent-primary rounded focus:ring-primary" />
                                     <span>Habilitar Certificado de Participación</span>
                                 </label>
                                 <p class="mt-3 text-[14px] text-on-surface-variant font-medium ml-9 leading-relaxed">Permite a los asistentes descargar una constancia válida de su participación gratuita.</p>
@@ -640,7 +640,7 @@ async function toggleQuiz(id: number) {
 
                             <div class="rounded-[2rem] border border-outline-variant/10 bg-white p-8 shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)]">
                                 <label class="flex items-center gap-4 text-[15px] font-bold text-on-surface cursor-pointer mb-6">
-                                    <input type="checkbox" v-model="form.discount_enabled" class="w-5 h-5 accent-[#57572A] rounded focus:ring-[#57572A]" />
+                                    <input type="checkbox" v-model="form.discount_enabled" class="w-5 h-5 accent-primary rounded focus:ring-primary" />
                                     <span>Activar Promoción de Descuento</span>
                                 </label>
                                 
@@ -653,14 +653,14 @@ async function toggleQuiz(id: number) {
                                             type="number"
                                             min="0"
                                             max="100"
-                                            class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant disabled:opacity-50 disabled:bg-surface-container-low"
+                                            class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant disabled:opacity-50 disabled:bg-surface-container-low"
                                             placeholder="Ej. 20"
                                         />
                                     </div>
                                     <div class="hidden sm:block h-12 w-px bg-outline-variant/20"></div>
                                     <div class="w-full sm:w-1/2 flex flex-col justify-center px-4">
                                         <span class="text-[14px] text-on-surface font-bold font-sans">Inversión Final Recomendada</span>
-                                        <span class="text-3xl font-serif font-bold text-[#57572A] mt-2">S/ {{ form.sale_price }}</span>
+                                        <span class="text-3xl font-serif font-bold text-primary mt-2">S/ {{ form.sale_price }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -668,7 +668,7 @@ async function toggleQuiz(id: number) {
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                                 <div class="space-y-3">
                                     <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Estado en Catálogo</label>
-                                    <select v-model="form.status" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent appearance-none font-bold" :class="{'text-amber-600': form.status === 'BORRADOR', 'text-emerald-700': form.status === 'PUBLICADO'}">
+                                    <select v-model="form.status" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent appearance-none font-bold" :class="{'text-amber-600': form.status === 'BORRADOR', 'text-emerald-700': form.status === 'PUBLICADO'}">
                                         <option value="BORRADOR">Borrador (Privado)</option>
                                         <option value="PUBLICADO">Publicado (Visible)</option>
                                         <option value="OCULTO">Oculto (Secreto)</option>
@@ -676,7 +676,7 @@ async function toggleQuiz(id: number) {
                                 </div>
                                 <div class="space-y-3">
                                     <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Categoría Principal</label>
-                                    <select v-model="form.category_id" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent appearance-none" :class="form.errors.category_id ? 'ring-2 ring-red-500 bg-red-50/50' : ''">
+                                    <select v-model="form.category_id" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent appearance-none" :class="form.errors.category_id ? 'ring-2 ring-red-500 bg-red-50/50' : ''">
                                         <option value="">Seleccione Categoría</option>
                                         <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
                                     </select>
@@ -696,7 +696,7 @@ async function toggleQuiz(id: number) {
                                         </div>
                                     </div>
                                     <div class="flex-1 space-y-4 w-full">
-                                        <input type="file" accept="image/*" class="w-full text-[14px] font-sans file:mr-5 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-[13px] file:font-bold file:bg-[#57572A] file:text-white hover:file:opacity-90 transition-all cursor-pointer" @change="(e) => { form.image_file = (e.target as HTMLInputElement).files?.[0] ?? null; }" />
+                                        <input type="file" accept="image/*" class="w-full text-[14px] font-sans file:mr-5 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-[13px] file:font-bold file:bg-primary file:text-white hover:file:opacity-90 transition-all cursor-pointer" @change="(e) => { form.image_file = (e.target as HTMLInputElement).files?.[0] ?? null; }" />
                                         <p class="text-[13px] text-on-surface-variant font-medium leading-relaxed max-w-md">Formatos: JPG, PNG, WEBP. Resolución recomendada: 1280x720px.</p>
                                         <p v-if="form.errors.image_file" class="text-[14px] font-bold text-red-600 font-sans mt-2">{{ form.errors.image_file }}</p>
                                     </div>
@@ -715,33 +715,33 @@ async function toggleQuiz(id: number) {
                         <div class="space-y-10">
                             <div v-if="form.type === 'en vivo' || form.type === 'masterclass' || form.type === 'evento'" class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-surface-container-highest p-8 rounded-[1.5rem] border border-transparent shadow-sm">
                                 <div class="space-y-3">
-                                    <label class="block text-[14px] font-bold text-[#57572A] font-sans ml-1">Fecha de Lanzamiento / Inicio</label>
-                                    <input v-model="form.start_date" type="date" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" />
+                                    <label class="block text-[14px] font-bold text-primary font-sans ml-1">Fecha de Lanzamiento / Inicio</label>
+                                    <input v-model="form.start_date" type="date" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent" />
                                 </div>
                                 <div class="space-y-3">
-                                    <label class="block text-[14px] font-bold text-[#57572A] font-sans ml-1">Hora Programada (Local)</label>
-                                    <input v-model="form.start_time" type="time" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" />
+                                    <label class="block text-[14px] font-bold text-primary font-sans ml-1">Hora Programada (Local)</label>
+                                    <input v-model="form.start_time" type="time" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent" />
                                 </div>
                             </div>
 
                             <div v-if="form.type === 'grabado'" class="space-y-3">
                                 <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Carga Horaria Aproximada (Hrs)</label>
-                                <input v-model.number="form.class_hours" type="number" min="0" class="w-full md:w-1/3 rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Ej. 120" />
+                                <input v-model.number="form.class_hours" type="number" min="0" class="w-full md:w-1/3 rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Ej. 120" />
                             </div>
 
                             <div v-if="form.type === 'masterclass' || form.type === 'evento'" class="space-y-3">
                                 <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Enlace a Comunidad Oficial (WhatsApp)</label>
-                                <input v-model="form.whatsapp_link" type="url" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-[#57572A] focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-[#57572A]/50" placeholder="https://chat.whatsapp.com/..." />
+                                <input v-model="form.whatsapp_link" type="url" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-primary/50" placeholder="https://chat.whatsapp.com/..." />
                             </div>
 
                             <div v-if="form.type !== 'masterclass' && form.type !== 'evento'" class="space-y-3">
                                 <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">Metas y Logros del Curso</label>
-                                <textarea v-model="form.objectives" rows="4" class="w-full resize-none rounded-2xl border border-outline-variant/30 bg-surface-container-lowest px-5 py-4 text-[14px] text-on-surface shadow-sm focus:border-[#57572A] focus:ring-4 focus:ring-[#57572A]/10 transition-all outline-none leading-relaxed" placeholder="Desglosa las habilidades que los estudiantes poseerán al finalizar (Ingresa un objetivo por línea)..."></textarea>
+                                <textarea v-model="form.objectives" rows="4" class="w-full resize-none rounded-2xl border border-outline-variant/30 bg-surface-container-lowest px-5 py-4 text-[14px] text-on-surface shadow-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none leading-relaxed" placeholder="Desglosa las habilidades que los estudiantes poseerán al finalizar (Ingresa un objetivo por línea)..."></textarea>
                             </div>
 
                             <div v-if="form.type !== 'masterclass' && form.type !== 'evento'" class="space-y-3">
                                 <label class="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest ml-1">Prerrequisitos Académicos</label>
-                                <textarea v-model="form.requirements" rows="4" class="w-full resize-none rounded-2xl border border-outline-variant/30 bg-surface-container-lowest px-5 py-4 text-[14px] text-on-surface shadow-sm focus:border-[#57572A] focus:ring-4 focus:ring-[#57572A]/10 transition-all outline-none leading-relaxed" placeholder="Conocimientos técnicos, grado académico o software especial requerido..."></textarea>
+                                <textarea v-model="form.requirements" rows="4" class="w-full resize-none rounded-2xl border border-outline-variant/30 bg-surface-container-lowest px-5 py-4 text-[14px] text-on-surface shadow-sm focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all outline-none leading-relaxed" placeholder="Conocimientos técnicos, grado académico o software especial requerido..."></textarea>
                             </div>
                         </div>
                     </div>
@@ -757,7 +757,7 @@ async function toggleQuiz(id: number) {
                     <div class="space-y-10">
                         <div class="flex flex-col sm:flex-row gap-8 items-start bg-surface-container-highest p-8 rounded-[2rem] border border-transparent shadow-sm relative overflow-hidden">
                             <!-- BG Decor -->
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#57572A]/10 to-transparent rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none"></div>
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none"></div>
 
                             <div class="w-full sm:w-auto flex flex-col items-center gap-5 relative z-10 shrink-0 mt-2">
                                 <div class="relative w-32 h-32 sm:w-36 sm:h-36 rounded-full overflow-hidden border-4 border-white shadow-xl bg-surface-container-low flex items-center justify-center">
@@ -767,38 +767,38 @@ async function toggleQuiz(id: number) {
                                 </div>
                                 <label class="cursor-pointer w-full text-center">
                                     <input type="file" accept="image/*" class="hidden" @change="(e) => { form.instructor_image_file = (e.target as HTMLInputElement).files?.[0] ?? null; }" />
-                                    <span class="inline-block w-full px-5 py-2.5 bg-white rounded-full text-[12px] font-bold uppercase tracking-wider text-[#57572A] border border-[#57572A]/10 hover:bg-[#57572A]/5 shadow-sm transition-all">Cambiar Retrato</span>
+                                    <span class="inline-block w-full px-5 py-2.5 bg-white rounded-full text-[12px] font-bold uppercase tracking-wider text-primary border border-primary/10 hover:bg-primary/5 shadow-sm transition-all">Cambiar Retrato</span>
                                 </label>
                             </div>
                             <div class="flex-1 space-y-6 relative z-10 w-full">
                                 <div class="space-y-3">
                                     <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Nombre del Profesional</label>
-                                    <input v-model="form.instructor_name" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Ej. Dr. Javier Montenegro" />
+                                    <input v-model="form.instructor_name" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Ej. Dr. Javier Montenegro" />
                                 </div>
                                 <div class="space-y-3">
                                     <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Titulación Oficial</label>
-                                    <input v-model="form.instructor_title" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Ej. Ingeniero de Software Principal" />
+                                    <input v-model="form.instructor_title" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Ej. Ingeniero de Software Principal" />
                                 </div>
                                 <div class="space-y-3">
                                     <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Biografía Breve</label>
-                                    <textarea v-model="form.instructor_bio" rows="4" class="w-full resize-none rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant leading-relaxed" placeholder="Detalla su experiencia y reconocimientos..."></textarea>
+                                    <textarea v-model="form.instructor_bio" rows="4" class="w-full resize-none rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant leading-relaxed" placeholder="Detalla su experiencia y reconocimientos..."></textarea>
                                 </div>
                             </div>
                         </div>
 
                         <hr class="border-outline-variant/10 my-4" />
                         <div class="space-y-5">
-                             <h3 class="font-bold text-[18px] text-[#57572A] font-sans flex items-center gap-3">
+                             <h3 class="font-bold text-[18px] text-primary font-sans flex items-center gap-3">
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 Certificación Oficial
                              </h3>
-                             <div class="p-8 rounded-[2rem] bg-[#57572A]/5 border border-transparent shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] flex flex-col md:flex-row items-center justify-between gap-6">
+                             <div class="p-8 rounded-[2rem] bg-primary/5 border border-transparent shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] flex flex-col md:flex-row items-center justify-between gap-6">
                                 <p class="text-[15px] text-on-surface-variant font-medium leading-relaxed font-sans md:w-2/3">
                                     Personaliza el diseño del diploma que recibirán los alumnos al completar este curso exitosamente.
                                 </p>
                                 <Link 
                                     :href="route('admin.courses.certificate-template.edit', { course: props.course.id })"
-                                    class="flex items-center justify-center gap-3 md:w-1/3 py-4 px-6 rounded-full bg-gradient-to-r from-[#57572A] to-[#6b6b34] text-white text-[14px] font-bold shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all font-sans"
+                                    class="flex items-center justify-center gap-3 md:w-1/3 py-4 px-6 rounded-full bg-gradient-to-r from-primary to-[#6b6b34] text-white text-[14px] font-bold shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all font-sans"
                                 >
                                     <svg class="w-5 h-5 text-white/90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                     Diseñar Diploma
@@ -822,51 +822,51 @@ async function toggleQuiz(id: number) {
                     <div class="space-y-8 mt-4 relative z-10 w-full bg-surface-container-highest p-8 rounded-[2rem] border border-transparent shadow-sm">
                         <div v-if="!isMasterclass">
                             <div class="flex flex-col sm:flex-row gap-4">
-                                <input v-model="newModuleTitle" class="flex-1 rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm placeholder:text-outline-variant" placeholder="Nombre del módulo" />
-                                <button class="rounded-full bg-gradient-to-br from-[#57572A] to-[#707040] px-8 py-4 text-[13px] font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all tracking-wide font-sans md:w-auto" @click="createModule">Agregar módulo</button>
+                                <input v-model="newModuleTitle" class="flex-1 rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm placeholder:text-outline-variant" placeholder="Nombre del módulo" />
+                                <button class="rounded-full bg-gradient-to-br from-primary to-[#707040] px-8 py-4 text-[13px] font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all tracking-wide font-sans md:w-auto" @click="createModule">Agregar módulo</button>
                             </div>
                         </div>
 
                     <div class="space-y-5">
                         <h3 class="text-[16px] font-bold text-on-surface font-sans">Agregar clase</h3>
                         <div v-if="!isMasterclass" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <select v-model="newLesson.module_id" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm appearance-none">
+                            <select v-model="newLesson.module_id" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm appearance-none">
                                 <option :value="null" disabled>Selecciona un módulo (obligatorio)</option>
                                 <option v-for="m in modules" :key="m.id" :value="m.id">{{ m.title }}</option>
                             </select>
-                            <select v-model="newLesson.content_type" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm appearance-none">
+                            <select v-model="newLesson.content_type" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm appearance-none">
                                 <option value="video">Video (grabado)</option>
                                 <option value="live">En vivo (link + horario)</option>
                                 <option value="text">Texto</option>
                             </select>
                         </div>
                         <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div class="rounded-[1.5rem] border border-transparent bg-white shadow-sm px-6 py-4 text-[14px] text-[#57572A] font-bold font-sans">
+                            <div class="rounded-[1.5rem] border border-transparent bg-white shadow-sm px-6 py-4 text-[14px] text-primary font-bold font-sans">
                                 Masterclass: 1 clase con link de WhatsApp
                             </div>
                         </div>
 
-                        <input v-model="newLesson.title" class="w-full rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm placeholder:text-outline-variant" placeholder="Título de la clase" />
-                        <textarea v-model="newLesson.description" rows="2" class="w-full rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm placeholder:text-outline-variant resize-none" placeholder="Descripción"></textarea>
+                        <input v-model="newLesson.title" class="w-full rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm placeholder:text-outline-variant" placeholder="Título de la clase" />
+                        <textarea v-model="newLesson.description" rows="2" class="w-full rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm placeholder:text-outline-variant resize-none" placeholder="Descripción"></textarea>
 
                         <input
                             v-if="!isMasterclass && newLesson.content_type === 'video'"
                             v-model="newLesson.video_url"
-                            class="w-full rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm placeholder:text-outline-variant"
+                            class="w-full rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm placeholder:text-outline-variant"
                             placeholder="URL de video (Ej. YouTube, Vimeo)"
                         />
                         <div v-if="isMasterclass || newLesson.content_type === 'live'" class="grid grid-cols-1 md:grid-cols-3 gap-5">
                             <input
                                 v-model="newLesson.live_link"
-                                class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-[#57572A] md:col-span-3 focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm placeholder:text-[#57572A]/50"
+                                class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-primary md:col-span-3 focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm placeholder:text-primary/50"
                                 :placeholder="isMasterclass ? 'Link de WhatsApp (grupo)' : 'Link Zoom/Meet'"
                             />
-                            <input v-if="!isMasterclass" v-model="newLesson.start_time" type="datetime-local" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm" />
-                            <input v-if="!isMasterclass" v-model="newLesson.end_time" type="datetime-local" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none shadow-sm" />
+                            <input v-if="!isMasterclass" v-model="newLesson.start_time" type="datetime-local" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm" />
+                            <input v-if="!isMasterclass" v-model="newLesson.end_time" type="datetime-local" class="rounded-[1.5rem] bg-white border-transparent px-6 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none shadow-sm" />
                         </div>
 
                         <div class="pt-2">
-                            <button class="rounded-full bg-gradient-to-r from-[#57572A] to-[#6b6b34] px-8 py-4 text-[14px] font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all tracking-wide disabled:opacity-60 disabled:hover:scale-100 font-sans" :disabled="isMasterclass && lessons.length >= 1" @click="createLesson">
+                            <button class="rounded-full bg-gradient-to-r from-primary to-[#6b6b34] px-8 py-4 text-[14px] font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all tracking-wide disabled:opacity-60 disabled:hover:scale-100 font-sans" :disabled="isMasterclass && lessons.length >= 1" @click="createLesson">
                                 Crear clase
                             </button>
                         </div>
@@ -1019,22 +1019,22 @@ async function toggleQuiz(id: number) {
                             <div class="grid grid-cols-1 md:grid-cols-6 gap-6 items-center">
                                 <div class="md:col-span-2 space-y-3">
                                      <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Título</label>
-                                     <input v-model="newQuiz.title" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Nombre (Ej. Evaluación Final)" />
+                                     <input v-model="newQuiz.title" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Nombre (Ej. Evaluación Final)" />
                                 </div>
                                 <div class="space-y-3">
                                     <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Nota min.</label>
-                                    <input v-model.number="newQuiz.minimum_score" type="number" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" placeholder="14" />
+                                    <input v-model.number="newQuiz.minimum_score" type="number" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent" placeholder="14" />
                                 </div>
                                 <div class="space-y-3">
                                     <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Tiempo (m)</label>
-                                    <input v-model.number="newQuiz.time_limit" type="number" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" placeholder="30" />
+                                    <input v-model.number="newQuiz.time_limit" type="number" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent" placeholder="30" />
                                 </div>
                                 <div class="space-y-3">
                                     <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Intentos permitidos</label>
-                                    <input v-model.number="newQuiz.max_attempts" type="number" min="1" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" placeholder="1" />
+                                    <input v-model.number="newQuiz.max_attempts" type="number" min="1" class="w-full rounded-[1.5rem] bg-white px-5 py-4 text-[14px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent" placeholder="1" />
                                 </div>
                                 <div class="pt-8">
-                                    <button @click="createQuiz" class="w-full rounded-full bg-gradient-to-br from-[#57572A] to-[#707040] px-6 py-4 text-[13px] font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-[0.98] transition-all tracking-wide font-sans">Crear Examen</button>
+                                    <button @click="createQuiz" class="w-full rounded-full bg-gradient-to-br from-primary to-[#707040] px-6 py-4 text-[13px] font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all tracking-wide font-sans">Crear Examen</button>
                                 </div>
                             </div>
                         </div>

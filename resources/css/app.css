@@ -1,3 +1,350 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ═══════════════════════════════════════════════════════════════════
+   IEE ELITE — Premium Theme Design System
+   Consolidated & Cleaned Setup
+═══════════════════════════════════════════════════════════════════ */
+
+@layer base {
+    :root {
+        color-scheme: light;
+
+        /* Paleta principal */
+        --elite-ink:          #1A1A10;   
+        --elite-olive:        #57572A;   
+        --elite-olive-l:      #707040;
+        --elite-cream:        #E7E6AB;   
+        --elite-cream-dim:    #CACA91;   
+
+        /* Superficies */
+        --elite-bg:           #FAFAF4; /* Main background */
+        --elite-surface:      #FFFFFF; /* Cards */
+        --elite-surface-2:    #F7F6F0; /* Secondary surfaces */
+        --elite-surface-3:    #F0EFE8; /* Hover states/tertiary */
+
+        /* Bordes */
+        --elite-border:       rgba(26,26,16,0.08);
+        --elite-border-strong:rgba(26,26,16,0.14);
+
+        /* Texto */
+        --elite-text:         #1A1A10;
+        --elite-text-muted:   #7A796A;
+        --elite-text-faint:   rgba(26,26,16,0.40);
+
+        /* Scrollbar */
+        --elite-scrollbar:    #D9D9D0;
+    }
+
+    .dark {
+        color-scheme: dark;
+
+        /* Paleta principal (Invertida) */
+        --elite-ink:          #E7E6AB;   
+        --elite-olive:        #8A8A50;   
+        --elite-olive-l:      #A0A066;
+        --elite-cream:        #1A1A10;   
+        --elite-cream-dim:    #2A2A1A;   
+
+        /* Superficies */
+        --elite-bg:           #0E0D0A; /* Warm near-black */
+        --elite-surface:      #161512; /* Elevate card */
+        --elite-surface-2:    #1E1D19; 
+        --elite-surface-3:    #2A2920; 
+
+        /* Bordes */
+        --elite-border:       rgba(240,239,232,0.07);
+        --elite-border-strong:rgba(240,239,232,0.12);
+
+        /* Texto */
+        --elite-text:         #F0EFE8;
+        --elite-text-muted:   #C4C3B4;
+        --elite-text-faint:   rgba(240,239,232,0.30);
+
+        /* Scrollbar */
+        --elite-scrollbar:    #3A3A2A;
+    }
+
+    html {
+        font-feature-settings: "cv11", "ss01";
+        -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+        background-color: var(--elite-bg);
+        color: var(--elite-text);
+    }
+
+    *, *::before, *::after {
+        transition-property: background-color, border-color, color, box-shadow, fill, stroke;
+        transition-duration: 250ms;
+        transition-timing-function: cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .transition-all, [class*="animate-"], [class*="duration-"] {
+        transition-property: all;
+    }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+        background: var(--elite-scrollbar);
+        border-radius: 10px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADMIN PAGES & UI COMPONENTS
+═══════════════════════════════════════════════════════════════════ */
+@layer components {
+    .elite-card {
+        background-color: var(--elite-surface);
+        border: 1px solid var(--elite-border);
+        color: var(--elite-text);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border-radius: 1.5rem;
+    }
+    .elite-card:hover {
+        border-color: var(--elite-border-strong);
+    }
+
+    .elite-input {
+        background-color: var(--elite-surface-2);
+        border: 1px solid var(--elite-border-strong);
+        color: var(--elite-text);
+        border-radius: 1rem;
+        padding: 0.75rem 1.25rem;
+    }
+    .elite-input:focus {
+        border-color: var(--elite-olive);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(138,138,80,0.2);
+    }
+
+    .elite-btn-primary {
+        background-color: var(--elite-ink);
+        color: var(--elite-cream);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 1rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+    .elite-btn-primary:hover {
+        transform: scale(1.02);
+        opacity: 0.95;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   DARK MODE OVERRIDES (For views using hardcoded Tailwind utilities)
+═══════════════════════════════════════════════════════════════════ */
+
+/* Layout & Main Backgrounds */
+.dark main,
+.dark .min-h-screen,
+.dark [data-sidebar="inset"] {
+    background-color: var(--elite-bg) !important;
+}
+
+.dark .bg-\[\#FAFAF4\], .dark .bg-\[\#fafaf4\],
+.dark .bg-background, .dark .bg-surface-dim,
+.dark .bg-gray-50, .dark .bg-gray-100,
+.dark .bg-gradient-to-br.from-slate-50,
+.dark .bg-slate-50 {
+    background-color: var(--elite-bg) !important;
+}
+
+/* Cards & Surfaces */
+.dark .bg-white,
+.dark .bg-surface,
+.dark .bg-surface-container-lowest,
+.dark .bg-surface-container-low,
+.dark .bg-surface-container,
+.dark .bg-surface-container-high,
+.dark .bg-surface-container-highest,
+.dark .bg-tertiary-container,
+.dark .bg-\[\#fdfdfc\],
+.dark .bg-\[\#FBF9F2\],
+.dark .bg-\[\#f7f6f0\],
+.dark .bg-\[\#f0efe8\],
+.dark .rounded-\[2\.5rem\].bg-white,
+.dark .rounded-\[3rem\].bg-white {
+    background-color: var(--elite-surface) !important;
+    border-color: var(--elite-border) !important;
+}
+
+/* Modals & Elevated Elements */
+.dark .bg-gray-900,
+.dark .bg-\[\#1a1a10\] {
+    background-color: var(--elite-surface-3) !important;
+    border: 1px solid var(--elite-border) !important;
+}
+
+/* Semi-transparent Backgrounds / Soft overlays */
+.dark .bg-primary-fixed\/30,
+.dark .bg-\[\#e7e6ab\]\/30 { background-color: rgba(231,230,171,0.06) !important; }
+.dark .bg-white\/5       { background-color: rgba(240,239,232,0.04) !important; }
+.dark .bg-white\/8       { background-color: rgba(240,239,232,0.06) !important; }
+.dark .bg-white\/10      { background-color: rgba(240,239,232,0.07) !important; }
+.dark .bg-white\/20      { background-color: rgba(240,239,232,0.09) !important; }
+.dark .bg-white\/80      { background-color: rgba(14,13,10,0.92) !important; }
+.dark .bg-surface-container\/50,
+.dark .bg-\[\#f7f6f0\]\/50 { background-color: var(--elite-surface-2) !important; }
+
+/* Slate specific Opacity / States */
+.dark .bg-slate-50\/80 { background-color: rgba(30,29,25,0.85) !important; }
+.dark .bg-slate-50\/50, .dark .hover\:bg-slate-50\/50:hover { background-color: var(--elite-surface-2) !important; }
+/* Header & Sticky Elements */
+.dark header.sticky,
+.dark .sticky.top-0,
+.dark [data-sidebar-header],
+.dark .bg-surface\/95,
+.dark .bg-surface\/90,
+.dark .bg-surface\/70 {
+    background-color: rgba(22, 21, 18, 0.95) !important;
+    border-color: var(--elite-border) !important;
+    backdrop-filter: blur(12px);
+}
+
+/* Borders Utilities */
+.dark .border-gray-100, .dark .border-slate-100,
+.dark .border-gray-200, .dark .border-slate-200,
+.dark .border-gray-300, .dark .border-slate-300,
+.dark .border-\[\#1a1a10\]\/5,
+.dark .border-\[\#1a1a10\]\/10,
+.dark .border-\[\#57572A\]\/10,
+.dark hr,
+.dark .divide-y > * + *,
+.dark .border-t,
+.dark .border-b,
+.dark .border-b.border-\[\#1a1a10\]\/5 {
+    border-color: var(--elite-border) !important;
+}
+
+.dark .ring-1 { --tw-ring-color: var(--elite-border) !important; }
+.dark .ring-slate-200\/50 { --tw-ring-color: rgba(240,239,232,0.05) !important; }
+
+/* Text Color Utilities */
+.dark .text-gray-900, .dark .text-slate-900,
+.dark .text-gray-800, .dark .text-slate-800,
+.dark .text-on-background,
+.dark .text-\[\#1a1a10\],
+.dark .text-on-surface,
+.dark .text-on-tertiary-container,
+.dark .text-\[\#1A1C19\] {
+    color: var(--elite-text) !important;
+}
+
+.dark .text-gray-700, .dark .text-slate-700,
+.dark .text-gray-600, .dark .text-slate-600 {
+    color: var(--elite-text) !important;
+    opacity: 0.9;
+}
+
+.dark .text-gray-500, .dark .text-slate-500,
+.dark .text-gray-400, .dark .text-slate-400,
+.dark .text-on-surface-variant,
+.dark .text-outline-variant,
+.dark .text-\[\#5F5E5E\] {
+    color: var(--elite-text-muted) !important;
+}
+
+.dark .text-gray-300, .dark .text-slate-300 {
+    color: var(--elite-text-faint) !important;
+}
+
+/* Form Elements (Inputs / Select / Textarea) */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.dark select,
+.dark textarea {
+    background-color: var(--elite-surface-2) !important;
+    border-color: var(--elite-border-strong) !important;
+    color: var(--elite-text) !important;
+}
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: var(--elite-text-faint) !important;
+    opacity: 1;
+}
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+    border-color: var(--elite-olive) !important;
+    box-shadow: 0 0 0 3px rgba(138,138,80,0.15) !important;
+}
+
+/* Tables */
+.dark table { border-color: var(--elite-border) !important; }
+.dark table thead tr {
+    background-color: var(--elite-surface-2) !important;
+    border-bottom-color: var(--elite-border-strong) !important;
+}
+.dark table thead th {
+    color: var(--elite-text-muted) !important;
+    background-color: transparent !important;
+}
+.dark table tbody tr { border-bottom-color: var(--elite-border) !important; }
+.dark table tbody tr:hover { background-color: var(--elite-surface-2) !important; }
+.dark table td { color: var(--elite-text) !important; }
+
+/* Modal overlays */
+.dark .fixed.inset-0,
+.dark .fixed.inset-0.bg-\[\#1a1a10\]\/60,
+.dark .fixed.inset-0.bg-black\/50 {
+    background-color: rgba(0,0,0,0.75) !important;
+}
+
+.dark .fixed.inset-0 > div,
+.dark .fixed.inset-0 > .rounded-\[2\.5rem\] {
+    background-color: var(--elite-surface) !important;
+    border-color: var(--elite-border) !important;
+}
+
+/* Progress bars */
+.dark .bg-gray-100.rounded-full,
+.dark .bg-gray-100.overflow-hidden {
+    background-color: var(--elite-surface-3) !important;
+}
+
+/* Primary Brand Overrides from Tailwind Config */
+.dark .bg-primary { background-color: var(--elite-olive) !important; }
+.dark .text-primary { color: var(--elite-ink) !important; } /* In dark mode, elite-ink is cream! */
+.dark .border-primary { border-color: var(--elite-olive) !important; }
+.dark .ring-primary { --tw-ring-color: var(--elite-border) !important; }
+.dark .shadow-primary\/20 { --tw-shadow-color: rgba(0,0,0,0.3) !important; }
+.dark .hover\:bg-primary:hover { background-color: var(--elite-olive-l) !important; }
+.dark .hover\:text-primary:hover { color: var(--elite-olive-l) !important; }
+
+/* Semantic Colors Backgorunds (Badges & Pills) */
+.dark .bg-amber-50   { background-color: rgba(245,158,11,0.12) !important; }
+.dark .bg-amber-100  { background-color: rgba(245,158,11,0.18) !important; }
+.dark .bg-blue-50    { background-color: rgba(59,130,246,0.10) !important; }
+.dark .bg-blue-100   { background-color: rgba(59,130,246,0.16) !important; }
+.dark .bg-purple-50  { background-color: rgba(168,85,247,0.10) !important; }
+.dark .bg-orange-50  { background-color: rgba(249,115,22,0.10) !important; }
+.dark .bg-rose-50    { background-color: rgba(244,63,94,0.10)  !important; }
+.dark .bg-emerald-50 { background-color: rgba(16,185,129,0.10) !important; }
+.dark .bg-red-50     { background-color: rgba(239,68,68,0.10)  !important; }
+
+/* Semantic Colors Text (Ensure legibility in dark mode) */
+.dark .text-amber-600   { color: #FBBF24 !important; }
+.dark .text-amber-500   { color: #F59E0B !important; }
+.dark .text-blue-600    { color: #60A5FA !important; }
+.dark .text-blue-500    { color: #3B82F6 !important; }
+.dark .text-emerald-600 { color: #34D399 !important; }
+.dark .text-emerald-500 { color: #10B981 !important; }
+.dark .text-orange-500  { color: #FB923C !important; }
+.dark .text-orange-400  { color: #FDBA74 !important; }
+.dark .text-purple-500  { color: #C084FC !important; }
+.dark .text-rose-500    { color: #FB7185 !important; }
+.dark .text-red-500     { color: #F87171 !important; }
+
+/* Canvas (avoid overriding filters so charts look OK) */
+.dark canvas { filter: none !important; }
+
+/* Hover states for utility backgrounds */
+.dark .hover\:bg-gray-50:hover { background-color: var(--elite-surface-2) !important; }
+.dark .hover\:bg-gray-100:hover { background-color: var(--elite-surface-3) !important; }
+.dark .hover\:text-gray-600:hover { color: var(--elite-text) !important; }

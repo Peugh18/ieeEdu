@@ -142,7 +142,7 @@ const getClassesForDay = (day: any) => {
 // Course Colors Helper (Dynamic University Palette)
 const getCourseColor = (courseId: number) => {
     const colors = [
-        'bg-[#57572A]', // IEE Olive
+        'bg-primary', // IEE Olive
         'bg-[#003366]', // Navy Blue (University Classic)
         'bg-[#800000]', // Maroon/Crimson
         'bg-[#004d40]', // Deep Teal
@@ -154,7 +154,7 @@ const getCourseColor = (courseId: number) => {
 
 const getCourseLightColor = (courseId: number) => {
     const colors = [
-        'bg-[#57572A] text-white',
+        'bg-primary text-white',
         'bg-[#003366] text-white',
         'bg-[#800000] text-white',
         'bg-[#004d40] text-white',
@@ -170,54 +170,54 @@ const getCourseLightColor = (courseId: number) => {
 
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="h-[calc(100svh-4rem)] bg-[#FAFAF5] text-[#1A1C19] flex flex-col items-center overflow-hidden">
+        <div class="h-[calc(100svh-4rem)] bg-background text-on-background flex flex-col items-center overflow-hidden">
             
             <div class="w-full max-w-7xl mx-auto p-8 md:p-12 h-full flex flex-col gap-10">
                 <header class="flex flex-col md:flex-row md:items-end justify-between gap-10 shrink-0">
                     <div class="space-y-4">
-                        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-[#57572A]/5 border border-[#57572A]/10 rounded-full">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/5 border border-primary/10 rounded-full">
                             <div class="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"></div>
-                            <span class="text-[9px] font-black text-[#57572A] uppercase tracking-[0.25em]">Agenda Académica Digital</span>
+                            <span class="text-[9px] font-black text-primary uppercase tracking-[0.25em]">Agenda Académica Digital</span>
                         </div>
-                        <h1 class="text-4xl lg:text-5xl font-serif font-bold text-[#1A1C19] italic tracking-tight">Clases en Vivo</h1>
-                        <p class="text-[#5F5E5E] font-serif italic text-lg max-w-2xl leading-relaxed">Sincronice su cronograma con las sesiones magistrales en tiempo real para una formación integral.</p>
+                        <h1 class="text-4xl lg:text-5xl font-serif font-bold text-on-background italic tracking-tight">Clases en Vivo</h1>
+                        <p class="text-on-surface-variant font-serif italic text-lg max-w-2xl leading-relaxed">Sincronice su cronograma con las sesiones magistrales en tiempo real para una formación integral.</p>
                     </div>
                     
-                    <div class="flex items-center gap-6 bg-white p-3 rounded-[2rem] border border-[#C9C7B8]/20 shadow-xl shadow-[#57572A]/5 px-8">
-                        <button @click="prevMonth" class="p-3 hover:bg-[#FAFAF5] rounded-2xl text-[#C9C7B8] hover:text-[#57572A] transition-all"><ChevronLeft class="w-5 h-5" /></button>
-                        <span class="text-sm font-black text-[#1A1C19] uppercase tracking-[0.2em] min-w-[160px] text-center italic">{{ monthYearLabel }}</span>
-                        <button @click="nextMonth" class="p-3 hover:bg-[#FAFAF5] rounded-2xl text-[#C9C7B8] hover:text-[#57572A] transition-all"><ChevronRight class="w-5 h-5" /></button>
+                    <div class="flex items-center gap-6 bg-white p-3 rounded-[2rem] border border-outline-variant/20 shadow-xl shadow-primary/5 px-8">
+                        <button @click="prevMonth" class="p-3 hover:bg-background rounded-2xl text-outline-variant hover:text-primary transition-all"><ChevronLeft class="w-5 h-5" /></button>
+                        <span class="text-sm font-black text-on-background uppercase tracking-[0.2em] min-w-[160px] text-center italic">{{ monthYearLabel }}</span>
+                        <button @click="nextMonth" class="p-3 hover:bg-background rounded-2xl text-outline-variant hover:text-primary transition-all"><ChevronRight class="w-5 h-5" /></button>
                     </div>
                 </header>
 
                 <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 overflow-hidden pb-10">
                     <!-- Calendar View: Institutional Grid -->
-                    <div class="lg:col-span-8 flex flex-col bg-white rounded-[4rem] border border-[#C9C7B8]/20 shadow-2xl relative overflow-hidden group">
+                    <div class="lg:col-span-8 flex flex-col bg-white rounded-[4rem] border border-outline-variant/20 shadow-2xl relative overflow-hidden group">
                          <!-- Decorative watermark -->
                          <div class="absolute -right-20 -bottom-20 opacity-[0.03] pointer-events-none group-hover:scale-110 transition-transform duration-[3s]">
-                             <CalendarIcon class="w-96 h-96 text-[#57572A]" />
+                             <CalendarIcon class="w-96 h-96 text-primary" />
                          </div>
 
-                         <div class="grid grid-cols-7 gap-0 border-b border-[#C9C7B8]/10 bg-[#FAFAF5]/50 shrink-0">
-                            <div v-for="day in daysOfWeek" :key="day" class="py-5 text-center text-[10px] font-black text-[#57572A]/60 uppercase tracking-[0.3em] italic border-r border-[#C9C7B8]/10 last:border-r-0">
+                         <div class="grid grid-cols-7 gap-0 border-b border-outline-variant/10 bg-background/50 shrink-0">
+                            <div v-for="day in daysOfWeek" :key="day" class="py-5 text-center text-[10px] font-black text-primary/60 uppercase tracking-[0.3em] italic border-r border-outline-variant/10 last:border-r-0">
                                 {{ day }}
                             </div>
                         </div>
                         
-                        <div class="flex-1 grid grid-cols-7 gap-px bg-[#C9C7B8]/10 overflow-y-auto custom-scrollbar">
+                        <div class="flex-1 grid grid-cols-7 gap-px bg-outline-variant/10 overflow-y-auto custom-scrollbar">
                              <div v-for="(day, idx) in calendarDays" :key="idx" 
-                                class="bg-white min-h-[120px] p-4 transition-all hover:bg-[#FAFAF5] relative flex flex-col gap-3 group/cell"
+                                class="bg-white min-h-[120px] p-4 transition-all hover:bg-background relative flex flex-col gap-3 group/cell"
                                  :class="[
                                     !day.currentMonth ? 'opacity-20 translate-z-0 grayscale' : '',
                                     day.isToday ? 'after:absolute after:inset-0 after:border-2 after:border-[#D4AF37]/30' : ''
                                 ]"
                             >
-                                 <span class="text-sm font-serif font-bold italic transition-colors" :class="day.isToday ? 'text-[#D4AF37]' : 'text-[#C9C7B8]/80 group-hover/cell:text-[#1A1C19]'">{{ day.day }}</span>
+                                 <span class="text-sm font-serif font-bold italic transition-colors" :class="day.isToday ? 'text-[#D4AF37]' : 'text-outline-variant/80 group-hover/cell:text-on-background'">{{ day.day }}</span>
                                  
                                  <div class="flex flex-col gap-2 relative z-10">
                                     <div v-for="c in getClassesForDay(day)" :key="c.id" 
                                         @click="goToClassroom(c)"
-                                        class="p-2 rounded-xl text-[8px] font-black uppercase tracking-widest cursor-pointer transform hover:-translate-y-1 transition-all shadow-sm hover:shadow-lg hover:shadow-[#57572A]/10 border border-transparent hover:border-[#57572A]/20"
+                                        class="p-2 rounded-xl text-[8px] font-black uppercase tracking-widest cursor-pointer transform hover:-translate-y-1 transition-all shadow-sm hover:shadow-lg hover:shadow-primary/10 border border-transparent hover:border-primary/20"
                                         :class="getCourseLightColor(c.course_id)"
                                     >
                                         {{ c.time.split(' ')[0] }} {{ c.title }}
@@ -232,32 +232,32 @@ const getCourseLightColor = (courseId: number) => {
                     <!-- Agenda Sidebar: Cinematic List -->
                     <div class="lg:col-span-4 flex flex-col gap-8 h-full overflow-hidden">
                         <div class="flex items-center justify-between shrink-0">
-                            <h3 class="text-2xl font-serif font-bold text-[#1A1C19] italic tracking-tight">Cronograma Próximo</h3>
+                            <h3 class="text-2xl font-serif font-bold text-on-background italic tracking-tight">Cronograma Próximo</h3>
                             <span class="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.2em] px-3 py-1 bg-[#D4AF37]/5 rounded-full border border-[#D4AF37]/10">{{ live_classes.length }} Sesiones</span>
                         </div>
                         
                         <div class="flex-1 overflow-y-auto custom-scrollbar space-y-6 pr-4 pb-12">
                             <div v-for="session in live_classes" :key="session.id" 
-                                class="group bg-white rounded-[3rem] border border-[#C9C7B8]/20 p-8 shadow-sm hover:shadow-2xl hover:shadow-[#57572A]/5 hover:-translate-y-2 transition-all relative overflow-hidden"
+                                class="group bg-white rounded-[3rem] border border-outline-variant/20 p-8 shadow-sm hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all relative overflow-hidden"
                             >
                                 <div v-if="session.is_today" class="absolute top-0 right-0 bg-[#D4AF37] text-white text-[9px] font-black px-5 py-2 rounded-bl-3xl uppercase tracking-[0.3em] italic animate-in slide-in-from-right duration-500">
                                     En progreso
                                 </div>
 
                                 <div class="flex items-start gap-6">
-                                    <div class="flex flex-col items-center justify-center min-w-[70px] aspect-square rounded-[1.75rem] border border-[#C9C7B8]/30 shadow-inner group-hover:border-[#57572A]/30 transition-colors" :class="session.is_today ? 'bg-[#57572A]/5' : 'bg-[#FAFAF5]'">
-                                        <span class="text-[9px] font-black text-[#C9C7B8] uppercase group-hover:text-[#57572A] transition-colors">{{ session.day }}</span>
-                                        <span class="text-3xl font-serif font-bold text-[#1A1C19] italic">{{ session.date.split('-').pop() }}</span>
+                                    <div class="flex flex-col items-center justify-center min-w-[70px] aspect-square rounded-[1.75rem] border border-outline-variant/30 shadow-inner group-hover:border-primary/30 transition-colors" :class="session.is_today ? 'bg-primary/5' : 'bg-background'">
+                                        <span class="text-[9px] font-black text-outline-variant uppercase group-hover:text-primary transition-colors">{{ session.day }}</span>
+                                        <span class="text-3xl font-serif font-bold text-on-background italic">{{ session.date.split('-').pop() }}</span>
                                     </div>
                                     
                                     <div class="flex-1 min-w-0 pt-1">
-                                        <h4 class="text-lg font-serif font-bold text-[#1A1C19] leading-[1.3] mb-2 truncate group-hover:text-[#57572A] transition-colors" :title="session.title">{{ session.title }}</h4>
+                                        <h4 class="text-lg font-serif font-bold text-on-background leading-[1.3] mb-2 truncate group-hover:text-primary transition-colors" :title="session.title">{{ session.title }}</h4>
                                         <div class="flex items-center gap-2 mb-4">
                                             <div class="w-1.5 h-1.5 rounded-full" :class="getCourseColor(session.course_id)"></div>
-                                            <p class="text-[9px] text-[#5F5E5E]/60 font-black uppercase tracking-[0.25em] truncate italic">{{ session.course_title }}</p>
+                                            <p class="text-[9px] text-on-surface-variant/60 font-black uppercase tracking-[0.25em] truncate italic">{{ session.course_title }}</p>
                                         </div>
                                         
-                                        <div class="flex items-center gap-6 text-[10px] font-bold italic text-[#5F5E5E]/40 group-hover:text-[#5F5E5E] transition-colors">
+                                        <div class="flex items-center gap-6 text-[10px] font-bold italic text-on-surface-variant/40 group-hover:text-on-surface-variant transition-colors">
                                             <div class="flex items-center gap-2.5">
                                                 <Clock class="w-4 h-4" />
                                                 <span>{{ session.time }}</span>
@@ -273,7 +273,7 @@ const getCourseLightColor = (courseId: number) => {
                                 <div class="mt-8 flex gap-4 transition-all" :class="session.is_today ? 'translate-y-0 opacity-100' : 'group-hover:translate-y-0 translate-y-2 opacity-80 group-hover:opacity-100'">
                                     <button 
                                         @click="goToClassroom(session)"
-                                        class="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all bg-[#FAFAF5] border border-[#C9C7B8]/20 text-[#57572A] hover:bg-white hover:shadow-xl shadow-[#57572A]/5"
+                                        class="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all bg-background border border-outline-variant/20 text-primary hover:bg-white hover:shadow-xl shadow-primary/5"
                                     >
                                          <Monitor class="w-4 h-4" />
                                          <span>Aula Virtual</span>
@@ -282,7 +282,7 @@ const getCourseLightColor = (courseId: number) => {
                                     <button 
                                         v-if="session.is_today && session.live_link"
                                         @click="openLiveSession(session.live_link)"
-                                        class="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all bg-[#57572A] text-white hover:bg-[#1A1C19] shadow-2xl shadow-[#57572A]/30 relative group/btn overflow-hidden"
+                                        class="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all bg-primary text-white hover:bg-on-background shadow-2xl shadow-primary/30 relative group/btn overflow-hidden"
                                     >
                                          <span class="relative z-10">Ingresar ahora</span>
                                          <ExternalLink class="w-4 h-4 relative z-10" />
@@ -292,12 +292,12 @@ const getCourseLightColor = (courseId: number) => {
                             </div>
                         </div>
 
-                        <div v-if="live_classes.length === 0" class="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white rounded-[4rem] border border-dashed border-[#C9C7B8]/40 animate-in fade-in duration-1000">
-                             <div class="w-24 h-24 bg-[#FAFAF5] rounded-[2rem] border border-[#C9C7B8]/20 flex items-center justify-center mb-8 shadow-inner">
-                                <CalendarIcon class="w-10 h-10 text-[#C9C7B8]" />
+                        <div v-if="live_classes.length === 0" class="flex-1 flex flex-col items-center justify-center p-12 text-center bg-white rounded-[4rem] border border-dashed border-outline-variant/40 animate-in fade-in duration-1000">
+                             <div class="w-24 h-24 bg-background rounded-[2rem] border border-outline-variant/20 flex items-center justify-center mb-8 shadow-inner">
+                                <CalendarIcon class="w-10 h-10 text-outline-variant" />
                              </div>
-                             <h4 class="text-xl font-serif font-bold text-[#1A1C19] italic mb-3">Expediente sin sesiones</h4>
-                             <p class="text-[#5F5E5E] font-serif italic text-sm leading-relaxed max-w-[240px]">No se registran cátedras magistrales en vivo para su período académico actual.</p>
+                             <h4 class="text-xl font-serif font-bold text-on-background italic mb-3">Expediente sin sesiones</h4>
+                             <p class="text-on-surface-variant font-serif italic text-sm leading-relaxed max-w-[240px]">No se registran cátedras magistrales en vivo para su período académico actual.</p>
                         </div>
                     </div>
                 </div>

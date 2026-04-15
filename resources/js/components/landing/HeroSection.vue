@@ -9,7 +9,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="hero-mobile-bg relative min-h-[80vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(87,87,42,0.18),_transparent_45%),linear-gradient(180deg,rgba(250,250,244,1),rgba(242,242,236,1))] pt-20 sm:pt-24 md:pt-20">
+    <section class="hero-mobile-bg relative min-h-[80vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-background dark:bg-background pt-20 sm:pt-24 md:pt-20">
         <!-- Animated Background Elements -->
         <div class="absolute inset-0 overflow-hidden pointer-events-none">
             <div class="absolute top-20 left-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
@@ -17,7 +17,7 @@ onMounted(() => {
             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-radial from-primary-container/3 to-transparent"></div>
         </div>
         <!-- Mobile-only overlay for readable text -->
-        <div class="sm:hidden absolute inset-0 pointer-events-none bg-[linear-gradient(180deg,rgba(250,250,244,0.94)_0%,rgba(250,250,244,0.78)_35%,rgba(250,250,244,0.94)_100%)]"></div>
+        <div class="sm:hidden absolute inset-0 pointer-events-none bg-background/90 dark:bg-background/90"></div>
 
         <div class="max-w-7xl mx-auto px-6 md:px-8 w-full grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center relative z-10">
             <!-- Content -->

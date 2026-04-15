@@ -163,7 +163,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                     </div>
                     <h1 class="font-serif text-5xl text-slate-900 leading-tight">Control de <span class="italic">Transacciones</span></h1>
                 </div>
-                <button @click="showCreate = true" class="h-14 inline-flex items-center justify-center gap-3 rounded-2xl bg-[#57572A] px-8 text-sm font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-95 transition-all">
+                <button @click="showCreate = true" class="h-14 inline-flex items-center justify-center gap-3 rounded-2xl bg-primary px-8 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
                     <Plus class="h-5 w-5" /> Registrar Nuevo Pago
                 </button>
             </div>
@@ -179,7 +179,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                 ]" :key="s.key"
                     @click="statusFilter = s.key"
                     class="group relative cursor-pointer overflow-hidden rounded-[2rem] bg-white p-6 border border-slate-100 shadow-sm transition-all duration-300"
-                    :class="statusFilter === s.key ? 'ring-2 ring-[#57572A] border-transparent' : 'hover:shadow-md hover:border-slate-200'"
+                    :class="statusFilter === s.key ? 'ring-2 ring-primary border-transparent' : 'hover:shadow-md hover:border-slate-200'"
                 >
                     <div class="relative z-10 flex flex-col justify-between h-full space-y-4">
                         <div class="flex items-center justify-between">
@@ -198,7 +198,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
             <div class="bg-slate-50 rounded-[2.5rem] p-4 border border-slate-100 flex flex-col lg:flex-row items-center gap-4">
                 <div class="relative flex-1 w-full lg:w-auto">
                     <Search class="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <input v-model="searchInput" placeholder="Buscar por estudiante, curso o ID..." class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-medium outline-none focus:border-[#57572A] focus:ring-4 focus:ring-[#57572A]/5 transition-all" />
+                    <input v-model="searchInput" placeholder="Buscar por estudiante, curso o ID..." class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-medium outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all" />
                 </div>
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <div class="relative flex-1 lg:flex-none min-w-[160px]">
@@ -244,7 +244,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                                         {{ initials(p.user.name) }}
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="text-sm font-bold text-slate-900 leading-tight group-hover:text-[#57572A] transition-colors line-clamp-1">{{ p.user.name }}</p>
+                                        <p class="text-sm font-bold text-slate-900 leading-tight group-hover:text-primary transition-colors line-clamp-1">{{ p.user.name }}</p>
                                         <p class="text-[10px] text-slate-400 font-medium mt-0.5 uppercase tracking-wider line-clamp-1">{{ p.course?.title ?? 'Pago Directo / Externo' }}</p>
                                     </div>
                                 </div>
@@ -274,7 +274,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                             </td>
                             <td class="px-8 py-5">
                                 <div class="flex items-center justify-end gap-1.5 opacity-40 group-hover:opacity-100 transition-opacity">
-                                    <button @click="detailPayment = p" class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-[#57572A] hover:text-[#57572A] hover:bg-slate-50 transition-all" title="Gestionar">
+                                    <button @click="detailPayment = p" class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary hover:bg-slate-50 transition-all" title="Gestionar">
                                         <Eye class="h-4 w-4" />
                                     </button>
                                     <template v-if="p.status !== 'aprobado'">
@@ -314,8 +314,8 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                             <button @click="detailPayment = null" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
                                 <X class="h-5 w-5" />
                             </button>
-                            <span class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#C9C7B8]/60">Validación de Pago</span>
-                            <h2 class="font-serif text-3xl mt-1">Transacción <span class="italic text-[#C9C7B8]">#{{ detailPayment.id }}</span></h2>
+                            <span class="text-[10px] font-extrabold uppercase tracking-[0.2em] text-outline-variant/60">Validación de Pago</span>
+                            <h2 class="font-serif text-3xl mt-1">Transacción <span class="italic text-outline-variant">#{{ detailPayment.id }}</span></h2>
                         </div>
 
                         <div class="p-8 space-y-8 flex-1">
@@ -344,7 +344,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                                         </div>
                                         <div>
                                             <p class="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 mb-1">Inversión</p>
-                                            <p class="text-lg font-black text-[#57572A]">{{ fMoney(detailPayment.amount) }}</p>
+                                            <p class="text-lg font-black text-primary">{{ fMoney(detailPayment.amount) }}</p>
                                         </div>
                                         <div>
                                             <p class="text-[9px] font-extrabold uppercase tracking-widest text-slate-400 mb-1">Registro</p>
@@ -397,10 +397,10 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
             <Transition name="modal-bounce">
                 <div v-if="showCreate" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
                     <div class="w-full max-w-lg rounded-[2.5rem] bg-white shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
-                        <div class="bg-[#57572A] p-8 text-white relative">
+                        <div class="bg-primary p-8 text-white relative">
                             <div class="absolute top-0 right-0 p-8 opacity-10"><Plus class="w-24 h-24" /></div>
                             <h2 class="font-serif text-3xl">Registrar <span class="italic underline decoration-white/20 underline-offset-8">Venta</span></h2>
-                            <p class="mt-2 text-[#C9C7B8] text-sm italic">Gestión de Ingreso Manual</p>
+                            <p class="mt-2 text-outline-variant text-sm italic">Gestión de Ingreso Manual</p>
                             <button @click="showCreate = false; resetCreate()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
                                 <X class="h-5 w-5" />
                             </button>
@@ -409,9 +409,9 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                             <div class="relative">
                                 <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-2 block">Estudiante *</label>
                                 <div class="relative group">
-                                    <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 transition-colors group-focus-within:text-[#57572A]" />
+                                    <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 transition-colors group-focus-within:text-primary" />
                                     <input v-model="userQuery" placeholder="Buscar por nombre o email..." @focus="onUserFocus" @blur="onUserBlur"
-                                        class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] transition-all" />
+                                        class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-bold text-slate-700 outline-none focus:border-primary transition-all" />
                                     <span v-if="selectedUser" class="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black uppercase text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg ring-1 ring-emerald-500/20 transition-all">Vinculado</span>
                                 </div>
                                 <div v-if="showDropdown && userResults.length" class="absolute z-10 mt-2 w-full rounded-2xl border border-slate-100 bg-white shadow-2xl overflow-hidden">
@@ -430,7 +430,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
 
                             <div class="space-y-2">
                                 <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Especialidad Requerida *</label>
-                                <select v-model="createForm.course_id" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-[#57572A] appearance-none cursor-pointer transition-all">
+                                <select v-model="createForm.course_id" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-primary appearance-none cursor-pointer transition-all">
                                     <option value="">— Selecciona un curso del catálogo —</option>
                                     <option v-for="c in props.courses" :key="c.id" :value="c.id">{{ c.title }}</option>
                                 </select>
@@ -440,12 +440,12 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="space-y-2">
                                     <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Monto Final (S/) *</label>
-                                    <input v-model="createForm.amount" type="number" step="0.01" placeholder="0.00" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 focus:border-[#57572A] outline-none" />
+                                    <input v-model="createForm.amount" type="number" step="0.01" placeholder="0.00" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 focus:border-primary outline-none" />
                                     <p v-if="createForm.errors.amount" class="text-xs text-rose-500">{{ createForm.errors.amount }}</p>
                                 </div>
                                 <div class="space-y-2">
                                     <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Estado Inicial</label>
-                                    <select v-model="createForm.status" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 focus:border-[#57572A] outline-none">
+                                    <select v-model="createForm.status" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 focus:border-primary outline-none">
                                         <option value="pendiente">⏳ Pendiente</option>
                                         <option value="en_revision">🔍 En revisión</option>
                                         <option value="aprobado">✅ Aprobado</option>
@@ -455,7 +455,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
 
                             <div class="space-y-2">
                                 <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Cargar Evidencia (Opcional)</label>
-                                <label class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 hover:border-[#57572A]/30 transition-colors group">
+                                <label class="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 hover:border-primary/30 transition-colors group">
                                     <div class="flex items-center gap-4">
                                         <div class="w-10 h-10 rounded-xl bg-white border border-slate-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-500"><FileImage class="h-5 w-5 text-slate-400" /></div>
                                         <div class="min-w-0">
@@ -472,7 +472,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                         <div class="flex-shrink-0 flex justify-end gap-3 p-8 border-t border-slate-50 bg-slate-50/50">
                             <button type="button" @click="showCreate = false; resetCreate()" class="h-12 px-6 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all">Cancelar</button>
                             <button @click="submitCreate" :disabled="createForm.processing || !createForm.user_id || !createForm.course_id || !createForm.amount"
-                                class="h-12 px-10 rounded-2xl bg-[#57572A] text-sm font-black text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all">
+                                class="h-12 px-10 rounded-2xl bg-primary text-sm font-black text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all">
                                 {{ createForm.processing ? 'Procesando...' : 'Registrar Pago' }}
                             </button>
                         </div>

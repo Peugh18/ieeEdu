@@ -91,8 +91,8 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
         <div class="max-w-7xl mx-auto px-4 py-8 space-y-8">
             <!-- ── Nav ── -->
             <div class="flex items-center justify-between">
-                <Link :href="route('admin.users.index')" class="group inline-flex items-center gap-2.5 text-sm font-bold text-slate-500 hover:text-[#57572A] transition-all">
-                    <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center group-hover:border-[#57572A] group-hover:bg-[#57572A]/5 transition-all">
+                <Link :href="route('admin.users.index')" class="group inline-flex items-center gap-2.5 text-sm font-bold text-slate-500 hover:text-primary transition-all">
+                    <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center group-hover:border-primary group-hover:bg-primary/5 transition-all">
                         <ArrowLeft class="h-4 w-4" />
                     </div>
                     Volver al Directorio
@@ -110,7 +110,7 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
             <div class="relative">
                 <div class="absolute inset-0 bg-gradient-to-r from-slate-900 to-slate-800 rounded-[3rem] opacity-[0.03] -z-10"></div>
                 <div class="bg-white rounded-[3rem] border border-slate-100 p-8 md:p-12 shadow-sm overflow-hidden relative">
-                    <div class="absolute -top-24 -right-24 w-96 h-96 bg-[#57572A]/5 rounded-full blur-3xl"></div>
+                    <div class="absolute -top-24 -right-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
                     <div class="flex flex-col lg:flex-row gap-10 items-start relative z-10">
                         <div class="relative group">
                             <div :class="`flex h-40 w-40 flex-shrink-0 items-center justify-center rounded-[2.5rem] text-5xl font-bold shadow-xl shadow-slate-200 ring-8 ring-white transition-transform duration-500 group-hover:scale-[1.02] ${userColor}`">
@@ -133,7 +133,7 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
                                     <div class="space-y-1">
                                         <div class="flex items-center gap-3">
                                             <h1 class="font-serif text-5xl text-slate-900 leading-tight">{{ props.user.name }}</h1>
-                                            <button @click="toggleStatus" class="mt-2 text-slate-300 hover:text-[#57572A] transition-colors">
+                                            <button @click="toggleStatus" class="mt-2 text-slate-300 hover:text-primary transition-colors">
                                                 <ToggleRight v-if="props.user.status === 'activo'" class="w-8 h-8 text-emerald-500" />
                                                 <ToggleLeft v-else class="w-8 h-8" />
                                             </button>
@@ -153,7 +153,7 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
                                     </div>
                                     <div class="flex flex-wrap gap-6">
                                         <div class="flex items-center gap-3 group">
-                                            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#57572A]/5 group-hover:text-[#57572A] transition-all">
+                                            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/5 group-hover:text-primary transition-all">
                                                 <Mail class="w-4 h-4" />
                                             </div>
                                             <div class="flex flex-col">
@@ -162,7 +162,7 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
                                             </div>
                                         </div>
                                         <div v-if="props.user.telefono" class="flex items-center gap-3 group">
-                                            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#57572A]/5 group-hover:text-[#57572A] transition-all">
+                                            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/5 group-hover:text-primary transition-all">
                                                 <Phone class="w-4 h-4" />
                                             </div>
                                             <div class="flex flex-col">
@@ -171,7 +171,7 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-3 group">
-                                            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#57572A]/5 group-hover:text-[#57572A] transition-all">
+                                            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/5 group-hover:text-primary transition-all">
                                                 <Calendar class="w-4 h-4" />
                                             </div>
                                             <div class="flex flex-col">
@@ -186,7 +186,7 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
                                     <!-- UNIFIED BUTTON: CENTRALIZED ENROLLMENT AND PAYMENT -->
                                     <Link
                                         :href="route('admin.payments.index', { search: props.user.email, openCreate: 1 })"
-                                        class="h-16 inline-flex items-center justify-center gap-4 rounded-3xl bg-[#57572A] px-10 text-base font-black text-white shadow-2xl shadow-[#57572A]/30 hover:scale-[1.02] active:scale-95 transition-all"
+                                        class="h-16 inline-flex items-center justify-center gap-4 rounded-3xl bg-primary px-10 text-base font-black text-white shadow-2xl shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all"
                                     >
                                         <CreditCard class="h-6 w-6" />
                                         Registrar Venta / Acceso
@@ -201,7 +201,7 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
                                     <p class="text-[9px] font-extrabold uppercase tracking-[0.1em] text-slate-400">Inscripciones</p>
                                     <div class="flex items-end gap-2">
                                         <span class="text-2xl font-black text-slate-900 leading-none">{{ props.user.enrollments.length }}</span>
-                                        <BookOpen class="w-4 h-4 text-[#57572A] mb-0.5" />
+                                        <BookOpen class="w-4 h-4 text-primary mb-0.5" />
                                     </div>
                                 </div>
                                 <div class="space-y-1 border-r border-slate-200/60 px-4">
@@ -221,12 +221,12 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
                                     </div>
                                 </div>
                                 <div class="space-y-1 pl-4">
-                                    <p class="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[#57572A]">Inversión</p>
+                                    <p class="text-[9px] font-extrabold uppercase tracking-[0.1em] text-primary">Inversión</p>
                                     <div class="flex items-end gap-2">
-                                        <span class="text-2xl font-black text-[#57572A] leading-none">
+                                        <span class="text-2xl font-black text-primary leading-none">
                                            {{ props.user.payments.filter(p => p.status === 'aprobado').length }}
                                         </span>
-                                        <Wallet class="w-4 h-4 text-[#57572A]/40 mb-0.5" />
+                                        <Wallet class="w-4 h-4 text-primary/40 mb-0.5" />
                                     </div>
                                 </div>
                             </div>
@@ -248,7 +248,7 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
                             : 'bg-white border-transparent text-slate-500 hover:bg-slate-50'"
                     >
                         <div class="flex items-center gap-3">
-                            <component :is="tab.icon" class="w-5 h-5" :class="activeTab === tab.id ? 'text-[#C9C7B8]' : 'text-slate-300'" />
+                            <component :is="tab.icon" class="w-5 h-5" :class="activeTab === tab.id ? 'text-outline-variant' : 'text-slate-300'" />
                             <span class="text-sm font-bold tracking-tight">{{ tab.label }}</span>
                         </div>
                     </button>
@@ -283,7 +283,7 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
                                                     {{ enrollmentStatus(e).label }}
                                                 </div>
                                             </div>
-                                            <h4 class="text-base font-bold text-slate-900 truncate leading-snug group-hover:text-[#57572A] transition-colors">{{ e.course?.title ?? 'Curso' }}</h4>
+                                            <h4 class="text-base font-bold text-slate-900 truncate leading-snug group-hover:text-primary transition-colors">{{ e.course?.title ?? 'Curso' }}</h4>
                                         </div>
                                         <div class="flex items-center justify-between pt-2 border-t border-slate-50 text-xs text-slate-400">
                                             <div class="flex items-center gap-1.5"><Calendar class="w-3.5 h-3.5" /><span>{{ formatDate(e.enrolled_at) }}</span></div>
@@ -297,7 +297,7 @@ const userColor = avatarColors[props.user.id % avatarColors.length];
                     <div v-if="activeTab === 'pagos'" class="space-y-6">
                         <div class="flex items-center justify-between px-2">
                             <h3 class="font-serif text-2xl text-slate-900">Historial de <span class="italic">Transacciones</span></h3>
-                            <span class="px-3 py-1 rounded-full bg-[#57572A]/5 text-[10px] font-extrabold uppercase tracking-widest text-[#57572A]">
+                            <span class="px-3 py-1 rounded-full bg-primary/5 text-[10px] font-extrabold uppercase tracking-widest text-primary">
                                 {{ props.user.payments.length }} Recibos
                             </span>
                         </div>

@@ -123,7 +123,7 @@ const selectedSub = ref<Subscription | null>(null);
                 </div>
                 <button 
                     @click="showAddModal = true"
-                    class="h-14 inline-flex items-center justify-center gap-3 rounded-2xl bg-[#57572A] px-10 text-sm font-bold text-white shadow-xl shadow-[#57572A]/20 hover:scale-[1.02] active:scale-95 transition-all"
+                    class="h-14 inline-flex items-center justify-center gap-3 rounded-2xl bg-primary px-10 text-sm font-bold text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
                 >
                     <Plus class="h-5 w-5" />
                     Nueva Suscripción
@@ -164,11 +164,11 @@ const selectedSub = ref<Subscription | null>(null);
                 <div class="group relative overflow-hidden rounded-[2rem] bg-[#1a1a1a] p-6 shadow-xl transition-all duration-300 hover:scale-[1.01]">
                     <div class="relative z-10 flex flex-col justify-between h-full space-y-4">
                         <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-[#C9C7B8]/60">Monitoreo</span>
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-outline-variant/60">Monitoreo</span>
                             <Activity class="h-4 w-4 text-white/40" />
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold text-[#C9C7B8]/40 uppercase tracking-widest leading-none">Análisis de Retención</p>
+                            <p class="text-[10px] font-bold text-outline-variant/40 uppercase tracking-widest leading-none">Análisis de Retención</p>
                             <p class="text-2xl font-black text-white mt-1 italic tracking-tight">Ecosistema Activo</p>
                         </div>
                     </div>
@@ -198,11 +198,11 @@ const selectedSub = ref<Subscription | null>(null);
                     <input 
                         type="text" 
                         placeholder="Filtrar por nombre de estudiante o correo..." 
-                        class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-medium outline-none focus:border-[#57572A] focus:ring-4 focus:ring-[#57572A]/5 transition-all" 
+                        class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-medium outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all" 
                     />
                 </div>
                 <div class="flex items-center gap-3 w-full lg:w-auto">
-                    <button class="w-14 h-14 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-400 hover:border-[#57572A] hover:text-[#57572A] transition-all">
+                    <button class="w-14 h-14 flex items-center justify-center rounded-2xl bg-white border border-slate-200 text-slate-400 hover:border-primary hover:text-primary transition-all">
                         <Filter class="w-5 h-5" />
                     </button>
                 </div>
@@ -236,7 +236,7 @@ const selectedSub = ref<Subscription | null>(null);
                                         {{ initials(sub.user.name) }}
                                     </div>
                                     <div class="min-w-0">
-                                        <p class="text-sm font-bold text-slate-900 leading-tight group-hover:text-[#57572A] transition-colors line-clamp-1">{{ sub.user.name }}</p>
+                                        <p class="text-sm font-bold text-slate-900 leading-tight group-hover:text-primary transition-colors line-clamp-1">{{ sub.user.name }}</p>
                                         <p class="text-[10px] text-slate-400 font-medium mt-0.5 uppercase tracking-wider line-clamp-1">{{ sub.user.email }}</p>
                                     </div>
                                 </div>
@@ -272,7 +272,7 @@ const selectedSub = ref<Subscription | null>(null);
                                     <Link 
                                         :href="route('admin.subscriptions.toggle', sub.id)" 
                                         method="patch" as="button" preserve-scroll
-                                        class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-[#57572A] hover:text-[#57572A] hover:bg-slate-50 transition-all"
+                                        class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-primary hover:text-primary hover:bg-slate-50 transition-all"
                                         title="Alternar Estado"
                                     >
                                         <RotateCw class="w-4 h-4" />
@@ -330,13 +330,13 @@ const selectedSub = ref<Subscription | null>(null);
                             <div class="space-y-3 relative z-[100]">
                                 <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 block">Identificar Estudiante *</label>
                                 <div class="relative group">
-                                    <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-[#57572A] transition-colors" />
+                                    <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-primary transition-colors" />
                                     <input 
                                         v-model="searchUserQuery" 
                                         @input="searchUsers"
                                         type="text" 
                                         placeholder="Escribe para buscar por nombre o correo..." 
-                                        class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-6 text-sm font-bold text-slate-700 focus:border-[#57572A] outline-none transition-all shadow-inner"
+                                        class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-6 text-sm font-bold text-slate-700 focus:border-primary outline-none transition-all shadow-inner"
                                     />
                                     <div v-if="usersResults.length" class="absolute z-[999] left-0 right-0 mt-2 bg-white rounded-2xl border border-slate-100 shadow-2xl overflow-hidden max-h-60 overflow-y-auto">
                                         <button 
@@ -348,7 +348,7 @@ const selectedSub = ref<Subscription | null>(null);
                                                 {{ initials(u.name) }}
                                             </div>
                                             <div class="min-w-0">
-                                                <p class="text-sm font-bold text-slate-900 group-hover:text-[#57572A] transition-colors leading-tight">{{ u.name }}</p>
+                                                <p class="text-sm font-bold text-slate-900 group-hover:text-primary transition-colors leading-tight">{{ u.name }}</p>
                                                 <p class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{{ u.email }}</p>
                                             </div>
                                         </button>
@@ -469,7 +469,7 @@ const selectedSub = ref<Subscription | null>(null);
                                 <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
                                     <div class="flex items-center justify-between border-b border-slate-200/60 pb-3">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Monto Registrado</span>
-                                        <span class="text-lg font-black text-[#57572A] italic">S/ {{ formatMoney(selectedSub.payment_amount || 0) }}</span>
+                                        <span class="text-lg font-black text-primary italic">S/ {{ formatMoney(selectedSub.payment_amount || 0) }}</span>
                                     </div>
                                     <p class="italic text-slate-600 text-sm">"{{ selectedSub.payment_capture }}"</p>
                                 </div>

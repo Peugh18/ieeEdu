@@ -255,20 +255,20 @@ watch(period, () => buildChart());
     <Head title="Admin Dashboard · iieEdu" />
 
     <AppLayout>
-        <div class="min-h-screen bg-[#FAFAF4] font-sans">
+        <div class="min-h-screen bg-background dark:bg-[#141410] font-sans">
             <div class="max-w-[1700px] mx-auto px-6 lg:px-14 py-12 space-y-14">
 
                 <!-- ══════════════════════════════════════════════════════
                      CABECERA
                 ══════════════════════════════════════════════════════ -->
-                <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-12 border-b border-[#57572A]/10">
+                <header class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 pb-12 border-b border-primary/10">
                     <div class="space-y-3">
                         <div class="flex items-center gap-2">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                            <span class="text-[10px] tracking-[0.3em] font-black uppercase text-[#57572A]/60">Panel de Inteligencia · iieEdu</span>
+                            <span class="text-[10px] tracking-[0.3em] font-black uppercase text-primary/60">Panel de Inteligencia · iieEdu</span>
                         </div>
                         <h1 class="font-serif text-5xl lg:text-6xl text-gray-900 leading-none tracking-tight">
-                            Dashboard <span class="italic text-[#57572A]">Administrativo</span>
+                            Dashboard <span class="italic text-primary">Administrativo</span>
                         </h1>
                         <p class="text-gray-400 text-sm max-w-xl">Métricas en tiempo real de ingresos, suscripciones, cursos, libros y engagement estudiantil.</p>
                     </div>
@@ -277,7 +277,7 @@ watch(period, () => buildChart());
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                             <span class="text-xs font-bold text-gray-700 uppercase tracking-widest">{{ new Date().toLocaleDateString('es-PE', { day:'2-digit', month:'long', year:'numeric'}) }}</span>
                         </div>
-                        <button @click="downloadPDF" class="px-8 py-3.5 bg-[#1a1a10] text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group">
+                        <button @click="downloadPDF" class="px-8 py-3.5 bg-on-background text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group">
                             <Download class="w-4 h-4 opacity-50 group-hover:opacity-100 transition" />
                             Reporte PDF
                         </button>
@@ -289,23 +289,23 @@ watch(period, () => buildChart());
                 ══════════════════════════════════════════════════════ -->
                 <section class="space-y-4">
                     <div class="flex items-center gap-3">
-                        <DollarSign class="w-4 h-4 text-[#57572A]" />
+                        <DollarSign class="w-4 h-4 text-primary" />
                         <h2 class="text-[11px] font-black uppercase tracking-[0.25em] text-gray-400">Flujos de Ingresos</h2>
                     </div>
 
                     <div class="grid gap-6 sm:grid-cols-3">
                         <!-- Total -->
-                        <article class="relative bg-[#1a1a10] rounded-[2.5rem] p-9 overflow-hidden group hover:scale-[1.01] transition-all shadow-2xl">
+                        <article class="relative bg-on-background dark:bg-primary rounded-[2.5rem] p-9 overflow-hidden group hover:scale-[1.01] transition-all shadow-2xl">
                             <div class="relative z-10 space-y-8">
                                 <div class="flex items-center justify-between">
-                                    <div class="w-12 h-12 rounded-2xl bg-[#57572A] flex items-center justify-center text-[#e7e6ab]">
+                                    <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-primary-fixed">
                                         <DollarSign class="w-6 h-6" />
                                     </div>
                                     <span class="text-[9px] font-black uppercase tracking-widest text-white/30 border border-white/10 px-3 py-1 rounded-xl">CAJA REAL</span>
                                 </div>
                                 <div>
                                     <p class="text-[10px] font-black uppercase tracking-widest text-white/30 mb-2">Facturación Bruta</p>
-                                    <h3 class="font-serif text-5xl font-black text-[#e7e6ab] tabular-nums leading-none">S/ {{ props.stats.totalIncome.toLocaleString() }}</h3>
+                                    <h3 class="font-serif text-5xl font-black text-primary-fixed tabular-nums leading-none">S/ {{ props.stats.totalIncome.toLocaleString() }}</h3>
                                     <p class="text-[11px] text-white/30 mt-3 font-medium">{{ props.stats.approvedPayments }} pagos aprobados en total</p>
                                 </div>
                             </div>
@@ -316,11 +316,11 @@ watch(period, () => buildChart());
                         <article class="relative bg-white rounded-[2.5rem] p-9 border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:scale-[1.01] transition-all">
                             <div class="relative z-10 space-y-8">
                                 <div class="flex items-center justify-between">
-                                    <div class="w-12 h-12 rounded-2xl bg-[#57572A]/10 flex items-center justify-center text-[#57572A]">
+                                    <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
                                         <Crown class="w-6 h-6" />
                                     </div>
                                     <div class="flex flex-col items-end gap-1">
-                                        <span class="text-[9px] font-black uppercase tracking-widest text-[#57572A] bg-[#57572A]/5 px-3 py-1 rounded-xl border border-[#57572A]/10">PREMIUM</span>
+                                        <span class="text-[9px] font-black uppercase tracking-widest text-primary bg-primary/5 px-3 py-1 rounded-xl border border-primary/10">PREMIUM</span>
                                         <span class="text-[10px] text-gray-400 font-bold tabular-nums">{{ subIncomeShare }}% del total</span>
                                     </div>
                                 </div>
@@ -329,13 +329,13 @@ watch(period, () => buildChart());
                                     <h3 class="font-serif text-5xl font-black text-gray-900 tabular-nums leading-none">S/ {{ props.stats.subIncome.toLocaleString() }}</h3>
                                     <div class="mt-3 flex items-center gap-2">
                                         <div class="w-full h-1.5 rounded-full bg-gray-100">
-                                            <div class="h-full bg-[#57572A] rounded-full transition-all duration-[2000ms]" :style="{width: subIncomeShare + '%'}"></div>
+                                            <div class="h-full bg-primary rounded-full transition-all duration-[2000ms]" :style="{width: subIncomeShare + '%'}"></div>
                                         </div>
                                     </div>
                                     <p class="text-[11px] text-gray-400 mt-2 font-medium">{{ props.stats.activeSubs }} suscripciones activas</p>
                                 </div>
                             </div>
-                            <div class="absolute -bottom-6 -right-6 w-32 h-32 text-[#57572A]/5"><Crown class="w-full h-full" /></div>
+                            <div class="absolute -bottom-6 -right-6 w-32 h-32 text-primary/5"><Crown class="w-full h-full" /></div>
                         </article>
 
                         <!-- Cursos -->
@@ -371,7 +371,7 @@ watch(period, () => buildChart());
                 ══════════════════════════════════════════════════════ -->
                 <section class="space-y-4">
                     <div class="flex items-center gap-3">
-                        <Target class="w-4 h-4 text-[#57572A]" />
+                        <Target class="w-4 h-4 text-primary" />
                         <h2 class="text-[11px] font-black uppercase tracking-[0.25em] text-gray-400">Indicadores Operativos</h2>
                     </div>
 
@@ -392,10 +392,10 @@ watch(period, () => buildChart());
                         </article>
 
                         <!-- Premium -->
-                        <article class="bg-[#57572A] rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col gap-3 group hover:scale-105">
-                            <Crown class="w-5 h-5 text-[#e7e6ab]" />
-                            <span class="text-3xl font-serif font-black text-[#e7e6ab] tabular-nums">{{ props.stats.premiumUsers }}</span>
-                            <span class="text-[9px] font-black uppercase tracking-widest text-[#e7e6ab]/60 leading-tight">Usuarios Premium</span>
+                        <article class="bg-primary rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col gap-3 group hover:scale-105">
+                            <Crown class="w-5 h-5 text-primary-fixed" />
+                            <span class="text-3xl font-serif font-black text-primary-fixed tabular-nums">{{ props.stats.premiumUsers }}</span>
+                            <span class="text-[9px] font-black uppercase tracking-widest text-primary-fixed/60 leading-tight">Usuarios Premium</span>
                         </article>
 
                         <!-- Nuevos este mes -->
@@ -447,7 +447,7 @@ watch(period, () => buildChart());
                                     @click="period = key as any"
                                     class="px-4 py-2 text-[9px] font-black uppercase tracking-widest rounded-xl transition-all"
                                     :class="period === key
-                                        ? 'bg-white text-[#57572A] shadow-md border border-gray-100'
+                                        ? 'bg-white text-primary shadow-md border border-gray-100'
                                         : 'text-gray-400 hover:text-gray-600'">
                                     {{ label }}
                                 </button>
@@ -462,7 +462,7 @@ watch(period, () => buildChart());
                     <div class="flex flex-col gap-6">
 
                         <!-- Composición de Ingresos -->
-                        <article class="bg-[#FBF9F2] rounded-[2.5rem] p-9 border border-[#57572A]/10 space-y-8 flex-1">
+                        <article class="bg-surface-dim rounded-[2.5rem] p-9 border border-primary/10 space-y-8 flex-1">
                             <h3 class="font-serif text-lg font-bold text-gray-900 italic">Composición de Caja</h3>
 
                             <div class="space-y-6">
@@ -470,12 +470,12 @@ watch(period, () => buildChart());
                                     <div class="flex justify-between items-center">
                                         <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Membresías</span>
                                         <div class="text-right">
-                                            <span class="text-sm font-black text-[#57572A] tabular-nums">{{ subIncomeShare }}%</span>
+                                            <span class="text-sm font-black text-primary tabular-nums">{{ subIncomeShare }}%</span>
                                             <span class="block text-[9px] text-gray-400 font-bold italic">S/ {{ props.stats.subIncome.toLocaleString() }}</span>
                                         </div>
                                     </div>
                                     <div class="h-2 bg-white rounded-full overflow-hidden border border-gray-100">
-                                        <div class="h-full bg-[#57572A] rounded-full transition-all duration-[2s]" :style="{width: subIncomeShare + '%'}"></div>
+                                        <div class="h-full bg-primary rounded-full transition-all duration-[2s]" :style="{width: subIncomeShare + '%'}"></div>
                                     </div>
                                 </div>
 
@@ -494,7 +494,7 @@ watch(period, () => buildChart());
                             </div>
 
                             <!-- Totales -->
-                            <div class="pt-6 border-t border-[#57572A]/10 grid grid-cols-2 gap-4">
+                            <div class="pt-6 border-t border-primary/10 grid grid-cols-2 gap-4">
                                 <div class="text-center">
                                     <p class="text-2xl font-serif font-black text-gray-900 tabular-nums">{{ props.stats.activeSubs }}</p>
                                     <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Subs Activas</p>
@@ -507,12 +507,12 @@ watch(period, () => buildChart());
                         </article>
 
                         <!-- Insight Inteligente -->
-                        <article class="bg-[#57572A] rounded-[2.5rem] p-8 text-white flex gap-5 items-start group">
+                        <article class="bg-primary rounded-[2.5rem] p-8 text-white flex gap-5 items-start group">
                             <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
-                                <Lightbulb class="w-6 h-6 text-[#e7e6ab]" />
+                                <Lightbulb class="w-6 h-6 text-primary-fixed" />
                             </div>
                             <div class="space-y-2">
-                                <p class="text-[9px] font-black uppercase tracking-widest text-[#e7e6ab]/60">Análisis Estratégico</p>
+                                <p class="text-[9px] font-black uppercase tracking-widest text-primary-fixed/60">Análisis Estratégico</p>
                                 <p class="text-[13px] font-serif italic leading-relaxed text-white/90">{{ insight }}</p>
                             </div>
                         </article>
@@ -542,13 +542,13 @@ watch(period, () => buildChart());
 
                                     <!-- Rank -->
                                     <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 transition-colors"
-                                        :class="idx === 0 ? 'bg-[#57572A] text-[#e7e6ab]' : idx === 1 ? 'bg-gray-100 text-gray-700' : 'bg-gray-50 text-gray-400'">
+                                        :class="idx === 0 ? 'bg-primary text-primary-fixed' : idx === 1 ? 'bg-gray-100 text-gray-700' : 'bg-gray-50 text-gray-400'">
                                         {{ idx + 1 }}
                                     </div>
 
                                     <!-- Info -->
                                     <div class="flex-1 min-w-0">
-                                        <p class="font-bold text-gray-900 truncate group-hover:text-[#57572A] transition-colors">{{ course.title }}</p>
+                                        <p class="font-bold text-gray-900 truncate group-hover:text-primary transition-colors">{{ course.title }}</p>
                                         <div class="flex items-center gap-3 mt-1">
                                             <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">{{ course.type === 'grabado' ? '🎬 Grabado' : '📡 En Vivo' }}</span>
                                         </div>
@@ -558,7 +558,7 @@ watch(period, () => buildChart());
                                     <div class="w-24 space-y-1 hidden sm:block">
                                         <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                                             <div class="h-full rounded-full transition-all duration-[1500ms]"
-                                                :class="idx === 0 ? 'bg-[#57572A]' : 'bg-gray-300'"
+                                                :class="idx === 0 ? 'bg-primary' : 'bg-gray-300'"
                                                 :style="{width: (course.approved_payments_count / (props.courseSales[0]?.approved_payments_count || 1) * 100) + '%'}">
                                             </div>
                                         </div>
@@ -582,9 +582,9 @@ watch(period, () => buildChart());
                     <!-- Inventario de Contenidos -->
                     <div class="flex flex-col gap-6">
                         <!-- Cursos -->
-                        <article class="bg-[#e7e6ab]/30 rounded-[2.5rem] p-9 border border-[#57572A]/10 space-y-6">
+                        <article class="bg-primary-fixed/30 rounded-[2.5rem] p-9 border border-primary/10 space-y-6">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-[#57572A] flex items-center justify-center text-[#e7e6ab]">
+                                <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-fixed">
                                     <Video class="w-5 h-5" />
                                 </div>
                                 <h3 class="font-serif font-bold text-gray-900">Inventario de Cursos</h3>
@@ -603,7 +603,7 @@ watch(period, () => buildChart());
                                     <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Grabados</p>
                                 </div>
                                 <div class="bg-white rounded-2xl p-4 text-center border border-gray-100">
-                                    <p class="text-2xl font-serif font-black text-[#57572A] tabular-nums">{{ props.stats.liveCourses }}</p>
+                                    <p class="text-2xl font-serif font-black text-primary tabular-nums">{{ props.stats.liveCourses }}</p>
                                     <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">En Vivo</p>
                                 </div>
                             </div>
@@ -636,7 +636,7 @@ watch(period, () => buildChart());
                 ══════════════════════════════════════════════════════ -->
                 <section class="space-y-4">
                     <div class="flex items-center gap-3">
-                        <GraduationCap class="w-4 h-4 text-[#57572A]" />
+                        <GraduationCap class="w-4 h-4 text-primary" />
                         <h2 class="text-[11px] font-black uppercase tracking-[0.25em] text-gray-400">Salud Académica & Engagement</h2>
                     </div>
 
@@ -650,7 +650,7 @@ watch(period, () => buildChart());
                                     <circle cx="56" cy="56" r="48" stroke="currentColor" stroke-width="10" fill="none"
                                         :stroke-dasharray="301.6"
                                         :stroke-dashoffset="301.6 - (301.6 * props.stats.approvalRate / 100)"
-                                        stroke-linecap="round" class="text-[#57572A] transition-all duration-[2s]" />
+                                        stroke-linecap="round" class="text-primary transition-all duration-[2s]" />
                                 </svg>
                                 <span class="absolute inset-0 flex items-center justify-center font-serif font-black text-xl text-gray-900 tabular-nums">{{ props.stats.approvalRate.toFixed(0) }}%</span>
                             </div>
@@ -681,7 +681,7 @@ watch(period, () => buildChart());
                         <!-- Usuarios vs Premium -->
                         <article class="bg-white rounded-[2.5rem] p-9 border border-gray-100 shadow-sm space-y-6">
                             <div class="flex items-center gap-3">
-                                <ShieldCheck class="w-5 h-5 text-[#57572A]" />
+                                <ShieldCheck class="w-5 h-5 text-primary" />
                                 <h4 class="font-serif font-bold text-gray-900">Alumnos vs Premium</h4>
                             </div>
                             <div class="space-y-4">
@@ -707,10 +707,10 @@ watch(period, () => buildChart());
                                 <div class="space-y-1.5">
                                     <div class="flex justify-between">
                                         <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Premium</span>
-                                        <span class="text-sm font-black text-[#57572A] tabular-nums">{{ props.stats.premiumUsers }}</span>
+                                        <span class="text-sm font-black text-primary tabular-nums">{{ props.stats.premiumUsers }}</span>
                                     </div>
                                     <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                        <div class="h-full bg-[#57572A] rounded-full transition-all duration-[2s]"
+                                        <div class="h-full bg-primary rounded-full transition-all duration-[2s]"
                                             :style="{width: (props.stats.premiumUsers / props.stats.totalUsers * 100) + '%'}"></div>
                                     </div>
                                 </div>
@@ -718,15 +718,15 @@ watch(period, () => buildChart());
                         </article>
 
                         <!-- Conversión & Leads -->
-                        <article class="bg-[#1a1a10] rounded-[2.5rem] p-9 text-white space-y-8">
+                        <article class="bg-on-background dark:bg-[#2a2a1a] dark:border dark:border-[rgba(231,230,171,0.10)] rounded-[2.5rem] p-9 text-white space-y-8">
                             <div class="flex items-center gap-3">
-                                <MessageCircle class="w-5 h-5 text-[#e7e6ab]" />
-                                <h4 class="font-serif font-bold text-[#e7e6ab]">Leads & Conversión</h4>
+                                <MessageCircle class="w-5 h-5 text-primary-fixed" />
+                                <h4 class="font-serif font-bold text-primary-fixed">Leads & Conversión</h4>
                             </div>
                             <div class="space-y-6">
                                 <div class="space-y-1">
                                     <p class="text-[9px] font-black uppercase tracking-widest text-white/30">Leads WhatsApp Total</p>
-                                    <p class="text-4xl font-serif font-black text-[#e7e6ab] tabular-nums">{{ props.stats.whatsappLeads }}</p>
+                                    <p class="text-4xl font-serif font-black text-primary-fixed tabular-nums">{{ props.stats.whatsappLeads }}</p>
                                 </div>
                                 <div class="pt-5 border-t border-white/10 space-y-1">
                                     <p class="text-[9px] font-black uppercase tracking-widest text-white/30">Este Mes</p>
