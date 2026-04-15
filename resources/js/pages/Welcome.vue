@@ -413,7 +413,7 @@ const toggleAbout = (id: string) => {
 
 
             <!-- Publicaciones y Biblioteca -->
-            <section id="publicaciones" class="py-12 sm:py-16 md:py-24 px-4 md:px-8 bg-gradient-to-b from-surface to-surface-container-low">
+            <section id="publicaciones" class="py-12 sm:py-16 md:py-24 px-4 md:px-8 bg-surface-container-low dark:bg-background">
                 <div class="max-w-7xl mx-auto">
                     <!-- Header -->
                     <div class="text-center mb-8 sm:mb-12 md:mb-16">

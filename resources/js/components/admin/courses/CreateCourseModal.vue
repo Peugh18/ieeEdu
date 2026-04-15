@@ -182,7 +182,7 @@ function onCategoryCreated(category: { id: number; name: string }) {
             <div class="w-full max-w-4xl max-h-[95vh] flex flex-col rounded-[2.5rem] bg-white shadow-2xl shadow-surface-tint/10 border border-outline-variant/10 overflow-hidden relative">
                 
                 <!-- BACKGROUND BLUR (SaaS magic) -->
-                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#57572A]/10 to-transparent rounded-full blur-3xl -mt-20 -mr-20 pointer-events-none"></div>
+                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl -mt-20 -mr-20 pointer-events-none"></div>
 
                 <!-- HEADER VISUAL AND STEPPER -->
                 <div class="px-8 sm:px-10 pt-8 pb-6 border-b border-outline-variant/10 flex flex-col gap-6 shrink-0 bg-white/70 backdrop-blur-md relative z-10">
@@ -199,9 +199,9 @@ function onCategoryCreated(category: { id: number; name: string }) {
                     <!-- STEP INDICATOR -->
                     <div class="flex items-center gap-3">
                         <div class="h-2 flex-1 rounded-full overflow-hidden bg-surface-container">
-                            <div class="h-full bg-[#57572A] rounded-full transition-all duration-500 ease-out" :style="{ width: `${(step / totalSteps) * 100}%` }"></div>
+                            <div class="h-full bg-primary rounded-full transition-all duration-500 ease-out" :style="{ width: `${(step / totalSteps) * 100}%` }"></div>
                         </div>
-                        <span class="text-[12px] font-bold text-[#57572A] uppercase tracking-widest whitespace-nowrap">Paso {{ step }} de {{ totalSteps }}</span>
+                        <span class="text-[12px] font-bold text-primary uppercase tracking-widest whitespace-nowrap">Paso {{ step }} de {{ totalSteps }}</span>
                     </div>
                 </div>
 
@@ -224,9 +224,9 @@ function onCategoryCreated(category: { id: number; name: string }) {
                                         type="button" 
                                         @click="setModality('grabado')"
                                         class="flex flex-col items-start p-6 rounded-[2rem] border-2 text-left transition-all duration-300 cursor-pointer"
-                                        :class="form.type === 'grabado' ? 'border-[#57572A] bg-surface-container-highest shadow-md scale-[1.02]' : 'border-outline-variant/15 bg-white hover:border-[#57572A]/40 hover:bg-surface-container-lowest'"
+                                        :class="form.type === 'grabado' ? 'border-primary bg-surface-container-highest shadow-md scale-[1.02]' : 'border-outline-variant/15 bg-white hover:border-primary/40 hover:bg-surface-container-lowest'"
                                     >
-                                        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-5 text-white transition-colors" :class="form.type === 'grabado' ? 'bg-[#57572A] shadow-lg shadow-[#57572A]/30' : 'bg-surface-variant'">
+                                        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-5 text-white transition-colors" :class="form.type === 'grabado' ? 'bg-primary shadow-lg shadow-primary/30' : 'bg-surface-variant'">
                                             <Video class="w-5 h-5" />
                                         </div>
                                         <h4 class="font-bold text-[16px] text-on-surface mb-2">Curso Grabado</h4>
@@ -238,9 +238,9 @@ function onCategoryCreated(category: { id: number; name: string }) {
                                         type="button" 
                                         @click="setModality('en vivo')"
                                         class="flex flex-col items-start p-6 rounded-[2rem] border-2 text-left transition-all duration-300 cursor-pointer"
-                                        :class="form.type === 'en vivo' ? 'border-[#57572A] bg-surface-container-highest shadow-md scale-[1.02]' : 'border-outline-variant/15 bg-white hover:border-[#57572A]/40 hover:bg-surface-container-lowest'"
+                                        :class="form.type === 'en vivo' ? 'border-primary bg-surface-container-highest shadow-md scale-[1.02]' : 'border-outline-variant/15 bg-white hover:border-primary/40 hover:bg-surface-container-lowest'"
                                     >
-                                        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-5 text-white transition-colors" :class="form.type === 'en vivo' ? 'bg-[#57572A] shadow-lg shadow-[#57572A]/30' : 'bg-surface-variant'">
+                                        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-5 text-white transition-colors" :class="form.type === 'en vivo' ? 'bg-primary shadow-lg shadow-primary/30' : 'bg-surface-variant'">
                                             <Users class="w-5 h-5" />
                                         </div>
                                         <h4 class="font-bold text-[16px] text-on-surface mb-2">Curso En Vivo</h4>
@@ -252,9 +252,9 @@ function onCategoryCreated(category: { id: number; name: string }) {
                                         type="button" 
                                         @click="setModality('masterclass')"
                                         class="flex flex-col items-start p-6 rounded-[2rem] border-2 text-left transition-all duration-300 cursor-pointer"
-                                        :class="form.type === 'masterclass' ? 'border-[#57572A] bg-surface-container-highest shadow-md scale-[1.02]' : 'border-outline-variant/15 bg-white hover:border-[#57572A]/40 hover:bg-surface-container-lowest'"
+                                        :class="form.type === 'masterclass' ? 'border-primary bg-surface-container-highest shadow-md scale-[1.02]' : 'border-outline-variant/15 bg-white hover:border-primary/40 hover:bg-surface-container-lowest'"
                                     >
-                                        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-5 text-white transition-colors" :class="form.type === 'masterclass' ? 'bg-[#57572A] shadow-lg shadow-[#57572A]/30' : 'bg-surface-variant'">
+                                        <div class="w-12 h-12 rounded-full flex items-center justify-center mb-5 text-white transition-colors" :class="form.type === 'masterclass' ? 'bg-primary shadow-lg shadow-primary/30' : 'bg-surface-variant'">
                                             <Star class="w-5 h-5" />
                                         </div>
                                         <h4 class="font-bold text-[16px] text-on-surface mb-2">Masterclass</h4>
@@ -274,18 +274,18 @@ function onCategoryCreated(category: { id: number; name: string }) {
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div class="md:col-span-2 space-y-3">
                                         <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Título Oficial del Curso</label>
-                                        <input v-model="form.title" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Ej. Alta Especialización en Finanzas Públicas" />
+                                        <input v-model="form.title" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Ej. Alta Especialización en Finanzas Públicas" />
                                         <p v-if="form.errors.title" class="ml-1 mt-1 text-[13px] font-bold text-red-600">{{ form.errors.title }}</p>
                                     </div>
 
                                     <div class="space-y-3">
                                         <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Especialidad</label>
                                         <div class="flex gap-2">
-                                            <select v-model="form.category_id" class="flex-1 rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent appearance-none">
+                                            <select v-model="form.category_id" class="flex-1 rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent appearance-none">
                                                 <option value="">Seleccione Categoría</option>
                                                 <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
                                             </select>
-                                            <button type="button" class="rounded-[1.5rem] bg-surface-container-highest px-6 hover:bg-surface-container-high transition-colors font-bold text-[#57572A] flex items-center justify-center shadow-sm" @click="showCategoryModal = true">
+                                            <button type="button" class="rounded-[1.5rem] bg-surface-container-highest px-6 hover:bg-surface-container-high transition-colors font-bold text-primary flex items-center justify-center shadow-sm" @click="showCategoryModal = true">
                                                 +
                                             </button>
                                         </div>
@@ -300,7 +300,7 @@ function onCategoryCreated(category: { id: number; name: string }) {
                                             </div>
                                             <label class="flex-1 cursor-pointer py-3 px-4 rounded-xl hover:bg-surface-container-high transition-colors text-center">
                                                 <input type="file" accept="image/*" class="hidden" @change="(e) => onPickImage((e.target as HTMLInputElement).files?.[0] ?? null)" />
-                                                <span class="text-[13px] font-bold text-[#57572A]">Elegir Imagen</span>
+                                                <span class="text-[13px] font-bold text-primary">Elegir Imagen</span>
                                                 <span class="block text-[11px] text-on-surface-variant font-medium mt-0.5">JPG/PNG/WEBP</span>
                                             </label>
                                         </div>
@@ -311,22 +311,22 @@ function onCategoryCreated(category: { id: number; name: string }) {
                                     <template v-if="form.type !== 'masterclass'">
                                         <div class="space-y-3">
                                             <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Inversión Base (S/)</label>
-                                            <input v-model.number="form.price" type="number" min="0" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="0" />
+                                            <input v-model.number="form.price" type="number" min="0" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="0" />
                                             <p v-if="form.errors.price" class="ml-1 mt-1 text-[13px] font-bold text-red-600">{{ form.errors.price }}</p>
                                         </div>
                                         
                                         <div class="rounded-[2rem] border border-outline-variant/10 bg-surface-container-lowest p-6 shadow-sm flex flex-col justify-center">
                                             <label class="flex items-center gap-3 text-[14px] font-bold text-on-surface font-sans mb-5 cursor-pointer w-max">
-                                                <input type="checkbox" v-model="form.discount_enabled" class="accent-[#57572A] w-5 h-5 rounded focus:ring-[#57572A]" />
+                                                <input type="checkbox" v-model="form.discount_enabled" class="accent-primary w-5 h-5 rounded focus:ring-primary" />
                                                 <span>Promo Descuento</span>
                                             </label>
                                             <div class="flex items-center gap-5">
                                                 <div class="w-24">
-                                                    <input v-model.number="form.discount" :disabled="!form.discount_enabled" type="number" min="0" max="100" class="w-full rounded-[1.5rem] bg-surface-container-highest px-5 py-4 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant disabled:opacity-50 disabled:bg-surface-container-low" placeholder="%" />
+                                                    <input v-model.number="form.discount" :disabled="!form.discount_enabled" type="number" min="0" max="100" class="w-full rounded-[1.5rem] bg-surface-container-highest px-5 py-4 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant disabled:opacity-50 disabled:bg-surface-container-low" placeholder="%" />
                                                 </div>
                                                 <div class="flex-1">
                                                     <span class="block text-[12px] text-on-surface-variant font-bold uppercase tracking-widest mb-1">Precio Final</span>
-                                                    <span class="text-2xl font-serif font-bold text-[#57572A]">S/ {{ form.sale_price }}</span>
+                                                    <span class="text-2xl font-serif font-bold text-primary">S/ {{ form.sale_price }}</span>
                                                 </div>
                                             </div>
                                             <p v-if="form.errors.discount" class="ml-1 mt-2 text-[13px] font-bold text-red-600">{{ form.errors.discount }}</p>
@@ -335,7 +335,7 @@ function onCategoryCreated(category: { id: number; name: string }) {
                                     <template v-else>
                                         <div class="md:col-span-2 rounded-[2rem] bg-surface-container-highest px-8 py-6 flex items-center gap-5 shadow-sm border border-transparent">
                                             <div class="w-14 h-14 rounded-full bg-surface-container-low border border-white flex items-center justify-center shrink-0">
-                                                <PartyPopper class="text-[#57572A] w-6 h-6" />
+                                                <PartyPopper class="text-primary w-6 h-6" />
                                             </div>
                                             <div>
                                                 <h4 class="font-bold text-[16px] text-on-surface mb-1">Asistencia Gratuita Configurada</h4>
@@ -348,11 +348,11 @@ function onCategoryCreated(category: { id: number; name: string }) {
                                     <template v-if="form.type === 'en vivo' || form.type === 'masterclass'">
                                         <div class="space-y-3">
                                             <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Fecha de Lanzamiento</label>
-                                            <input v-model="form.start_date" type="date" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" />
+                                            <input v-model="form.start_date" type="date" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent" />
                                         </div>
                                         <div class="space-y-3">
                                             <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Hora Programada (Local)</label>
-                                            <input v-model="form.start_time" type="time" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent" />
+                                            <input v-model="form.start_time" type="time" class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent" />
                                         </div>
                                     </template>
                                 </div>
@@ -379,7 +379,7 @@ function onCategoryCreated(category: { id: number; name: string }) {
                                             <ImagePlus v-else class="w-10 h-10" />
                                         </div>
                                         <div class="w-full">
-                                            <label class="cursor-pointer flex items-center justify-center w-full px-6 py-3.5 bg-white rounded-full text-[12px] font-bold uppercase tracking-wider text-[#57572A] border border-outline-variant/20 hover:bg-[#57572A]/5 hover:border-[#57572A]/20 shadow-sm transition-all">
+                                            <label class="cursor-pointer flex items-center justify-center w-full px-6 py-3.5 bg-white rounded-full text-[12px] font-bold uppercase tracking-wider text-primary border border-outline-variant/20 hover:bg-primary/5 hover:border-primary/20 shadow-sm transition-all">
                                                 <input type="file" accept="image/*" class="hidden" @change="(e) => onPickInstructorImage((e.target as HTMLInputElement).files?.[0] ?? null)" />
                                                 Subir Foto
                                             </label>
@@ -388,17 +388,17 @@ function onCategoryCreated(category: { id: number; name: string }) {
 
                                     <div class="space-y-3 relative z-10">
                                         <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Nombre Evidenciado</label>
-                                        <input v-model="form.instructor_name" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Mgtr. Carlos Fernández" />
+                                        <input v-model="form.instructor_name" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Mgtr. Carlos Fernández" />
                                     </div>
 
                                     <div class="space-y-3 relative z-10">
                                         <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Titulación Oficial</label>
-                                        <input v-model="form.instructor_title" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Gerente de Finanzas" />
+                                        <input v-model="form.instructor_title" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent placeholder:text-outline-variant" placeholder="Gerente de Finanzas" />
                                     </div>
 
                                     <div class="md:col-span-2 space-y-3 relative z-10 mt-2">
                                         <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Biografía Breve</label>
-                                        <textarea v-model="form.instructor_bio" rows="3" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent resize-none leading-relaxed placeholder:text-outline-variant" placeholder="Biografía profesional..."></textarea>
+                                        <textarea v-model="form.instructor_bio" rows="3" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent resize-none leading-relaxed placeholder:text-outline-variant" placeholder="Biografía profesional..."></textarea>
                                     </div>
                                 </div>
                             </section>
@@ -418,18 +418,18 @@ function onCategoryCreated(category: { id: number; name: string }) {
                                     
                                     <div class="md:col-span-2 space-y-3">
                                         <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Sinopsis</label>
-                                        <textarea v-model="form.description" rows="3" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[14px] focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent leading-relaxed placeholder:text-outline-variant" placeholder="Descripción atractiva..."></textarea>
+                                        <textarea v-model="form.description" rows="3" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[14px] focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent leading-relaxed placeholder:text-outline-variant" placeholder="Descripción atractiva..."></textarea>
                                         <p v-if="form.errors.description" class="ml-1 mt-1 text-[13px] font-bold text-red-600">{{ form.errors.description }}</p>
                                     </div>
 
                                     <div class="space-y-3">
                                         <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Metas (Un objetivo por línea)</label>
-                                        <textarea v-model="form.objectives" rows="5" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[14px] focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent leading-relaxed placeholder:text-outline-variant" placeholder="Identificar riesgos financieros..."></textarea>
+                                        <textarea v-model="form.objectives" rows="5" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[14px] focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent leading-relaxed placeholder:text-outline-variant" placeholder="Identificar riesgos financieros..."></textarea>
                                     </div>
 
                                     <div class="space-y-3">
                                         <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Requisitos Previos</label>
-                                        <textarea v-model="form.requirements" rows="5" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[14px] focus:ring-2 focus:ring-[#57572A]/20 transition-all outline-none border-transparent leading-relaxed placeholder:text-outline-variant" placeholder="Conocimientos de Excel..."></textarea>
+                                        <textarea v-model="form.requirements" rows="5" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[14px] focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent leading-relaxed placeholder:text-outline-variant" placeholder="Conocimientos de Excel..."></textarea>
                                     </div>
                                 </div>
                             </section>
@@ -474,7 +474,7 @@ function onCategoryCreated(category: { id: number; name: string }) {
                         <button
                             v-if="step < totalSteps"
                             type="button"
-                            class="flex-1 md:flex-none rounded-full bg-[#57572A] hover:bg-[#4b4b22] px-10 py-3.5 text-[13px] font-bold text-white shadow-xl shadow-[#57572A]/20 transition-all font-sans"
+                            class="flex-1 md:flex-none rounded-full bg-primary hover:bg-[#4b4b22] px-10 py-3.5 text-[13px] font-bold text-white shadow-xl shadow-primary/20 transition-all font-sans"
                             @click="nextStep"
                         >
                             Continuar
@@ -484,7 +484,7 @@ function onCategoryCreated(category: { id: number; name: string }) {
                         <button
                             v-if="step === totalSteps"
                             type="submit"
-                            class="flex-1 md:flex-none rounded-full bg-gradient-to-br from-[#57572A] to-[#6d6d35] hover:from-[#4b4b22] hover:to-[#5c5c2a] px-10 py-3.5 text-[13px] font-bold text-white shadow-xl shadow-[#57572A]/20 disabled:opacity-60 disabled:shadow-none transition-all flex items-center justify-center gap-3 transform hover:scale-[1.01] active:scale-[0.99] font-sans"
+                            class="flex-1 md:flex-none rounded-full bg-gradient-to-br from-primary to-[#6d6d35] hover:from-[#4b4b22] hover:to-[#5c5c2a] px-10 py-3.5 text-[13px] font-bold text-white shadow-xl shadow-primary/20 disabled:opacity-60 disabled:shadow-none transition-all flex items-center justify-center gap-3 transform hover:scale-[1.01] active:scale-[0.99] font-sans"
                             :disabled="!canSubmit || form.processing"
                             @click="submit"
                         >

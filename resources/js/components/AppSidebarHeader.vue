@@ -16,7 +16,7 @@ const page = usePage();
 
 <template>
     <header
-        class="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-sidebar-border/70 px-6 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 md:px-4 bg-white/80 backdrop-blur-md sticky top-0 z-50"
+        class="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-sidebar-border/70 px-6 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 md:px-4 bg-white/80 dark:bg-on-background/90 backdrop-blur-md sticky top-0 z-50 dark:border-[rgba(231,230,171,0.08)]"
     >
         <div class="flex items-center gap-4">
             <!-- Branding / Logo (Icon Only as requested) -->

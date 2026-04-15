@@ -141,7 +141,7 @@ function logout() {
                         <ChevronRight class="iie-user-arrow" v-if="state === 'expanded'" />
                     </Link>
                 </TooltipTrigger>
-                <TooltipContent side="right" class="bg-[#282818] border-[#e7e6ab]/20 text-[#e7e6ab] font-bold">
+                <TooltipContent side="right" class="bg-[#282818] border-primary-fixed/20 text-primary-fixed font-bold">
                     <p>{{ user.name }}</p>
                 </TooltipContent>
             </Tooltip>
@@ -185,10 +185,10 @@ function logout() {
                             <ChevronRight v-if="isActive(item.href) && state === 'expanded'" class="iie-nav-chevron" />
                         </Link>
                     </TooltipTrigger>
-                    <TooltipContent side="right" class="bg-[#282818] border-[#e7e6ab]/20 text-[#e7e6ab] font-bold">
+                    <TooltipContent side="right" class="bg-[#282818] border-primary-fixed/20 text-primary-fixed font-bold">
                         <div class="flex items-center gap-2">
                             <span>{{ item.title }}</span>
-                            <span v-if="item.badge" class="bg-[#e7e6ab]/20 px-1.5 py-0.5 rounded text-[10px]">{{ item.badge }}</span>
+                            <span v-if="item.badge" class="bg-primary-fixed/20 px-1.5 py-0.5 rounded text-[10px]">{{ item.badge }}</span>
                         </div>
                     </TooltipContent>
                 </Tooltip>

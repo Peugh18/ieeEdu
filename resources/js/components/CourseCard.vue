@@ -120,14 +120,14 @@ const handleAddToCart = (e: Event) => {
         </div>
 
         <!-- Visual Cover -->
-        <Link :href="courseRoute" class="relative h-[230px] w-full block bg-[#F4F4EF] overflow-hidden">
+        <Link :href="courseRoute" class="relative h-[230px] w-full block bg-surface-container-highest overflow-hidden">
             <img 
                 v-if="course.image" 
                 :src="course.image" 
                 :alt="course.title" 
                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-in-out" 
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-[#1A1C19]/40 via-transparent to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-on-background/40 via-transparent to-transparent"></div>
             
             <!-- Type Tag -->
             <div class="absolute top-4 left-4 z-10">
@@ -140,17 +140,17 @@ const handleAddToCart = (e: Event) => {
 
         <!-- Academic Content -->
         <div class="p-8 flex flex-col flex-1">
-            <span class="text-[10px] font-bold text-[#57572A]/80 uppercase tracking-[0.2em] mb-3 block">{{ categoryName }}</span>
+            <span class="text-[10px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-3 block">{{ categoryName }}</span>
             
             <Link :href="courseRoute">
-                <h3 class="font-serif font-bold text-2xl text-[#1A1C19] leading-tight group-hover:text-[#57572A] transition-colors italic mb-4 line-clamp-2" :title="course.title">
+                <h3 class="font-serif font-bold text-2xl text-on-background leading-tight group-hover:text-primary transition-colors italic mb-4 line-clamp-2" :title="course.title">
                     {{ course.title }}
                 </h3>
             </Link>
 
             <!-- Features -->
             <div class="space-y-2 flex-1">
-                <div class="flex items-center gap-2.5 text-[13px] font-medium italic" :class="dateStatus.isPast ? 'text-red-600' : 'text-[#5F5E5E]'">
+                <div class="flex items-center gap-2.5 text-[13px] font-medium italic" :class="dateStatus.isPast ? 'text-red-600' : 'text-on-surface-variant'">
                     <span class="material-symbols-outlined text-[18px] opacity-60" translate="no">calendar_today</span>
                     {{ course.type === 'grabado' ? 'Acceso 24/7 de por vida' : `${dateStatus.label} ${dateStatus.value}` }}
                 </div>
@@ -161,11 +161,11 @@ const handleAddToCart = (e: Event) => {
                 <div class="flex justify-between items-center">
                     <div class="flex flex-col gap-1">
                         <div v-if="hasDiscount" class="flex items-center gap-3">
-                            <span class="text-sm text-[#5F5E5E]/40 line-through font-serif italic">S/ {{ course.price }}</span>
+                            <span class="text-sm text-on-surface-variant/40 line-through font-serif italic">S/ {{ course.price }}</span>
                             <span class="px-2 py-0.5 rounded bg-orange-100 text-[10px] text-orange-700 font-bold uppercase tracking-wider">Ahorra S/ {{ savings }}</span>
                         </div>
                         <div class="flex items-center gap-1">
-                            <span class="text-4xl font-serif font-bold text-[#1A1C19] italic tracking-tight">
+                            <span class="text-4xl font-serif font-bold text-on-background italic tracking-tight">
                                 <span class="text-xl align-top mt-1 inline-block mr-1 opacity-50 font-sans tracking-normal">S/</span>
                                 {{ hasDiscount ? course.sale_price : course.price }}
                             </span>
@@ -177,13 +177,13 @@ const handleAddToCart = (e: Event) => {
                     <!-- Square Cart Button -->
                     <button 
                         @click="handleAddToCart"
-                        class="group/cart relative flex items-center justify-center w-14 h-14 rounded-2xl bg-[#F4F4EF] hover:bg-[#D4AF37] transition-all duration-500 shadow-sm hover:shadow-[0_10px_20px_rgba(212,175,55,0.3)] hover:-translate-y-1"
+                        class="group/cart relative flex items-center justify-center w-14 h-14 rounded-2xl bg-surface-container-highest hover:bg-[#D4AF37] transition-all duration-500 shadow-sm hover:shadow-[0_10px_20px_rgba(212,175,55,0.3)] hover:-translate-y-1"
                         title="Agregar al carrito"
                     >
-                        <span class="material-symbols-outlined text-[#57572A] group-hover/cart:text-white transition-colors duration-300" translate="no">shopping_cart</span>
+                        <span class="material-symbols-outlined text-primary group-hover/cart:text-white transition-colors duration-300" translate="no">shopping_cart</span>
                         
                         <!-- Mini Tooltip on Hover -->
-                        <span class="absolute -top-12 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#1A1C19] text-white text-[10px] font-bold rounded-lg opacity-0 group-hover/cart:opacity-100 transition-opacity pointer-events-none whitespace-nowrap after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-8 after:border-transparent after:border-t-[#1A1C19]">
+                        <span class="absolute -top-12 left-1/2 -translate-x-1/2 px-3 py-1 bg-on-background text-white text-[10px] font-bold rounded-lg opacity-0 group-hover/cart:opacity-100 transition-opacity pointer-events-none whitespace-nowrap after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-8 after:border-transparent after:border-t-on-background">
                             Añadir al carrito
                         </span>
                     </button>
@@ -191,7 +191,7 @@ const handleAddToCart = (e: Event) => {
                     <!-- Wide Details Button -->
                     <Link 
                         :href="courseRoute" 
-                        class="group/details relative flex-1 h-14 flex items-center justify-center gap-3 rounded-2xl bg-[#57572A] text-white text-[11px] font-black uppercase tracking-[0.15em] shadow-lg hover:shadow-[0_15px_30px_rgba(87,87,42,0.3)] transition-all duration-500 hover:-translate-y-1 overflow-hidden"
+                        class="group/details relative flex-1 h-14 flex items-center justify-center gap-3 rounded-2xl bg-primary text-white text-[11px] font-black uppercase tracking-[0.15em] shadow-lg hover:shadow-[0_15px_30px_rgba(87,87,42,0.3)] transition-all duration-500 hover:-translate-y-1 overflow-hidden"
                     >
                         <!-- Button Shimmer / Glow Overlay -->
                         <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/details:translate-x-full transition-transform duration-1000"></div>

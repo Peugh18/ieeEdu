@@ -70,7 +70,7 @@ const menuItems = [
                 <!-- Cart Button -->
                 <button 
                     @click="toggleCart"
-                    class="relative p-2.5 text-[#57572A] hover:bg-[#57572A]/5 rounded-xl transition-all duration-300 group"
+                    class="relative p-2.5 text-primary hover:bg-primary/5 rounded-xl transition-all duration-300 group"
                 >
                     <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform" translate="no">shopping_cart</span>
                     <Transition

@@ -62,18 +62,18 @@ const breadcrumbs = [
     <Head title="Investigación y Publicaciones - IEE" />
 
     <component :is="isDashboard ? AppLayout : 'div'" v-bind="isDashboard ? { breadcrumbs } : {}">
-        <div :class="['flex min-h-screen flex-col font-sans', !isDashboard ? 'bg-[#FAFAF5]' : 'bg-transparent']">
+        <div :class="['flex min-h-screen flex-col font-sans', !isDashboard ? 'bg-background' : 'bg-transparent']">
             <Navigation v-if="!isDashboard" />
 
             <main :class="['flex-1 pb-20', isDashboard ? 'p-0' : '']">
                 <!-- Hero Header -->
-                <section :class="['bg-gradient-to-br from-[#57572A] to-[#707040] py-20 px-6 sm:px-12 text-center relative mb-12', isDashboard ? 'rounded-[2rem] mx-6 mt-6 overflow-hidden shadow-2xl' : '']">
+                <section :class="['bg-gradient-to-br from-primary to-[#707040] py-20 px-6 sm:px-12 text-center relative mb-12', isDashboard ? 'rounded-[2rem] mx-6 mt-6 overflow-hidden shadow-2xl' : '']">
                     <div class="relative z-10 max-w-4xl mx-auto">
-                        <p class="text-[#FAFAF5]/80 text-xs font-bold uppercase tracking-[0.2em] mb-4">Investigación de Alto Nivel</p>
+                        <p class="text-background/80 text-xs font-bold uppercase tracking-[0.2em] mb-4">Investigación de Alto Nivel</p>
                         <h1 class="text-3xl md:text-5xl lg:text-[54px] font-serif font-bold text-white mb-6 leading-tight tracking-[-0.01em]">
                             Nuestras <span class="italic text-primary-container">Publicaciones Especializadas</span>
                         </h1>
-                        <p class="text-[#FAFAF5]/90 text-lg max-w-2xl mx-auto font-serif italic">
+                        <p class="text-background/90 text-lg max-w-2xl mx-auto font-serif italic">
                             Acceda a nuestra biblioteca de investigación, libros y artículos técnicos para su desarrollo profesional.
                         </p>
                     </div>
@@ -81,12 +81,12 @@ const breadcrumbs = [
 
                 <!-- Tabs Section -->
                 <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex items-center justify-center gap-0 sm:gap-4 md:gap-8 mb-16 border-b border-[#C9C7B8]/20 pb-0.5">
+                    <div class="flex items-center justify-center gap-0 sm:gap-4 md:gap-8 mb-16 border-b border-outline-variant/20 pb-0.5">
                         <button 
                             @click="currentTab = 'libros'"
                             :class="[
                                 'px-4 md:px-10 py-5 font-serif text-lg font-bold transition-all border-b-2 relative italic',
-                                currentTab === 'libros' ? 'border-[#57572A] text-[#57572A]' : 'border-transparent text-[#5F5E5E] hover:text-[#1A1C19]'
+                                currentTab === 'libros' ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-background'
                             ]"
                         >
                             Libros y Guías Técnicas
@@ -95,7 +95,7 @@ const breadcrumbs = [
                             @click="currentTab = 'articulos'"
                             :class="[
                                 'px-4 md:px-10 py-5 font-serif text-lg font-bold transition-all border-b-2 relative italic',
-                                currentTab === 'articulos' ? 'border-[#57572A] text-[#57572A]' : 'border-transparent text-[#5F5E5E] hover:text-[#1A1C19]'
+                                currentTab === 'articulos' ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-background'
                             ]"
                         >
                             Artículos de Análisis
@@ -113,7 +113,7 @@ const breadcrumbs = [
                                 :key="book.id"
                                 class="flex flex-col group"
                             >
-                                <div class="aspect-[3/4] rounded-2xl overflow-hidden bg-[#F4F4EF] shadow-md hover:shadow-2xl transition-all duration-700 relative border border-outline-variant/10 group-hover:-translate-y-2">
+                                <div class="aspect-[3/4] rounded-2xl overflow-hidden bg-surface-container-highest shadow-md hover:shadow-2xl transition-all duration-700 relative border border-outline-variant/10 group-hover:-translate-y-2">
                                     <img v-if="book.cover_image" :src="`/storage/${book.cover_image}`" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out" />
                                     <div v-else class="flex h-full w-full items-center justify-center opacity-10">
                                         <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
@@ -126,19 +126,19 @@ const breadcrumbs = [
                                     </div>
 
                                     <div v-if="Number(book.price) === 0 && book.category !== 'Libro en camino'" class="absolute bottom-4 right-4 z-10">
-                                        <span class="px-2 py-1 bg-[#57572A] text-white text-[8px] font-bold uppercase tracking-widest shadow-xl rounded">Gratuito</span>
+                                        <span class="px-2 py-1 bg-primary text-white text-[8px] font-bold uppercase tracking-widest shadow-xl rounded">Gratuito</span>
                                     </div>
                                 </div>
                                 
                                 <div class="pt-8 flex-1 flex flex-col space-y-3">
-                                    <h2 class="font-serif text-xl font-bold text-[#1A1C19] leading-tight group-hover:text-[#57572A] transition-colors italic min-h-[3rem]">
+                                    <h2 class="font-serif text-xl font-bold text-on-background leading-tight group-hover:text-primary transition-colors italic min-h-[3rem]">
                                         {{ book.title }}
                                     </h2>
                                     <p class="text-[9px] font-bold tracking-[0.2em] uppercase text-on-surface-variant/40 italic">{{ book.author || 'Instituto IEE' }}</p>
-                                    <p class="text-xs text-[#5F5E5E] line-clamp-3 mb-6 flex-1 italic leading-relaxed">{{ book.description }}</p>
+                                    <p class="text-xs text-on-surface-variant line-clamp-3 mb-6 flex-1 italic leading-relaxed">{{ book.description }}</p>
 
                                     <div class="mt-auto pt-6 border-t border-outline-variant/10 flex items-center justify-between">
-                                        <div class="text-2xl font-serif font-bold text-[#1A1C19] italic">
+                                        <div class="text-2xl font-serif font-bold text-on-background italic">
                                             <template v-if="Number(book.price) > 0">S/ {{ book.price }}</template>
                                             <template v-else-if="book.category === 'Libro en camino'">---</template>
                                             <template v-else>Libre</template>
@@ -159,14 +159,14 @@ const breadcrumbs = [
                                                 v-if="Number(book.price) === 0"
                                                 :href="getDownloadLink(book)"
                                                 target="_blank"
-                                                class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-[#57572A] text-white hover:bg-black transition-all shadow-xl shadow-[#57572A]/10 flex items-center gap-2"
+                                                class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-primary text-white hover:bg-black transition-all shadow-xl shadow-primary/10 flex items-center gap-2"
                                             >
                                                 Descargar
                                             </a>
                                             <Link
                                                 v-else
                                                 href="#"
-                                                class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-[#57572A] text-white hover:bg-black transition-all shadow-xl shadow-[#57572A]/10"
+                                                class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-primary text-white hover:bg-black transition-all shadow-xl shadow-primary/10"
                                             >
                                                 Adquirir
                                             </Link>
@@ -189,7 +189,7 @@ const breadcrumbs = [
                                 class="flex flex-col md:flex-row gap-8 bg-white p-8 rounded-[2.5rem] border border-outline-variant/10 hover:shadow-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-1"
                             >
                                 <!-- Miniatura -->
-                                <div class="w-full md:w-44 h-44 flex-shrink-0 overflow-hidden bg-[#F4F4EF] rounded-2xl border border-outline-variant/10">
+                                <div class="w-full md:w-44 h-44 flex-shrink-0 overflow-hidden bg-surface-container-highest rounded-2xl border border-outline-variant/10">
                                     <img v-if="article.thumbnail" :src="`/storage/${article.thumbnail}`" class="h-full w-full object-cover group-hover:scale-110 transition-transform duration-1000">
                                     <div v-else class="flex h-full w-full items-center justify-center opacity-10">
                                         <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
@@ -199,9 +199,9 @@ const breadcrumbs = [
                                 <div class="flex-1 flex flex-col justify-center space-y-4">
                                     <div class="flex items-center gap-4">
                                         <span class="text-[8px] font-bold uppercase tracking-[0.3em] text-primary bg-primary/5 px-3 py-1 rounded-full border border-primary/10">{{ article.media }}</span>
-                                        <span class="text-[8px] font-bold uppercase tracking-widest text-[#5F5E5E] italic">{{ formatDate(article.published_at) }}</span>
+                                        <span class="text-[8px] font-bold uppercase tracking-widest text-on-surface-variant italic">{{ formatDate(article.published_at) }}</span>
                                     </div>
-                                    <h3 class="font-serif text-2xl font-bold text-[#1A1C19] group-hover:text-primary transition-colors leading-tight italic">
+                                    <h3 class="font-serif text-2xl font-bold text-on-background group-hover:text-primary transition-colors leading-tight italic">
                                         {{ article.title }}
                                     </h3>
                                     <a 

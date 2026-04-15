@@ -176,7 +176,7 @@ onUnmounted(() => {
     <Head title="Aula Virtual - IEE" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30 pb-24">
+        <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30 dark:from-[#141410] dark:via-on-background dark:to-on-background pb-24">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
                 <!-- ══════════ 1. HERO HEADER ══════════ -->
@@ -377,7 +377,7 @@ onUnmounted(() => {
 
                     <!-- Certificates + Score -->
                     <Link :href="route('student.certificates.index')"
-                        class="group bg-gradient-to-br from-[#57572A] to-[#3d3d1e] rounded-2xl p-6 shadow-sm hover:shadow-lg hover:shadow-[#57572A]/20 hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
+                        class="group bg-gradient-to-br from-primary to-[#3d3d1e] rounded-2xl p-6 shadow-sm hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
                         <div class="p-3 bg-white/10 rounded-2xl group-hover:scale-110 transition-transform flex-shrink-0">
                             <Award class="w-6 h-6 text-[#D4AF37]" />
                         </div>
@@ -402,7 +402,7 @@ onUnmounted(() => {
                                     <Flame class="w-5 h-5 text-orange-500" />
                                     Continuar aprendiendo
                                 </h2>
-                                <Link :href="route('student.courses.index')" class="text-[11px] text-[#57572A] font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                                <Link :href="route('student.courses.index')" class="text-[11px] text-primary font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
                                     Todos mis cursos <ArrowRight class="w-3 h-3" />
                                 </Link>
                             </div>
@@ -447,7 +447,7 @@ onUnmounted(() => {
                                                     <span class="text-[10px] font-bold text-orange-600 uppercase tracking-widest">En progreso</span>
                                                 </span>
                                             </div>
-                                            <h3 class="text-2xl font-bold text-gray-900 leading-snug group-hover:text-[#57572A] transition-colors">
+                                            <h3 class="text-2xl font-bold text-gray-900 leading-snug group-hover:text-primary transition-colors">
                                                 {{ continueLearning.course_title }}
                                             </h3>
                                             <p class="text-sm text-gray-500 flex items-center gap-2">
@@ -461,11 +461,11 @@ onUnmounted(() => {
                                             <div class="space-y-1.5">
                                                 <div class="flex justify-between items-center">
                                                     <p class="text-xs text-gray-400 font-medium">{{ motivationalMessage }}</p>
-                                                    <span class="text-xs font-bold text-[#57572A]">{{ continueLearning.progress }}%</span>
+                                                    <span class="text-xs font-bold text-primary">{{ continueLearning.progress }}%</span>
                                                 </div>
                                                 <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                                                     <div
-                                                        class="h-full bg-gradient-to-r from-[#57572A] to-[#D4AF37] rounded-full transition-all duration-1000"
+                                                        class="h-full bg-gradient-to-r from-primary to-[#D4AF37] rounded-full transition-all duration-1000"
                                                         :style="{ width: continueLearning.progress + '%' }"
                                                     ></div>
                                                 </div>
@@ -473,7 +473,7 @@ onUnmounted(() => {
 
                                             <Link
                                                 :href="route('student.classroom', { course: continueLearning.course_slug })"
-                                                class="inline-flex items-center gap-2 px-8 py-3.5 bg-[#57572A] hover:bg-[#4a4a24] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[#57572A]/20 hover:shadow-[#57572A]/30 active:scale-95 group/btn"
+                                                class="inline-flex items-center gap-2 px-8 py-3.5 bg-primary hover:bg-[#4a4a24] text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-95 group/btn"
                                             >
                                                 <Play class="w-4 h-4 fill-current" />
                                                 Continuar curso
@@ -487,9 +487,9 @@ onUnmounted(() => {
 
                         <!-- EMPTY STATE (no courses) -->
                         <div v-else-if="stats.active_courses === 0"
-                            class="bg-gradient-to-br from-[#57572A]/5 to-[#D4AF37]/5 border-2 border-dashed border-[#57572A]/15 rounded-3xl p-12 text-center space-y-6">
-                            <div class="inline-flex p-6 bg-white rounded-3xl shadow-sm mb-2 ring-8 ring-[#57572A]/5">
-                                <GraduationCap class="w-12 h-12 text-[#57572A]" />
+                            class="bg-gradient-to-br from-primary/5 to-[#D4AF37]/5 border-2 border-dashed border-primary/15 rounded-3xl p-12 text-center space-y-6">
+                            <div class="inline-flex p-6 bg-white rounded-3xl shadow-sm mb-2 ring-8 ring-primary/5">
+                                <GraduationCap class="w-12 h-12 text-primary" />
                             </div>
                             <div class="space-y-3">
                                 <h2 class="text-2xl font-bold text-gray-900">Empieza tu camino académico</h2>
@@ -498,7 +498,7 @@ onUnmounted(() => {
                                 </p>
                             </div>
                             <Link :href="route('student.explore.courses')"
-                                class="inline-flex items-center gap-2 px-8 py-4 bg-[#57572A] text-white text-xs font-bold uppercase tracking-widest rounded-xl shadow-xl hover:shadow-[#57572A]/30 active:scale-95 transition-all">
+                                class="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white text-xs font-bold uppercase tracking-widest rounded-xl shadow-xl hover:shadow-primary/30 active:scale-95 transition-all">
                                 <Sparkles class="w-4 h-4" />
                                 Explorar cursos
                             </Link>
@@ -512,7 +512,7 @@ onUnmounted(() => {
                                     Mis certificados
                                     <span class="text-sm font-normal text-gray-400">({{ certificates.length }})</span>
                                 </h2>
-                                <Link :href="route('student.certificates.index')" class="text-[11px] text-[#57572A] font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                                <Link :href="route('student.certificates.index')" class="text-[11px] text-primary font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
                                     Ver todos <ArrowRight class="w-3 h-3" />
                                 </Link>
                             </div>
@@ -539,10 +539,10 @@ onUnmounted(() => {
                         <div v-if="recommendations.length > 0" class="space-y-4">
                             <div class="flex items-center justify-between">
                                 <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
-                                    <Sparkles class="w-5 h-5 text-[#57572A]" />
+                                    <Sparkles class="w-5 h-5 text-primary" />
                                     Recomendado para ti
                                 </h2>
-                                <Link :href="route('student.explore.courses')" class="text-[11px] text-[#57572A] font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                                <Link :href="route('student.explore.courses')" class="text-[11px] text-primary font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
                                     Explorar catálogo <ArrowRight class="w-3 h-3" />
                                 </Link>
                             </div>
@@ -555,17 +555,17 @@ onUnmounted(() => {
                                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                         <div class="absolute inset-0 bg-gradient-to-t from-gray-900/50 to-transparent"></div>
                                         <div class="absolute bottom-3 left-3">
-                                            <span class="px-2.5 py-1 bg-white/90 backdrop-blur-md text-[9px] font-bold text-[#57572A] uppercase tracking-widest rounded-full">
+                                            <span class="px-2.5 py-1 bg-white/90 backdrop-blur-md text-[9px] font-bold text-primary uppercase tracking-widest rounded-full">
                                                 {{ rec.category?.name }}
                                             </span>
                                         </div>
                                     </div>
                                     <div class="p-5 flex flex-col flex-1">
-                                        <h4 class="text-sm font-bold text-gray-900 mb-4 line-clamp-2 leading-snug group-hover:text-[#57572A] transition-colors">
+                                        <h4 class="text-sm font-bold text-gray-900 mb-4 line-clamp-2 leading-snug group-hover:text-primary transition-colors">
                                             {{ rec.title }}
                                         </h4>
                                         <Link :href="route('cursos.show', { slug: rec.slug, dashboard: true })"
-                                            class="mt-auto inline-flex items-center gap-1.5 text-[10px] font-bold text-[#57572A] uppercase tracking-widest hover:gap-2.5 transition-all">
+                                            class="mt-auto inline-flex items-center gap-1.5 text-[10px] font-bold text-primary uppercase tracking-widest hover:gap-2.5 transition-all">
                                             Ver detalles <ArrowRight class="w-3 h-3" />
                                         </Link>
                                     </div>
@@ -663,7 +663,7 @@ onUnmounted(() => {
                                     </div>
                                 </div>
                                 <Link :href="route('student.explore.courses')"
-                                    class="block w-full py-3 text-center text-xs font-bold text-[#57572A] uppercase tracking-widest border border-[#57572A]/20 rounded-xl hover:bg-[#57572A]/5 transition-colors">
+                                    class="block w-full py-3 text-center text-xs font-bold text-primary uppercase tracking-widest border border-primary/20 rounded-xl hover:bg-primary/5 transition-colors">
                                     Explorar más cursos
                                 </Link>
                             </div>
@@ -679,7 +679,7 @@ onUnmounted(() => {
                                     </div>
                                 </div>
                                 <Link :href="route('planes')"
-                                    class="flex items-center justify-center gap-2 w-full py-3 text-xs font-bold text-white bg-gradient-to-r from-[#57572A] to-[#D4AF37] uppercase tracking-widest rounded-xl hover:shadow-lg hover:shadow-[#57572A]/20 active:scale-95 transition-all">
+                                    class="flex items-center justify-center gap-2 w-full py-3 text-xs font-bold text-white bg-gradient-to-r from-primary to-[#D4AF37] uppercase tracking-widest rounded-xl hover:shadow-lg hover:shadow-primary/20 active:scale-95 transition-all">
                                     <Crown class="w-3.5 h-3.5" />
                                     Ver planes
                                 </Link>
@@ -802,7 +802,7 @@ onUnmounted(() => {
                                 <div class="flex flex-col gap-3">
                                     <Link
                                         :href="route('student.classroom', { course: nextLiveClass.course_slug })"
-                                        class="w-full py-4 bg-[#57572A] text-white text-xs font-bold uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 shadow-lg hover:bg-[#4a4a24] active:scale-95 transition-all">
+                                        class="w-full py-4 bg-primary text-white text-xs font-bold uppercase tracking-widest rounded-xl flex items-center justify-center gap-2 shadow-lg hover:bg-[#4a4a24] active:scale-95 transition-all">
                                         Ir al Aula Virtual <ExternalLink class="w-4 h-4" />
                                     </Link>
                                     <button @click="showLiveModal = false"

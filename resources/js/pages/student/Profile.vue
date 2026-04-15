@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { User, BookOpen, Crown, Settings as SettingsIcon, LogOut, ChevronRight, GraduationCap } from 'lucide-vue-next';
+import AppearanceTabs from '@/components/AppearanceTabs.vue';
 
 interface Props {
     enrolledCourses: any[];
@@ -313,6 +314,17 @@ const tabs = [
                                     </button>
                                 </div>
                             </form>
+                            
+                            <div class="mt-8">
+                                <h3 class="text-xl font-serif font-bold text-on-surface mb-6">Apariencia Visual</h3>
+                                <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-8 max-w-xl flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-bold text-on-surface-variant uppercase tracking-widest">Tema de la Interfaz</p>
+                                        <p class="text-xs text-on-surface-variant/80 mt-1">Escoge tu modo preferido.</p>
+                                    </div>
+                                    <AppearanceTabs />
+                                </div>
+                            </div>
                         </section>
                     </div>
                 </main>

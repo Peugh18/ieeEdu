@@ -46,18 +46,18 @@ const breadcrumbs = [
     
     <!-- WRAPPER COMPONENT LOGIC -->
     <component :is="isDashboard ? AppLayout : 'div'" v-bind="isDashboard ? { breadcrumbs } : {}">
-        <div :class="['flex flex-col text-[#1A1C19] font-sans', !isDashboard ? 'min-h-screen bg-[#FAFAF5]' : 'bg-transparent']">
+        <div :class="['flex flex-col text-on-background font-sans', !isDashboard ? 'min-h-screen bg-background' : 'bg-transparent']">
             <Navigation v-if="!isDashboard" />
 
             <main :class="['flex-1 pb-20', isDashboard ? 'p-0' : '']">
                 <!-- Hero Banner -->
-                <div :class="['bg-gradient-to-br from-[#57572A] to-[#707040] py-20 px-6 sm:px-12 text-center relative mb-12', isDashboard ? 'rounded-[2rem] mx-6 mt-6 overflow-hidden' : '']">
+                <div :class="['bg-gradient-to-br from-primary to-[#707040] py-20 px-6 sm:px-12 text-center relative mb-12', isDashboard ? 'rounded-[2rem] mx-6 mt-6 overflow-hidden' : '']">
                     <div class="relative z-10 max-w-4xl mx-auto">
-                        <p class="text-[#FAFAF5]/80 text-sm font-bold uppercase tracking-[0.1em] mb-4">Estrategia y Excelencia</p>
+                        <p class="text-background/80 text-sm font-bold uppercase tracking-[0.1em] mb-4">Estrategia y Excelencia</p>
                         <h1 class="text-3xl md:text-5xl lg:text-[54px] font-serif font-bold text-white mb-6 leading-tight tracking-[-0.02em]">
                             Nuestra <span class="italic">Oferta Académica</span>
                         </h1>
-                        <p class="text-[#FAFAF5]/90 text-lg max-w-2xl mx-auto font-serif italic">Invierta en su futuro profesional con diplomados diseñados por expertos en el sector.</p>
+                        <p class="text-background/90 text-lg max-w-2xl mx-auto font-serif italic">Invierta en su futuro profesional con diplomados diseñados por expertos en el sector.</p>
                     </div>
                 </div>
 
@@ -69,20 +69,20 @@ const breadcrumbs = [
                             <!-- Search -->
                             <div>
                                 <div class="relative flex items-center">
-                                    <svg class="absolute left-0 top-3 text-[#5F5E5E] w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                    <svg class="absolute left-0 top-3 text-on-surface-variant w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                     <input 
                                         v-model="searchTerm"
                                         type="text" 
                                         placeholder="Buscar programa..." 
-                                        class="w-full pl-8 pr-4 py-2 border-0 border-b border-[#C9C7B8] bg-transparent text-sm focus:outline-none focus:border-[#57572A] focus:border-b-2 focus:ring-0 transition-all text-[#1A1C19] placeholder:text-[#5F5E5E]"
+                                        class="w-full pl-8 pr-4 py-2 border-0 border-b border-outline-variant bg-transparent text-sm focus:outline-none focus:border-primary focus:border-b-2 focus:ring-0 transition-all text-on-background placeholder:text-on-surface-variant"
                                         @keyup.enter="applyFilters"
                                     >
                                 </div>
                             </div>
 
                             <!-- Modality -->
-                            <div class="p-6 bg-[#F4F4EF] rounded-3xl border border-outline-variant/10 shadow-sm">
-                                <h3 class="flex items-center gap-2 text-xs font-bold text-[#5F5E5E] mb-5 tracking-wider uppercase">
+                            <div class="p-6 bg-surface-container-highest rounded-3xl border border-outline-variant/10 shadow-sm">
+                                <h3 class="flex items-center gap-2 text-xs font-bold text-on-surface-variant mb-5 tracking-wider uppercase">
                                     Modalidad
                                 </h3>
                                 <div class="space-y-3">
@@ -91,7 +91,7 @@ const breadcrumbs = [
                                         :key="mod"
                                         @click="selectedModality = mod"
                                         class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[13px] font-bold tracking-[0.05em] uppercase transition-all"
-                                        :class="selectedModality === mod ? 'bg-[#57572A] text-white shadow-lg shadow-[#57572A]/20' : 'bg-transparent text-[#57572A] hover:bg-[#EBEBE3]'"
+                                        :class="selectedModality === mod ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-transparent text-primary hover:bg-[#EBEBE3]'"
                                     >
                                         {{ mod }}
                                     </button>
@@ -99,18 +99,18 @@ const breadcrumbs = [
                             </div>
 
                             <!-- Categories / Schools -->
-                            <div class="p-6 bg-[#F4F4EF] rounded-3xl border border-outline-variant/10 shadow-sm">
-                                <h3 class="flex items-center gap-2 text-xs font-bold text-[#5F5E5E] mb-5 tracking-wider uppercase">
+                            <div class="p-6 bg-surface-container-highest rounded-3xl border border-outline-variant/10 shadow-sm">
+                                <h3 class="flex items-center gap-2 text-xs font-bold text-on-surface-variant mb-5 tracking-wider uppercase">
                                     Escuelas Especializadas
                                 </h3>
                                 <div class="space-y-4 block max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                                     <label class="flex items-center gap-3 cursor-pointer group">
-                                        <input type="radio" v-model="selectedCategory" value="Todas las áreas" class="w-4 h-4 text-[#57572A] focus:ring-[#57572A] border-[#C9C7B8] rounded-sm" />
-                                        <span class="text-sm font-medium italic transition-colors" :class="selectedCategory === 'Todas las áreas' ? 'text-[#1A1C19] font-bold underline' : 'text-[#5F5E5E] group-hover:text-[#1A1C19] text-sm'">Todas las áreas</span>
+                                        <input type="radio" v-model="selectedCategory" value="Todas las áreas" class="w-4 h-4 text-primary focus:ring-primary border-outline-variant rounded-sm" />
+                                        <span class="text-sm font-medium italic transition-colors" :class="selectedCategory === 'Todas las áreas' ? 'text-on-background font-bold underline' : 'text-on-surface-variant group-hover:text-on-background text-sm'">Todas las áreas</span>
                                     </label>
                                     <label v-for="cat in categories" :key="cat.id" class="flex items-center gap-3 cursor-pointer group">
-                                        <input type="radio" v-model="selectedCategory" :value="cat.name" class="w-4 h-4 text-[#57572A] focus:ring-[#57572A] border-[#C9C7B8] rounded-sm" />
-                                        <span class="text-sm italic transition-colors text-xs" :class="selectedCategory === cat.name ? 'text-[#1A1C19] font-bold underline' : 'text-[#5F5E5E] group-hover:text-[#1A1C19]'">{{ cat.name }}</span>
+                                        <input type="radio" v-model="selectedCategory" :value="cat.name" class="w-4 h-4 text-primary focus:ring-primary border-outline-variant rounded-sm" />
+                                        <span class="text-sm italic transition-colors text-xs" :class="selectedCategory === cat.name ? 'text-on-background font-bold underline' : 'text-on-surface-variant group-hover:text-on-background'">{{ cat.name }}</span>
                                     </label>
                                 </div>
                             </div>
@@ -119,7 +119,7 @@ const breadcrumbs = [
                         <!-- Right Content Grid -->
                         <main class="flex-1 min-w-0">
                             <div class="mb-10 pt-2 flex items-center justify-between">
-                                <h2 class="text-[#5F5E5E] font-serif text-2xl"><strong class="text-[#1A1C19]">{{ courses.total }}</strong> Programas de Excelencia</h2>
+                                <h2 class="text-on-surface-variant font-serif text-2xl"><strong class="text-on-background">{{ courses.total }}</strong> Programas de Excelencia</h2>
                             </div>
 
                             <!-- Grid -->
@@ -133,9 +133,9 @@ const breadcrumbs = [
                             </div>
 
                             <!-- Empty state -->
-                            <div v-else class="py-24 flex flex-col items-center justify-center text-center bg-[#F4F4EF] rounded-[3rem] border-2 border-dashed border-[#C9C7B8]/40 space-y-6">
-                                <h3 class="text-3xl font-serif font-bold text-[#1A1C19] italic">Sin coincidencias académicas</h3>
-                                <p class="text-[#5F5E5E] max-w-md font-serif italic text-lg">No hemos encontrado programas que coincidan con su búsqueda en esta escuela.</p>
+                            <div v-else class="py-24 flex flex-col items-center justify-center text-center bg-surface-container-highest rounded-[3rem] border-2 border-dashed border-outline-variant/40 space-y-6">
+                                <h3 class="text-3xl font-serif font-bold text-on-background italic">Sin coincidencias académicas</h3>
+                                <p class="text-on-surface-variant max-w-md font-serif italic text-lg">No hemos encontrado programas que coincidan con su búsqueda en esta escuela.</p>
                                 <button @click="() => { selectedModality='Todos'; selectedCategory='Todas las áreas'; searchTerm=''; applyFilters(); }" class="text-xs uppercase tracking-[0.2em] font-bold text-primary border-b border-primary/20 pb-2 hover:text-primary/70 transition-all">Restablecer Filtros</button>
                             </div>
 
@@ -143,8 +143,8 @@ const breadcrumbs = [
                             <div v-if="courses.links && courses.links.length > 3" class="mt-20 flex justify-center">
                                 <div class="flex flex-wrap gap-4">
                                     <template v-for="(link, key) in courses.links" :key="key">
-                                        <div v-if="link.url === null" class="px-5 py-2.5 rounded-xl text-xs text-[#C9C7B8] opacity-50 font-bold" v-html="link.label"></div>
-                                        <Link v-else :href="link.url" class="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all" :class="{ 'bg-[#57572A] text-white shadow-xl shadow-[#57572A]/20': link.active, 'bg-white text-[#5F5E5E] hover:bg-[#F4F4EF] border border-[#C9C7B8]/20': !link.active }" v-html="link.label" preserve-scroll />
+                                        <div v-if="link.url === null" class="px-5 py-2.5 rounded-xl text-xs text-outline-variant opacity-50 font-bold" v-html="link.label"></div>
+                                        <Link v-else :href="link.url" class="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all" :class="{ 'bg-primary text-white shadow-xl shadow-primary/20': link.active, 'bg-white text-on-surface-variant hover:bg-surface-container-highest border border-outline-variant/20': !link.active }" v-html="link.label" preserve-scroll />
                                     </template>
                                 </div>
                             </div>
