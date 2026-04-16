@@ -256,6 +256,15 @@
     color: var(--elite-text-faint) !important;
 }
 
+/* Text Opacity Variants */
+.dark .text-on-background\/80 { color: rgba(240, 239, 232, 0.8) !important; }
+.dark .text-on-background\/60 { color: rgba(240, 239, 232, 0.6) !important; }
+.dark .text-on-background\/40 { color: rgba(240, 239, 232, 0.4) !important; }
+.dark .text-on-surface-variant\/80 { color: rgba(196, 195, 180, 0.8) !important; }
+.dark .text-on-surface-variant\/60 { color: rgba(196, 195, 180, 0.6) !important; }
+.dark .text-on-surface-variant\/40 { color: rgba(196, 195, 180, 0.4) !important; }
+.dark .text-on-surface-variant\/30 { color: rgba(196, 195, 180, 0.3) !important; }
+
 /* Form Elements (Inputs / Select / Textarea) */
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 .dark select,
