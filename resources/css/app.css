@@ -164,6 +164,7 @@
 .dark .bg-surface-container,
 .dark .bg-surface-container-high,
 .dark .bg-surface-container-highest,
+.dark .bg-surface-container-highest\/40,
 .dark .bg-tertiary-container,
 .dark .bg-\[\#fdfdfc\],
 .dark .bg-\[\#FBF9F2\],
@@ -311,6 +312,10 @@
 /* Primary Brand Overrides from Tailwind Config */
 .dark .bg-primary { background-color: var(--elite-olive) !important; }
 .dark .text-primary { color: var(--elite-ink) !important; } /* In dark mode, elite-ink is cream! */
+.dark .text-primary\/60 { color: rgba(231, 230, 171, 0.6) !important; }
+.dark .text-primary\/40 { color: rgba(231, 230, 171, 0.4) !important; }
+.dark .text-primary\/20 { color: rgba(231, 230, 171, 0.2) !important; }
+.dark .text-primary\/10 { color: rgba(231, 230, 171, 0.1) !important; }
 .dark .border-primary { border-color: var(--elite-olive) !important; }
 .dark .ring-primary { --tw-ring-color: var(--elite-border) !important; }
 .dark .shadow-primary\/20 { --tw-shadow-color: rgba(0,0,0,0.3) !important; }
