@@ -102,7 +102,7 @@ const breadcrumbs = [
                     <article 
                         v-for="course in regularMasterclasses" 
                         :key="course.id"
-                        class="bg-white rounded-2xl flex flex-col group overflow-hidden border border-outline-variant/20 shadow-[0_10px_20px_rgba(26,28,25,0.04)]"
+                        class="bg-surface-container rounded-2xl flex flex-col group overflow-hidden border border-outline-variant/15 shadow-sm hover:shadow-xl hover:border-primary/20 transition-all duration-500"
                     >
                         <!-- Image Container -->
                         <div class="relative h-[200px] w-full bg-surface-container-highest overflow-hidden">
@@ -204,7 +204,7 @@ const breadcrumbs = [
                 </div>
 
                 <!-- Empty State -->
-                <div v-if="props.courses.length === 0" class="py-20 text-center bg-white rounded-2xl shadow-sm border border-outline-variant/20">
+                <div v-if="props.courses.length === 0" class="py-20 text-center bg-surface-container rounded-2xl shadow-sm border border-outline-variant/15">
                     <p class="text-on-surface-variant font-serif text-lg">No hay masterclasses disponibles en esta categoría.</p>
                 </div>
 

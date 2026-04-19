@@ -105,7 +105,7 @@ const breadcrumbs = [
     <Head title="Consultoría Estratégica - IEE" />
 
     <component :is="isDashboard ? AppLayout : 'div'" v-bind="isDashboard ? { breadcrumbs } : {}">
-        <div :class="['min-h-screen font-body selection:bg-primary/20 selection:text-primary', !isDashboard ? 'bg-surface' : 'bg-transparent shadow-none']">
+        <div :class="['min-h-screen font-sans selection:bg-primary/20 selection:text-primary', !isDashboard ? 'bg-surface' : 'bg-transparent shadow-none']">
             <Navigation v-if="!isDashboard" />
 
             <main :class="[!isDashboard ? 'pt-20' : 'pt-0']">
@@ -169,7 +169,7 @@ const breadcrumbs = [
                                 </div>
                             </div>
                             <!-- Small accent card -->
-                            <div class="absolute -bottom-6 -left-6 z-20 bg-white p-6 rounded-2xl shadow-xl border border-outline-variant/20 animate-bounce-slow">
+                            <div class="absolute -bottom-6 -left-6 z-20 bg-surface-container p-6 rounded-2xl shadow-xl border border-outline-variant/20 animate-bounce-slow">
                                 <TrendingUp class="w-8 h-8 text-primary mb-2" />
                                 <p class="text-2xl font-bold text-on-surface">98%</p>
                                 <p class="text-xs text-on-surface-variant font-medium">Índice de Retorno</p>
@@ -237,16 +237,17 @@ const breadcrumbs = [
             </section>
 
             <!-- Methodology Section -->
-            <section class="py-20 lg:py-32 bg-[#0c2b2c] text-on-primary overflow-hidden relative">
-                <div class="absolute inset-0 opacity-10">
-                    <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_30%,_var(--tw-gradient-from)_0%,_transparent_50%)] from-primary"></div>
+            <section class="py-20 lg:py-32 bg-surface-container-low overflow-hidden relative">
+                <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div class="absolute -top-20 -left-20 w-[500px] h-[500px] bg-primary/[0.06] rounded-full blur-[120px]"></div>
+                    <div class="absolute -bottom-20 -right-20 w-[400px] h-[400px] bg-tertiary-container/[0.08] rounded-full blur-[100px]"></div>
                 </div>
 
                 <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
                     <div class="grid lg:grid-cols-2 gap-20 items-center">
                         <div>
                             <h2 class="text-primary text-sm font-bold uppercase tracking-[0.2em] mb-6">Metodología de Trabajo</h2>
-                            <h3 class="text-4xl lg:text-5xl font-serif mb-12">Cómo transformamos su visión en resultados tangibles</h3>
+                            <h3 class="text-4xl lg:text-5xl font-serif text-on-surface mb-12">Cómo transformamos su visión en resultados tangibles</h3>
                             
                             <div class="space-y-8">
                                 <div v-for="(step, i) in [
@@ -258,15 +259,15 @@ const breadcrumbs = [
                                         0{{ i + 1 }}
                                     </div>
                                     <div class="space-y-2">
-                                        <h4 class="text-xl font-serif font-bold">{{ step.t }}</h4>
-                                        <p class="text-on-primary/60 text-sm leading-relaxed">{{ step.d }}</p>
+                                        <h4 class="text-xl font-serif font-bold text-on-surface">{{ step.t }}</h4>
+                                        <p class="text-on-surface-variant text-sm leading-relaxed">{{ step.d }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-surface/5 backdrop-blur-xl rounded-[2.5rem] p-10 border border-white/10">
-                            <h4 class="text-2xl font-serif font-bold mb-8 italic">Compromiso con la Calidad</h4>
+                        <div class="bg-surface-container rounded-2xl p-10 border border-outline-variant/15 shadow-xl">
+                            <h4 class="text-2xl font-serif font-bold mb-8 italic text-on-surface">Compromiso con la Calidad</h4>
                             <div class="space-y-6">
                                 <div v-for="point in [
                                     'Rigor metodológico académico',
@@ -277,11 +278,11 @@ const breadcrumbs = [
                                     <div class="p-1 bg-primary rounded-full">
                                         <CheckCircle2 class="w-4 h-4 text-on-primary" />
                                     </div>
-                                    <span class="text-on-primary/80 font-medium">{{ point }}</span>
+                                    <span class="text-on-surface-variant font-medium">{{ point }}</span>
                                 </div>
                             </div>
 
-                            <button class="w-full mt-12 py-4 bg-primary text-on-primary rounded-xl font-bold hover:opacity-90 transition-opacity">
+                            <button class="w-full mt-12 py-4 bg-primary text-on-primary rounded-xl font-bold hover:opacity-90 hover:shadow-lg transition-all">
                                 Iniciar Proceso de Consultoría
                             </button>
                         </div>

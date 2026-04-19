@@ -98,106 +98,76 @@ const handleAddToCart = (e: Event) => {
 
 <template>
     <article 
-        class="bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-sm overflow-hidden group hover:shadow-[0_20px_50px_rgba(87,87,42,0.15)] transition-all duration-700 flex flex-col hover:-translate-y-3 border-opacity-30 h-full relative"
+        class="bg-surface-container rounded-2xl border border-outline-variant/15 shadow-sm overflow-hidden group hover:shadow-xl hover:border-primary/20 transition-all duration-500 flex flex-col hover:-translate-y-1.5 h-full relative"
     >
-        <!-- SPECTACULAR Promotion Badge -->
-        <div v-if="course.promotion_title" class="absolute top-4 right-4 z-20 pointer-events-none">
-            <div class="relative">
-                <!-- Glossy Background with Shimmer -->
-                <div class="absolute inset-0 bg-gradient-to-r from-orange-600 via-red-500 to-orange-600 rounded-full blur-sm opacity-50"></div>
-                <div class="relative px-5 py-2 rounded-full bg-gradient-to-r from-orange-600 via-red-500 to-orange-600 shadow-xl overflow-hidden flex items-center gap-2 border border-white/30 backdrop-blur-md">
-                    <!-- Shimmering Light Effect -->
-                    <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-shimmer"></div>
-                    
-                    <span class="text-white text-[10px] font-black uppercase tracking-[0.15em] flex items-center gap-1.5 drop-shadow-sm">
-                        <svg class="w-3.5 h-3.5 fill-white animate-bounce-slow" viewBox="0 0 24 24">
-                            <path d="M17.5 19c-.5 0-.9-.2-1.2-.5-.3-.3-.4-.7-.4-1.2 0-.5.2-.9.5-1.2.3-.3.7-.4 1.2-.4.5 0 .9.2 1.2.5.3.3.4.7.4 1.2 0 .5-.2.9-.5 1.2-.4.3-.8.4-1.2.4zM5 19l4.5-9 4.5 9H5zm1.5-1.5h6l-3-6-3 6zM11 6c-2.8 0-5 2.2-5 5h2c0-1.7 1.3-3 3-3s3 1.3 3 3c0 .3 0 .7-.1 1l1.9.4c.1-.4.2-.9.2-1.4 0-2.8-2.2-5-5-5z"/>
-                        </svg>
-                        {{ course.promotion_title }}
-                    </span>
-                </div>
-            </div>
+        <!-- Promotion Badge -->
+        <div v-if="course.promotion_title" class="absolute top-3 right-3 z-20 pointer-events-none">
+            <span class="px-3 py-1.5 rounded-full bg-red-500/90 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider shadow-lg">
+                {{ course.promotion_title }}
+            </span>
         </div>
 
         <!-- Visual Cover -->
-        <Link :href="courseRoute" class="relative h-[230px] w-full block bg-surface-container-highest overflow-hidden">
+        <Link :href="courseRoute" class="relative h-48 w-full block bg-surface-container overflow-hidden">
             <img 
                 v-if="course.image" 
                 :src="course.image" 
                 :alt="course.title" 
-                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-in-out" 
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-on-background/40 via-transparent to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
             
             <!-- Type Tag -->
-            <div class="absolute top-4 left-4 z-10">
-                <span class="px-4 py-2 rounded-full bg-white/10 backdrop-blur-xl text-white text-[10px] font-bold tracking-widest uppercase flex items-center gap-2 border border-white/20">
-                    <span class="w-2 h-2 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]" :class="course.type === 'en vivo' ? 'bg-[#FF4D4D]' : (course.type === 'evento' ? 'bg-[#9C27B0]' : 'bg-[#4CAF50]')"></span>
+            <div class="absolute top-3 left-3 z-10">
+                <span class="px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md text-white text-[10px] font-bold tracking-widest uppercase flex items-center gap-2 border border-white/10">
+                    <span class="w-1.5 h-1.5 rounded-full" :class="course.type === 'en vivo' ? 'bg-red-400' : (course.type === 'evento' ? 'bg-purple-400' : 'bg-emerald-400')"></span>
                     {{ course.type === 'en vivo' ? 'EN VIVO' : (course.type === 'evento' ? 'EVENTO' : 'GRABADO') }}
                 </span>
             </div>
         </Link>
 
-        <!-- Academic Content -->
-        <div class="p-8 flex flex-col flex-1">
-            <span class="text-[10px] font-bold text-primary/80 uppercase tracking-[0.2em] mb-3 block">{{ categoryName }}</span>
+        <!-- Content -->
+        <div class="p-5 flex flex-col flex-1">
+            <span class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2 block">{{ categoryName }}</span>
             
             <Link :href="courseRoute">
-                <h3 class="font-serif font-bold text-2xl text-on-background leading-tight group-hover:text-primary transition-colors italic mb-4 line-clamp-2" :title="course.title">
+                <h3 class="font-serif font-bold text-base text-on-surface leading-snug group-hover:text-primary transition-colors mb-3 line-clamp-2" :title="course.title">
                     {{ course.title }}
                 </h3>
             </Link>
 
-            <!-- Features -->
-            <div class="space-y-2 flex-1">
-                <div class="flex items-center gap-2.5 text-[13px] font-medium italic" :class="dateStatus.isPast ? 'text-red-600' : 'text-on-surface-variant'">
-                    <span class="material-symbols-outlined text-[18px] opacity-60" translate="no">calendar_today</span>
-                    {{ course.type === 'grabado' ? 'Acceso 24/7 de por vida' : `${dateStatus.label} ${dateStatus.value}` }}
-                </div>
+            <!-- Date / Access -->
+            <div class="flex items-center gap-2 text-xs mb-auto" :class="dateStatus.isPast ? 'text-red-500' : 'text-on-surface-variant/60'">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                {{ course.type === 'grabado' ? 'Acceso 24/7 de por vida' : `${dateStatus.label} ${dateStatus.value}` }}
             </div>
 
-            <!-- SPECTACULAR Pricing Section -->
-            <div class="flex flex-col pt-8 border-t border-[#F0F0E8] gap-8 mt-4">
-                <div class="flex justify-between items-center">
-                    <div class="flex flex-col gap-1">
-                        <div v-if="hasDiscount" class="flex items-center gap-3">
-                            <span class="text-sm text-on-surface-variant/40 line-through font-serif italic">S/ {{ course.price }}</span>
-                            <span class="px-2 py-0.5 rounded bg-orange-100 text-[10px] text-orange-700 font-bold uppercase tracking-wider">Ahorra S/ {{ savings }}</span>
-                        </div>
-                        <div class="flex items-center gap-1">
-                            <span class="text-4xl font-serif font-bold text-on-background italic tracking-tight">
-                                <span class="text-xl align-top mt-1 inline-block mr-1 opacity-50 font-sans tracking-normal">S/</span>
-                                {{ hasDiscount ? course.sale_price : course.price }}
-                            </span>
-                        </div>
+            <!-- Pricing + Actions -->
+            <div class="flex items-center justify-between pt-4 border-t border-outline-variant/10 mt-4">
+                <div>
+                    <div v-if="hasDiscount" class="flex items-center gap-2 mb-0.5">
+                        <span class="text-xs text-on-surface-variant/40 line-through">S/ {{ course.price }}</span>
+                        <span class="px-1.5 py-0.5 rounded bg-red-500/10 text-[9px] text-red-500 font-bold uppercase">-S/ {{ savings }}</span>
                     </div>
+                    <span class="text-3xl font-serif font-bold text-on-surface tracking-tight">
+                        <span class="text-base text-on-surface-variant/50 mr-0.5">S/</span>{{ hasDiscount ? course.sale_price : course.price }}
+                    </span>
                 </div>
                 
-                <div class="flex items-center gap-4">
-                    <!-- Square Cart Button -->
+                <div class="flex items-center gap-2">
                     <button 
                         @click="handleAddToCart"
-                        class="group/cart relative flex items-center justify-center w-14 h-14 rounded-2xl bg-surface-container-highest hover:bg-[#D4AF37] transition-all duration-500 shadow-sm hover:shadow-[0_10px_20px_rgba(212,175,55,0.3)] hover:-translate-y-1"
+                        class="w-10 h-10 rounded-xl bg-surface border border-outline-variant/15 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all"
                         title="Agregar al carrito"
                     >
-                        <span class="material-symbols-outlined text-primary group-hover/cart:text-white transition-colors duration-300" translate="no">shopping_cart</span>
-                        
-                        <!-- Mini Tooltip on Hover -->
-                        <span class="absolute -top-12 left-1/2 -translate-x-1/2 px-3 py-1 bg-on-background text-white text-[10px] font-bold rounded-lg opacity-0 group-hover/cart:opacity-100 transition-opacity pointer-events-none whitespace-nowrap after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-8 after:border-transparent after:border-t-on-background">
-                            Añadir al carrito
-                        </span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
                     </button>
-
-                    <!-- Wide Details Button -->
                     <Link 
                         :href="courseRoute" 
-                        class="group/details relative flex-1 h-14 flex items-center justify-center gap-3 rounded-2xl bg-primary text-white text-[11px] font-black uppercase tracking-[0.15em] shadow-lg hover:shadow-[0_15px_30px_rgba(87,87,42,0.3)] transition-all duration-500 hover:-translate-y-1 overflow-hidden"
+                        class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:shadow-md hover:-translate-y-0.5 transition-all"
                     >
-                        <!-- Button Shimmer / Glow Overlay -->
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/details:translate-x-full transition-transform duration-1000"></div>
-                        
-                        <span>Ver detalles</span>
-                        <span class="material-symbols-outlined text-[18px] group-hover/details:translate-x-1 transition-transform" translate="no">arrow_forward</span>
+                        Ver curso
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                     </Link>
                 </div>
             </div>
@@ -205,25 +175,6 @@ const handleAddToCart = (e: Event) => {
     </article>
 </template>
 
-<style scoped>
-@keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
-}
-
-.animate-shimmer {
-    animation: shimmer 2s infinite linear;
-}
-
-@keyframes bounce-slow {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-2px) scale(1.1); }
-}
-
-.animate-bounce-slow {
-    animation: bounce-slow 2s infinite ease-in-out;
-}
-</style>
 
 
 

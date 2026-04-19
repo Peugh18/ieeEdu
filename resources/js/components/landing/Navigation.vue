@@ -80,7 +80,7 @@ const menuItems = [
                     >
                         <span 
                             v-if="itemCount > 0" 
-                            class="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#D32F2F] text-[10px] font-black text-white shadow-lg ring-2 ring-white"
+                            class="absolute -top-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#D32F2F] text-[10px] font-black text-white shadow-lg ring-2 ring-surface"
                         >
                             {{ itemCount }}
                         </span>

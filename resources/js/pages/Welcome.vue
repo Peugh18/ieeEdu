@@ -46,6 +46,21 @@ onMounted(() => {
         });
     }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
     document.querySelectorAll('.reveal').forEach(el => revealObserver?.observe(el));
+
+    // Staggered children reveal
+    const staggerObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                const children = e.target.querySelectorAll(':scope > *');
+                children.forEach((child, i) => {
+                    (child as HTMLElement).style.transitionDelay = `${i * 100}ms`;
+                    child.classList.add('revealed');
+                });
+                staggerObs.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.05 });
+    document.querySelectorAll('.reveal-stagger').forEach(el => staggerObs.observe(el));
 });
 onUnmounted(() => { revealObserver?.disconnect(); });
 
@@ -175,6 +190,9 @@ const clientLogos = [
                 </div>
             </section>
 
+            <!-- Section divider -->
+            <div class="section-divider"></div>
+
             <!-- Consultoría Teaser -->
             <section id="consultoria" class="py-20 md:py-32 bg-surface-container-low overflow-hidden relative reveal">
                 <div class="absolute inset-0 pointer-events-none overflow-hidden">
@@ -272,6 +290,9 @@ const clientLogos = [
                     </div>
                 </div>
             </section>
+
+            <!-- Section divider -->
+            <div class="section-divider alt"></div>
 
             <!-- Biblioteca de Libros -->
             <section id="publicaciones" class="py-20 md:py-32 bg-surface relative overflow-hidden reveal">
@@ -385,6 +406,9 @@ const clientLogos = [
                 </div>
             </section>
 
+            <!-- Section divider -->
+            <div class="section-divider"></div>
+
             <!-- CTA Final - Listo para impulsar -->
             <section class="relative overflow-hidden bg-surface-container-low reveal">
                 <!-- Gradient blobs -->
@@ -441,7 +465,7 @@ const clientLogos = [
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2 mb-1">
                                             <h4 class="font-serif font-bold text-on-surface text-base">Masterclasses</h4>
-                                            <span class="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-500/20 text-emerald-600 text-[10px] font-bold uppercase">Primera gratis</span>
+                                            <span class="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase">Primera gratis</span>
                                         </div>
                                         <p class="text-on-surface-variant text-sm leading-relaxed">Sesiones en vivo con expertos del sector empresarial y público. Tu primera masterclass es completamente gratuita.</p>
                                     </div>
@@ -596,5 +620,28 @@ const clientLogos = [
 .reveal.revealed {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* ── Stagger children ── */
+.reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal-stagger > .revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Section dividers ── */
+.section-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--md-sys-color-outline-variant, #c4c7c5) 20%, var(--md-sys-color-outline-variant, #c4c7c5) 80%, transparent);
+    opacity: 0.15;
+    max-width: 80rem;
+    margin: 0 auto;
+}
+.section-divider.alt {
+    opacity: 0.1;
 }
 </style>

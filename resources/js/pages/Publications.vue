@@ -66,14 +66,19 @@ const breadcrumbs = [
             <Navigation v-if="!isDashboard" />
 
             <main :class="['flex-1 pb-20', isDashboard ? 'p-0' : '']">
-                <!-- Hero Header -->
-                <section :class="['bg-gradient-to-br from-primary to-[#707040] py-20 px-6 sm:px-12 text-center relative mb-12', isDashboard ? 'rounded-[2rem] mx-6 mt-6 overflow-hidden shadow-2xl' : '']">
+                <!-- Hero Header (background-image ready: replace bg with bg-[url('/images/...')] bg-cover bg-center) -->
+                <section :class="['relative py-20 md:py-28 px-6 sm:px-12 text-center mb-12 overflow-hidden', isDashboard ? 'rounded-[2rem] mx-6 mt-6' : '']">
+                    <div class="absolute inset-0 bg-surface-container-low"></div>
+                    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                        <div class="absolute -top-20 right-1/4 w-[500px] h-[500px] bg-primary/[0.06] rounded-full blur-[120px]"></div>
+                        <div class="absolute -bottom-20 left-1/4 w-[400px] h-[400px] bg-tertiary-container/[0.08] rounded-full blur-[100px]"></div>
+                    </div>
                     <div class="relative z-10 max-w-4xl mx-auto">
-                        <p class="text-background/80 text-xs font-bold uppercase tracking-[0.2em] mb-4">Investigación de Alto Nivel</p>
-                        <h1 class="text-3xl md:text-5xl lg:text-[54px] font-serif font-bold text-white mb-6 leading-tight tracking-[-0.01em]">
-                            Nuestras <span class="italic text-primary-container">Publicaciones Especializadas</span>
+                        <p class="text-primary text-xs font-bold uppercase tracking-[0.2em] mb-4">Investigación de Alto Nivel</p>
+                        <h1 class="text-3xl md:text-5xl lg:text-[54px] font-serif font-bold text-on-surface mb-6 leading-tight tracking-[-0.01em]">
+                            Nuestras <span class="italic text-primary">Publicaciones Especializadas</span>
                         </h1>
-                        <p class="text-background/90 text-lg max-w-2xl mx-auto font-serif italic">
+                        <p class="text-on-surface-variant text-lg max-w-2xl mx-auto">
                             Acceda a nuestra biblioteca de investigación, libros y artículos técnicos para su desarrollo profesional.
                         </p>
                     </div>
@@ -120,7 +125,7 @@ const breadcrumbs = [
                                     </div>
                                     
                                     <div class="absolute top-4 left-4 z-10">
-                                        <span class="px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-[8px] font-bold tracking-[0.2em] uppercase text-primary border border-white">
+                                        <span class="px-3 py-1 bg-surface/90 backdrop-blur-md rounded-full text-[8px] font-bold tracking-[0.2em] uppercase text-primary border border-outline-variant/20">
                                             {{ book.category }}
                                         </span>
                                     </div>
@@ -150,7 +155,7 @@ const breadcrumbs = [
                                             </button>
                                         </template>
                                         <template v-else-if="!book.is_available">
-                                            <button disabled class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-4 py-3 bg-red-50 text-red-600 border border-red-100">
+                                            <button disabled class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-4 py-3 bg-red-500/10 text-red-500 border border-red-500/20">
                                                 Agotado
                                             </button>
                                         </template>
@@ -159,14 +164,14 @@ const breadcrumbs = [
                                                 v-if="Number(book.price) === 0"
                                                 :href="getDownloadLink(book)"
                                                 target="_blank"
-                                                class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-primary text-white hover:bg-black transition-all shadow-xl shadow-primary/10 flex items-center gap-2"
+                                                class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-primary text-on-primary hover:opacity-90 transition-all shadow-lg shadow-primary/10 flex items-center gap-2"
                                             >
                                                 Descargar
                                             </a>
                                             <Link
                                                 v-else
                                                 href="#"
-                                                class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-primary text-white hover:bg-black transition-all shadow-xl shadow-primary/10"
+                                                class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-primary text-on-primary hover:opacity-90 transition-all shadow-lg shadow-primary/10"
                                             >
                                                 Adquirir
                                             </Link>
@@ -186,7 +191,7 @@ const breadcrumbs = [
                             <article 
                                 v-for="article in props.articles" 
                                 :key="article.id"
-                                class="flex flex-col md:flex-row gap-8 bg-white p-8 rounded-[2.5rem] border border-outline-variant/10 hover:shadow-2xl transition-all duration-500 overflow-hidden group hover:-translate-y-1"
+                                class="flex flex-col md:flex-row gap-8 bg-surface-container p-8 rounded-2xl border border-outline-variant/15 hover:shadow-xl hover:border-primary/20 transition-all duration-500 overflow-hidden group hover:-translate-y-1"
                             >
                                 <!-- Miniatura -->
                                 <div class="w-full md:w-44 h-44 flex-shrink-0 overflow-hidden bg-surface-container-highest rounded-2xl border border-outline-variant/10">

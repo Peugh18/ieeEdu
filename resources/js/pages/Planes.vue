@@ -70,7 +70,7 @@ Quiero acceso completo a todos los cursos.
 <template>
     <Head title="Planes de Acceso Total - IEE" />
 
-    <div class="min-h-screen bg-background font-sans">
+    <div class="min-h-screen bg-surface font-sans">
         <Navigation />
 
         <main class="pt-32 pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -92,7 +92,7 @@ Quiero acceso completo a todos los cursos.
                 <div 
                     v-for="plan in plans" 
                     :key="plan.id"
-                    class="bg-white rounded-3xl relative overflow-hidden flex flex-col shadow-[0_20px_40px_rgba(26,28,25,0.04)] border border-outline-variant/20 hover:-translate-y-2 transition-transform duration-500 group"
+                    class="bg-surface-container rounded-3xl relative overflow-hidden flex flex-col shadow-sm border border-outline-variant/15 hover:-translate-y-2 hover:shadow-xl hover:border-primary/20 transition-all duration-500 group"
                 >
                     <!-- Badge -->
                     <div v-if="plan.badge" class="absolute top-0 right-8 bg-[#D32F2F] text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-b-lg z-10 flex items-center gap-1">
@@ -127,7 +127,7 @@ Quiero acceso completo a todos los cursos.
                             <h4 class="text-xs font-bold text-on-background uppercase tracking-widest mb-6 border-b border-outline-variant/20 pb-4">¿Qué incluye?</h4>
                             <ul class="space-y-4">
                                 <li v-for="(feature, idx) in plan.features" :key="idx" class="flex items-start gap-3">
-                                    <div class="min-w-6 min-h-6 rounded-full bg-background flex items-center justify-center mt-0.5 shrink-0">
+                                    <div class="min-w-6 min-h-6 rounded-full bg-surface flex items-center justify-center mt-0.5 shrink-0">
                                         <span class="material-symbols-outlined text-primary" translate="no" style="font-size: 14px; font-weight: bold;">{{ feature.icon }}</span>
                                     </div>
                                     <span class="text-sm text-on-surface-variant leading-relaxed relative top-0.5">{{ feature.text }}</span>

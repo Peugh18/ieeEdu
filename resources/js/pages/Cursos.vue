@@ -50,14 +50,19 @@ const breadcrumbs = [
             <Navigation v-if="!isDashboard" />
 
             <main :class="['flex-1 pb-20', isDashboard ? 'p-0' : '']">
-                <!-- Hero Banner -->
-                <div :class="['bg-gradient-to-br from-primary to-[#707040] py-20 px-6 sm:px-12 text-center relative mb-12', isDashboard ? 'rounded-[2rem] mx-6 mt-6 overflow-hidden' : '']">
+                <!-- Hero Banner (background-image ready: replace bg-gradient with bg-[url('/images/...')] bg-cover bg-center) -->
+                <div :class="['relative py-20 md:py-28 px-6 sm:px-12 text-center mb-12 overflow-hidden', isDashboard ? 'rounded-[2rem] mx-6 mt-6' : '']">
+                    <div class="absolute inset-0 bg-surface-container-low"></div>
+                    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                        <div class="absolute -top-20 left-1/4 w-[500px] h-[500px] bg-primary/[0.06] rounded-full blur-[120px]"></div>
+                        <div class="absolute -bottom-20 right-1/4 w-[400px] h-[400px] bg-tertiary-container/[0.08] rounded-full blur-[100px]"></div>
+                    </div>
                     <div class="relative z-10 max-w-4xl mx-auto">
-                        <p class="text-background/80 text-sm font-bold uppercase tracking-[0.1em] mb-4">Estrategia y Excelencia</p>
-                        <h1 class="text-3xl md:text-5xl lg:text-[54px] font-serif font-bold text-white mb-6 leading-tight tracking-[-0.02em]">
-                            Nuestra <span class="italic">Oferta Académica</span>
+                        <p class="text-primary text-xs font-bold uppercase tracking-[0.2em] mb-4">Estrategia y Excelencia</p>
+                        <h1 class="text-3xl md:text-5xl lg:text-[54px] font-serif font-bold text-on-surface mb-6 leading-tight tracking-[-0.02em]">
+                            Nuestra <span class="italic text-primary">Oferta Académica</span>
                         </h1>
-                        <p class="text-background/90 text-lg max-w-2xl mx-auto font-serif italic">Invierta en su futuro profesional con diplomados diseñados por expertos en el sector.</p>
+                        <p class="text-on-surface-variant text-lg max-w-2xl mx-auto">Invierta en su futuro profesional con diplomados diseñados por expertos en el sector.</p>
                     </div>
                 </div>
 
@@ -91,7 +96,7 @@ const breadcrumbs = [
                                         :key="mod"
                                         @click="selectedModality = mod"
                                         class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-[13px] font-bold tracking-[0.05em] uppercase transition-all"
-                                        :class="selectedModality === mod ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-transparent text-primary hover:bg-[#EBEBE3]'"
+                                        :class="selectedModality === mod ? 'bg-primary text-on-primary shadow-lg shadow-primary/20' : 'bg-transparent text-primary hover:bg-surface-container'"
                                     >
                                         {{ mod }}
                                     </button>
@@ -144,7 +149,7 @@ const breadcrumbs = [
                                 <div class="flex flex-wrap gap-4">
                                     <template v-for="(link, key) in courses.links" :key="key">
                                         <div v-if="link.url === null" class="px-5 py-2.5 rounded-xl text-xs text-outline-variant opacity-50 font-bold" v-html="link.label"></div>
-                                        <Link v-else :href="link.url" class="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all" :class="{ 'bg-primary text-white shadow-xl shadow-primary/20': link.active, 'bg-white text-on-surface-variant hover:bg-surface-container-highest border border-outline-variant/20': !link.active }" v-html="link.label" preserve-scroll />
+                                        <Link v-else :href="link.url" class="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all" :class="{ 'bg-primary text-white shadow-xl shadow-primary/20': link.active, 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high border border-outline-variant/20': !link.active }" v-html="link.label" preserve-scroll />
                                     </template>
                                 </div>
                             </div>
