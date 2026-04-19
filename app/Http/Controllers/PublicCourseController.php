@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\Book;
+use App\Models\Article;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
@@ -31,9 +33,10 @@ class PublicCourseController extends Controller
 
         $courses = $query->get();
 
-        // Also if ebooks exist we'll fetch them, but for now we pass empty array or we don't pass them
-        // if they are static. The user mentioned "EBOOKS TAMBIÉN", maybe later.
-        
+        // Teaser: few items for editorial section
+        $teaserBooks = Book::latest()->take(4)->get();
+        $teaserArticles = Article::latest()->take(4)->get();
+
         return Inertia::render('Welcome', [
             'dynamicCourses' => collect($courses)->map(function ($course) {
                 return [
@@ -56,7 +59,9 @@ class PublicCourseController extends Controller
                     'slug' => $course->slug,
                     'instructor_image' => $course->instructor_image,
                 ];
-            })
+            }),
+            'teaserBooks' => $teaserBooks,
+            'teaserArticles' => $teaserArticles
         ]);
     }
 
