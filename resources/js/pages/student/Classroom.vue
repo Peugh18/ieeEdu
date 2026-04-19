@@ -400,7 +400,7 @@ onMounted(() => {
                 controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
                 tooltips: { controls: true, seek: true },
                 youtube: { 
-                    noCookie: true, 
+                    noCookie: false, 
                     rel: 0, 
                     showinfo: 0, 
                     iv_load_policy: 3, 
@@ -408,6 +408,7 @@ onMounted(() => {
                     controls: 0,
                     disablekb: 1,
                     fs: 0,
+                    enablejsapi: 1,
                     origin: window.location.origin
                 }
             });
