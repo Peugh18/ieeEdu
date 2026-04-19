@@ -54,8 +54,8 @@
         --elite-surface-3:    #2A2920; 
 
         /* Bordes */
-        --elite-border:       rgba(240,239,232,0.07);
-        --elite-border-strong:rgba(240,239,232,0.12);
+        --elite-border:       rgba(240,239,232,0.12);
+        --elite-border-strong:rgba(240,239,232,0.18);
 
         /* Texto */
         --elite-text:         #F0EFE8;
@@ -150,10 +150,13 @@
 
 .dark .bg-\[\#FAFAF4\], .dark .bg-\[\#fafaf4\],
 .dark .bg-background, .dark .bg-surface-dim,
-.dark .bg-gray-50, .dark .bg-gray-100,
-.dark .bg-gradient-to-br.from-slate-50,
-.dark .bg-slate-50 {
+.dark .bg-gradient-to-br.from-slate-50 {
     background-color: var(--elite-bg) !important;
+}
+
+.dark .bg-gray-50, .dark .bg-gray-100,
+.dark .bg-slate-50, .dark .bg-slate-100 {
+    background-color: var(--elite-surface-2) !important;
 }
 .dark .hover\:bg-background:hover {
     background-color: var(--elite-surface-2) !important;
@@ -198,10 +201,10 @@
 .dark .bg-white\/8       { background-color: rgba(240,239,232,0.06) !important; }
 .dark .bg-white\/10      { background-color: rgba(240,239,232,0.07) !important; }
 .dark .bg-white\/20      { background-color: rgba(240,239,232,0.09) !important; }
-.dark .bg-white\/50      { background-color: rgba(14,13,10,0.5) !important; }
-.dark .bg-white\/70      { background-color: rgba(14,13,10,0.7) !important; }
-.dark .bg-white\/80      { background-color: rgba(14,13,10,0.8) !important; }
-.dark .bg-white\/90      { background-color: rgba(14,13,10,0.9) !important; }
+.dark .bg-white\/50      { background-color: rgba(22,21,18,0.5) !important; }
+.dark .bg-white\/70      { background-color: rgba(22,21,18,0.7) !important; }
+.dark .bg-white\/80      { background-color: rgba(22,21,18,0.8) !important; }
+.dark .bg-white\/90      { background-color: rgba(22,21,18,0.9) !important; }
 .dark .bg-surface-container\/50,
 .dark .bg-background\/50,
 .dark .bg-amber-50\/50,
@@ -281,11 +284,17 @@
 
 /* Form Elements (Inputs / Select / Textarea) */
 .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
-.dark select,
 .dark textarea {
     background-color: var(--elite-surface-2) !important;
     border-color: var(--elite-border-strong) !important;
     color: var(--elite-text) !important;
+}
+.dark select {
+    color: var(--elite-text) !important;
+}
+.dark select:not(.bg-transparent) {
+    background-color: var(--elite-surface-2) !important;
+    border-color: var(--elite-border-strong) !important;
 }
 .dark input::placeholder,
 .dark textarea::placeholder {
@@ -355,18 +364,30 @@
 .dark .bg-rose-50    { background-color: rgba(244,63,94,0.10)  !important; }
 .dark .bg-emerald-50 { background-color: rgba(16,185,129,0.10) !important; }
 .dark .bg-red-50     { background-color: rgba(239,68,68,0.10)  !important; }
+.dark .bg-indigo-50  { background-color: rgba(99,102,241,0.10) !important; }
+.dark .bg-indigo-100 { background-color: rgba(99,102,241,0.16) !important; }
 
 /* Semantic Colors Text (Ensure legibility in dark mode) */
+.dark .text-amber-700   { color: #FCD34D !important; }
 .dark .text-amber-600   { color: #FBBF24 !important; }
 .dark .text-amber-500   { color: #F59E0B !important; }
+.dark .text-blue-700    { color: #93C5FD !important; }
 .dark .text-blue-600    { color: #60A5FA !important; }
 .dark .text-blue-500    { color: #3B82F6 !important; }
+.dark .text-emerald-700 { color: #6EE7B7 !important; }
 .dark .text-emerald-600 { color: #34D399 !important; }
 .dark .text-emerald-500 { color: #10B981 !important; }
+.dark .text-indigo-700  { color: #A5B4FC !important; }
+.dark .text-indigo-600  { color: #818CF8 !important; }
+.dark .text-indigo-500  { color: #6366F1 !important; }
 .dark .text-orange-500  { color: #FB923C !important; }
 .dark .text-orange-400  { color: #FDBA74 !important; }
-.dark .text-purple-500  { color: #C084FC !important; }
-.dark .text-rose-500    { color: #FB7185 !important; }
+.dark .text-purple-700  { color: #D8B4FE !important; }
+.dark .text-purple-600  { color: #C084FC !important; }
+.dark .text-purple-500  { color: #A855F7 !important; }
+.dark .text-rose-700    { color: #FDA4AF !important; }
+.dark .text-rose-600    { color: #FB7185 !important; }
+.dark .text-rose-500    { color: #F43F5E !important; }
 .dark .text-red-500     { color: #F87171 !important; }
 
 /* Canvas (avoid overriding filters so charts look OK) */
