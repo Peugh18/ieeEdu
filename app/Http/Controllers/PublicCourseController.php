@@ -9,6 +9,7 @@ use App\Models\Article;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PublicCourseController extends Controller
 {
@@ -34,7 +35,21 @@ class PublicCourseController extends Controller
         $courses = $query->get();
 
         // Teaser: few items for editorial section
-        $teaserBooks = Book::latest()->take(4)->get();
+        $teaserBooks = Book::where('is_available', true)->latest()->take(8)->get()->map(function ($book) {
+            return [
+                'id'           => $book->id,
+                'title'        => $book->title,
+                'category'     => $book->category,
+                'author'       => $book->author,
+                'description'  => $book->description,
+                'price'        => (float) $book->price,
+                'cover_image'  => $book->cover_image ? Storage::disk('public')->url($book->cover_image) : null,
+                'file_path'    => $book->file_path    ? Storage::disk('public')->url($book->file_path)    : null,
+                'download_url' => $book->download_url,
+                'is_available' => $book->is_available,
+            ];
+        });
+
         $teaserArticles = Article::latest()->take(4)->get();
 
         return Inertia::render('Welcome', [
