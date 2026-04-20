@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import Navigation from '../components/landing/Navigation.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { computed } from 'vue';
 import { 
     BarChart3, GitMerge, TrendingUp, Cpu, ShieldCheck, 
     DollarSign, Layers, Handshake, Map, Leaf, 
@@ -11,7 +12,22 @@ import {
 
 const props = defineProps<{
     isDashboard?: boolean;
+    banner?: {
+        heading: string;
+        subheading: string;
+        image_path: string | null;
+        button_text: string | null;
+        button_link: string | null;
+        position: string;
+    } | null;
 }>();
+
+// Valores dinámicos del banner (BD) con fallback al contenido original
+const heroHeading = computed(() => props.banner?.heading || 'Arquitectura Estratégica para Decisiones Críticas');
+const heroSubheading = computed(() => props.banner?.subheading || 'En IEE, transformamos desafíos complejos en ventajas competitivas. Nuestra consultoría técnica especializada combina rigor académico con pragmatismo empresarial.');
+const heroImage = computed(() => props.banner?.image_path || '/images/landing/consultoria_hero.png');
+const heroButtonText = computed(() => props.banner?.button_text || 'Agendar Consultoría');
+const heroButtonLink = computed(() => props.banner?.button_link || '#');
 
 const services = [
     { 
@@ -129,18 +145,18 @@ const breadcrumbs = [
                             </div>
                             
                             <h1 class="text-4xl lg:text-6xl font-serif leading-[1.1] text-on-surface">
-                                Arquitectura <span class="italic text-primary">Estratégica</span> para Decisiones Críticas
+                                {{ heroHeading }}
                             </h1>
                             
                             <p class="text-lg lg:text-xl text-on-surface-variant leading-relaxed max-w-xl">
-                                En IEE, transformamos desafíos complejos en ventajas competitivas. Nuestra consultoría técnica especializada combina rigor académico con pragmatismo empresarial.
+                                {{ heroSubheading }}
                             </p>
 
                             <div class="flex flex-wrap gap-4">
-                                <button class="px-8 py-4 bg-primary text-on-primary rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:bg-primary/90 transition-all flex items-center gap-2 group">
-                                    Agendar Consultoría
+                                <a :href="heroButtonLink" class="px-8 py-4 bg-primary text-on-primary rounded-xl font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:bg-primary/90 transition-all flex items-center gap-2 group">
+                                    {{ heroButtonText }}
                                     <ArrowRight class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                </button>
+                                </a>
                                 <a href="#servicios" class="px-8 py-4 bg-surface border border-outline-variant rounded-xl font-bold hover:bg-surface-container-low transition-all">
                                     Ver Portafolio
                                 </a>
@@ -161,7 +177,7 @@ const breadcrumbs = [
 
                         <div class="relative">
                             <div class="relative z-10 rounded-[2.5rem] overflow-hidden border border-outline-variant shadow-2xl skew-x-1 -rotate-1 hover:rotate-0 hover:skew-x-0 transition-transform duration-700">
-                                <img src="/images/landing/consultoria_hero.png" alt="Consultoría Premium" class="w-full h-full object-cover" />
+                                <img :src="heroImage" alt="Consultoría Premium" class="w-full h-full object-cover" />
                                 <div class="absolute inset-0 bg-gradient-to-t from-[#0c2b2c]/80 to-transparent flex items-bottom p-8">
                                     <div class="mt-auto">
                                         <p class="text-on-primary text-xl font-serif italic">"Excelencia técnica con visión de futuro."</p>

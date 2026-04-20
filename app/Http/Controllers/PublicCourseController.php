@@ -52,6 +52,11 @@ class PublicCourseController extends Controller
 
         $teaserArticles = Article::latest()->take(4)->get();
 
+        // Banners del Home desde la BD, ordenados
+        $homeSlides = \App\Models\Banner::where('section', 'home')
+            ->orderBy('order')
+            ->get();
+
         return Inertia::render('Welcome', [
             'dynamicCourses' => collect($courses)->map(function ($course) {
                 return [
@@ -76,7 +81,8 @@ class PublicCourseController extends Controller
                 ];
             }),
             'teaserBooks' => $teaserBooks,
-            'teaserArticles' => $teaserArticles
+            'teaserArticles' => $teaserArticles,
+            'homeSlides' => $homeSlides,
         ]);
     }
 

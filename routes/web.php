@@ -14,7 +14,10 @@ Route::get('/planes', [PublicCourseController::class, 'planes'])->name('planes')
 
 Route::get('/publicaciones', [App\Http\Controllers\PublicPublicationController::class, 'index'])->name('publicaciones.index');
 Route::get('/consultoria', function () {
-    return Inertia::render('Consultoria');
+    $banner = \App\Models\Banner::where('section', 'consultoria')->orderBy('order')->first();
+    return Inertia::render('Consultoria', [
+        'banner' => $banner,
+    ]);
 })->name('consultoria');
 
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
@@ -84,6 +87,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', EnsureAdmin::class])
 
     Route::resource('books', BookController::class)->only(['index','store','update','destroy']);
     Route::resource('articles', ArticleController::class)->only(['index','store','update','destroy']);
+
+    Route::get('banners', [\App\Http\Controllers\Admin\BannerController::class, 'index'])->name('banners.index');
+    Route::post('banners', [\App\Http\Controllers\Admin\BannerController::class, 'store'])->name('banners.store');
 
     Route::get('courses/{course}/modules', [\App\Http\Controllers\Admin\ModuleController::class, 'index'])->name('courses.modules.index');
     Route::post('courses/{course}/modules', [\App\Http\Controllers\Admin\ModuleController::class, 'store'])->name('courses.modules.store');
