@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
-const slides = [
+const props = defineProps<{
+    dbSlides?: any[];
+}>();
+
+// Slides por defecto (fallback si no hay datos en BD)
+const defaultSlides = [
     {
         image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1920&q=80',
         tag: 'Programas de Especialización',
-        line1: 'Fortalece tus',
-        accent: 'competencias',
-        line2: 'profesionales',
+        heading: 'Fortalece tus competencias profesionales',
         body: 'Cursos en vivo y grabados diseñados por expertos en economía, gestión pública, liderazgo y más — para el profesional peruano.',
         cta1: { text: 'Explorar Cursos', href: '/cursos' },
         cta2: { text: 'Ver Programas', href: '/cursos' },
@@ -15,9 +18,7 @@ const slides = [
     {
         image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1920&q=80',
         tag: 'Primera Sesión Gratis',
-        line1: 'Masterclasses',
-        accent: 'en vivo',
-        line2: 'con expertos',
+        heading: 'Masterclasses en vivo con expertos',
         body: 'Sesiones exclusivas con líderes del sector empresarial y público. Tu primera masterclass es completamente gratuita.',
         cta1: { text: 'Ver Masterclasses', href: '/masterclass' },
         cta2: { text: 'Comenzar Gratis', href: '/masterclass' },
@@ -25,17 +26,33 @@ const slides = [
     {
         image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1920&q=80',
         tag: 'Soluciones Corporativas',
-        line1: 'Asesoría',
-        accent: 'estratégica',
-        line2: 'para tu empresa',
+        heading: 'Asesoría estratégica para tu empresa',
         body: 'Consultoría especializada para instituciones públicas y privadas. Diagnóstico, planificación y ejecución con expertos.',
         cta1: { text: 'Agendar Consultoría', href: '/consultoria' },
         cta2: { text: 'Ver Servicios', href: '/consultoria' },
     },
 ];
 
+// Slides activos: si vienen de la BD (y tienen heading), los usamos; si no, usamos fallback
+const slides = computed(() => {
+    if (props.dbSlides && props.dbSlides.length > 0 && props.dbSlides.some(s => s.heading)) {
+        return props.dbSlides
+            .filter(s => s.heading) // Solo slides con contenido real
+            .sort((a, b) => a.order - b.order)
+            .map((s) => ({
+                image: s.image_path || defaultSlides[s.order - 1]?.image || defaultSlides[0].image,
+                tag: 'IEE — Instituto de Economía y Empresa',
+                heading: s.heading || '',
+                body: s.subheading || '',
+                cta1: { text: s.button_text || 'Ver más', href: s.button_link || '/' },
+                cta2: { text: 'Explorar', href: '/' },
+            }));
+    }
+    return defaultSlides;
+});
+
 const current = ref(0);
-const textReady = ref(false);
+const textReady = ref(true);  // Empezamos en true para que no haya flash en blanco
 const isPaused = ref(false);
 const counters = ref({ pros: 0, years: 0, programs: 0 });
 let timer: ReturnType<typeof setInterval> | null = null;
@@ -60,8 +77,8 @@ function goTo(i: number) {
     restartTimer();
 }
 
-function next() { goTo((current.value + 1) % slides.length); }
-function prev() { goTo((current.value - 1 + slides.length) % slides.length); }
+function next() { goTo((current.value + 1) % slides.value.length); }
+function prev() { goTo((current.value - 1 + slides.value.length) % slides.value.length); }
 
 function restartTimer() {
     if (timer) clearInterval(timer);
@@ -114,13 +131,7 @@ onUnmounted(() => { if (timer) clearInterval(timer); });
                     <!-- Headline -->
                     <h1 class="font-serif font-bold mb-4">
                         <span :class="['block text-on-surface text-[2rem] sm:text-4xl md:text-5xl lg:text-[3.5rem] leading-[1.1] transition-all duration-500', textReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5']">
-                            {{ slides[current].line1 }}
-                        </span>
-                        <span :class="['block italic text-primary text-[2rem] sm:text-4xl md:text-5xl lg:text-[3.5rem] leading-[1.1] transition-all duration-500 delay-75', textReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5']">
-                            {{ slides[current].accent }}
-                        </span>
-                        <span :class="['block text-on-surface text-[2rem] sm:text-4xl md:text-5xl lg:text-[3.5rem] leading-[1.1] transition-all duration-500 delay-100', textReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5']">
-                            {{ slides[current].line2 }}
+                            {{ slides[current].heading }}
                         </span>
                     </h1>
 

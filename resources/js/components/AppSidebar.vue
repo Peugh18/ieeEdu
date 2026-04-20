@@ -5,7 +5,7 @@ import { Link, usePage, router } from '@inertiajs/vue3';
 import {
     LayoutGrid, BookOpen, Calendar, ClipboardCheck, Award,
     Folder, Crown, LogOut, ChevronRight, Settings,
-    Users, CreditCard, FileText, Newspaper
+    Users, CreditCard, FileText, Newspaper, Image as ImageIcon
 } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 import { useSidebar } from '@/components/ui/sidebar';
@@ -48,6 +48,7 @@ const adminNavItems: NavItem[] = [
     { title: 'Suscripciones',  href: 'admin.subscriptions.index', icon: Crown },
     { title: 'Libros',         href: 'admin.books.index',         icon: FileText },
     { title: 'Artículos',      href: 'admin.articles.index',      icon: Newspaper },
+    { title: 'Banners',        href: 'admin.banners.index',       icon: ImageIcon },
 ];
 
 const studentNavItems: NavItem[] = [

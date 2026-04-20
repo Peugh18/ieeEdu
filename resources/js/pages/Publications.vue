@@ -31,7 +31,19 @@ const props = defineProps<{
     books: Book[];
     articles: Article[];
     isDashboard?: boolean;
+    banner?: {
+        heading: string | null;
+        subheading: string | null;
+        image_path: string | null;
+        button_text: string | null;
+        button_link: string | null;
+        show_text: boolean;
+    } | null;
 }>();
+
+// Valores dinámicos con fallback
+const heroHeading = computed(() => props.banner?.heading || 'Nuestras Publicaciones Especializadas');
+const heroSubheading = computed(() => props.banner?.subheading || 'Acceda a nuestra biblioteca de investigación, libros y artículos técnicos para su desarrollo profesional.');
 
 const currentTab = ref<'libros' | 'articulos'>('libros');
 
@@ -66,21 +78,40 @@ const breadcrumbs = [
             <Navigation v-if="!isDashboard" />
 
             <main :class="['flex-1 pb-20', isDashboard ? 'p-0' : '']">
-                <!-- Hero Header (background-image ready: replace bg with bg-[url('/images/...')] bg-cover bg-center) -->
-                <section :class="['relative py-20 md:py-28 px-6 sm:px-12 text-center mb-12 overflow-hidden', isDashboard ? 'rounded-[2rem] mx-6 mt-6' : '']">
-                    <div class="absolute inset-0 bg-surface-container-low"></div>
-                    <div class="absolute inset-0 pointer-events-none overflow-hidden">
-                        <div class="absolute -top-20 right-1/4 w-[500px] h-[500px] bg-primary/[0.06] rounded-full blur-[120px]"></div>
-                        <div class="absolute -bottom-20 left-1/4 w-[400px] h-[400px] bg-tertiary-container/[0.08] rounded-full blur-[100px]"></div>
-                    </div>
-                    <div class="relative z-10 max-w-4xl mx-auto">
-                        <p class="text-primary text-xs font-bold uppercase tracking-[0.2em] mb-4">Investigación de Alto Nivel</p>
-                        <h1 class="text-3xl md:text-5xl lg:text-[54px] font-serif font-bold text-on-surface mb-6 leading-tight tracking-[-0.01em]">
-                            Nuestras <span class="italic text-primary">Publicaciones Especializadas</span>
-                        </h1>
-                        <p class="text-on-surface-variant text-lg max-w-2xl mx-auto">
-                            Acceda a nuestra biblioteca de investigación, libros y artículos técnicos para su desarrollo profesional.
-                        </p>
+                <!-- Hero con imagen de fondo dinámica -->
+                <section :class="['relative px-6 sm:px-12 text-center mb-12 overflow-hidden flex items-center justify-center', isDashboard ? 'rounded-[2rem] mx-6 mt-6' : '']"
+                    :style="banner?.image_path ? 'min-height: 420px;' : 'padding-top: 5rem; padding-bottom: 7rem;'"
+                >
+                    <!-- Imagen de fondo si existe en BD -->
+                    <template v-if="banner?.image_path">
+                        <img
+                            :src="banner.image_path"
+                            alt="Banner Publicaciones"
+                            class="absolute inset-0 w-full h-full object-cover object-center"
+                        />
+                        <!-- Overlay oscuro para legibilidad del texto -->
+                        <div class="absolute inset-0 bg-black/55"></div>
+                    </template>
+                    <!-- Fondo gris por defecto si no hay imagen -->
+                    <template v-else>
+                        <div class="absolute inset-0 bg-surface-container-low"></div>
+                        <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                            <div class="absolute -top-20 right-1/4 w-[500px] h-[500px] bg-primary/[0.06] rounded-full blur-[120px]"></div>
+                            <div class="absolute -bottom-20 left-1/4 w-[400px] h-[400px] bg-tertiary-container/[0.08] rounded-full blur-[100px]"></div>
+                        </div>
+                    </template>
+
+                    <div class="relative z-10 max-w-4xl mx-auto py-4">
+                        <!-- Mostrar texto solo si show_text es truthy (o no hay imagen de fondo) -->
+                        <template v-if="!banner?.image_path || banner.show_text">
+                            <p :class="['text-xs font-bold uppercase tracking-[0.2em] mb-4', banner?.image_path ? 'text-white/70' : 'text-primary']">Investigación de Alto Nivel</p>
+                            <h1 :class="['text-3xl md:text-5xl lg:text-[54px] font-serif font-bold mb-6 leading-tight tracking-[-0.01em]', banner?.image_path ? 'text-white' : 'text-on-surface']">
+                                {{ heroHeading }}
+                            </h1>
+                            <p :class="['text-lg max-w-2xl mx-auto', banner?.image_path ? 'text-white/80' : 'text-on-surface-variant']">
+                                {{ heroSubheading }}
+                            </p>
+                        </template>
                     </div>
                 </section>
 

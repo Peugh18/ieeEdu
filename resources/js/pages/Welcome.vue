@@ -9,6 +9,7 @@ const props = defineProps<{
     dynamicCourses: any[];
     teaserBooks: any[];
     teaserArticles: any[];
+    homeSlides: any[];
 }>();
 
 const courseTabs = [
@@ -97,7 +98,7 @@ const clientLogos = [
 
         <main class="pt-0">
             <!-- Hero Section -->
-            <HeroSection />
+            <HeroSection :dbSlides="homeSlides" />
 
             <!-- Clients Section -->
             <section class="py-10 md:py-14 bg-surface-container-low border-y border-outline-variant/10 overflow-hidden">

@@ -11,9 +11,11 @@ class PublicPublicationController extends Controller
 {
     public function index()
     {
+        $banner = \App\Models\Banner::where('section', 'publicaciones')->orderBy('order')->first();
         return Inertia::render('Publications', [
             'books' => Book::latest()->get(),
             'articles' => Article::latest()->get(),
+            'banner' => $banner,
         ]);
     }
 }
