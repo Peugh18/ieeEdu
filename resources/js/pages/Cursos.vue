@@ -10,6 +10,14 @@ const props = defineProps<{
     categories: any[];
     filters: { search?: string; modality?: string; category?: string };
     isDashboard?: boolean;
+    banner?: {
+        image_path?: string | null;
+        heading?: string;
+        subheading?: string;
+        button_text?: string;
+        button_link?: string;
+        show_text?: boolean;
+    };
 }>();
 
 const searchTerm = ref(props.filters.search || '');
@@ -50,19 +58,44 @@ const breadcrumbs = [
             <Navigation v-if="!isDashboard" />
 
             <main :class="['flex-1 pb-20', isDashboard ? 'p-0' : '']">
-                <!-- Hero Banner (background-image ready: replace bg-gradient with bg-[url('/images/...')] bg-cover bg-center) -->
-                <div :class="['relative py-20 md:py-28 px-6 sm:px-12 text-center mb-12 overflow-hidden', isDashboard ? 'rounded-[2rem] mx-6 mt-6' : '']">
-                    <div class="absolute inset-0 bg-surface-container-low"></div>
-                    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                <!-- Hero Banner -->
+                <div :class="[
+                        'relative py-20 md:py-28 px-6 sm:px-12 text-center mb-12 overflow-hidden flex flex-col justify-center items-center', 
+                        isDashboard ? 'rounded-[2rem] mx-6 mt-6' : '',
+                        !banner?.image_path ? 'bg-surface-container-low' : 'bg-cover bg-center bg-no-repeat'
+                    ]"
+                    :style="banner?.image_path ? `background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url(${banner.image_path}); min-height: 420px;` : ''"
+                >
+                    <!-- Fallback Decoration -->
+                    <div v-if="!banner?.image_path" class="absolute inset-0 pointer-events-none overflow-hidden">
                         <div class="absolute -top-20 left-1/4 w-[500px] h-[500px] bg-primary/[0.06] rounded-full blur-[120px]"></div>
                         <div class="absolute -bottom-20 right-1/4 w-[400px] h-[400px] bg-tertiary-container/[0.08] rounded-full blur-[100px]"></div>
                     </div>
-                    <div class="relative z-10 max-w-4xl mx-auto">
-                        <p class="text-primary text-xs font-bold uppercase tracking-[0.2em] mb-4">Estrategia y Excelencia</p>
-                        <h1 class="text-3xl md:text-5xl lg:text-[54px] font-serif font-bold text-on-surface mb-6 leading-tight tracking-[-0.02em]">
+                    
+                    <!-- Text Content -->
+                    <div v-if="!banner?.image_path || banner.show_text" class="relative z-10 max-w-4xl mx-auto w-full">
+                        <p :class="['text-xs font-bold uppercase tracking-[0.2em] mb-4', banner?.image_path ? 'text-white/70' : 'text-primary']">
+                            Estrategia y Excelencia
+                        </p>
+                        
+                        <h1 v-if="banner?.heading" :class="['text-3xl md:text-5xl lg:text-[54px] font-serif font-bold mb-6 leading-tight tracking-[-0.02em]', banner?.image_path ? 'text-white' : 'text-on-surface']">
+                            {{ banner.heading }}
+                        </h1>
+                        <h1 v-else :class="['text-3xl md:text-5xl lg:text-[54px] font-serif font-bold mb-6 leading-tight tracking-[-0.02em]', banner?.image_path ? 'text-white' : 'text-on-surface']">
                             Nuestra <span class="italic text-primary">Oferta Académica</span>
                         </h1>
-                        <p class="text-on-surface-variant text-lg max-w-2xl mx-auto">Invierta en su futuro profesional con diplomados diseñados por expertos en el sector.</p>
+                        
+                        <p :class="['text-lg max-w-2xl mx-auto', banner?.image_path ? 'text-white/90' : 'text-on-surface-variant']">
+                            {{ banner?.subheading || 'Invierta en su futuro profesional con diplomados diseñados por expertos en el sector.' }}
+                        </p>
+
+                        <!-- Optional Button from Banner -->
+                        <div v-if="banner?.button_text" class="mt-8 flex justify-center">
+                            <Link :href="banner?.button_link || '#'" class="px-8 py-3.5 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all"
+                                  :class="banner?.image_path ? 'bg-primary text-on-primary hover:bg-primary/90' : 'bg-primary text-on-primary hover:bg-primary/90 shadow-lg'">
+                                {{ banner.button_text }}
+                            </Link>
+                        </div>
                     </div>
                 </div>
 

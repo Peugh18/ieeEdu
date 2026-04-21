@@ -131,10 +131,13 @@ class PublicCourseController extends Controller
 
         $categories = Category::has('courses')->orderBy('name')->get();
 
+        $banner = \App\Models\Banner::where('section', 'cursos')->first();
+
         return Inertia::render('Cursos', [
             'courses' => $courses,
             'categories' => $categories,
             'filters' => $request->only(['search', 'modality', 'category']),
+            'banner' => $banner,
         ]);
     }
 
@@ -176,10 +179,13 @@ class PublicCourseController extends Controller
             $q->where('type', 'evento');
         })->orderBy('name')->get();
 
+        $banner = \App\Models\Banner::where('section', 'masterclass')->first();
+
         return Inertia::render('Masterclasses', [
             'courses' => $courses,
             'categories' => $categories,
             'filters' => $request->only(['category']),
+            'banner' => $banner,
         ]);
     }
 
