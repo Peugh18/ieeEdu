@@ -4,7 +4,7 @@ import { Head, router } from '@inertiajs/vue3';
 import { ref, computed, watch, onMounted } from 'vue';
 import { 
     Image as ImageIcon, Save, MonitorPlay, Briefcase, BookOpen, GraduationCap, 
-    Upload, Edit3, Type, Link as LinkIcon, FileText, Loader2
+    Upload, Edit3, Type, Link as LinkIcon, FileText, Loader2, AlertCircle, X, AlertTriangle
 } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -99,19 +99,78 @@ watch(activeBannerId, () => {
 });
 
 const fileInput = ref<HTMLInputElement | null>(null);
+const errorMessage = ref('');
+
+let errorTimeout: number | undefined;
+
+function showError(msg: string) {
+    errorMessage.value = msg;
+    if (errorTimeout) clearTimeout(errorTimeout);
+    errorTimeout = window.setTimeout(() => {
+        errorMessage.value = '';
+    }, 7000);
+}
 
 function triggerUpload() {
     fileInput.value?.click();
 }
 
+const bannerRequirements = computed(() => {
+    if (activeBanner.value?.id === 'home') {
+        return { minWidth: 1280, minHeight: 700, max: 4000 };
+    }
+    return { minWidth: 1280, minHeight: 400, max: 4000 };
+});
+
+const recommendedSpecs = computed(() => {
+    if (activeBanner.value?.id === 'home') {
+        return 'Medidas recomendadas: 1920×1080px (16:9) | Max 5MB';
+    }
+    return 'Medidas recomendadas: 1920×600px (Panorámica) | Max 5MB';
+});
+
 function handleFileChange(event: Event) {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
         const file = target.files[0];
-        activeSlide.value.file = file;
-        activeSlide.value.imagePreview = URL.createObjectURL(file);
-        // Reset input so same file can be re-selected
-        target.value = '';
+
+        // Validar tamaño de archivo (Max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            showError('El peso de la imagen excede el límite de 5MB. Por favor, reduce el tamaño del archivo o usa formato WebP antes de volver a intentar.');
+            target.value = '';
+            return;
+        }
+
+        const img = new Image();
+        const objectUrl = URL.createObjectURL(file);
+        
+        img.onload = () => {
+            const { minWidth, minHeight, max } = bannerRequirements.value;
+            
+            if (img.width < minWidth || img.height < minHeight) {
+                showError(`La resolución de la imagen es muy baja (${img.width}x${img.height}px).\n\nPara garantizar una excelente calidad visual en tu web, se requiere un mínimo de ${minWidth}x${minHeight}px.`);
+                target.value = '';
+                URL.revokeObjectURL(objectUrl);
+            } else if (img.width > max || img.height > max) {
+                 showError(`La resolución de la imagen es excesiva (${img.width}x${img.height}px).\n\nPara evitar problemas de rendimiento y carga lenta, se permite un máximo de ${max}x${max}px.`);
+                 target.value = '';
+                 URL.revokeObjectURL(objectUrl);
+            } else {
+                // Aprobada
+                errorMessage.value = '';
+                activeSlide.value.file = file;
+                activeSlide.value.imagePreview = objectUrl;
+                target.value = '';
+            }
+        };
+        
+        img.onerror = () => {
+             showError('El archivo seleccionado no es un formato de imagen válido o está corrupto.');
+             target.value = '';
+             URL.revokeObjectURL(objectUrl);
+        };
+        
+        img.src = objectUrl;
     }
 }
 
@@ -120,6 +179,7 @@ const isSaving = ref(false);
 function saveChanges() {
     if (!activeSlide.value) return;
     isSaving.value = true;
+    errorMessage.value = '';
 
     // El order es fijo: para home es el índice+1 del tab, para otros siempre es 1
     const orderToSend = activeBanner.value?.isCarousel ? (activeSlideIndex.value + 1) : 1;
@@ -223,10 +283,41 @@ function saveChanges() {
                     
                     <!-- Image Editor -->
                     <div class="rounded-[2.5rem] p-8 shadow-sm border" style="background-color: var(--elite-surface); border-color: var(--elite-border);">
-                        <h3 class="text-xl font-serif mb-6 flex items-center gap-2" style="color: var(--elite-text);">
-                            <ImageIcon class="w-5 h-5" style="color: var(--elite-olive);" />
-                            Fotografía de Cabecera {{ activeBanner.isCarousel ? `(${activeSlideIndex + 1} / 3)` : '' }}
-                        </h3>
+                        <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <h3 class="text-xl font-serif flex items-center gap-2" style="color: var(--elite-text);">
+                                <ImageIcon class="w-5 h-5" style="color: var(--elite-olive);" />
+                                Fotografía de Cabecera {{ activeBanner.isCarousel ? `(${activeSlideIndex + 1} / 3)` : '' }}
+                            </h3>
+                            <div class="px-3 py-1.5 rounded-lg border border-dashed text-[10px] font-bold uppercase tracking-widest text-center"
+                                 style="background-color: var(--elite-surface-2); border-color: var(--elite-border-strong); color: var(--elite-olive);">
+                                {{ recommendedSpecs }}
+                            </div>
+                        </div>
+
+                        <!-- Notificación de Error Hermosa -->
+                        <transition
+                            enter-active-class="transform ease-out duration-300 transition"
+                            enter-from-class="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
+                            enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
+                            leave-active-class="transition ease-in duration-200"
+                            leave-from-class="opacity-100"
+                            leave-to-class="opacity-0"
+                        >
+                            <div v-if="errorMessage" class="mb-6 rounded-[1.5rem] p-4 flex gap-4 overflow-hidden relative shadow-lg"
+                                style="background-color: var(--elite-surface-2); border-left: 6px solid #ef4444; border-top: 1px solid rgba(239, 68, 68, 0.1); border-right: 1px solid rgba(239, 68, 68, 0.1); border-bottom: 1px solid rgba(239, 68, 68, 0.1);">
+                                <div class="absolute inset-0 opacity-5" style="background-color: #ef4444;"></div>
+                                <div class="relative z-10 flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full" style="background-color: rgba(239, 68, 68, 0.15);">
+                                    <AlertTriangle class="w-5 h-5" style="color: #ef4444;" />
+                                </div>
+                                <div class="relative z-10 flex-1 py-1">
+                                    <h4 class="text-sm font-bold tracking-tight mb-1" style="color: #ef4444;">Ups, la imagen no es adecuada</h4>
+                                    <p class="text-xs font-semibold leading-relaxed whitespace-pre-wrap" style="color: var(--elite-text-muted);">{{ errorMessage }}</p>
+                                </div>
+                                <button @click="errorMessage = ''" class="relative z-10 flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full transition-colors hover:bg-black/10 dark:hover:bg-white/10" style="color: var(--elite-text-muted);">
+                                    <X class="w-4 h-4" />
+                                </button>
+                            </div>
+                        </transition>
                         
                         <!-- Input file oculto -->
                         <input type="file" ref="fileInput" class="hidden" accept="image/png,image/jpeg,image/jpg,image/webp" @change="handleFileChange" />
@@ -258,9 +349,9 @@ function saveChanges() {
                                     <Upload class="w-4 h-4" />
                                     {{ activeSlide.imagePreview ? 'Cambiar Fotografía' : 'Subir Fotografía' }}
                                 </div>
-                                <span class="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-lg" 
+                                <span class="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-lg text-center" 
                                     style="color: var(--elite-text-muted); background-color: var(--elite-bg);">
-                                    Recomendado: 1920×1080px · WebP/JPG · max 4MB
+                                    {{ recommendedSpecs }}
                                 </span>
                             </div>
                         </div>
