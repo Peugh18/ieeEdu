@@ -9,6 +9,14 @@ const props = defineProps<{
     categories: any[];
     filters: { category?: string };
     isDashboard?: boolean;
+    banner?: {
+        heading?: string;
+        subheading?: string;
+        image_path?: string | null;
+        button_text?: string;
+        button_link?: string;
+        show_text?: boolean;
+    };
 }>();
 
 const selectedCategory = ref(props.filters.category || 'Todas');
@@ -60,17 +68,41 @@ const breadcrumbs = [
             <main :class="['flex-1 pb-20', !isDashboard ? 'pt-24 md:pt-32' : 'pt-0']">
             <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
                 
-                <!-- Header -->
-                <div class="mb-10 lg:mb-16 max-w-2xl">
-                    <span class="inline-flex rounded-full bg-tertiary-container text-on-tertiary-container px-3 py-1 text-[10px] font-bold uppercase tracking-widest mb-4">
-                        Campus Digital Premium
-                    </span>
-                    <h1 class="text-4xl md:text-5xl lg:text-[56px] font-serif font-bold text-on-background leading-[1.1] mb-6 tracking-[-0.02em]">
-                        Domina la Economía y Empresa con <span class="italic text-primary">Clases en Vivo</span>
-                    </h1>
-                    <p class="text-lg text-on-surface-variant leading-relaxed">
-                        Accede a la excelencia académica desde cualquier lugar. Sesiones interactivas con expertos del sector financiero y estratégico.
-                    </p>
+                <!-- Hero Banner -->
+                <div class="mb-10 lg:mb-16">
+                    <div class="grid lg:grid-cols-2 gap-12 items-center">
+                        <!-- Left Side Text -->
+                        <div class="space-y-6 max-w-2xl" v-if="!banner?.image_path || banner.show_text">
+                            <span class="inline-flex rounded-full bg-tertiary-container text-on-tertiary-container px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest mb-2">
+                                Campus Digital Premium
+                            </span>
+                            
+                            <h1 v-if="banner?.heading" class="text-4xl md:text-5xl lg:text-[56px] font-serif font-bold text-on-background leading-[1.1] tracking-[-0.02em]">
+                                {{ banner.heading }}
+                            </h1>
+                            <h1 v-else class="text-4xl md:text-5xl lg:text-[56px] font-serif font-bold text-on-background leading-[1.1] tracking-[-0.02em]">
+                                Domina la Economía y Empresa con <span class="italic text-primary">Clases en Vivo</span>
+                            </h1>
+                            
+                            <p class="text-lg text-on-surface-variant leading-relaxed">
+                                {{ banner?.subheading || 'Accede a la excelencia académica desde cualquier lugar. Sesiones interactivas con expertos del sector financiero y estratégico.' }}
+                            </p>
+                            
+                            <div v-if="banner?.button_text" class="pt-4 flex">
+                                <a :href="banner.button_link || '#'" class="px-8 py-3.5 bg-primary text-on-primary rounded-xl font-bold hover:bg-primary/90 transition-all inline-flex items-center shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+                                    {{ banner.button_text }}
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Right Side Image -->
+                        <div class="relative w-full h-full min-h-[300px] lg:min-h-[400px]" v-if="banner?.image_path">
+                            <div class="absolute inset-0 z-0 bg-primary/10 rounded-full blur-[80px] -top-10 -right-10"></div>
+                            <div class="relative z-10 w-full h-full min-h-[300px] rounded-[2rem] overflow-hidden border border-outline-variant shadow-2xl hover:scale-[1.02] transition-transform duration-700">
+                                <img :src="banner.image_path" alt="Masterclass Banner" class="absolute inset-0 w-full h-full object-cover" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Tabs -->
