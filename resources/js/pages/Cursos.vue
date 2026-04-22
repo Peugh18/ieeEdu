@@ -57,47 +57,57 @@ const breadcrumbs = [
         <div :class="['flex flex-col text-on-background font-sans', !isDashboard ? 'min-h-screen bg-background' : 'bg-transparent']">
             <Navigation v-if="!isDashboard" />
 
-            <main :class="['flex-1 pb-20', isDashboard ? 'p-0' : '']">
-                <!-- Hero Banner -->
-                <div :class="[
-                        'relative py-20 md:py-28 px-6 sm:px-12 text-center mb-12 overflow-hidden flex flex-col justify-center items-center', 
-                        isDashboard ? 'rounded-[2rem] mx-6 mt-6' : '',
-                        !banner?.image_path ? 'bg-surface-container-low' : 'bg-cover bg-center bg-no-repeat'
-                    ]"
-                    :style="banner?.image_path ? `background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url(${banner.image_path}); min-height: 420px;` : ''"
-                >
-                    <!-- Fallback Decoration -->
-                    <div v-if="!banner?.image_path" class="absolute inset-0 pointer-events-none overflow-hidden">
+            <main :class="['flex-1 pb-20', !isDashboard ? 'pt-28 md:pt-28' : 'pt-0']">
+
+                <!-- Hero Banner: Tarjeta Contenida Premium -->
+                <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+                    <!-- Con imagen -->
+                    <div
+                        v-if="banner?.image_path"
+                        :class="['relative overflow-hidden shadow-2xl', isDashboard ? 'rounded-[1.5rem]' : 'rounded-[2rem]']"
+                        style="aspect-ratio: 16 / 5;"
+                    >
+                        <img :src="banner.image_path" alt="Cursos IEE" class="absolute inset-0 w-full h-full object-cover object-center" />
+                        <!-- Overlay izquierdo más denso para legibilidad del texto -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/10"></div>
+
+                        <div v-if="banner.show_text" class="relative z-10 h-full px-10 md:px-14 flex flex-col justify-center">
+                            <div class="max-w-2xl space-y-4">
+                                <span class="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                    Estrategia y Excelencia
+                                </span>
+
+                                <h1 class="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white leading-[1.15] tracking-tight">
+                                    {{ banner.heading || 'Nuestra Oferta Académica' }}
+                                </h1>
+
+                                <p class="text-base text-white/75 max-w-lg font-light leading-relaxed">
+                                    {{ banner.subheading || 'Diplomados diseñados por expertos del sector para impulsar su carrera.' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fallback: sin imagen -->
+                    <div v-else
+                        class="relative overflow-hidden rounded-[2rem] bg-surface-container-low py-20 px-10 md:px-14 flex flex-col justify-center"
+                        style="aspect-ratio: 16 / 5;"
+                    >
                         <div class="absolute -top-20 left-1/4 w-[500px] h-[500px] bg-primary/[0.06] rounded-full blur-[120px]"></div>
                         <div class="absolute -bottom-20 right-1/4 w-[400px] h-[400px] bg-tertiary-container/[0.08] rounded-full blur-[100px]"></div>
-                    </div>
-                    
-                    <!-- Text Content -->
-                    <div v-if="!banner?.image_path || banner.show_text" class="relative z-10 max-w-4xl mx-auto w-full">
-                        <p :class="['text-xs font-bold uppercase tracking-[0.2em] mb-4', banner?.image_path ? 'text-white/70' : 'text-primary']">
-                            Estrategia y Excelencia
-                        </p>
-                        
-                        <h1 v-if="banner?.heading" :class="['text-3xl md:text-5xl lg:text-[54px] font-serif font-bold mb-6 leading-tight tracking-[-0.02em]', banner?.image_path ? 'text-white' : 'text-on-surface']">
-                            {{ banner.heading }}
-                        </h1>
-                        <h1 v-else :class="['text-3xl md:text-5xl lg:text-[54px] font-serif font-bold mb-6 leading-tight tracking-[-0.02em]', banner?.image_path ? 'text-white' : 'text-on-surface']">
-                            Nuestra <span class="italic text-primary">Oferta Académica</span>
-                        </h1>
-                        
-                        <p :class="['text-lg max-w-2xl mx-auto', banner?.image_path ? 'text-white/90' : 'text-on-surface-variant']">
-                            {{ banner?.subheading || 'Invierta en su futuro profesional con diplomados diseñados por expertos en el sector.' }}
-                        </p>
-
-                        <!-- Optional Button from Banner -->
-                        <div v-if="banner?.button_text" class="mt-8 flex justify-center">
-                            <Link :href="banner?.button_link || '#'" class="px-8 py-3.5 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all"
-                                  :class="banner?.image_path ? 'bg-primary text-on-primary hover:bg-primary/90' : 'bg-primary text-on-primary hover:bg-primary/90 shadow-lg'">
-                                {{ banner.button_text }}
-                            </Link>
+                        <div class="relative z-10 max-w-2xl space-y-4">
+                            <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary">Estrategia y Excelencia</p>
+                            <h1 class="text-3xl md:text-5xl lg:text-[54px] font-serif font-bold leading-tight tracking-[-0.02em] text-on-surface">
+                                Nuestra <span class="italic text-primary">Oferta Académica</span>
+                            </h1>
+                            <p class="text-lg text-on-surface-variant">
+                                Invierta en su futuro profesional con diplomados diseñados por expertos.
+                            </p>
                         </div>
                     </div>
                 </div>
+
 
                 <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex flex-col lg:flex-row gap-10">

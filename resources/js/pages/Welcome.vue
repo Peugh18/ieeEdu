@@ -195,105 +195,102 @@ const clientLogos = [
             <div class="section-divider"></div>
 
             <!-- Consultoría Teaser -->
-            <section id="consultoria" class="py-20 md:py-32 bg-surface-container-low overflow-hidden relative reveal">
+            <section id="consultoria" class="py-20 md:py-28 bg-surface-container-low overflow-hidden relative reveal">
                 <div class="absolute inset-0 pointer-events-none overflow-hidden">
-                    <div class="absolute -top-20 -left-20 w-[500px] h-[500px] bg-primary/[0.06] rounded-full blur-[120px]"></div>
-                    <div class="absolute -bottom-20 -right-20 w-[400px] h-[400px] bg-tertiary-container/[0.08] rounded-full blur-[100px]"></div>
+                    <div class="absolute -top-20 -left-20 w-[600px] h-[600px] bg-primary/[0.05] rounded-full blur-[140px]"></div>
+                    <div class="absolute bottom-0 right-0 w-[400px] h-[400px] bg-tertiary-container/[0.06] rounded-full blur-[100px]"></div>
                 </div>
                 <div class="max-w-7xl mx-auto px-6 md:px-8 relative z-10">
+
                     <!-- Section label -->
-                    <div class="flex items-center gap-3 mb-10">
+                    <div class="flex items-center gap-3 mb-12">
                         <span class="text-[11px] font-bold text-primary/50 tracking-[0.25em] uppercase font-serif">02</span>
                         <div class="w-8 h-px bg-primary/30"></div>
-                        <span class="text-[11px] font-bold text-primary tracking-[0.2em] uppercase">Soluciones Corporativas</span>
+                        <span class="text-[11px] font-bold text-primary tracking-[0.2em] uppercase">Consultoría Especializada</span>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center">
+                    <!-- Main grid: 55/45 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12 lg:gap-20 items-start">
 
-                        <!-- Left: Teaser Content -->
+                        <!-- LEFT: título + servicios como lista numerada -->
                         <div>
-                            <h2 class="font-serif text-3xl md:text-5xl text-on-surface mb-5 leading-tight">
-                                ¿Tu empresa necesita <span class="italic text-primary">asesoría estratégica</span>?
+                            <h2 class="font-serif text-4xl md:text-5xl text-on-surface mb-5 leading-[1.1]">
+                                ¿Tu organización necesita<br/>
+                                <span class="italic text-primary">asesoría estratégica?</span>
                             </h2>
-                            <p class="text-on-surface-variant text-base md:text-lg mb-8 leading-relaxed">
-                                Ofrecemos consultoría especializada para instituciones públicas y privadas. Diagnóstico, planificación y ejecución con expertos del mercado peruano.
+                            <p class="text-on-surface-variant text-base leading-relaxed mb-10 max-w-lg">
+                                Desde 2009, el IEE brinda soluciones prácticas, técnicas y basadas en evidencia para impulsar la gestión y competitividad de entidades públicas y privadas del Perú.
                             </p>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-                                <div class="bg-surface-container rounded-2xl p-5 border border-outline-variant/20 hover:border-primary/30 hover:shadow-md transition-all">
-                                    <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-                                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                                    </div>
-                                    <h4 class="font-serif font-bold text-on-surface text-sm mb-1">Diagnóstico</h4>
-                                    <p class="text-on-surface-variant text-xs leading-relaxed">Auditoría de capacidades técnicas</p>
-                                </div>
-                                <div class="bg-surface-container rounded-2xl p-5 border border-outline-variant/20 hover:border-primary/30 hover:shadow-md transition-all">
-                                    <div class="w-10 h-10 rounded-xl bg-tertiary-container/30 flex items-center justify-center mb-3">
-                                        <svg class="w-5 h-5 text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                                    </div>
-                                    <h4 class="font-serif font-bold text-on-surface text-sm mb-1">Currícula</h4>
-                                    <p class="text-on-surface-variant text-xs leading-relaxed">Diseño de programas a medida</p>
-                                </div>
-                                <div class="bg-surface-container rounded-2xl p-5 border border-outline-variant/20 hover:border-primary/30 hover:shadow-md transition-all">
-                                    <div class="w-10 h-10 rounded-xl bg-secondary-container/40 flex items-center justify-center mb-3">
-                                        <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
-                                    </div>
-                                    <h4 class="font-serif font-bold text-on-surface text-sm mb-1">Proyección</h4>
-                                    <p class="text-on-surface-variant text-xs leading-relaxed">Escenarios macro y estrategia</p>
+
+                            <!-- Servicios: lista numerada (igual a /consultoria) -->
+                            <div class="grid sm:grid-cols-2 gap-x-12 gap-y-0 mb-10">
+                                <div v-for="(s, i) in [
+                                    'Planeamiento empresarial y de negocios',
+                                    'Reorganización empresarial e institucional',
+                                    'Implementación de sistemas ISO',
+                                    'Estructuración de Proyectos (PA, APP, OxI)',
+                                    'Planes territoriales (PDM, DPU, PAT, DET)',
+                                    'Informes de dinámica sectorial',
+                                ]" :key="s"
+                                    class="group flex items-center gap-3 py-3 border-b border-outline-variant/10 hover:border-primary/20 transition-all duration-200 cursor-default"
+                                    :class="{ 'border-t border-outline-variant/10': i === 0 || i === 1 }"
+                                >
+                                    <span class="text-[10px] font-bold text-primary/30 font-mono w-5 flex-shrink-0 group-hover:text-primary transition-colors tabular-nums">{{ String(i + 1).padStart(2,'0') }}</span>
+                                    <span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors leading-snug">{{ s }}</span>
                                 </div>
                             </div>
-                            <a href="/consultoria" class="group inline-flex items-center gap-3 px-8 py-4 bg-primary text-on-primary rounded-xl font-bold text-base shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
-                                Ver todos los servicios
-                                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+
+                            <!-- CTA único -->
+                            <a href="/consultoria" class="group inline-flex items-center gap-3 px-7 py-3.5 bg-primary text-on-primary rounded-xl font-bold text-sm shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
+                                Ver todos los servicios y solicitar
+                                <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                             </a>
                         </div>
 
-                        <!-- Right: Stats + CTA Card -->
-                        <div class="relative">
-                            <!-- Glow behind card -->
-                            <div class="absolute -inset-4 bg-primary/8 rounded-[2.5rem] blur-2xl pointer-events-none"></div>
-                            <div class="relative bg-surface-container rounded-3xl p-8 md:p-10 border border-outline-variant/15 shadow-2xl overflow-hidden">
-                                <!-- Subtle gradient top strip -->
-                                <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"></div>
-                                <div class="flex items-center gap-4 mb-8 pb-6 border-b border-outline-variant/10">
-                                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center flex-shrink-0 shadow-lg">
-                                        <svg class="w-6 h-6 text-on-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        <!-- RIGHT: stats verticales + card de confianza -->
+                        <div class="lg:pt-2">
+                            <!-- Stats 2x2 -->
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-surface-container rounded-2xl p-6 border border-outline-variant/15 hover:border-primary/20 transition-all group text-center">
+                                    <p class="font-serif text-4xl font-bold text-primary mb-1">+15</p>
+                                    <p class="text-xs text-on-surface-variant font-medium leading-snug">Años de<br/>trayectoria</p>
+                                </div>
+                                <div class="bg-surface-container rounded-2xl p-6 border border-outline-variant/15 hover:border-primary/20 transition-all group text-center">
+                                    <p class="font-serif text-4xl font-bold text-primary mb-1">13+</p>
+                                    <p class="text-xs text-on-surface-variant font-medium leading-snug">Instituciones<br/>aliadas</p>
+                                </div>
+                                <div class="bg-surface-container rounded-2xl p-6 border border-outline-variant/15 hover:border-primary/20 transition-all group text-center">
+                                    <p class="font-serif text-4xl font-bold text-primary mb-1">12</p>
+                                    <p class="text-xs text-on-surface-variant font-medium leading-snug">Líneas de<br/>consultoría</p>
+                                </div>
+                                <div class="bg-surface-container rounded-2xl p-6 border border-outline-variant/15 hover:border-primary/20 transition-all group text-center">
+                                    <p class="font-serif text-4xl font-bold text-primary mb-1">3</p>
+                                    <p class="text-xs text-on-surface-variant font-medium leading-snug">Pilares<br/>institucionales</p>
+                                </div>
+                            </div>
+
+                            <!-- Card de confianza tipo "empresa" -->
+                            <div class="relative rounded-2xl border border-outline-variant/15 bg-surface-container overflow-hidden p-6">
+                                <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
+                                <div class="flex items-start gap-4">
+                                    <div class="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                                     </div>
                                     <div>
-                                        <h3 class="font-serif font-bold text-on-surface text-lg leading-tight">+15 años asesorando</h3>
-                                        <p class="text-on-surface-variant text-sm">empresas e instituciones del Perú</p>
+                                        <h4 class="font-serif font-bold text-on-surface text-sm mb-1">Sector público y privado</h4>
+                                        <p class="text-on-surface-variant text-xs leading-relaxed">Trabajamos con ministerios, gobiernos regionales, municipalidades, empresas agroexportadoras, mineras, financieras y organismos de cooperación.</p>
                                     </div>
                                 </div>
-                                <div class="grid grid-cols-2 gap-3 mb-8">
-                                    <div class="group bg-surface hover:bg-primary/5 rounded-2xl p-4 border border-outline-variant/10 hover:border-primary/20 text-center transition-all duration-300">
-                                        <p class="text-3xl font-bold text-primary mb-1 font-serif">500+</p>
-                                        <p class="text-xs text-on-surface-variant font-medium leading-tight">Profesionales formados</p>
-                                    </div>
-                                    <div class="group bg-surface hover:bg-primary/5 rounded-2xl p-4 border border-outline-variant/10 hover:border-primary/20 text-center transition-all duration-300">
-                                        <p class="text-3xl font-bold text-primary mb-1 font-serif">98%</p>
-                                        <p class="text-xs text-on-surface-variant font-medium leading-tight">Satisfacción</p>
-                                    </div>
-                                    <div class="group bg-surface hover:bg-primary/5 rounded-2xl p-4 border border-outline-variant/10 hover:border-primary/20 text-center transition-all duration-300">
-                                        <p class="text-3xl font-bold text-primary mb-1 font-serif">25+</p>
-                                        <p class="text-xs text-on-surface-variant font-medium leading-tight">Programas activos</p>
-                                    </div>
-                                    <div class="group bg-surface hover:bg-primary/5 rounded-2xl p-4 border border-outline-variant/10 hover:border-primary/20 text-center transition-all duration-300">
-                                        <p class="text-3xl font-bold text-primary mb-1 font-serif">13+</p>
-                                        <p class="text-xs text-on-surface-variant font-medium leading-tight">Instituciones aliadas</p>
-                                    </div>
-                                </div>
-                                <a href="/consultoria" class="group w-full flex items-center justify-center gap-2.5 px-6 py-4 bg-primary text-on-primary rounded-xl font-bold text-sm hover:opacity-90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                    Agendar Consultoría Gratuita
-                                    <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
+
             <!-- Section divider -->
             <div class="section-divider alt"></div>
+
 
             <!-- Biblioteca de Libros -->
             <section id="publicaciones" class="py-20 md:py-32 bg-surface relative overflow-hidden reveal">

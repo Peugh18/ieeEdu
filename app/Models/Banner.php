@@ -17,6 +17,9 @@ class Banner extends Model
         'position',
         'is_active',
         'show_text',
+        'whatsapp_number',
+        'contact_email',
+        'contact_address',
     ];
 
     protected $casts = [

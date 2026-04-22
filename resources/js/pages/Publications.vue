@@ -77,43 +77,53 @@ const breadcrumbs = [
         <div :class="['flex min-h-screen flex-col font-sans', !isDashboard ? 'bg-background' : 'bg-transparent']">
             <Navigation v-if="!isDashboard" />
 
-            <main :class="['flex-1 pb-20', isDashboard ? 'p-0' : '']">
-                <!-- Hero con imagen de fondo dinámica -->
-                <section :class="['relative px-6 sm:px-12 text-center mb-12 overflow-hidden flex items-center justify-center', isDashboard ? 'rounded-[2rem] mx-6 mt-6' : '']"
-                    :style="banner?.image_path ? 'min-height: 420px;' : 'padding-top: 5rem; padding-bottom: 7rem;'"
-                >
-                    <!-- Imagen de fondo si existe en BD -->
-                    <template v-if="banner?.image_path">
-                        <img
-                            :src="banner.image_path"
-                            alt="Banner Publicaciones"
-                            class="absolute inset-0 w-full h-full object-cover object-center"
-                        />
-                        <!-- Overlay oscuro para legibilidad del texto -->
-                        <div class="absolute inset-0 bg-black/55"></div>
-                    </template>
-                    <!-- Fondo gris por defecto si no hay imagen -->
-                    <template v-else>
-                        <div class="absolute inset-0 bg-surface-container-low"></div>
+            <main :class="['flex-1 pb-20', !isDashboard ? 'pt-28' : 'pt-0']">
+
+                <!-- Hero Banner: Tarjeta Contenida Premium -->
+                <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+                    <!-- Con imagen -->
+                    <div
+                        v-if="banner?.image_path"
+                        :class="['relative overflow-hidden shadow-2xl', isDashboard ? 'rounded-[1.5rem]' : 'rounded-[2rem]']"
+                        style="aspect-ratio: 16 / 5;"
+                    >
+                        <img :src="banner.image_path" alt="Publicaciones IEE" class="absolute inset-0 w-full h-full object-cover object-center" />
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/10"></div>
+
+                        <div v-if="banner.show_text" class="relative z-10 h-full px-10 md:px-14 flex flex-col justify-center">
+                            <div class="max-w-2xl space-y-4">
+                                <span class="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                    Investigación de Alto Nivel
+                                </span>
+                                <h1 class="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white leading-[1.15] tracking-tight">
+                                    {{ heroHeading }}
+                                </h1>
+                                <p class="text-base text-white/75 max-w-lg font-light leading-relaxed">
+                                    {{ heroSubheading }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fallback sin imagen -->
+                    <div v-else
+                        class="relative overflow-hidden rounded-[2rem] bg-surface-container-low py-20 px-10 md:px-14 flex flex-col justify-center"
+                        style="aspect-ratio: 16 / 5;"
+                    >
                         <div class="absolute inset-0 pointer-events-none overflow-hidden">
                             <div class="absolute -top-20 right-1/4 w-[500px] h-[500px] bg-primary/[0.06] rounded-full blur-[120px]"></div>
                             <div class="absolute -bottom-20 left-1/4 w-[400px] h-[400px] bg-tertiary-container/[0.08] rounded-full blur-[100px]"></div>
                         </div>
-                    </template>
-
-                    <div class="relative z-10 max-w-4xl mx-auto py-4">
-                        <!-- Mostrar texto solo si show_text es truthy (o no hay imagen de fondo) -->
-                        <template v-if="!banner?.image_path || banner.show_text">
-                            <p :class="['text-xs font-bold uppercase tracking-[0.2em] mb-4', banner?.image_path ? 'text-white/70' : 'text-primary']">Investigación de Alto Nivel</p>
-                            <h1 :class="['text-3xl md:text-5xl lg:text-[54px] font-serif font-bold mb-6 leading-tight tracking-[-0.01em]', banner?.image_path ? 'text-white' : 'text-on-surface']">
+                        <div class="relative z-10 max-w-2xl space-y-4">
+                            <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary">Investigación de Alto Nivel</p>
+                            <h1 class="text-3xl md:text-5xl lg:text-[54px] font-serif font-bold leading-tight tracking-[-0.01em] text-on-surface">
                                 {{ heroHeading }}
                             </h1>
-                            <p :class="['text-lg max-w-2xl mx-auto', banner?.image_path ? 'text-white/80' : 'text-on-surface-variant']">
-                                {{ heroSubheading }}
-                            </p>
-                        </template>
+                            <p class="text-lg text-on-surface-variant">{{ heroSubheading }}</p>
+                        </div>
                     </div>
-                </section>
+                </div>
 
                 <!-- Tabs Section -->
                 <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
