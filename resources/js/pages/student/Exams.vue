@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { ClipboardCheck, Clock, FileText, CheckCircle2, XCircle, MoreVertical, PlayCircle, BarChart3, RotateCw, Award } from 'lucide-vue-next';
@@ -45,37 +46,49 @@ const getStatusStyles = (status: string) => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="min-h-screen bg-background text-on-background flex justify-center overflow-x-hidden">
             
-            <div class="w-full max-w-7xl p-8 md:p-12 space-y-16">
+            <div class="w-full max-w-7xl p-4 md:p-12 space-y-6 md:space-y-16">
                 <!-- Academic Header -->
-                <header class="flex flex-col md:flex-row md:items-end justify-between gap-10">
+                <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-10">
                     <div class="space-y-4">
-                        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/5 border border-primary/10 rounded-full">
-                            <div class="w-2 h-2 rounded-full bg-[#D4AF37]"></div>
-                            <span class="text-[10px] font-black text-primary uppercase tracking-[0.25em]">Expediente de Desempeño</span>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 md:px-4 md:py-1.5 bg-primary/5 border border-primary/10 rounded-full">
+                            <div class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-[#D4AF37]"></div>
+                            <span class="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-[0.2em] md:tracking-[0.25em]">Expediente de Desempeño</span>
                         </div>
-                        <h1 class="text-4xl lg:text-5xl font-serif font-bold italic tracking-tight text-on-background">Evaluaciones Académicas</h1>
-                        <p class="text-on-surface-variant font-serif italic text-lg max-w-2xl leading-relaxed">Gestione sus certificaciones y realice el seguimiento de su progresión hacia la excelencia profesional.</p>
+                        <h1 class="text-2xl md:text-5xl font-serif font-bold italic tracking-tight text-on-background">Evaluaciones Académicas</h1>
+                        <p class="hidden md:block text-on-surface-variant font-serif italic text-lg max-w-2xl leading-relaxed">Gestione sus certificaciones y realice el seguimiento de su progresión hacia la excelencia profesional.</p>
                     </div>
                 </header>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <!-- Mobile stats strip -->
+                <div class="md:hidden flex gap-3 mb-2">
+                    <div class="flex-1 bg-primary rounded-2xl p-4 text-white text-center">
+                        <div class="text-2xl font-serif font-bold italic">{{ (stats.average_score / 20 * 10).toFixed(1) }}</div>
+                        <div class="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 mt-0.5">Promedio</div>
+                    </div>
+                    <div class="flex-1 bg-white rounded-2xl p-4 border border-outline-variant/20 text-center">
+                        <div class="text-2xl font-serif font-bold italic text-primary">{{ stats.certificate_count }}</div>
+                        <div class="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant/50 mt-0.5">Certificados</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-12">
                     <!-- Main Content Panel -->
-                    <div class="lg:col-span-8 space-y-16">
+                    <div class="lg:col-span-8 space-y-8 md:space-y-16">
                         
                         <!-- Available Exams Catalog -->
-                        <section class="space-y-8">
+                        <section class="space-y-4 md:space-y-8">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-2xl font-serif font-bold italic text-on-background flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center">
-                                        <PlayCircle class="w-5 h-5 text-primary" />
+                                <h3 class="text-lg md:text-2xl font-serif font-bold italic text-on-background flex items-center gap-3 md:gap-4">
+                                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl bg-primary/5 flex items-center justify-center">
+                                        <PlayCircle class="w-4 h-4 md:w-5 md:h-5 text-primary" />
                                     </div>
                                     Exámenes Habilitados
                                 </h3>
                             </div>
                             
-                            <div v-if="exams.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div v-if="exams.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
                                 <div v-for="exam in exams" :key="exam.id" 
-                                    class="group bg-white rounded-[3rem] border border-outline-variant/20 p-8 shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all relative overflow-hidden flex flex-col"
+                                    class="group bg-white rounded-2xl md:rounded-[3rem] border border-outline-variant/20 p-5 md:p-8 shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all relative overflow-hidden flex flex-col"
                                     :class="exam.progress < 100 ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-2'"
                                 >
                                     <!-- Goal post watermark -->
@@ -83,22 +96,22 @@ const getStatusStyles = (status: string) => {
                                         <Award class="w-48 h-48 text-primary" />
                                     </div>
 
-                                    <div class="flex justify-between items-start mb-8 relative z-10">
-                                        <div class="w-14 h-14 rounded-[1.5rem] flex items-center justify-center shadow-inner" :class="exam.progress < 100 ? 'bg-background' : 'bg-primary/5 border border-primary/10'">
-                                            <FileText class="w-6 h-6" :class="exam.progress < 100 ? 'text-outline-variant' : 'text-primary'" />
+                                    <div class="flex justify-between items-start mb-4 md:mb-8 relative z-10">
+                                        <div class="w-11 h-11 md:w-14 md:h-14 rounded-xl md:rounded-[1.5rem] flex items-center justify-center shadow-inner" :class="exam.progress < 100 ? 'bg-background' : 'bg-primary/5 border border-primary/10'">
+                                            <FileText class="w-5 h-5 md:w-6 md:h-6" :class="exam.progress < 100 ? 'text-outline-variant' : 'text-primary'" />
                                         </div>
-                                        <div class="px-5 py-2 bg-background rounded-2xl text-[9px] font-black text-on-surface-variant uppercase tracking-[0.2em] border border-outline-variant/20">
-                                            Oportunidades: {{ exam.attempts_left }} 
+                                        <div class="px-3 py-1.5 md:px-5 md:py-2 bg-background rounded-xl md:rounded-2xl text-[8px] md:text-[9px] font-black text-on-surface-variant uppercase tracking-[0.15em] md:tracking-[0.2em] border border-outline-variant/20">
+                                            Oport: {{ exam.attempts_left }} 
                                         </div>
                                     </div>
                                     
-                                    <div class="space-y-2 flex-1 relative z-10">
-                                        <h4 class="font-serif font-bold text-xl text-on-background italic leading-[1.3] group-hover:text-primary transition-colors line-clamp-2">{{ exam.title }}</h4>
-                                        <p class="text-[9px] text-[#D4AF37] font-black uppercase tracking-[0.25em] mb-6 italic">{{ exam.course_title }}</p>
+                                    <div class="space-y-1 md:space-y-2 flex-1 relative z-10">
+                                        <h4 class="font-serif font-bold text-base md:text-xl text-on-background italic leading-[1.3] group-hover:text-primary transition-colors line-clamp-2">{{ exam.title }}</h4>
+                                        <p class="text-[8px] md:text-[9px] text-[#D4AF37] font-black uppercase tracking-[0.2em] md:tracking-[0.25em] mb-3 md:mb-6 italic">{{ exam.course_title }}</p>
                                     </div>
                                     
                                     <!-- Requirement Bar -->
-                                    <div v-if="exam.progress < 100" class="mb-8 relative z-10">
+                                    <div v-if="exam.progress < 100" class="mb-4 md:mb-8 relative z-10">
                                         <div class="flex items-center justify-between text-[8px] font-black uppercase tracking-[0.25em] text-outline-variant mb-3">
                                             <span>Progreso Lectivo</span>
                                             <span class="text-primary">{{ exam.progress }}%</span>
@@ -108,41 +121,71 @@ const getStatusStyles = (status: string) => {
                                         </div>
                                     </div>
 
-                                    <div class="flex items-center justify-between pt-8 border-t border-outline-variant/10 mt-auto relative z-10">
-                                        <div class="flex items-center gap-3 text-[10px] font-bold italic text-outline-variant">
-                                            <Clock class="w-4 h-4" />
+                                    <div class="flex items-center justify-between pt-4 md:pt-8 border-t border-outline-variant/10 mt-auto relative z-10">
+                                        <div class="flex items-center gap-2 md:gap-3 text-[9px] md:text-[10px] font-bold italic text-outline-variant">
+                                            <Clock class="w-3.5 h-3.5 md:w-4 md:h-4" />
                                             <span>{{ exam.time_limit }} min</span>
                                         </div>
                                         
                                         <template v-if="!exam.passed">
-                                            <Link v-if="exam.attempts_left > 0 && exam.progress >= 100" :href="route('student.exams.take', exam.id)" class="px-8 py-4 rounded-2xl bg-primary text-white text-[9px] font-black uppercase tracking-[0.3em] hover:bg-on-background transition-all shadow-xl shadow-primary/10 active:scale-95">
-                                                Iniciar Cátedra
+                                            <Link v-if="exam.attempts_left > 0 && exam.progress >= 100" :href="route('student.exams.take', exam.id)" class="px-5 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl bg-primary text-white text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] hover:bg-on-background transition-all shadow-xl shadow-primary/10 active:scale-95">
+                                                Iniciar
                                             </Link>
-                                            <div v-else-if="exam.progress < 100" class="px-6 py-4 bg-background rounded-2xl text-[8px] font-black text-outline-variant/60 uppercase tracking-[0.2em] border border-outline-variant/10 flex items-center gap-3 italic">
-                                                <RotateCw class="w-3.5 h-3.5" /> Requisito de Lectura
+                                            <div v-else-if="exam.progress < 100" class="px-4 py-2.5 md:px-6 md:py-4 bg-background rounded-xl md:rounded-2xl text-[7px] md:text-[8px] font-black text-outline-variant/60 uppercase tracking-[0.15em] md:tracking-[0.2em] border border-outline-variant/10 flex items-center gap-2 md:gap-3 italic">
+                                                <RotateCw class="w-3 h-3 md:w-3.5 md:h-3.5" /> Requisito
                                             </div>
-                                            <a v-else href="https://wa.me/51900000000?text=Hola,%20agote%20mis%20intentos%20en%20el%20examen" target="_blank" class="px-6 py-4 bg-rose-50 rounded-2xl text-[8px] font-black text-rose-600 uppercase tracking-[0.2em] border border-rose-100 flex items-center gap-3 hover:bg-rose-100 transition-all italic">
-                                                <RotateCw class="w-3.5 h-3.5" /> Reintentos Agotados
+                                            <a v-else href="https://wa.me/51900000000?text=Hola,%20agote%20mis%20intentos%20en%20el%20examen" target="_blank" class="px-4 py-2.5 md:px-6 md:py-4 bg-rose-50 rounded-xl md:rounded-2xl text-[7px] md:text-[8px] font-black text-rose-600 uppercase tracking-[0.15em] md:tracking-[0.2em] border border-rose-100 flex items-center gap-2 md:gap-3 hover:bg-rose-100 transition-all italic">
+                                                <RotateCw class="w-3 h-3 md:w-3.5 md:h-3.5" /> Sin intentos
                                             </a>
                                         </template>
-                                        <span v-else class="text-[9px] font-black text-primary uppercase tracking-[0.3em] px-6 py-4 bg-primary/5 rounded-2xl italic flex items-center gap-2">
+                                        <span v-else class="text-[8px] md:text-[9px] font-black text-primary uppercase tracking-[0.2em] md:tracking-[0.3em] px-4 py-2.5 md:px-6 md:py-4 bg-primary/5 rounded-xl md:rounded-2xl italic flex items-center gap-2">
                                             <div class="w-1 h-1 rounded-full bg-primary"></div> Calificado
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div v-else class="py-24 flex flex-col items-center text-center bg-white rounded-[4rem] border border-dashed border-outline-variant/30 shadow-inner group">
-                                 <div class="w-20 h-20 bg-background rounded-[1.75rem] border border-outline-variant/20 flex items-center justify-center mb-8 group-hover:bg-primary/5 transition-colors">
-                                    <ClipboardCheck class="w-8 h-8 text-outline-variant" />
+                            <div v-else class="py-12 md:py-24 flex flex-col items-center text-center bg-white rounded-2xl md:rounded-[4rem] border border-dashed border-outline-variant/30 shadow-inner group px-4">
+                                 <div class="w-16 h-16 md:w-20 md:h-20 bg-background rounded-2xl md:rounded-[1.75rem] border border-outline-variant/20 flex items-center justify-center mb-6 md:mb-8 group-hover:bg-primary/5 transition-colors">
+                                    <ClipboardCheck class="w-6 h-6 md:w-8 md:h-8 text-outline-variant" />
                                  </div>
-                                 <h4 class="text-xl font-serif font-bold italic text-on-background mb-3">Sin evaluaciones lectivas</h4>
-                                 <p class="text-on-surface-variant font-serif italic text-sm leading-relaxed max-w-xs">No se presentan evaluaciones magistrales disponibles en su cronograma actual.</p>
+                                 <h4 class="text-lg md:text-xl font-serif font-bold italic text-on-background mb-2 md:mb-3">Sin evaluaciones lectivas</h4>
+                                 <p class="text-on-surface-variant font-serif italic text-xs md:text-sm leading-relaxed max-w-xs">No se presentan evaluaciones magistrales disponibles en su cronograma actual.</p>
                             </div>
                         </section>
 
-                        <!-- Academic History Table -->
-                        <section class="space-y-8">
+                        <!-- Academic History: Mobile Cards -->
+                        <section class="md:hidden space-y-4" v-if="history.length > 0">
+                            <h3 class="text-lg font-serif font-bold italic text-on-background flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center">
+                                    <BarChart3 class="w-4 h-4 text-primary" />
+                                </div>
+                                Historial
+                            </h3>
+                            <div v-for="attempt in history" :key="attempt.id + '_' + attempt.date"
+                                class="bg-white rounded-2xl border border-outline-variant/20 p-4 shadow-sm"
+                            >
+                                <div class="flex items-start justify-between gap-3 mb-3">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="font-serif font-bold text-sm text-on-background italic leading-tight truncate">{{ attempt.title }}</p>
+                                        <p class="text-[9px] text-outline-variant font-black uppercase tracking-widest mt-0.5">{{ attempt.course_title }}</p>
+                                    </div>
+                                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-[0.15em] italic shrink-0" :class="getStatusStyles(attempt.status)">
+                                        {{ attempt.status }}
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between pt-3 border-t border-outline-variant/10">
+                                    <span class="text-[10px] text-on-surface-variant/50 font-serif italic">{{ attempt.date }}</span>
+                                    <div class="flex flex-col items-end">
+                                        <span class="text-lg font-serif font-bold italic" :class="attempt.score >= attempt.passing_score ? 'text-primary' : 'text-rose-900'">{{ (attempt.score / 20 * 10).toFixed(1) }}</span>
+                                        <span class="text-[8px] text-outline-variant font-black uppercase tracking-[0.15em]">{{ attempt.score }}/20 Pts</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Academic History Table (desktop) -->
+                        <section class="hidden md:block space-y-8">
                             <h3 class="text-2xl font-serif font-bold italic text-on-background flex items-center gap-4">
                                 <div class="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center">
                                     <BarChart3 class="w-5 h-5 text-primary" />
@@ -189,8 +232,8 @@ const getStatusStyles = (status: string) => {
                         </section>
                     </div>
 
-                    <!-- Statistics Sidebar -->
-                    <aside class="lg:col-span-4 space-y-10 h-fit lg:sticky lg:top-8">
+                    <!-- Statistics Sidebar (hidden on mobile — shown as strip above) -->
+                    <aside class="hidden md:block lg:col-span-4 space-y-10 h-fit lg:sticky lg:top-8">
                         <!-- Global Stats Card -->
                         <div class="bg-primary rounded-[4rem] p-12 text-white shadow-2xl shadow-primary/20 relative overflow-hidden group">
                             <!-- Cinematic highlights -->
@@ -251,6 +294,9 @@ const getStatusStyles = (status: string) => {
                 </div>
             </div>
         </div>
+        <!-- Bottom nav spacer -->
+        <div class="h-16 lg:hidden"></div>
+        <BottomNav active="exams" />
     </AppLayout>
 </template>
 

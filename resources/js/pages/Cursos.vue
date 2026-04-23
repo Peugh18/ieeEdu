@@ -23,6 +23,10 @@ const props = defineProps<{
 const searchTerm = ref(props.filters.search || '');
 const selectedModality = ref(props.filters.modality || 'Todos');
 const selectedCategory = ref(props.filters.category || 'Todas las áreas');
+const showFilters = ref(false);
+const tempModality = ref(selectedModality.value);
+const tempSearch = ref(searchTerm.value);
+const tempCategory = ref(selectedCategory.value);
 
 const modalities = ['Todos', 'En vivo', 'Grabado'];
 
@@ -39,7 +43,28 @@ function applyFilters() {
     );
 }
 
-watch([searchTerm, selectedModality, selectedCategory], () => {
+function applyModalFilters() {
+    selectedModality.value = tempModality.value;
+    searchTerm.value = tempSearch.value;
+    selectedCategory.value = tempCategory.value;
+    showFilters.value = false;
+    applyFilters();
+}
+
+function openFilters() {
+    tempModality.value = selectedModality.value;
+    tempSearch.value = searchTerm.value;
+    tempCategory.value = selectedCategory.value;
+    showFilters.value = true;
+}
+
+function clearFilters() {
+    tempModality.value = 'Todos';
+    tempSearch.value = '';
+    tempCategory.value = 'Todas las áreas';
+}
+
+watch([searchTerm, selectedCategory], () => {
     applyFilters();
 });
 
@@ -110,10 +135,128 @@ const breadcrumbs = [
 
 
                 <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+
+                    <!-- Mobile Filter Bar -->
+                    <div class="lg:hidden mb-6">
+                        <button
+                            @click="openFilters"
+                            class="w-full flex items-center justify-center gap-2 px-4 py-4 bg-surface-container rounded-2xl border border-outline-variant/20 font-medium"
+                        >
+                            <svg class="w-5 h-5 text-on-surface-variant" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                            </svg>
+                            <span class="text-on-surface">Filtrar</span>
+                            <span v-if="selectedModality !== 'Todos' || searchTerm || selectedCategory !== 'Todas las áreas'" class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs font-bold rounded-full">
+                                {{ [selectedModality !== 'Todos' ? 1 : 0, searchTerm ? 1 : 0, selectedCategory !== 'Todas las áreas' ? 1 : 0].reduce((a,b) => a+b, 0) }}
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Filter Modal (Mobile) -->
+                    <div v-if="showFilters" class="lg:hidden fixed inset-0 z-50" @click.self="showFilters = false">
+                        <div class="absolute inset-x-0 bottom-0 bg-surface-container-low rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto">
+                            <!-- Modal Header -->
+                            <div class="sticky top-0 bg-surface-container-low px-6 py-4 border-b border-outline-variant/10 flex items-center justify-between">
+                                <h3 class="font-bold text-lg">Filtrar cursos</h3>
+                                <button @click="showFilters = false" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="p-6 space-y-6">
+                                <!-- Search -->
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant mb-3 uppercase tracking-wider">Buscar</label>
+                                    <div class="relative">
+                                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                        </svg>
+                                        <input
+                                            v-model="tempSearch"
+                                            type="text"
+                                            placeholder="Buscar cursos..."
+                                            class="w-full pl-12 pr-4 py-3.5 bg-surface-container rounded-2xl border border-outline-variant/20 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                                        >
+                                    </div>
+                                </div>
+
+                                <!-- Modalidad -->
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant mb-3 uppercase tracking-wider">Modalidad</label>
+                                    <div class="space-y-2">
+                                        <button
+                                            v-for="mod in modalities"
+                                            :key="mod"
+                                            @click="tempModality = mod"
+                                            class="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-medium transition-all"
+                                            :class="tempModality === mod ? 'bg-primary text-on-primary shadow-lg' : 'bg-surface-container text-on-surface hover:bg-surface-container-high'"
+                                        >
+                                            <span>{{ mod }}</span>
+                                            <svg v-if="tempModality === mod" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Categories -->
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant mb-3 uppercase tracking-wider">Categorías</label>
+                                    <div class="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                                        <button
+                                            @click="tempCategory = 'Todas las áreas'"
+                                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all"
+                                            :class="tempCategory === 'Todas las áreas' ? 'bg-primary/10 text-primary font-medium' : 'bg-surface-container text-on-surface hover:bg-surface-container-high'"
+                                        >
+                                            <span>Todas las áreas</span>
+                                            <svg v-if="tempCategory === 'Todas las áreas'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button
+                                            v-for="cat in categories"
+                                            :key="cat.id"
+                                            @click="tempCategory = cat.name"
+                                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all"
+                                            :class="tempCategory === cat.name ? 'bg-primary/10 text-primary font-medium' : 'bg-surface-container text-on-surface hover:bg-surface-container-high'"
+                                        >
+                                            <span>{{ cat.name }}</span>
+                                            <svg v-if="tempCategory === cat.name" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Clear Filters -->
+                                <button
+                                    v-if="tempModality !== 'Todos' || tempSearch || tempCategory !== 'Todas las áreas'"
+                                    @click="clearFilters"
+                                    class="w-full py-3 text-sm text-on-surface-variant hover:text-primary transition-colors"
+                                >
+                                    Limpiar filtros
+                                </button>
+                            </div>
+
+                            <!-- Apply Button -->
+                            <div class="sticky bottom-0 bg-surface-container-low p-6 border-t border-outline-variant/10">
+                                <button
+                                    @click="applyModalFilters"
+                                    class="w-full py-4 bg-primary text-on-primary rounded-2xl font-bold text-base shadow-lg hover:shadow-xl transition-all"
+                                >
+                                    Aplicar filtros
+                                </button>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 bg-black/40 -z-10"></div>
+                    </div>
+
                     <div class="flex flex-col lg:flex-row gap-10">
-                        
-                        <!-- Left Sidebar Filters -->
-                        <aside class="w-full lg:w-72 flex-shrink-0 space-y-10">
+
+                        <!-- Left Sidebar Filters (Desktop only) -->
+                        <aside class="hidden lg:block w-full lg:w-72 flex-shrink-0 space-y-10">
                             <!-- Search -->
                             <div>
                                 <div class="relative flex items-center">

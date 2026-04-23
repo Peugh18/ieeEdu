@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { 
@@ -170,27 +171,86 @@ const getCourseLightColor = (courseId: number) => {
 
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="h-[calc(100svh-4rem)] bg-background text-on-background flex flex-col items-center overflow-hidden">
+        <div class="min-h-[calc(100svh-4rem)] bg-background text-on-background flex flex-col items-center">
             
-            <div class="w-full max-w-7xl mx-auto p-8 md:p-12 h-full flex flex-col gap-10">
-                <header class="flex flex-col md:flex-row md:items-end justify-between gap-10 shrink-0">
-                    <div class="space-y-4">
+            <div class="w-full max-w-7xl mx-auto p-5 md:p-12 flex flex-col gap-6 md:gap-10">
+                <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-10">
+                    <div class="space-y-2 md:space-y-4">
                         <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/5 border border-primary/10 rounded-full">
                             <div class="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"></div>
                             <span class="text-[9px] font-black text-primary uppercase tracking-[0.25em]">Agenda Académica Digital</span>
                         </div>
-                        <h1 class="text-4xl lg:text-5xl font-serif font-bold text-on-background italic tracking-tight">Clases en Vivo</h1>
-                        <p class="text-on-surface-variant font-serif italic text-lg max-w-2xl leading-relaxed">Sincronice su cronograma con las sesiones magistrales en tiempo real para una formación integral.</p>
+                        <h1 class="text-2xl md:text-4xl lg:text-5xl font-serif font-bold text-on-background italic tracking-tight">Clases en Vivo</h1>
+                        <p class="hidden md:block text-on-surface-variant font-serif italic text-lg max-w-2xl leading-relaxed">Sincronice su cronograma con las sesiones magistrales en tiempo real para una formación integral.</p>
                     </div>
                     
-                    <div class="flex items-center gap-6 bg-white p-3 rounded-[2rem] border border-outline-variant/20 shadow-xl shadow-primary/5 px-8">
+                    <div class="hidden lg:flex items-center gap-4 bg-white p-2 md:p-3 rounded-2xl md:rounded-[2rem] border border-outline-variant/20 shadow-xl shadow-primary/5 px-5 md:px-8 self-start">
                         <button @click="prevMonth" class="p-3 hover:bg-background rounded-2xl text-outline-variant hover:text-primary transition-all"><ChevronLeft class="w-5 h-5" /></button>
                         <span class="text-sm font-black text-on-background uppercase tracking-[0.2em] min-w-[160px] text-center italic">{{ monthYearLabel }}</span>
                         <button @click="nextMonth" class="p-3 hover:bg-background rounded-2xl text-outline-variant hover:text-primary transition-all"><ChevronRight class="w-5 h-5" /></button>
                     </div>
                 </header>
 
-                <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 overflow-hidden pb-10">
+                <!-- ── MOBILE: Agenda list only ── -->
+                <div class="lg:hidden space-y-4">
+                    <div v-if="live_classes.length === 0" class="py-16 flex flex-col items-center text-center bg-white rounded-3xl border border-dashed border-outline-variant/40">
+                        <CalendarIcon class="w-10 h-10 text-outline-variant mb-4" />
+                        <h4 class="text-base font-serif font-bold text-on-background italic mb-2">Sin sesiones registradas</h4>
+                        <p class="text-on-surface-variant font-serif italic text-sm max-w-[220px]">No hay cátedras en vivo para tu período académico actual.</p>
+                    </div>
+
+                    <template v-else>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-base font-black text-on-background uppercase tracking-[0.15em]">Próximas sesiones</h3>
+                            <span class="text-[10px] font-black text-[#D4AF37] uppercase tracking-[0.2em] px-3 py-1 bg-[#D4AF37]/5 rounded-full border border-[#D4AF37]/10">{{ live_classes.length }} sesiones</span>
+                        </div>
+
+                        <div
+                            v-for="session in [...live_classes].sort((a,b) => Number(b.is_today) - Number(a.is_today))"
+                            :key="session.id"
+                            class="bg-white rounded-2xl border border-outline-variant/20 p-4 shadow-sm relative overflow-hidden"
+                        >
+                            <div v-if="session.is_today" class="absolute top-0 right-0 bg-[#D4AF37] text-white text-[9px] font-black px-4 py-1.5 rounded-bl-xl uppercase tracking-[0.2em]">Hoy</div>
+
+                            <div class="flex items-center gap-4">
+                                <div class="flex flex-col items-center justify-center min-w-[52px] h-[52px] rounded-2xl border border-outline-variant/20 shadow-inner" :class="session.is_today ? 'bg-primary/5 border-primary/20' : 'bg-background'">
+                                    <span class="text-[8px] font-black text-outline-variant uppercase">{{ session.day }}</span>
+                                    <span class="text-xl font-serif font-bold text-on-background italic leading-none">{{ session.date.split('-').pop() }}</span>
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-sm font-bold text-on-background leading-tight truncate" :title="session.title">{{ session.title }}</h4>
+                                    <div class="flex items-center gap-1.5 mt-0.5 mb-2">
+                                        <div class="w-1.5 h-1.5 rounded-full" :class="getCourseColor(session.course_id)"></div>
+                                        <p class="text-[9px] text-on-surface-variant/60 font-black uppercase tracking-[0.2em] truncate">{{ session.course_title }}</p>
+                                    </div>
+                                    <div class="flex items-center gap-3 text-[10px] font-bold text-on-surface-variant/50">
+                                        <div class="flex items-center gap-1.5"><Clock class="w-3.5 h-3.5" /><span>{{ session.time }}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 flex gap-3">
+                                <button
+                                    @click="goToClassroom(session)"
+                                    class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] bg-background border border-outline-variant/20 text-primary active:scale-95 transition-all"
+                                >
+                                    <Monitor class="w-4 h-4" /> Aula Virtual
+                                </button>
+                                <button
+                                    v-if="session.is_today && session.live_link"
+                                    @click="openLiveSession(session.live_link)"
+                                    class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] bg-primary text-white shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                                >
+                                    Ingresar <ExternalLink class="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- ── DESKTOP: Calendar + Sidebar ── -->
+                <div class="hidden lg:grid lg:grid-cols-12 gap-12 pb-10 min-h-[600px]">
                     <!-- Calendar View: Institutional Grid -->
                     <div class="lg:col-span-8 flex flex-col bg-white rounded-[4rem] border border-outline-variant/20 shadow-2xl relative overflow-hidden group">
                          <!-- Decorative watermark -->
@@ -303,6 +363,7 @@ const getCourseLightColor = (courseId: number) => {
                 </div>
             </div>
         </div>
+        <BottomNav active="live-classes" />
     </AppLayout>
 </template>
 

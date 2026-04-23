@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { BookOpen, Clock, CheckCircle, PlayCircle, Search, Filter, ArrowRight, Star } from 'lucide-vue-next';
@@ -56,10 +57,10 @@ const breadcrumbs = [
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="min-h-screen bg-background">
-        <div class="p-6 md:p-12 max-w-[1440px] mx-auto space-y-12 pb-32">
+        <div class="p-4 md:p-12 max-w-[1440px] mx-auto space-y-6 md:space-y-12 pb-24">
             
             <!-- Premium Header -->
-            <header class="relative overflow-hidden bg-gradient-to-br from-on-background to-[#2D302B] rounded-[3rem] p-10 md:p-16 mb-12 shadow-2xl shadow-on-background/20">
+            <header class="relative overflow-hidden bg-gradient-to-br from-on-background to-[#2D302B] rounded-2xl md:rounded-[3rem] p-6 md:p-16 mb-4 md:mb-12 shadow-2xl shadow-on-background/20">
                 <!-- Decor -->
                 <div class="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -mr-48 -mt-48"></div>
                 <div class="absolute bottom-0 left-0 w-64 h-64 bg-[#D4AF37]/5 rounded-full blur-[80px] -ml-32 -mb-32"></div>
@@ -70,11 +71,11 @@ const breadcrumbs = [
                         <span class="text-[10px] font-bold text-white/90 uppercase tracking-[0.25em]">Expediente Académico</span>
                     </div>
                     
-                    <h1 class="text-4xl md:text-6xl font-serif font-bold text-white leading-tight tracking-tight">
+                    <h1 class="text-2xl md:text-6xl font-serif font-bold text-white leading-tight tracking-tight">
                         Mi <span class="italic text-[#D4AF37]">Trayectoria</span> Profesional
                     </h1>
                     
-                    <p class="text-background/70 font-serif text-lg md:text-xl italic max-w-2xl leading-relaxed">
+                    <p class="hidden md:block text-background/70 font-serif text-lg md:text-xl italic max-w-2xl leading-relaxed">
                         Gestione su progreso y acceda a programas diseñados para alcanzar la excelencia en el sector público y privado.
                     </p>
 
@@ -94,7 +95,7 @@ const breadcrumbs = [
             </header>
 
             <!-- Refined Filter Tabs -->
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-8 bg-white/50 backdrop-blur-sm p-4 rounded-[2.5rem] border border-white shadow-sm">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 md:gap-8 bg-white/50 backdrop-blur-sm p-3 md:p-4 rounded-2xl md:rounded-[2.5rem] border border-white shadow-sm">
                 <div class="flex flex-wrap gap-3 items-center w-full sm:w-auto">
                     <button 
                         v-for="filter in filters" 
@@ -124,7 +125,7 @@ const breadcrumbs = [
                     class="bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-sm overflow-hidden group hover:shadow-[0_30px_60px_rgba(87,87,42,0.12)] transition-all duration-700 flex flex-col hover:-translate-y-3"
                 >
                     <!-- Visual Cover -->
-                    <div class="relative h-64 overflow-hidden bg-surface-container-highest">
+                    <div class="relative h-44 md:h-64 overflow-hidden bg-surface-container-highest">
                         <img 
                             v-if="course.image" 
                             :src="course.image" 
@@ -159,7 +160,7 @@ const breadcrumbs = [
                     </div>
 
                     <!-- Academic Content -->
-                    <div class="p-8 flex flex-col flex-1">
+                    <div class="p-5 md:p-8 flex flex-col flex-1">
                         <div class="space-y-4 mb-8">
                              <div class="flex items-center gap-3 text-[10px] font-bold text-primary/60 uppercase tracking-[0.2em]">
                                  {{ course.category?.name }}
@@ -214,6 +215,7 @@ const breadcrumbs = [
             </div>
         </div>
         </div>
+        <BottomNav active="courses" />
     </AppLayout>
 </template>
 

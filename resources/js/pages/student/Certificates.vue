@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { Award, Download, Eye, Lock, FileBadge2, ShieldCheck, Share2, Printer } from 'lucide-vue-next';
 
@@ -31,27 +32,27 @@ const breadcrumbs = [
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="min-h-screen bg-background text-on-background flex justify-center overflow-x-hidden">
             
-            <div class="w-full max-w-7xl p-8 md:p-12 space-y-16">
+            <div class="w-full max-w-7xl p-4 md:p-12 space-y-8 md:space-y-16">
                 <!-- Academic Header -->
-                <header class="flex flex-col md:flex-row md:items-end justify-between gap-10">
-                    <div class="space-y-4">
+                <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-10">
+                    <div class="space-y-2 md:space-y-4">
                         <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/5 border border-primary/10 rounded-full">
                             <div class="w-2 h-2 rounded-full bg-[#D4AF37]"></div>
                             <span class="text-[10px] font-black text-primary uppercase tracking-[0.25em]">Credenciales Institucionales</span>
                         </div>
-                        <h1 class="text-4xl lg:text-5xl font-serif font-bold italic tracking-tight text-on-background">Honores y Certificaciones</h1>
-                        <p class="text-on-surface-variant font-serif italic text-lg max-w-2xl leading-relaxed">Su trayectoria de excelencia académica debidamente acreditada y validada por nuestra institución.</p>
+                        <h1 class="text-2xl md:text-5xl font-serif font-bold italic tracking-tight text-on-background">Honores y Certificaciones</h1>
+                        <p class="hidden md:block text-on-surface-variant font-serif italic text-lg max-w-2xl leading-relaxed">Su trayectoria de excelencia académica debidamente acreditada y validada por nuestra institución.</p>
                     </div>
                 </header>
 
-                <div v-if="certificates.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                <div v-if="certificates.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-12">
                     <article v-for="cert in certificates" :key="cert.id" 
                         class="group bg-white rounded-[4rem] border border-outline-variant/20 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-700 overflow-hidden flex flex-col relative"
                     >
                         <!-- Premium framing -->
                         <div class="relative aspect-[16/11] bg-background p-2 overflow-hidden flex items-center justify-center">
-                            <!-- Verification Overlay -->
-                            <div class="absolute inset-0 bg-primary/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-700 flex items-center justify-center gap-6 z-30">
+                            <!-- Verification Overlay (desktop hover only) -->
+                            <div class="hidden md:flex absolute inset-0 bg-primary/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-700 items-center justify-center gap-6 z-30">
                                 <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" target="_blank" v-if="cert.download_url" class="w-14 h-14 bg-white text-primary rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"><Eye class="w-6 h-6 shrink-0" /></a>
                                 <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" download v-if="cert.download_url" class="w-14 h-14 bg-[#D4AF37] text-white rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"><Download class="w-6 h-6 shrink-0" /></a>
                             </div>
@@ -70,7 +71,7 @@ const breadcrumbs = [
                             </div>
                         </div>
 
-                        <div class="p-10 flex flex-col gap-6 flex-1 relative z-10 bg-white">
+                        <div class="p-5 md:p-10 flex flex-col gap-4 md:gap-6 flex-1 relative z-10 bg-white">
                             <div class="space-y-3">
                                 <div class="flex items-center gap-2">
                                     <div class="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></div>
@@ -96,12 +97,12 @@ const breadcrumbs = [
                                     </div>
                                 </div>
                                 
-                                <div class="flex gap-4">
-                                    <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" v-if="cert.download_url" target="_blank" class="flex-1 py-4 rounded-2xl bg-background border border-outline-variant/30 text-on-surface-variant text-[9px] font-black uppercase tracking-[0.2em] hover:bg-white hover:text-primary hover:border-primary/30 transition-all flex items-center justify-center gap-3 italic">
+                                <div class="flex gap-3">
+                                    <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" v-if="cert.download_url" target="_blank" class="flex-1 py-3.5 rounded-xl md:rounded-2xl bg-background border border-outline-variant/30 text-on-surface-variant text-[9px] font-black uppercase tracking-[0.2em] hover:bg-white hover:text-primary hover:border-primary/30 transition-all flex items-center justify-center gap-2 italic active:scale-95">
                                         <Printer class="w-4 h-4" /> Visualizar
                                     </a>
-                                    <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" v-if="cert.download_url" download class="flex-1 py-4 rounded-2xl bg-primary text-white text-[9px] font-black uppercase tracking-[0.2em] hover:bg-on-background transition-all flex items-center justify-center gap-3 italic shadow-xl shadow-primary/20">
-                                        <Download class="w-4 h-4" /> Expedir
+                                    <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" v-if="cert.download_url" download class="flex-1 py-3.5 rounded-xl md:rounded-2xl bg-primary text-white text-[9px] font-black uppercase tracking-[0.2em] hover:bg-on-background transition-all flex items-center justify-center gap-2 italic shadow-xl shadow-primary/20 active:scale-95">
+                                        <Download class="w-4 h-4" /> Descargar
                                     </a>
                                 </div>
                             </div>
@@ -120,6 +121,7 @@ const breadcrumbs = [
                 </div>
             </div>
         </div>
+        <BottomNav active="certificates" />
     </AppLayout>
 </template>
 

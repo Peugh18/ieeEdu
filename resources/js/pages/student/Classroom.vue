@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import axios from 'axios';
 import { 
@@ -7,7 +8,8 @@ import {
     Download, ExternalLink, Play, Clock, 
     Send, Users, X, CheckCircle2, ChevronDown,
     ArrowRight, HandIcon, Flag, ListVideo,
-    Heart, Reply, Trash2, Edit2, Trophy, AlertCircle
+    Heart, Reply, Trash2, Edit2, Trophy, AlertCircle,
+    LayoutGrid, BookOpen, Calendar, ClipboardCheck, Award
 } from 'lucide-vue-next';
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
@@ -178,6 +180,7 @@ const breadcrumbs = computed(() => [
 ]);
 
 const activeSidebarTab = ref<'curriculum' | 'chat' | 'comments'>('curriculum');
+const mobileSidebarOpen = ref(false);
 const now = ref(new Date());
 setInterval(() => {
     now.value = new Date();
@@ -235,6 +238,7 @@ const handleOpenExam = () => {
         return;
     }
     viewingExam.value = true;
+    mobileSidebarOpen.value = false;
 };
 
 // Comments handling
@@ -440,7 +444,7 @@ onMounted(() => {
         <div class="h-[calc(100svh-4rem)] bg-background text-on-background selection:bg-primary/20 selection:text-primary flex flex-col overflow-hidden">
             
             <!-- Navbar: Institutional Header -->
-            <header class="h-20 shrink-0 bg-white border-b border-outline-variant/20 flex items-center px-6 md:px-10 justify-between relative z-40 shadow-sm">
+            <header class="h-14 md:h-20 shrink-0 bg-white border-b border-outline-variant/20 flex items-center px-4 md:px-10 justify-between relative z-40 shadow-sm">
             <div class="flex items-center gap-6">
                 <Link :href="route('student.courses.index')" class="p-3 bg-background hover:bg-surface-container-highest rounded-[1.25rem] border border-outline-variant/20 transition-all text-primary group shadow-inner">
                     <ChevronLeft class="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
@@ -449,7 +453,7 @@ onMounted(() => {
                     <p class="text-[10px] font-black text-primary/60 uppercase tracking-[0.25em] leading-none mb-2 italic">
                         Módulo {{ currentLessonIndex }} de {{ allLessonsCount }} • {{ course.title }}
                     </p>
-                    <h1 class="text-base font-serif font-bold text-on-background truncate max-w-[150px] md:max-w-md italic">{{ currentLesson?.title }}</h1>
+                    <h1 class="text-sm md:text-base font-serif font-bold text-on-background truncate max-w-[180px] sm:max-w-xs md:max-w-md italic">{{ currentLesson?.title }}</h1>
                 </div>
             </div>
 
@@ -481,58 +485,58 @@ onMounted(() => {
                     </Link>
                 </div>
                 
-                <!-- Mobile Actions -->
-                 <button @click="activeSidebarTab = activeSidebarTab === 'curriculum' ? 'chat' : 'curriculum'" class="sm:hidden p-3 bg-primary text-white rounded-2xl shadow-lg">
-                     <ListVideo class="w-5 h-5" v-if="activeSidebarTab === 'chat'" />
-                     <MessageSquare class="w-5 h-5" v-else />
+                <!-- Mobile: open sidebar drawer -->
+                 <button @click="mobileSidebarOpen = true" class="sm:hidden p-2.5 bg-primary text-white rounded-xl shadow-lg">
+                     <ListVideo class="w-4 h-4" v-if="activeSidebarTab === 'chat'" />
+                     <MessageSquare class="w-4 h-4" v-else />
                  </button>
             </div>
         </header>
 
-        <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-background">
+        <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-background relative">
             
             <!-- Main Content Area: Video and Summary -->
             <div class="flex-1 overflow-y-auto custom-scrollbar bg-white relative rounded-br-[4rem] shadow-2xl">
                 
                 <!-- Section: Exam Modal Trigger Case -->
-                <div v-if="viewingExam" class="min-h-full flex flex-col items-center justify-center p-8 lg:p-24 bg-background animate-in fade-in duration-700">
-                     <div class="max-w-4xl w-full p-16 bg-white rounded-[4rem] border border-outline-variant/20 text-center shadow-[0_40px_100px_rgba(87,87,42,0.1)] relative overflow-hidden">
+                <div v-if="viewingExam" class="min-h-full flex flex-col items-center justify-center p-4 md:p-8 lg:p-24 bg-background animate-in fade-in duration-700">
+                     <div class="max-w-4xl w-full p-6 md:p-16 bg-white rounded-2xl md:rounded-[4rem] border border-outline-variant/20 text-center shadow-[0_40px_100px_rgba(87,87,42,0.1)] relative overflow-hidden">
                           <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none opacity-40"></div>
                           
-                          <div class="relative z-10 space-y-10">
-                               <div class="inline-flex p-8 rounded-[2.5rem] border shadow-inner" :class="localAllCompleted ? 'bg-primary/5 border-primary/20' : 'bg-orange-500/5 border-orange-500/10'">
-                                  <Trophy v-if="localAllCompleted" class="w-20 h-20 text-[#D4AF37]" />
-                                  <AlertCircle v-else class="w-20 h-20 text-orange-400" />
+                          <div class="relative z-10 space-y-6 md:space-y-10">
+                               <div class="inline-flex p-5 md:p-8 rounded-2xl md:rounded-[2.5rem] border shadow-inner" :class="localAllCompleted ? 'bg-primary/5 border-primary/20' : 'bg-orange-500/5 border-orange-500/10'">
+                                  <Trophy v-if="localAllCompleted" class="w-12 h-12 md:w-20 md:h-20 text-[#D4AF37]" />
+                                  <AlertCircle v-else class="w-12 h-12 md:w-20 md:h-20 text-orange-400" />
                               </div>
 
-                              <div class="space-y-6">
-                                 <h2 class="text-4xl lg:text-6xl font-serif font-bold italic text-on-background">Certificación Final</h2>
-                                 <p v-if="localAllCompleted" class="text-on-surface-variant italic font-serif text-xl max-w-2xl mx-auto leading-relaxed h-[5em]">
+                              <div class="space-y-3 md:space-y-6">
+                                 <h2 class="text-2xl md:text-4xl lg:text-6xl font-serif font-bold italic text-on-background">Certificación Final</h2>
+                                 <p v-if="localAllCompleted" class="text-on-surface-variant italic font-serif text-sm md:text-xl max-w-2xl mx-auto leading-relaxed">
                                     Excelencia académica alcanzada. Has completado exitosamente todos los módulos curriculares. Ahora puedes proceder con la evaluación final para acreditar tus conocimientos.
                                  </p>
-                                 <p v-else class="text-on-surface-variant italic font-serif text-xl max-w-2xl mx-auto leading-relaxed h-[5em]">
+                                 <p v-else class="text-on-surface-variant italic font-serif text-sm md:text-xl max-w-2xl mx-auto leading-relaxed">
                                     Aún no cumples con el 100% de la visualización del currículo académico. Por favor, asegúrate de ver todas las lecciones antes de rendir el examen.
                                  </p>
                               </div>
                               
-                              <div v-if="!localAllCompleted" class="pt-10">
-                                  <div class="px-10 py-6 bg-background rounded-[2rem] border border-outline-variant/20 shadow-inner inline-block">
-                                      <p class="text-[10px] font-black text-primary/40 uppercase tracking-[0.3em] mb-3">Progreso del programa</p>
-                                      <div class="flex items-center gap-6">
-                                          <div class="text-3xl font-serif font-bold italic text-primary tabular-nums">{{ localCompleted.length }} / {{ allLessonsCount }}</div>
-                                          <div class="w-48 h-2 bg-outline-variant/20 rounded-full overflow-hidden">
+                              <div v-if="!localAllCompleted" class="pt-4 md:pt-10">
+                                  <div class="px-5 py-4 md:px-10 md:py-6 bg-background rounded-xl md:rounded-[2rem] border border-outline-variant/20 shadow-inner inline-block">
+                                      <p class="text-[9px] md:text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] md:tracking-[0.3em] mb-2 md:mb-3">Progreso del programa</p>
+                                      <div class="flex items-center gap-4 md:gap-6">
+                                          <div class="text-xl md:text-3xl font-serif font-bold italic text-primary tabular-nums">{{ localCompleted.length }} / {{ allLessonsCount }}</div>
+                                          <div class="w-24 md:w-48 h-2 bg-outline-variant/20 rounded-full overflow-hidden">
                                               <div class="h-full bg-[#D4AF37] rounded-full" :style="{ width: `${(localCompleted.length / allLessonsCount) * 100}%` }"></div>
                                           </div>
                                       </div>
                                   </div>
                               </div>
                               
-                              <div class="pt-8">
-                                <Link v-if="localAllCompleted" :href="route('student.exams.index')" class="inline-flex px-16 py-6 bg-primary text-white font-black text-[12px] uppercase tracking-[0.25em] rounded-2xl hover:bg-on-background hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-primary/20 group">
-                                    Iniciar Evaluación Ahora
-                                    <ArrowRight class="w-5 h-5 ml-4 group-hover:translate-x-2 transition-transform" />
+                              <div class="pt-4 md:pt-8">
+                                <Link v-if="localAllCompleted" :href="route('student.exams.index')" class="inline-flex px-8 py-4 md:px-16 md:py-6 bg-primary text-white font-black text-[10px] md:text-[12px] uppercase tracking-[0.2em] md:tracking-[0.25em] rounded-xl md:rounded-2xl hover:bg-on-background hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-primary/20 group">
+                                    Iniciar Evaluación
+                                    <ArrowRight class="w-4 h-4 md:w-5 md:h-5 ml-3 md:ml-4 group-hover:translate-x-2 transition-transform" />
                                 </Link>
-                                <button v-else disabled class="px-16 py-6 bg-outline-variant/20 text-outline-variant font-black text-[12px] uppercase tracking-[0.25em] rounded-2xl cursor-not-allowed">
+                                <button v-else disabled class="px-8 py-4 md:px-16 md:py-6 bg-outline-variant/20 text-outline-variant font-black text-[10px] md:text-[12px] uppercase tracking-[0.2em] md:tracking-[0.25em] rounded-xl md:rounded-2xl cursor-not-allowed">
                                     Evaluación Bloqueada
                                 </button>
                               </div>
@@ -608,8 +612,31 @@ onMounted(() => {
                     </template>
                 </div>
 
+                <!-- Mobile Prev/Next Navigation Bar -->
+                <div class="sm:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-outline-variant/10 sticky top-0 z-10 shadow-sm">
+                    <Link
+                        v-if="prevLessonId"
+                        :href="route('student.classroom', { course: course.slug, lesson: prevLessonId })"
+                        class="flex items-center gap-2 px-4 py-2.5 bg-background border border-outline-variant/20 rounded-xl text-[11px] font-black uppercase tracking-widest text-primary active:scale-95 transition-all"
+                    >
+                        <ChevronLeft class="w-4 h-4" /> Anterior
+                    </Link>
+                    <span v-else class="px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-outline-variant/30">Anterior</span>
+
+                    <span class="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest">{{ currentLessonIndex }}/{{ allLessonsCount }}</span>
+
+                    <Link
+                        v-if="nextLessonId"
+                        :href="route('student.classroom', { course: course.slug, lesson: nextLessonId })"
+                        class="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                    >
+                        Siguiente <ChevronRight class="w-4 h-4" />
+                    </Link>
+                    <span v-else class="px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-outline-variant/30">Siguiente</span>
+                </div>
+
                 <!-- Info Details: The Reading Space -->
-                <div class="p-10 md:p-20 space-y-20 max-w-6xl mx-auto">
+                <div class="p-5 md:p-20 space-y-10 md:space-y-20 max-w-6xl mx-auto">
                     <!-- Premium Tabs Navigation -->
                     <div class="flex items-center gap-12 border-b border-outline-variant/20">
                         <button 
@@ -637,7 +664,7 @@ onMounted(() => {
                          </div>
 
                          <!-- Interactive Invitation -->
-                         <div class="bg-background rounded-[3.5rem] p-12 border border-outline-variant/30 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
+                         <div class="bg-background rounded-[2rem] md:rounded-[3.5rem] p-6 md:p-12 border border-outline-variant/30 flex flex-col md:flex-row items-center justify-between gap-5 md:gap-8 relative overflow-hidden group">
                              <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"></div>
                              
                              <div class="space-y-3 relative z-10 max-w-2xl">
@@ -652,7 +679,7 @@ onMounted(() => {
                          </div>
                     </div>
 
-                    <div v-show="activeTab === 'resources'" class="animate-in fade-in slide-in-from-bottom-6 duration-700 grid grid-cols-1 md:grid-cols-2 gap-8 pb-32">
+                    <div v-show="activeTab === 'resources'" class="animate-in fade-in slide-in-from-bottom-6 duration-700 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 pb-24 md:pb-32">
                          <template v-if="currentLesson?.materials?.length">
                               <div 
                                 v-for="mat in currentLesson.materials" :key="mat.id" 
@@ -685,15 +712,34 @@ onMounted(() => {
                 </template>
 
                 <!-- Custom Gutter -->
-                <div class="h-32"></div>
+                <div class="h-32 lg:h-32"></div>
+                <!-- Bottom nav spacer (mobile) -->
+                <div class="h-16 lg:hidden"></div>
             </div>
 
-            <!-- Interaction Sidebar (The Modular Control) -->
-            <aside class="w-full lg:w-[460px] bg-background border-l border-outline-variant/20 flex flex-col h-full z-40 relative">
+            <!-- Mobile sidebar backdrop -->
+            <div
+                v-if="mobileSidebarOpen"
+                @click="mobileSidebarOpen = false"
+                class="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity"
+            ></div>
+
+            <!-- Interaction Sidebar: fixed drawer on mobile, inline on desktop -->
+            <aside
+                class="fixed top-0 right-0 h-full z-50 w-[88vw] max-w-sm
+                       lg:relative lg:top-auto lg:right-auto lg:h-full lg:w-[460px] lg:z-40 lg:max-w-none
+                       bg-white lg:bg-background border-l border-outline-variant/20
+                       flex flex-col shadow-2xl lg:shadow-none
+                       transition-transform duration-300 ease-out"
+                :class="mobileSidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'"
+            >
                 
                 <template v-if="activeSidebarTab === 'chat'">
                     <header class="h-24 px-8 border-b border-outline-variant/20 flex items-center justify-between bg-white shadow-sm">
                          <div class="flex items-center gap-4">
+                             <button @click="mobileSidebarOpen = false" class="lg:hidden p-2 bg-background rounded-xl border border-outline-variant/20 mr-1">
+                                 <X class="w-4 h-4 text-on-background" />
+                             </button>
                              <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center border border-primary/10">
                                 <MessageSquare class="w-6 h-6 text-primary" />
                              </div>
@@ -806,7 +852,11 @@ onMounted(() => {
 
                 <template v-else>
                     <!-- Sidebar Tab: Curriculum Meta-Informática -->
-                    <header class="h-48 px-10 flex flex-col justify-center bg-white border-b border-outline-variant/20 relative overflow-hidden">
+                    <header class="h-28 md:h-48 px-6 md:px-10 flex flex-col justify-center bg-white border-b border-outline-variant/20 relative overflow-hidden">
+                         <!-- Mobile close button -->
+                         <button @click="mobileSidebarOpen = false" class="lg:hidden absolute top-4 left-4 z-20 p-2 bg-background rounded-xl border border-outline-variant/20 shadow-sm">
+                             <X class="w-4 h-4 text-on-background" />
+                         </button>
                          <div class="absolute inset-x-0 bottom-0 h-1 bg-background">
                              <div class="h-full bg-[#D4AF37] transition-all duration-1000" :style="{ width: `${(localCompleted.length / allLessonsCount) * 100}%` }"></div>
                          </div>
@@ -942,6 +992,8 @@ onMounted(() => {
             @close="viewingExam = false"
         />
         </div>
+        <BottomNav active="courses" />
+
     </AppLayout>
 </template>
 
