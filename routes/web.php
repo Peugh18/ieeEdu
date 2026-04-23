@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\PublicCourseController;
+use App\Http\Controllers\ConsultancyController;
 
 Route::get('/', [PublicCourseController::class, 'welcome'])->name('home');
 
@@ -16,9 +17,21 @@ Route::get('/publicaciones', [App\Http\Controllers\PublicPublicationController::
 Route::get('/consultoria', function () {
     $banner = \App\Models\Banner::where('section', 'consultoria')->orderBy('order')->first();
     return Inertia::render('Consultoria', [
-        'banner' => $banner,
+        'banner' => $banner ? [
+            'heading'         => $banner->heading,
+            'subheading'      => $banner->subheading,
+            'image_path'      => $banner->image_path,
+            'button_text'     => $banner->button_text,
+            'button_link'     => $banner->button_link,
+            'position'        => $banner->position,
+            'whatsapp_number' => $banner->whatsapp_number,
+            'contact_email'   => $banner->contact_email,
+            'contact_address' => $banner->contact_address,
+        ] : null,
     ]);
 })->name('consultoria');
+
+Route::post('/consultoria/solicitud', [ConsultancyController::class, 'store'])->name('consultoria.store');
 
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 

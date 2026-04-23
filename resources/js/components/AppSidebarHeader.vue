@@ -3,7 +3,6 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItemType } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen } from 'lucide-vue-next';
 
 const props = withDefaults(defineProps<{
     breadcrumbs?: BreadcrumbItemType[];
@@ -19,14 +18,16 @@ const page = usePage();
         class="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-sidebar-border/70 px-6 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 md:px-4 bg-white/80 dark:bg-on-background/90 backdrop-blur-md sticky top-0 z-50 dark:border-[rgba(231,230,171,0.08)]"
     >
         <div class="flex items-center gap-4">
-            <!-- Branding / Logo (Icon Only as requested) -->
-            <Link :href="route('dashboard')" class="flex items-center gap-2 group mr-2">
-                <div class="p-1.5 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-                    <BookOpen class="w-4 h-4 text-primary" />
-                </div>
+            <!-- IEE Logo → Landing page -->
+            <Link :href="route('home')" class="flex items-center group mr-1 shrink-0">
+                <img
+                    src="/images/empresa/IEE-Logo02.png"
+                    alt="Instituto de Economía y Empresa"
+                    class="h-7 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+                />
             </Link>
 
-            <SidebarTrigger class="-ml-1 text-on-surface-variant hover:text-primary transition-colors" />
+            <SidebarTrigger class="-ml-1 hidden lg:flex text-on-surface-variant hover:text-primary transition-colors" />
             <div class="hidden lg:block h-4 w-[1px] bg-outline-variant/30 ml-2"></div>
             <template v-if="props.breadcrumbs.length > 0">
                 <Breadcrumb class="hidden sm:block">

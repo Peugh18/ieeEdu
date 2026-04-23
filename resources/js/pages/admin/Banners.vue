@@ -29,7 +29,7 @@ const defaultBanners = [
         icon: Briefcase,
         isCarousel: false,
         slides: [
-            { section: 'consultoria', order: 1, image_path: null, imagePreview: null, file: null, heading: '', subheading: '', button_text: '', button_link: '', show_text: true }
+            { section: 'consultoria', order: 1, image_path: null, imagePreview: null, file: null, heading: '', subheading: '', button_text: '', button_link: '', show_text: true, whatsapp_number: '', contact_email: '', contact_address: '' }
         ]
     },
     {
@@ -81,6 +81,9 @@ onMounted(() => {
                         button_text: dbb.button_text || '',
                         button_link: dbb.button_link || '',
                         show_text: dbb.show_text !== undefined ? !!dbb.show_text : true,
+                        whatsapp_number: dbb.whatsapp_number || '',
+                        contact_email: dbb.contact_email || '',
+                        contact_address: dbb.contact_address || '',
                     };
                 }
             }
@@ -115,18 +118,27 @@ function triggerUpload() {
     fileInput.value?.click();
 }
 
+// Dimensiones requeridas por sección
+const sectionSpecs = {
+    home:          { minWidth: 1920, minHeight: 700,  idealW: 1920, idealH: 1080, label: '1920×1080px (16:9)' },
+    consultoria:   { minWidth: 1920, minHeight: 560,  idealW: 1920, idealH: 600,  label: '1920×600px (Panorámica)' },
+    masterclass:   { minWidth: 1280, minHeight: 400,  idealW: 1600, idealH: 500,  label: '1600×500px (Tarjeta 16:5)' },
+    cursos:        { minWidth: 1280, minHeight: 400,  idealW: 1600, idealH: 500,  label: '1600×500px (Tarjeta 16:5)' },
+    publicaciones: { minWidth: 1280, minHeight: 400,  idealW: 1600, idealH: 500,  label: '1600×500px (Tarjeta 16:5)' },
+} as Record<string, { minWidth: number; minHeight: number; idealW: number; idealH: number; label: string }>;
+
 const bannerRequirements = computed(() => {
-    if (activeBanner.value?.id === 'home') {
-        return { minWidth: 1280, minHeight: 700, max: 4000 };
-    }
-    return { minWidth: 1280, minHeight: 400, max: 4000 };
+    const spec = sectionSpecs[activeBanner.value?.id ?? ''];
+    return spec
+        ? { minWidth: spec.minWidth, minHeight: spec.minHeight, max: 4000 }
+        : { minWidth: 1280, minHeight: 400, max: 4000 };
 });
 
 const recommendedSpecs = computed(() => {
-    if (activeBanner.value?.id === 'home') {
-        return 'Medidas recomendadas: 1920×1080px (16:9) | Max 5MB';
-    }
-    return 'Medidas recomendadas: 1920×600px (Panorámica) | Max 5MB';
+    const spec = sectionSpecs[activeBanner.value?.id ?? ''];
+    return spec
+        ? `Medidas recomendadas: ${spec.label} | Landscape obligatorio | Max 5MB`
+        : 'Medidas recomendadas: 1920×400px | Max 5MB';
 });
 
 function handleFileChange(event: Event) {
@@ -146,22 +158,62 @@ function handleFileChange(event: Event) {
         
         img.onload = () => {
             const { minWidth, minHeight, max } = bannerRequirements.value;
-            
-            if (img.width < minWidth || img.height < minHeight) {
-                showError(`La resolución de la imagen es muy baja (${img.width}x${img.height}px).\n\nPara garantizar una excelente calidad visual en tu web, se requiere un mínimo de ${minWidth}x${minHeight}px.`);
+            const spec = sectionSpecs[activeBanner.value?.id ?? ''];
+
+            // 1. Verificar orientación: solo se permiten imágenes LANDSCAPE (ancho > alto)
+            if (img.width <= img.height) {
+                const orient = img.width === img.height ? 'cuadrada' : 'vertical (portrait)';
+                showError(
+                    `❌ Imagen ${orient} rechazada (${img.width}×${img.height}px).\n\n` +
+                    `Esta sección requiere una fotografía horizontal (landscape) para lucir bien en el banner.\n` +
+                    `Medida ideal: ${spec?.label ?? '1920×400px'}.`
+                );
                 target.value = '';
                 URL.revokeObjectURL(objectUrl);
-            } else if (img.width > max || img.height > max) {
-                 showError(`La resolución de la imagen es excesiva (${img.width}x${img.height}px).\n\nPara evitar problemas de rendimiento y carga lenta, se permite un máximo de ${max}x${max}px.`);
-                 target.value = '';
-                 URL.revokeObjectURL(objectUrl);
-            } else {
-                // Aprobada
-                errorMessage.value = '';
-                activeSlide.value.file = file;
-                activeSlide.value.imagePreview = objectUrl;
-                target.value = '';
+                return;
             }
+
+            // 2. Verificar ratio mínimo (ancho / alto ≥ 2.0 para banners panorámicos)
+            const ratio = img.width / img.height;
+            if (activeBanner.value?.id !== 'home' && ratio < 2.0) {
+                showError(
+                    `❌ Proporción incorrecta (${img.width}×${img.height}px, ratio ${ratio.toFixed(2)}).\n\n` +
+                    `Los banners panorámicos requieren una imagen muy ancha (ratio ≥ 2:1).\n` +
+                    `Ejemplo correcto: ${spec?.label ?? '1920×400px'}.`
+                );
+                target.value = '';
+                URL.revokeObjectURL(objectUrl);
+                return;
+            }
+
+            // 3. Verificar resolución mínima
+            if (img.width < minWidth || img.height < minHeight) {
+                showError(
+                    `❌ Resolución insuficiente (${img.width}×${img.height}px).\n\n` +
+                    `Se necesita mínimo ${minWidth}×${minHeight}px para esta sección.\n` +
+                    `Ideal: ${spec?.label ?? '1920×400px'}.`
+                );
+                target.value = '';
+                URL.revokeObjectURL(objectUrl);
+                return;
+            }
+
+            // 4. Verificar resolución máxima
+            if (img.width > max || img.height > max) {
+                showError(
+                    `❌ Resolución excesiva (${img.width}×${img.height}px, máximo ${max}×${max}px).\n\n` +
+                    `Reduce la imagen antes de subirla para evitar problemas de rendimiento.`
+                );
+                target.value = '';
+                URL.revokeObjectURL(objectUrl);
+                return;
+            }
+
+            // ✅ Aprobada
+            errorMessage.value = '';
+            activeSlide.value.file = file;
+            activeSlide.value.imagePreview = objectUrl;
+            target.value = '';
         };
         
         img.onerror = () => {
@@ -192,6 +244,11 @@ function saveChanges() {
     formData.append('button_text', activeSlide.value.button_text ?? '');
     formData.append('button_link', activeSlide.value.button_link ?? '');
     formData.append('show_text', activeSlide.value.show_text ? '1' : '0');
+    if (activeBannerId.value === 'consultoria') {
+        formData.append('whatsapp_number', activeSlide.value.whatsapp_number ?? '');
+        formData.append('contact_email', activeSlide.value.contact_email ?? '');
+        formData.append('contact_address', activeSlide.value.contact_address ?? '');
+    }
     
     if (activeSlide.value.file) {
         formData.append('image', activeSlide.value.file);
@@ -402,26 +459,92 @@ function saveChanges() {
                                     placeholder="Escribe la descripción..."></textarea>
                             </div>
 
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-extrabold uppercase tracking-widest ml-2" style="color: var(--elite-text-muted);">Texto del Botón (Opcional)</label>
-                                <div class="relative">
-                                    <Edit3 class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--elite-text-muted);" />
-                                    <input v-model="activeSlide.button_text" type="text" 
-                                        class="w-full h-12 rounded-xl pl-11 pr-4 text-sm font-bold outline-none transition-all border"
-                                        style="background-color: var(--elite-surface-2); border-color: var(--elite-border-strong); color: var(--elite-text);"
-                                        placeholder="Ej: Explorar Cursos" />
+                            <template v-if="activeBannerId === 'home'">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-extrabold uppercase tracking-widest ml-2" style="color: var(--elite-text-muted);">Texto del Botón (Opcional)</label>
+                                    <div class="relative">
+                                        <Edit3 class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--elite-text-muted);" />
+                                        <input v-model="activeSlide.button_text" type="text" 
+                                            class="w-full h-12 rounded-xl pl-11 pr-4 text-sm font-bold outline-none transition-all border"
+                                            style="background-color: var(--elite-surface-2); border-color: var(--elite-border-strong); color: var(--elite-text);"
+                                            placeholder="Ej: Explorar Cursos" />
+                                    </div>
                                 </div>
+
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-extrabold uppercase tracking-widest ml-2" style="color: var(--elite-text-muted);">Enlace del Botón (Opcional)</label>
+                                    <div class="relative">
+                                        <LinkIcon class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--elite-text-muted);" />
+                                        <input v-model="activeSlide.button_link" type="text" 
+                                            class="w-full h-12 rounded-xl pl-11 pr-4 text-sm font-bold outline-none transition-all border"
+                                            style="background-color: var(--elite-surface-2); border-color: var(--elite-border-strong); color: var(--elite-text);"
+                                            placeholder="Ej: /cursos" />
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Datos de contacto (solo para consultoría) -->
+                    <div
+                        v-if="activeBannerId === 'consultoria'"
+                        class="rounded-[2.5rem] p-8 shadow-sm border space-y-6"
+                        style="background-color: var(--elite-surface); border-color: var(--elite-border);"
+                    >
+                        <h3 class="text-xl font-serif flex items-center gap-2" style="color: var(--elite-text);">
+                            <LinkIcon class="w-5 h-5" style="color: var(--elite-olive);" />
+                            Datos de Contacto del Hero
+                            <span class="ml-2 text-xs font-bold uppercase tracking-widest px-2 py-0.5 rounded-lg" style="background-color: var(--elite-surface-2); color: var(--elite-olive);">Solo Consultoría</span>
+                        </h3>
+                        <p class="text-xs font-medium" style="color: var(--elite-text-muted);">
+                            Estos datos aparecerán como accesos rápidos en el hero de la página <strong>/consultoria</strong>. Puedes dejar en blanco los que no desees mostrar.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- WhatsApp -->
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-extrabold uppercase tracking-widest ml-2" style="color: var(--elite-text-muted);">
+                                    Número WhatsApp (solo dígitos con código de país)
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold" style="color: var(--elite-text-muted);">+</span>
+                                    <input
+                                        v-model="activeSlide.whatsapp_number"
+                                        type="text"
+                                        class="w-full h-14 rounded-2xl pl-8 pr-5 text-sm font-bold outline-none transition-all border"
+                                        style="background-color: var(--elite-surface-2); border-color: var(--elite-border-strong); color: var(--elite-text);"
+                                        placeholder="51999000000"
+                                    />
+                                </div>
+                                <p class="text-[10px] pl-2" style="color: var(--elite-text-faint);">Ej: 51961867761 (sin espacios ni guiones)</p>
                             </div>
 
+                            <!-- Email de contacto -->
                             <div class="space-y-2">
-                                <label class="text-[10px] font-extrabold uppercase tracking-widest ml-2" style="color: var(--elite-text-muted);">Enlace del Botón (Opcional)</label>
-                                <div class="relative">
-                                    <LinkIcon class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style="color: var(--elite-text-muted);" />
-                                    <input v-model="activeSlide.button_link" type="text" 
-                                        class="w-full h-12 rounded-xl pl-11 pr-4 text-sm font-bold outline-none transition-all border"
-                                        style="background-color: var(--elite-surface-2); border-color: var(--elite-border-strong); color: var(--elite-text);"
-                                        placeholder="Ej: /cursos" />
-                                </div>
+                                <label class="text-[10px] font-extrabold uppercase tracking-widest ml-2" style="color: var(--elite-text-muted);">
+                                    Correo electrónico de contacto
+                                </label>
+                                <input
+                                    v-model="activeSlide.contact_email"
+                                    type="email"
+                                    class="w-full h-14 rounded-2xl px-5 text-sm font-bold outline-none transition-all border"
+                                    style="background-color: var(--elite-surface-2); border-color: var(--elite-border-strong); color: var(--elite-text);"
+                                    placeholder="info@iee.edu.pe"
+                                />
+                            </div>
+
+                            <!-- Dirección -->
+                            <div class="space-y-2 md:col-span-2">
+                                <label class="text-[10px] font-extrabold uppercase tracking-widest ml-2" style="color: var(--elite-text-muted);">
+                                    Dirección / Ubicación
+                                </label>
+                                <input
+                                    v-model="activeSlide.contact_address"
+                                    type="text"
+                                    class="w-full h-14 rounded-2xl px-5 text-sm font-bold outline-none transition-all border"
+                                    style="background-color: var(--elite-surface-2); border-color: var(--elite-border-strong); color: var(--elite-text);"
+                                    placeholder="Trujillo, La Libertad — Perú"
+                                />
                             </div>
                         </div>
                     </div>

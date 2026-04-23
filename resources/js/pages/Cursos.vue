@@ -23,6 +23,10 @@ const props = defineProps<{
 const searchTerm = ref(props.filters.search || '');
 const selectedModality = ref(props.filters.modality || 'Todos');
 const selectedCategory = ref(props.filters.category || 'Todas las áreas');
+const showFilters = ref(false);
+const tempModality = ref(selectedModality.value);
+const tempSearch = ref(searchTerm.value);
+const tempCategory = ref(selectedCategory.value);
 
 const modalities = ['Todos', 'En vivo', 'Grabado'];
 
@@ -39,7 +43,28 @@ function applyFilters() {
     );
 }
 
-watch([searchTerm, selectedModality, selectedCategory], () => {
+function applyModalFilters() {
+    selectedModality.value = tempModality.value;
+    searchTerm.value = tempSearch.value;
+    selectedCategory.value = tempCategory.value;
+    showFilters.value = false;
+    applyFilters();
+}
+
+function openFilters() {
+    tempModality.value = selectedModality.value;
+    tempSearch.value = searchTerm.value;
+    tempCategory.value = selectedCategory.value;
+    showFilters.value = true;
+}
+
+function clearFilters() {
+    tempModality.value = 'Todos';
+    tempSearch.value = '';
+    tempCategory.value = 'Todas las áreas';
+}
+
+watch([searchTerm, selectedCategory], () => {
     applyFilters();
 });
 
@@ -57,53 +82,181 @@ const breadcrumbs = [
         <div :class="['flex flex-col text-on-background font-sans', !isDashboard ? 'min-h-screen bg-background' : 'bg-transparent']">
             <Navigation v-if="!isDashboard" />
 
-            <main :class="['flex-1 pb-20', isDashboard ? 'p-0' : '']">
-                <!-- Hero Banner -->
-                <div :class="[
-                        'relative py-20 md:py-28 px-6 sm:px-12 text-center mb-12 overflow-hidden flex flex-col justify-center items-center', 
-                        isDashboard ? 'rounded-[2rem] mx-6 mt-6' : '',
-                        !banner?.image_path ? 'bg-surface-container-low' : 'bg-cover bg-center bg-no-repeat'
-                    ]"
-                    :style="banner?.image_path ? `background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url(${banner.image_path}); min-height: 420px;` : ''"
-                >
-                    <!-- Fallback Decoration -->
-                    <div v-if="!banner?.image_path" class="absolute inset-0 pointer-events-none overflow-hidden">
+            <main :class="['flex-1 pb-20', !isDashboard ? 'pt-28 md:pt-28' : 'pt-0']">
+
+                <!-- Hero Banner: Tarjeta Contenida Premium -->
+                <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10">
+                    <!-- Con imagen -->
+                    <div
+                        v-if="banner?.image_path"
+                        :class="['relative overflow-hidden shadow-2xl', isDashboard ? 'rounded-[1.5rem]' : 'rounded-[2rem]']"
+                        style="aspect-ratio: 16 / 5;"
+                    >
+                        <img :src="banner.image_path" alt="Cursos IEE" class="absolute inset-0 w-full h-full object-cover object-center" />
+                        <!-- Overlay izquierdo más denso para legibilidad del texto -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/10"></div>
+
+                        <div v-if="banner.show_text" class="relative z-10 h-full px-10 md:px-14 flex flex-col justify-center">
+                            <div class="max-w-2xl space-y-4">
+                                <span class="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                    Estrategia y Excelencia
+                                </span>
+
+                                <h1 class="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white leading-[1.15] tracking-tight">
+                                    {{ banner.heading || 'Nuestra Oferta Académica' }}
+                                </h1>
+
+                                <p class="text-base text-white/75 max-w-lg font-light leading-relaxed">
+                                    {{ banner.subheading || 'Diplomados diseñados por expertos del sector para impulsar su carrera.' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fallback: sin imagen -->
+                    <div v-else
+                        class="relative overflow-hidden rounded-[2rem] bg-surface-container-low py-20 px-10 md:px-14 flex flex-col justify-center"
+                        style="aspect-ratio: 16 / 5;"
+                    >
                         <div class="absolute -top-20 left-1/4 w-[500px] h-[500px] bg-primary/[0.06] rounded-full blur-[120px]"></div>
                         <div class="absolute -bottom-20 right-1/4 w-[400px] h-[400px] bg-tertiary-container/[0.08] rounded-full blur-[100px]"></div>
-                    </div>
-                    
-                    <!-- Text Content -->
-                    <div v-if="!banner?.image_path || banner.show_text" class="relative z-10 max-w-4xl mx-auto w-full">
-                        <p :class="['text-xs font-bold uppercase tracking-[0.2em] mb-4', banner?.image_path ? 'text-white/70' : 'text-primary']">
-                            Estrategia y Excelencia
-                        </p>
-                        
-                        <h1 v-if="banner?.heading" :class="['text-3xl md:text-5xl lg:text-[54px] font-serif font-bold mb-6 leading-tight tracking-[-0.02em]', banner?.image_path ? 'text-white' : 'text-on-surface']">
-                            {{ banner.heading }}
-                        </h1>
-                        <h1 v-else :class="['text-3xl md:text-5xl lg:text-[54px] font-serif font-bold mb-6 leading-tight tracking-[-0.02em]', banner?.image_path ? 'text-white' : 'text-on-surface']">
-                            Nuestra <span class="italic text-primary">Oferta Académica</span>
-                        </h1>
-                        
-                        <p :class="['text-lg max-w-2xl mx-auto', banner?.image_path ? 'text-white/90' : 'text-on-surface-variant']">
-                            {{ banner?.subheading || 'Invierta en su futuro profesional con diplomados diseñados por expertos en el sector.' }}
-                        </p>
-
-                        <!-- Optional Button from Banner -->
-                        <div v-if="banner?.button_text" class="mt-8 flex justify-center">
-                            <Link :href="banner?.button_link || '#'" class="px-8 py-3.5 rounded-2xl text-sm font-bold uppercase tracking-widest transition-all"
-                                  :class="banner?.image_path ? 'bg-primary text-on-primary hover:bg-primary/90' : 'bg-primary text-on-primary hover:bg-primary/90 shadow-lg'">
-                                {{ banner.button_text }}
-                            </Link>
+                        <div class="relative z-10 max-w-2xl space-y-4">
+                            <p class="text-xs font-bold uppercase tracking-[0.2em] text-primary">Estrategia y Excelencia</p>
+                            <h1 class="text-3xl md:text-5xl lg:text-[54px] font-serif font-bold leading-tight tracking-[-0.02em] text-on-surface">
+                                Nuestra <span class="italic text-primary">Oferta Académica</span>
+                            </h1>
+                            <p class="text-lg text-on-surface-variant">
+                                Invierta en su futuro profesional con diplomados diseñados por expertos.
+                            </p>
                         </div>
                     </div>
                 </div>
 
+
                 <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+
+                    <!-- Mobile Filter Bar -->
+                    <div class="lg:hidden mb-6">
+                        <button
+                            @click="openFilters"
+                            class="w-full flex items-center justify-center gap-2 px-4 py-4 bg-surface-container rounded-2xl border border-outline-variant/20 font-medium"
+                        >
+                            <svg class="w-5 h-5 text-on-surface-variant" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                            </svg>
+                            <span class="text-on-surface">Filtrar</span>
+                            <span v-if="selectedModality !== 'Todos' || searchTerm || selectedCategory !== 'Todas las áreas'" class="ml-2 px-2 py-0.5 bg-primary/10 text-primary text-xs font-bold rounded-full">
+                                {{ [selectedModality !== 'Todos' ? 1 : 0, searchTerm ? 1 : 0, selectedCategory !== 'Todas las áreas' ? 1 : 0].reduce((a,b) => a+b, 0) }}
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Filter Modal (Mobile) -->
+                    <div v-if="showFilters" class="lg:hidden fixed inset-0 z-50" @click.self="showFilters = false">
+                        <div class="absolute inset-x-0 bottom-0 bg-surface-container-low rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto">
+                            <!-- Modal Header -->
+                            <div class="sticky top-0 bg-surface-container-low px-6 py-4 border-b border-outline-variant/10 flex items-center justify-between">
+                                <h3 class="font-bold text-lg">Filtrar cursos</h3>
+                                <button @click="showFilters = false" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="p-6 space-y-6">
+                                <!-- Search -->
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant mb-3 uppercase tracking-wider">Buscar</label>
+                                    <div class="relative">
+                                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                        </svg>
+                                        <input
+                                            v-model="tempSearch"
+                                            type="text"
+                                            placeholder="Buscar cursos..."
+                                            class="w-full pl-12 pr-4 py-3.5 bg-surface-container rounded-2xl border border-outline-variant/20 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                                        >
+                                    </div>
+                                </div>
+
+                                <!-- Modalidad -->
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant mb-3 uppercase tracking-wider">Modalidad</label>
+                                    <div class="space-y-2">
+                                        <button
+                                            v-for="mod in modalities"
+                                            :key="mod"
+                                            @click="tempModality = mod"
+                                            class="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl text-sm font-medium transition-all"
+                                            :class="tempModality === mod ? 'bg-primary text-on-primary shadow-lg' : 'bg-surface-container text-on-surface hover:bg-surface-container-high'"
+                                        >
+                                            <span>{{ mod }}</span>
+                                            <svg v-if="tempModality === mod" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Categories -->
+                                <div>
+                                    <label class="block text-xs font-bold text-on-surface-variant mb-3 uppercase tracking-wider">Categorías</label>
+                                    <div class="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                                        <button
+                                            @click="tempCategory = 'Todas las áreas'"
+                                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all"
+                                            :class="tempCategory === 'Todas las áreas' ? 'bg-primary/10 text-primary font-medium' : 'bg-surface-container text-on-surface hover:bg-surface-container-high'"
+                                        >
+                                            <span>Todas las áreas</span>
+                                            <svg v-if="tempCategory === 'Todas las áreas'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button
+                                            v-for="cat in categories"
+                                            :key="cat.id"
+                                            @click="tempCategory = cat.name"
+                                            class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all"
+                                            :class="tempCategory === cat.name ? 'bg-primary/10 text-primary font-medium' : 'bg-surface-container text-on-surface hover:bg-surface-container-high'"
+                                        >
+                                            <span>{{ cat.name }}</span>
+                                            <svg v-if="tempCategory === cat.name" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Clear Filters -->
+                                <button
+                                    v-if="tempModality !== 'Todos' || tempSearch || tempCategory !== 'Todas las áreas'"
+                                    @click="clearFilters"
+                                    class="w-full py-3 text-sm text-on-surface-variant hover:text-primary transition-colors"
+                                >
+                                    Limpiar filtros
+                                </button>
+                            </div>
+
+                            <!-- Apply Button -->
+                            <div class="sticky bottom-0 bg-surface-container-low p-6 border-t border-outline-variant/10">
+                                <button
+                                    @click="applyModalFilters"
+                                    class="w-full py-4 bg-primary text-on-primary rounded-2xl font-bold text-base shadow-lg hover:shadow-xl transition-all"
+                                >
+                                    Aplicar filtros
+                                </button>
+                            </div>
+                        </div>
+                        <div class="absolute inset-0 bg-black/40 -z-10"></div>
+                    </div>
+
                     <div class="flex flex-col lg:flex-row gap-10">
-                        
-                        <!-- Left Sidebar Filters -->
-                        <aside class="w-full lg:w-72 flex-shrink-0 space-y-10">
+
+                        <!-- Left Sidebar Filters (Desktop only) -->
+                        <aside class="hidden lg:block w-full lg:w-72 flex-shrink-0 space-y-10">
                             <!-- Search -->
                             <div>
                                 <div class="relative flex items-center">

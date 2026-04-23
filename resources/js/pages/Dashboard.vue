@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import BottomNav from '@/components/student/BottomNav.vue';
 import { type BreadcrumbItem } from '@/types';
 import { type SharedData, type User } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/vue3';
@@ -180,7 +181,7 @@ onUnmounted(() => {
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
                 <!-- ══════════ 1. HERO HEADER ══════════ -->
-                <header class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#2C2C15] via-[#3d3d1e] to-[#1a1a0a] p-8 md:p-12 shadow-2xl">
+                <header class="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-[#2C2C15] via-[#3d3d1e] to-[#1a1a0a] p-5 md:p-12 shadow-2xl">
                     <!-- Grid pattern background -->
                     <div class="absolute inset-0 opacity-[0.04]" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"></div>
 
@@ -206,7 +207,7 @@ onUnmounted(() => {
 
                             <div>
                                 <p class="text-white/50 text-sm font-medium mb-1">{{ greeting }},</p>
-                                <h1 class="text-4xl md:text-5xl font-serif font-bold text-white leading-tight">
+                                <h1 class="text-3xl md:text-5xl font-serif font-bold text-white leading-tight">
                                     {{ user.name.split(' ')[0] }}
                                     <span class="text-[#D4AF37]">!</span>
                                 </h1>
@@ -338,52 +339,52 @@ onUnmounted(() => {
                 <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     <!-- Active Courses -->
                     <Link :href="route('student.courses.index')"
-                        class="group bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:shadow-blue-50 hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
+                        class="group bg-white rounded-2xl border border-gray-100 p-4 md:p-6 shadow-sm hover:shadow-lg hover:shadow-blue-50 hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 md:gap-4">
                         <div class="p-3 bg-blue-50 rounded-2xl group-hover:scale-110 transition-transform flex-shrink-0">
                             <BookOpen class="w-6 h-6 text-blue-500" />
                         </div>
                         <div>
-                            <p class="text-3xl font-bold text-gray-900 leading-none">{{ animatedStats.active_courses }}</p>
-                            <p class="text-xs text-gray-400 mt-1 font-medium">Cursos activos</p>
+                            <p class="text-2xl md:text-3xl font-bold text-gray-900 leading-none">{{ animatedStats.active_courses }}</p>
+                            <p class="text-[10px] md:text-xs text-gray-400 mt-1 font-medium">Cursos activos</p>
                         </div>
                         <ChevronRight class="w-4 h-4 text-gray-200 group-hover:text-blue-400 ml-auto transition-colors" />
                     </Link>
 
                     <!-- Upcoming Classes -->
                     <Link :href="route('student.live-classes.index')"
-                        class="group bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:shadow-amber-50 hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
+                        class="group bg-white rounded-2xl border border-gray-100 p-4 md:p-6 shadow-sm hover:shadow-lg hover:shadow-amber-50 hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 md:gap-4">
                         <div class="p-3 bg-amber-50 rounded-2xl group-hover:scale-110 transition-transform flex-shrink-0">
                             <Calendar class="w-6 h-6 text-amber-500" />
                         </div>
                         <div>
-                            <p class="text-3xl font-bold text-gray-900 leading-none">{{ animatedStats.upcoming_classes }}</p>
-                            <p class="text-xs text-gray-400 mt-1 font-medium">Clases próximas</p>
+                            <p class="text-2xl md:text-3xl font-bold text-gray-900 leading-none">{{ animatedStats.upcoming_classes }}</p>
+                            <p class="text-[10px] md:text-xs text-gray-400 mt-1 font-medium">Clases próximas</p>
                         </div>
                         <ChevronRight class="w-4 h-4 text-gray-200 group-hover:text-amber-400 ml-auto transition-colors" />
                     </Link>
 
                     <!-- Available Exams -->
                     <Link :href="route('student.exams.index')"
-                        class="group bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:shadow-purple-50 hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
+                        class="group bg-white rounded-2xl border border-gray-100 p-4 md:p-6 shadow-sm hover:shadow-lg hover:shadow-purple-50 hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 md:gap-4">
                         <div class="p-3 bg-purple-50 rounded-2xl group-hover:scale-110 transition-transform flex-shrink-0">
                             <ClipboardCheck class="w-6 h-6 text-purple-500" />
                         </div>
                         <div>
-                            <p class="text-3xl font-bold text-gray-900 leading-none">{{ animatedStats.available_exams }}</p>
-                            <p class="text-xs text-gray-400 mt-1 font-medium">Evaluaciones</p>
+                            <p class="text-2xl md:text-3xl font-bold text-gray-900 leading-none">{{ animatedStats.available_exams }}</p>
+                            <p class="text-[10px] md:text-xs text-gray-400 mt-1 font-medium">Evaluaciones</p>
                         </div>
                         <ChevronRight class="w-4 h-4 text-gray-200 group-hover:text-purple-400 ml-auto transition-colors" />
                     </Link>
 
                     <!-- Certificates + Score -->
                     <Link :href="route('student.certificates.index')"
-                        class="group bg-gradient-to-br from-primary to-[#3d3d1e] rounded-2xl p-6 shadow-sm hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-1 transition-all duration-300 flex items-center gap-4">
+                        class="group bg-gradient-to-br from-primary to-[#3d3d1e] rounded-2xl p-4 md:p-6 shadow-sm hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 md:gap-4">
                         <div class="p-3 bg-white/10 rounded-2xl group-hover:scale-110 transition-transform flex-shrink-0">
                             <Award class="w-6 h-6 text-[#D4AF37]" />
                         </div>
                         <div>
-                            <p class="text-3xl font-bold text-white leading-none">{{ animatedStats.certificate_count }}</p>
-                            <p class="text-xs text-white/50 mt-1 font-medium">Certificados</p>
+                            <p class="text-2xl md:text-3xl font-bold text-white leading-none">{{ animatedStats.certificate_count }}</p>
+                            <p class="text-[10px] md:text-xs text-white/50 mt-1 font-medium">Certificados</p>
                         </div>
                         <ChevronRight class="w-4 h-4 text-white/20 group-hover:text-[#D4AF37] ml-auto transition-colors" />
                     </Link>
@@ -816,6 +817,7 @@ onUnmounted(() => {
                 </div>
             </Transition>
         </Teleport>
+        <BottomNav active="dashboard" />
     </AppLayout>
 </template>
 
