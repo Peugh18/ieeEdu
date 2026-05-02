@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import BrandLogo from '@/components/BrandLogo.vue';
 import type { BreadcrumbItemType } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
 
@@ -20,26 +21,7 @@ const page = usePage();
         <div class="flex items-center gap-4">
             <!-- IEE Logo → Landing page -->
             <Link :href="route('home')" class="flex items-center group mr-1 shrink-0">
-<<<<<<< HEAD
-                <img
-                    src="/images/empresa/LogoLight.png"
-                    alt="Instituto de Economía y Empresa"
-                    class="h-7 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity"
-                />
-=======
-                    <!-- LogoLight para modo claro -->
-                    <img
-                        src="/images/empresa/LogoLight.png"
-                        alt="Instituto de Economía y Empresa"
-                        class="h-7 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity dark:hidden"
-                    />
-                    <!-- LogoDark para modo oscuro -->
-                    <img
-                        src="/images/empresa/LogoDark.png"
-                        alt="Instituto de Economía y Empresa"
-                        class="h-7 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity hidden dark:block"
-                    />
->>>>>>> e440bec3e970d7e4b779bb19ad8edb8c7f6a3661
+                <BrandLogo imageClass="h-7 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity" />
             </Link>
 
             <SidebarTrigger class="-ml-1 flex text-on-surface-variant hover:text-primary transition-colors" />

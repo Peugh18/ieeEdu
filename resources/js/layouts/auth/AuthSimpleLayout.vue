@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import BrandLogo from '@/components/BrandLogo.vue';
 
 defineProps<{
     title?: string;
@@ -13,18 +14,7 @@ defineProps<{
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col items-center gap-4">
                     <Link :href="route('home')" class="flex flex-col items-center gap-2 font-medium">
-                        <!-- Logo Light (visible en modo claro) -->
-                        <img
-                            src="/images/empresa/LogoLight.png"
-                            alt="Instituto de Economía y Empresa"
-                            class="h-16 w-auto object-contain dark:hidden"
-                        />
-                        <!-- Logo Dark (visible en modo oscuro) -->
-                        <img
-                            src="/images/empresa/LogoDark.png"
-                            alt="Instituto de Economía y Empresa"
-                            class="hidden h-16 w-auto object-contain dark:block"
-                        />
+                        <BrandLogo imageClass="h-16 w-auto object-contain" />
                         <span class="sr-only">{{ title }}</span>
                     </Link>
                     <div class="space-y-2 text-center">

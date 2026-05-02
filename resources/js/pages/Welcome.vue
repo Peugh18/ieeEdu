@@ -4,6 +4,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import HeroSection from '../components/landing/HeroSection.vue';
 import Navigation from '../components/landing/Navigation.vue';
 import CourseCard from '@/components/CourseCard.vue';
+import BrandLogo from '@/components/BrandLogo.vue';
 
 const props = defineProps<{
     dynamicCourses: any[];
@@ -591,14 +592,7 @@ const clientLogos = [
                 <div class="md:hidden space-y-8">
                     <!-- Brand -->
                     <div class="text-center">
-<<<<<<< HEAD
-                        <img src="/images/empresa/LogoDark.png" alt="IEE Instituto" class="h-12 w-auto object-contain mx-auto mb-4" />
-=======
-                    <div class="mb-4">
-                        <img src="/images/empresa/LogoLight.png" alt="IEE Instituto" class="h-12 w-auto object-contain mx-auto block dark:hidden" />
-                        <img src="/images/empresa/LogoDark.png" alt="IEE Instituto" class="h-12 w-auto object-contain mx-auto hidden dark:block" />
-                    </div>
->>>>>>> e440bec3e970d7e4b779bb19ad8edb8c7f6a3661
+                        <BrandLogo imageClass="h-12 w-auto object-contain mx-auto mb-4" />
                         <p class="text-on-surface-variant text-sm leading-relaxed max-w-xs mx-auto">
                             Formamos líderes con visión global desde Trujillo, Perú.
                         </p>
@@ -641,14 +635,7 @@ const clientLogos = [
                 <div class="hidden md:grid grid-cols-4 gap-8 lg:gap-12">
                     <!-- Brand -->
                     <div class="col-span-1">
-<<<<<<< HEAD
-                        <img src="/images/empresa/LogoDark.png" alt="IEE Instituto" class="h-12 w-auto object-contain mb-4" />
-=======
-                    <div class="mb-4">
-                        <img src="/images/empresa/LogoLight.png" alt="IEE Instituto" class="h-12 w-auto object-contain block dark:hidden" />
-                        <img src="/images/empresa/LogoDark.png" alt="IEE Instituto" class="h-12 w-auto object-contain hidden dark:block" />
-                    </div>
->>>>>>> e440bec3e970d7e4b779bb19ad8edb8c7f6a3661
+                        <BrandLogo imageClass="h-12 w-auto object-contain mb-4" />
                         <p class="text-on-surface-variant text-sm leading-relaxed mb-4">
                             Formamos líderes desde Trujillo, Perú. Más de 15 años de trayectoria.
                         </p>

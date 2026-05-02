@@ -5,6 +5,7 @@ import { Link } from '@inertiajs/vue3';
 
 import { useCart } from '@/composables/useCart';
 import CartDrawer from '@/components/CartDrawer.vue';
+import BrandLogo from '@/components/BrandLogo.vue';
 
 const { itemCount, toggleCart } = useCart();
 
@@ -44,13 +45,7 @@ const menuItems = [
         <div class="flex justify-between items-center w-full px-6 md:px-8 py-4 max-w-7xl mx-auto">
             <!-- Logo -->
             <Link href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-<<<<<<< HEAD
-                <img src="/images/empresa/LogoDark.png" alt="IEE Instituto" class="h-14 sm:h-16 w-auto object-contain" />
-=======
-                <!-- Logos dinámicos según el tema -->
-                <img src="/images/empresa/LogoLight.png" alt="IEE Instituto" class="h-14 sm:h-16 w-auto object-contain block dark:hidden" />
-                <img src="/images/empresa/LogoDark.png" alt="IEE Instituto" class="h-14 sm:h-16 w-auto object-contain hidden dark:block" />
->>>>>>> e440bec3e970d7e4b779bb19ad8edb8c7f6a3661
+                <BrandLogo imageClass="h-14 sm:h-16 w-auto object-contain" />
             </Link>
             
             <!-- Desktop Menu -->

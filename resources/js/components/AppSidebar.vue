@@ -15,7 +15,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import AppLogo from '@/components/AppLogo.vue';
+import BrandLogo from '@/components/BrandLogo.vue';
 
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User;
@@ -93,14 +93,9 @@ function logout() {
                             class="iie-logo-full-container transition-all duration-300"
                             :class="state === 'collapsed' ? 'opacity-0 scale-75 -translate-y-4 pointer-events-none absolute' : 'opacity-100 scale-100 translate-y-0'"
                         >
-                            <img
-<<<<<<< HEAD
-                                src="/images/empresa/LogoLight.png"
-=======
-                                src="/images/empresa/LogoDark.png"
->>>>>>> e440bec3e970d7e4b779bb19ad8edb8c7f6a3661
-                                alt="Instituto de Economía y Empresa"
-                                class="iie-logo-img-full"
+                            <BrandLogo 
+                                forceTheme="dark"
+                                imageClass="iie-logo-img-full"
                             />
                             <span class="iie-brand-sub block mt-1">{{ isAdmin ? 'Panel Administrativo' : 'Aula Virtual' }}</span>
                         </div>

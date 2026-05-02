@@ -103,11 +103,7 @@ export function useCart() {
         const firstCourse = cartItems.value[0];
         const imageUrl = firstCourse?.image?.startsWith('http') 
             ? firstCourse.image 
-<<<<<<< HEAD
-            : `${baseUrl}${firstCourse?.image?.startsWith('/') ? '' : '/'}${firstCourse?.image || 'images/empresa/LogoDark.png'}`;
-=======
             : `${baseUrl}${firstCourse?.image?.startsWith('/') ? '' : '/'}${firstCourse?.image || 'images/empresa/LogoLight.png'}`;
->>>>>>> e440bec3e970d7e4b779bb19ad8edb8c7f6a3661
 
         const wav = "\u{1F44B}"; // 👋
         const bx = "\u{1F4DA}"; // 📚

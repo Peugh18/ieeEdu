@@ -2,6 +2,7 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import Navigation from '../components/landing/Navigation.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import BrandLogo from '@/components/BrandLogo.vue';
 import { computed } from 'vue';
 
 const props = defineProps<{
@@ -508,12 +509,7 @@ function submitForm() {
             <footer v-if="!isDashboard" class="bg-surface-container-low border-t border-outline-variant/10">
                 <div class="max-w-7xl mx-auto px-6 lg:px-8 py-10">
                     <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-<<<<<<< HEAD
-                        <img src="/images/empresa/LogoDark.png" alt="IEE" class="h-9 w-auto" />
-=======
-                        <img src="/images/empresa/LogoLight.png" alt="IEE" class="h-9 w-auto dark:hidden" />
-                        <img src="/images/empresa/LogoDark.png" alt="IEE" class="h-9 w-auto hidden dark:block" />
->>>>>>> e440bec3e970d7e4b779bb19ad8edb8c7f6a3661
+                        <BrandLogo imageClass="h-9 w-auto" />
                         <div class="flex gap-6 text-[11px] font-bold text-on-surface-variant uppercase tracking-widest">
                             <Link :href="route('cursos.index')" class="hover:text-primary transition-colors">Cursos</Link>
                             <Link :href="route('publicaciones.index')" class="hover:text-primary transition-colors">Publicaciones</Link>
