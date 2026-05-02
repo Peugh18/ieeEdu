@@ -6,6 +6,9 @@ import {
     DialogContent,
     DialogOverlay,
     DialogPortal,
+    DialogTitle,
+    DialogDescription,
+    VisuallyHidden,
     useForwardPropsEmits,
     type DialogContentEmits,
     type DialogContentProps,
@@ -41,6 +44,10 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits);
             class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
         />
         <DialogContent :class="cn(sheetVariants({ side }), props.class)" v-bind="{ ...forwarded, ...$attrs }">
+            <VisuallyHidden>
+                <DialogTitle>Menú</DialogTitle>
+                <DialogDescription>Opciones de navegación y acciones.</DialogDescription>
+            </VisuallyHidden>
             <slot />
 
             <DialogClose

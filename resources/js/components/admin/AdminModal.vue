@@ -30,11 +30,11 @@ const emit = defineEmits<{
         @click.self="emit('close')"
     >
         <div
-            class="w-full rounded-[2.5rem] bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in slide-in-from-bottom-8 duration-500 dark:bg-on-background"
+            class="w-full rounded-[2.5rem] bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in slide-in-from-bottom-8 duration-500 dark:bg-on-background flex flex-col max-h-[95vh]"
             :class="maxWidth"
         >
             <!-- Header -->
-            <div class="flex items-center justify-between border-b border-on-background/5 px-10 py-8 bg-[#fdfdfc]/50 dark:bg-[#2a2a1a] dark:border-primary-fixed/10">
+            <div class="shrink-0 flex items-center justify-between border-b border-on-background/5 px-6 md:px-10 py-6 md:py-8 bg-[#fdfdfc]/50 dark:bg-[#2a2a1a] dark:border-primary-fixed/10">
                 <div class="space-y-1">
                     <h2 class="font-serif text-3xl font-bold text-on-background leading-none dark:text-primary-fixed">
                         {{ title }} <span class="italic text-primary dark:text-[#b0af7a]">{{ titleAccent }}</span>
@@ -52,12 +52,12 @@ const emit = defineEmits<{
             </div>
 
             <!-- Body slot -->
-            <div class="p-10 space-y-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
+            <div class="p-6 md:p-10 space-y-8 overflow-y-auto custom-scrollbar flex-1">
                 <slot />
             </div>
 
             <!-- Footer -->
-            <div class="flex justify-end gap-6 px-12 py-8 bg-surface-container/50 border-t border-on-background/5 dark:bg-[#2a2a1a] dark:border-primary-fixed/10">
+            <div class="shrink-0 flex justify-end gap-6 px-6 md:px-12 py-6 md:py-8 bg-surface-container/50 border-t border-on-background/5 dark:bg-[#2a2a1a] dark:border-primary-fixed/10">
                 <button
                     @click="emit('close')"
                     class="text-[10px] font-black uppercase tracking-[0.2em] text-on-background/40 hover:text-on-background transition-colors dark:text-primary-fixed/40 dark:hover:text-primary-fixed"

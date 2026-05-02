@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import {
@@ -462,9 +463,9 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
         <!-- Create User Modal -->
         <Teleport to="body">
             <Transition name="modal-bounce">
-                <div v-if="showCreate" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                <div v-if="showCreate" class="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6">
                     <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showCreate = false; createForm.reset()"></div>
-                    <div class="relative w-full max-w-2xl rounded-[3rem] bg-white shadow-2xl overflow-hidden">
+                    <div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] md:rounded-[3rem] bg-white shadow-2xl">
                         <div class="bg-gradient-to-br from-primary to-[#6a6a3b] p-10 text-white relative">
                             <div class="absolute top-0 right-0 p-10 opacity-10">
                                 <UserPlus class="w-32 h-32" />
@@ -533,9 +534,9 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
         <!-- Edit User Modal -->
         <Teleport to="body">
             <Transition name="modal-bounce">
-                <div v-if="showEdit" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                <div v-if="showEdit" class="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6">
                     <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" @click="showEdit = false; editForm.reset()"></div>
-                    <div class="relative w-full max-w-2xl rounded-[3rem] bg-white shadow-2xl overflow-hidden">
+                    <div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] md:rounded-[3rem] bg-white shadow-2xl">
                         <div class="bg-slate-50 p-10 border-b border-slate-100 flex items-center gap-6">
                             <div :class="`w-20 h-20 rounded-[1.5rem] flex items-center justify-center text-3xl font-bold shadow-lg ${avatarColor(editTarget?.id ?? 0)}`">
                                 {{ initials(editTarget?.name ?? '') }}
@@ -601,6 +602,7 @@ const paginationLinks = computed(() => props.users.links?.filter((l: any) => l.u
                 </div>
             </Transition>
         </Teleport>
+        <BottomNav />
     </AppLayout>
 </template>
 

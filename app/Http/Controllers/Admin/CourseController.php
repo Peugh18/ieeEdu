@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\CourseRequest;
 use App\Models\Course;
 use App\Services\CourseService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
@@ -66,7 +67,7 @@ class CourseController extends Controller
     public function edit(Course $course)
     {
         $categories = \App\Models\Category::orderBy('name')->get();
-        $course->load(['modules', 'lessons', 'quizzes.questions.answers', 'quizzes.attempts.user']);
+        $course->load(['modules', 'lessons', 'quizzes.questions.answers']);
 
         return Inertia::render('admin/CourseEditor', [
             'course' => $course,

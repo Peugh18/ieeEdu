@@ -94,7 +94,11 @@ function logout() {
                             :class="state === 'collapsed' ? 'opacity-0 scale-75 -translate-y-4 pointer-events-none absolute' : 'opacity-100 scale-100 translate-y-0'"
                         >
                             <img
+<<<<<<< HEAD
                                 src="/images/empresa/LogoLight.png"
+=======
+                                src="/images/empresa/LogoDark.png"
+>>>>>>> e440bec3e970d7e4b779bb19ad8edb8c7f6a3661
                                 alt="Instituto de Economía y Empresa"
                                 class="iie-logo-img-full"
                             />
@@ -108,7 +112,7 @@ function logout() {
                         >
                             <img
                                 src="/images/empresa/IEE-Logo.png"
-                                alt="IIE Icon"
+                                alt="IEE Icon"
                                 class="iie-logo-icon-img"
                             />
                         </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
 import { computed, ref, onMounted } from 'vue';
 import { 
@@ -154,10 +155,10 @@ onMounted(() => {
 
         <!-- LIST TABLE SECTION -->
         <div class="rounded-[3rem] border border-outline-variant/10 bg-white overflow-hidden shadow-2xl shadow-surface-tint/5 relative z-0">
-            <div class="overflow-x-auto custom-scrollbar">
-                <div class="min-w-[1100px]">
+            <div class="custom-scrollbar">
+                <div>
                     <!-- Table Header -->
-                    <div class="grid grid-cols-12 gap-6 px-12 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-primary/60 bg-surface-container-highest/40 border-b border-outline-variant/10">
+                    <div class="hidden lg:grid grid-cols-12 gap-6 px-12 py-6 text-[11px] font-black uppercase tracking-[0.2em] text-primary/60 bg-surface-container-highest/40 border-b border-outline-variant/10">
                         <div class="col-span-4">Programa Académico</div>
                         <div class="col-span-2">Categoría</div>
                         <div class="col-span-2">Inversión & Metodología</div>
@@ -178,10 +179,10 @@ onMounted(() => {
                         <div
                             v-for="course in props.courses.data"
                             :key="course.id"
-                            class="grid grid-cols-12 gap-6 items-center px-12 py-7 hover:bg-primary/[0.02] transition-colors duration-500 group"
+                            class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center px-6 lg:px-12 py-7 hover:bg-primary/[0.02] transition-colors duration-500 group"
                         >
                             <!-- INFOGRAFÍA (4cols) -->
-                            <div class="col-span-4 flex items-center gap-6 min-w-0">
+                            <div class="col-span-1 lg:col-span-4 flex items-center gap-6 min-w-0">
                                 <div class="h-20 w-28 rounded-3xl overflow-hidden bg-surface-container-low border border-outline-variant/10 flex-shrink-0 relative shadow-inner group-hover:shadow-lg transition-all duration-500">
                                     <img v-if="(course as any).image" :src="(course as any).image" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                     <div v-else class="w-full h-full bg-surface-container-highest flex items-center justify-center">
@@ -200,14 +201,14 @@ onMounted(() => {
                             </div>
 
                             <!-- CATEGORÍA (2cols) -->
-                            <div class="col-span-2">
+                            <div class="col-span-1 lg:col-span-2 flex lg:block justify-center lg:justify-start">
                                 <span class="inline-flex rounded-xl bg-white px-4 py-2 text-[11px] font-black uppercase tracking-widest text-primary border border-outline-variant/20 shadow-sm group-hover:border-primary/30 transition-colors">
                                     {{ course.category?.name || 'General' }}
                                 </span>
                             </div>
 
                             <!-- PRECIO & FORMATO (2cols) -->
-                            <div class="col-span-2 flex flex-col justify-center">
+                            <div class="col-span-1 lg:col-span-2 flex flex-col items-center lg:items-start justify-center">
                                 <span class="font-serif font-black text-[17px] text-on-surface mb-0.5">
                                     <template v-if="course.price > 0">S/ {{ course.price }}</template>
                                     <template v-else><span class="text-primary italic tracking-tight">Acceso Gratuito</span></template>
@@ -219,7 +220,7 @@ onMounted(() => {
                             </div>
 
                             <!-- ESTADO (2cols) -->
-                            <div class="col-span-2 flex justify-center">
+                            <div class="col-span-1 lg:col-span-2 flex justify-center">
                                 <div class="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-white border border-outline-variant/10 shadow-sm w-fit group-hover:shadow-md transition-all duration-500"
                                     :class="{
                                         'border-emerald-500/20 shadow-emerald-500/[0.03]': course.status === 'PUBLICADO',
@@ -252,9 +253,9 @@ onMounted(() => {
                             </div>
 
                             <!-- ACCIONES (2cols) -->
-                            <div class="col-span-2 flex items-center justify-end">
+                            <div class="col-span-1 lg:col-span-2 flex items-center justify-center lg:justify-end">
                                 <!-- Ghost floating action bar -->
-                                <div class="flex items-center bg-surface-container-highest/30 p-2 rounded-2xl border border-transparent group-hover:border-outline-variant/20 group-hover:bg-white group-hover:shadow-xl transition-all duration-700 opacity-40 group-hover:opacity-100 transform group-hover:-translate-x-2">
+                                <div class="flex items-center bg-surface-container-highest/30 p-2 rounded-2xl border border-outline-variant/20 lg:border-transparent group-hover:border-outline-variant/20 group-hover:bg-white group-hover:shadow-xl transition-all duration-700 opacity-100 lg:opacity-40 group-hover:opacity-100 transform lg:group-hover:-translate-x-2">
                                     
                                     <!-- Editar -->
                                     <Link :href="route('admin.courses.edit', course.id)" class="p-3 rounded-xl hover:bg-blue-50 text-on-surface-variant hover:text-blue-600 transition-all hover:scale-110" title="Editar Contenido">
@@ -311,6 +312,7 @@ onMounted(() => {
                 </template>
             </div>
         </div>
+        <BottomNav />
     </AppLayout>
 </template>
 

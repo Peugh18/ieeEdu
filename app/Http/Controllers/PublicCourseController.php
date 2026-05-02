@@ -18,12 +18,17 @@ class PublicCourseController extends Controller
         // Fetch published courses (not masterclasses)
         $query = Course::where('status', 'PUBLICADO')
             ->whereIn('type', ['grabado', 'en vivo', 'hibrido'])
-            ->with('category');
+            ->with('category:id,name')
+            ->select([
+                'id', 'title', 'slug', 'description', 'price', 'sale_price',
+                'type', 'image', 'start_date', 'start_time', 'duration_weeks',
+                'class_hours', 'category_id', 'instructor_name', 'instructor_image'
+            ]);
 
         if (Auth::check()) {
             $user = Auth::user();
             if ($user->hasSubscriptionActive()) {
-                $query->whereRaw('1 = 0');
+                $query->whereIn('id', []); // Force empty result cleanly
             } else {
                 $visibleCourseIds = \App\Models\Enrollment::where('user_id', $user->id)
                     ->visible()

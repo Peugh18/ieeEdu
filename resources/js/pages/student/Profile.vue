@@ -44,8 +44,10 @@ const handleAvatarChange = (e: Event) => {
 const updateProfileData = () => {
     profileForm.post(route('student.profile.custom.update'), {
         preserveScroll: true,
+        forceFormData: true,
         onSuccess: () => {
-            // Updated successfully
+            // Si se subió un avatar, refrescar preview con la URL del server
+            // El prop auth.user se actualizará vía Inertia share
         }
     });
 };
@@ -87,6 +89,7 @@ const tabs = [
                                     <img 
                                         :src="avatarPreview || (authUser.avatar ? '/storage/'+authUser.avatar : `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser.name)}&background=57572A&color=fff`)" 
                                         class="w-24 h-24 rounded-full object-cover border-[6px] border-white shadow-xl bg-surface transition-opacity group-hover:opacity-75"
+                                        @error="($event.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser.name)}&background=57572A&color=fff`"
                                     />
                                     <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                         <div class="bg-black/50 text-white rounded-full p-2">
@@ -185,7 +188,7 @@ const tabs = [
                                         />
                                         <p class="text-xs text-on-surface-variant/70">El email no puede ser modificado aquí.</p>
                                     </div>
-                                    <div class="pt-4">
+                                    <div class="pt-4 flex items-center gap-4">
                                         <button 
                                             type="submit" 
                                             :disabled="profileForm.processing"
@@ -193,6 +196,8 @@ const tabs = [
                                         >
                                             {{ profileForm.processing ? 'Guardando...' : 'Guardar Cambios' }}
                                         </button>
+                                        <span v-if="profileForm.wasSuccessful" class="text-green-600 text-xs font-bold">✓ Guardado
+                                        </span>
                                     </div>
                                 </form>
                             </div>

@@ -20,14 +20,29 @@ const page = usePage();
         <div class="flex items-center gap-4">
             <!-- IEE Logo → Landing page -->
             <Link :href="route('home')" class="flex items-center group mr-1 shrink-0">
+<<<<<<< HEAD
                 <img
                     src="/images/empresa/LogoLight.png"
                     alt="Instituto de Economía y Empresa"
                     class="h-7 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity"
                 />
+=======
+                    <!-- LogoLight para modo claro -->
+                    <img
+                        src="/images/empresa/LogoLight.png"
+                        alt="Instituto de Economía y Empresa"
+                        class="h-7 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity dark:hidden"
+                    />
+                    <!-- LogoDark para modo oscuro -->
+                    <img
+                        src="/images/empresa/LogoDark.png"
+                        alt="Instituto de Economía y Empresa"
+                        class="h-7 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity hidden dark:block"
+                    />
+>>>>>>> e440bec3e970d7e4b779bb19ad8edb8c7f6a3661
             </Link>
 
-            <SidebarTrigger class="-ml-1 hidden lg:flex text-on-surface-variant hover:text-primary transition-colors" />
+            <SidebarTrigger class="-ml-1 flex text-on-surface-variant hover:text-primary transition-colors" />
             <div class="hidden lg:block h-4 w-[1px] bg-outline-variant/30 ml-2"></div>
             <template v-if="props.breadcrumbs.length > 0">
                 <Breadcrumb class="hidden sm:block">
