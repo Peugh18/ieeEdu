@@ -94,7 +94,7 @@ function logout() {
                             :class="state === 'collapsed' ? 'opacity-0 scale-75 -translate-y-4 pointer-events-none absolute' : 'opacity-100 scale-100 translate-y-0'"
                         >
                             <img
-                                src="/images/empresa/IEE-Logo02.png"
+                                src="/images/empresa/LogoLight.png"
                                 alt="Instituto de Economía y Empresa"
                                 class="iie-logo-img-full"
                             />
@@ -288,12 +288,10 @@ function logout() {
     object-position: center;
     display: block;
     margin: 0 auto;
-    filter: brightness(0) invert(1) sepia(0.3) saturate(0.7) hue-rotate(15deg) brightness(0.9);
-    transition: filter 0.35s ease, transform 0.35s ease;
+    transition: transform 0.35s ease;
 }
 
 .iie-sidebar-logo .group:hover .iie-logo-img-full {
-    filter: brightness(0) invert(1) sepia(0.4) saturate(1) hue-rotate(15deg) brightness(1.1);
     transform: scale(1.04);
 }
 

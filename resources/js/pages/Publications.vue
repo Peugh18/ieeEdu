@@ -56,7 +56,7 @@ function formatDate(date: string) {
 
 function getDownloadLink(book: Book) {
     if (book.file_path) return `/storage/${book.file_path}`;
-    return book.download_url;
+    return book.download_url || undefined;
 }
 
 function getArticleDownloadLink(article: Article) {

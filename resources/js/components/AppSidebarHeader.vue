@@ -21,7 +21,7 @@ const page = usePage();
             <!-- IEE Logo → Landing page -->
             <Link :href="route('home')" class="flex items-center group mr-1 shrink-0">
                 <img
-                    src="/images/empresa/IEE-Logo02.png"
+                    src="/images/empresa/LogoLight.png"
                     alt="Instituto de Economía y Empresa"
                     class="h-7 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity"
                 />
