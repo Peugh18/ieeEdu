@@ -25,12 +25,12 @@ const breadcrumbs = [
     { title: 'Consultoría', href: '#' },
 ];
 
-// Datos del hero con fallback
+// Datos del hero
 const heroHeading    = computed(() => props.banner?.heading    || 'Consultoría especializada para el sector empresarial y público');
 const heroSubtitle   = computed(() => props.banner?.subheading || 'Soluciones prácticas, técnicas y basadas en evidencia para impulsar la gestión y competitividad de tu organización.');
 const heroBg         = computed(() => props.banner?.image_path || '/images/landing/consultoria_hero.jpg');
-const heroWhatsapp   = computed(() => props.banner?.whatsapp_number || '51000000000');
-const heroEmail      = computed(() => props.banner?.contact_email    || 'info@iee.edu.pe');
+const heroWhatsapp   = computed(() => props.banner?.whatsapp_number || '51959166911');
+const heroEmail      = computed(() => props.banner?.contact_email    || 'no te olvides cambiar bro');
 const heroAddress    = computed(() => props.banner?.contact_address  || 'Trujillo, La Libertad — Perú');
 const whatsappLink   = computed(() => `https://wa.me/${heroWhatsapp.value}?text=Hola%2C%20me%20interesa%20una%20consultor%C3%ADa%20con%20el%20IEE`);
 

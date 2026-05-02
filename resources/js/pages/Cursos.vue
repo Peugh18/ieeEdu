@@ -64,7 +64,7 @@ function clearFilters() {
     tempCategory.value = 'Todas las áreas';
 }
 
-watch([searchTerm, selectedCategory], () => {
+watch([searchTerm, selectedCategory, selectedModality], () => {
     applyFilters();
 });
 

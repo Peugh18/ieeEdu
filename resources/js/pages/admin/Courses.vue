@@ -57,7 +57,12 @@ function destroy(course: CourseItem) {
 
 function publish(course: CourseItem) {
     const form = useForm({});
-    form.patch(route('admin.courses.publish', { course: course.id }), { preserveState: true });
+    form.patch(route('admin.courses.publish', { course: course.id }), { 
+        preserveState: true,
+        onError: (errors: any) => {
+            if (errors.course) alert(errors.course);
+        }
+    });
 }
 
 function hide(course: CourseItem) {
