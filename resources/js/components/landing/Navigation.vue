@@ -44,7 +44,9 @@ const menuItems = [
         <div class="flex justify-between items-center w-full px-6 md:px-8 py-4 max-w-7xl mx-auto">
             <!-- Logo -->
             <Link href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <img src="/images/empresa/IEE-Logo02.png" alt="IEE Instituto" class="h-14 sm:h-16 w-auto object-contain" />
+                <!-- Logos dinámicos según el tema -->
+                <img src="/images/empresa/LogoLight.png" alt="IEE Instituto" class="h-14 sm:h-16 w-auto object-contain block dark:hidden" />
+                <img src="/images/empresa/LogoDark.png" alt="IEE Instituto" class="h-14 sm:h-16 w-auto object-contain hidden dark:block" />
             </Link>
             
             <!-- Desktop Menu -->

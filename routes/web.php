@@ -31,7 +31,13 @@ Route::get('/consultoria', function () {
     ]);
 })->name('consultoria');
 
-Route::post('/consultoria/solicitud', [ConsultancyController::class, 'store'])->name('consultoria.store');
+Route::post('/consultoria/solicitud', [ConsultancyController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('consultoria.store');
+
+Route::post('/api/leads/whatsapp', [\App\Http\Controllers\WhatsappLeadController::class, 'trackWhatsApp'])
+    ->middleware('throttle:10,1')
+    ->name('api.leads.whatsapp');
 
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 
@@ -56,11 +62,13 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'verified'])->gr
     Route::get('/explore/masterclass', [StudentDashboardController::class, 'exploreMasterclasses'])->name('explore.masterclasses');
     Route::get('/explore/consultoria', [StudentDashboardController::class, 'exploreConsultoria'])->name('explore.consultoria');
 
-    // Lesson Comments
-    Route::post('/comments/{lesson}', [\App\Http\Controllers\Student\LessonCommentController::class, 'store'])->name('comments.store');
-    Route::put('/comments/{comment}', [\App\Http\Controllers\Student\LessonCommentController::class, 'update'])->name('comments.update');
-    Route::delete('/comments/{comment}', [\App\Http\Controllers\Student\LessonCommentController::class, 'destroy'])->name('comments.destroy');
-    Route::post('/comments/{comment}/like', [\App\Http\Controllers\Student\LessonCommentController::class, 'toggleLike'])->name('comments.like');
+    // Lesson Comments (throttled to prevent spam)
+    Route::middleware('throttle:30,1')->group(function () {
+        Route::post('/comments/{lesson}', [\App\Http\Controllers\Student\LessonCommentController::class, 'store'])->name('comments.store');
+        Route::put('/comments/{comment}', [\App\Http\Controllers\Student\LessonCommentController::class, 'update'])->name('comments.update');
+        Route::delete('/comments/{comment}', [\App\Http\Controllers\Student\LessonCommentController::class, 'destroy'])->name('comments.destroy');
+        Route::post('/comments/{comment}/like', [\App\Http\Controllers\Student\LessonCommentController::class, 'toggleLike'])->name('comments.like');
+    });
 
     // Perfil Avanzado
     Route::get('/perfil', [StudentDashboardController::class, 'profile'])->name('profile.index');

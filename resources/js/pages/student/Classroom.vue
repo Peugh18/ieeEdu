@@ -182,9 +182,7 @@ const breadcrumbs = computed(() => [
 const activeSidebarTab = ref<'curriculum' | 'chat' | 'comments'>('curriculum');
 const mobileSidebarOpen = ref(false);
 const now = ref(new Date());
-setInterval(() => {
-    now.value = new Date();
-}, 1000);
+let nowInterval: ReturnType<typeof setInterval> | null = null;
 
 // Helper to parse Laravel dates safely regardless of timezone suffixes
 const parseSafeDate = (dateStr: string) => {
@@ -370,6 +368,7 @@ watch(() => props.allLessonsCompleted, (newVal) => {
 
 onUnmounted(() => {
     if (timerInterval) clearInterval(timerInterval);
+    if (nowInterval) clearInterval(nowInterval);
 });
 
 onMounted(() => {
@@ -410,9 +409,10 @@ onMounted(() => {
                     iv_load_policy: 3, 
                     modestbranding: 1,
                     controls: 0,
-                    disablekb: 1,
-                    fs: 0,
+                    // disablekb eliminado: permite control de volumen con botones físicos del dispositivo
+                    fs: 1,
                     enablejsapi: 1,
+                    playsinline: 1,
                     origin: window.location.origin
                 }
             });
@@ -429,6 +429,11 @@ onMounted(() => {
                 });
             }
         });
+
+        // Start live clock
+        nowInterval = setInterval(() => {
+            now.value = new Date();
+        }, 1000);
     };
     document.head.appendChild(script);
 
@@ -485,11 +490,24 @@ onMounted(() => {
                     </Link>
                 </div>
                 
-                <!-- Mobile: open sidebar drawer -->
-                 <button @click="mobileSidebarOpen = true" class="sm:hidden p-2.5 bg-primary text-white rounded-xl shadow-lg">
-                     <ListVideo class="w-4 h-4" v-if="activeSidebarTab === 'chat'" />
-                     <MessageSquare class="w-4 h-4" v-else />
-                 </button>
+                <!-- Mobile: open sidebar drawer (two buttons: curriculum and chat) -->
+                <div class="sm:hidden flex items-center gap-2">
+                    <button 
+                        @click="activeSidebarTab = 'curriculum'; mobileSidebarOpen = true" 
+                        class="p-2.5 bg-background border border-outline-variant/20 rounded-xl shadow-sm active:scale-95 transition-all"
+                        title="Ver módulos"
+                    >
+                        <ListVideo class="w-4 h-4 text-on-surface-variant" />
+                    </button>
+                    <button 
+                        @click="activeSidebarTab = 'chat'; mobileSidebarOpen = true" 
+                        class="p-2.5 bg-primary text-white rounded-xl shadow-lg active:scale-95 transition-all relative"
+                        title="Abrir foro"
+                    >
+                        <MessageSquare class="w-4 h-4" />
+                        <span v-if="comments.length > 0" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center">{{ comments.length }}</span>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -612,27 +630,34 @@ onMounted(() => {
                     </template>
                 </div>
 
-                <!-- Mobile Prev/Next Navigation Bar -->
-                <div class="sm:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-outline-variant/10 sticky top-0 z-10 shadow-sm">
+                <!-- Mobile Prev/Next Navigation Bar (sticky, compact) -->
+                <div class="sm:hidden flex items-center bg-white border-b border-outline-variant/10 sticky top-0 z-10 shadow-sm">
+                    <!-- Previous -->
                     <Link
                         v-if="prevLessonId"
                         :href="route('student.classroom', { course: course.slug, lesson: prevLessonId })"
-                        class="flex items-center gap-2 px-4 py-2.5 bg-background border border-outline-variant/20 rounded-xl text-[11px] font-black uppercase tracking-widest text-primary active:scale-95 transition-all"
+                        class="flex-1 flex items-center justify-center gap-1.5 py-3 text-[11px] font-black uppercase tracking-widest text-primary active:bg-primary/5 transition-all border-r border-outline-variant/10"
                     >
                         <ChevronLeft class="w-4 h-4" /> Anterior
                     </Link>
-                    <span v-else class="px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-outline-variant/30">Anterior</span>
+                    <span v-else class="flex-1 flex items-center justify-center gap-1.5 py-3 text-[11px] font-black uppercase tracking-widest text-outline-variant/30 border-r border-outline-variant/10">
+                        <ChevronLeft class="w-4 h-4" /> Anterior
+                    </span>
 
-                    <span class="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest">{{ currentLessonIndex }}/{{ allLessonsCount }}</span>
+                    <!-- Center: lesson count -->
+                    <span class="px-4 py-3 text-[10px] font-black text-on-surface-variant/50 uppercase tracking-widest whitespace-nowrap border-r border-outline-variant/10">{{ currentLessonIndex }}/{{ allLessonsCount }}</span>
 
+                    <!-- Next -->
                     <Link
                         v-if="nextLessonId"
                         :href="route('student.classroom', { course: course.slug, lesson: nextLessonId })"
-                        class="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                        class="flex-1 flex items-center justify-center gap-1.5 py-3 bg-primary text-white text-[11px] font-black uppercase tracking-widest active:opacity-80 transition-all"
                     >
                         Siguiente <ChevronRight class="w-4 h-4" />
                     </Link>
-                    <span v-else class="px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-outline-variant/30">Siguiente</span>
+                    <span v-else class="flex-1 flex items-center justify-center gap-1.5 py-3 text-[11px] font-black uppercase tracking-widest text-outline-variant/30">
+                        Siguiente <ChevronRight class="w-4 h-4" />
+                    </span>
                 </div>
 
                 <!-- Info Details: The Reading Space -->
@@ -667,12 +692,15 @@ onMounted(() => {
                          <div class="bg-background rounded-[2rem] md:rounded-[3.5rem] p-6 md:p-12 border border-outline-variant/30 flex flex-col md:flex-row items-center justify-between gap-5 md:gap-8 relative overflow-hidden group">
                              <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors"></div>
                              
-                             <div class="space-y-3 relative z-10 max-w-2xl">
-                                 <h3 class="text-primary font-serif font-bold text-2xl italic tracking-tight">¿Desea profundizar en algún punto?</h3>
-                                 <p class="text-on-surface-variant/80 text-lg font-serif italic leading-relaxed">Le invitamos a participar en el foro académico de esta sesión. Sus aportes enriquecen la comunidad estudiantil del Instituto IEE.</p>
+                         <div class="space-y-3 relative z-10 max-w-2xl">
+                                 <h3 class="text-primary font-serif font-bold text-xl md:text-2xl italic tracking-tight">¿Desea profundizar en algún punto?</h3>
+                                 <p class="text-on-surface-variant/80 text-base md:text-lg font-serif italic leading-relaxed">Le invitamos a participar en el foro académico de esta sesión. Sus aportes enriquecen la comunidad estudiantil del Instituto IEE.</p>
                              </div>
-                             <div class="relative z-10">
-                                 <button @click="activeSidebarTab = 'chat'" class="px-10 py-5 bg-primary text-white rounded-2xl font-black text-[12px] uppercase tracking-[0.25em] shadow-2xl shadow-primary/20 hover:bg-on-background transform hover:-translate-y-2 transition-all active:scale-95 whitespace-nowrap">
+                             <div class="relative z-10 w-full md:w-auto">
+                                 <button 
+                                     @click="activeSidebarTab = 'chat'; mobileSidebarOpen = true"
+                                     class="w-full md:w-auto px-8 py-4 md:px-10 md:py-5 bg-primary text-white rounded-2xl font-black text-[12px] uppercase tracking-[0.25em] shadow-2xl shadow-primary/20 hover:bg-on-background transform hover:-translate-y-2 transition-all active:scale-95 whitespace-nowrap"
+                                 >
                                      Dialogar con el Mentor
                                  </button>
                              </div>
@@ -711,10 +739,19 @@ onMounted(() => {
                 </div>
                 </template>
 
-                <!-- Custom Gutter -->
-                <div class="h-32 lg:h-32"></div>
+                <!-- Spacers -->
+                <div class="h-20 lg:h-32"></div>
                 <!-- Bottom nav spacer (mobile) -->
-                <div class="h-16 lg:hidden"></div>
+                <div class="h-24 lg:hidden"></div>
+
+                <!-- Mobile FAB: Floating Comments Button -->
+                <button
+                    @click="activeSidebarTab = 'chat'; mobileSidebarOpen = true"
+                    class="lg:hidden fixed bottom-20 right-4 z-30 w-14 h-14 bg-primary text-white rounded-2xl shadow-2xl shadow-primary/30 flex items-center justify-center active:scale-90 transition-all relative"
+                >
+                    <MessageSquare class="w-6 h-6" />
+                    <span v-if="comments.length > 0" class="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center">{{ comments.length }}</span>
+                </button>
             </div>
 
             <!-- Mobile sidebar backdrop -->
@@ -726,7 +763,7 @@ onMounted(() => {
 
             <!-- Interaction Sidebar: fixed drawer on mobile, inline on desktop -->
             <aside
-                class="fixed top-0 right-0 h-full z-50 w-[88vw] max-w-sm
+                class="fixed top-0 right-0 h-[100dvh] z-50 w-[92vw] max-w-sm
                        lg:relative lg:top-auto lg:right-auto lg:h-full lg:w-[460px] lg:z-40 lg:max-w-none
                        bg-white lg:bg-background border-l border-outline-variant/20
                        flex flex-col shadow-2xl lg:shadow-none
@@ -735,21 +772,22 @@ onMounted(() => {
             >
                 
                 <template v-if="activeSidebarTab === 'chat'">
-                    <header class="h-24 px-8 border-b border-outline-variant/20 flex items-center justify-between bg-white shadow-sm">
-                         <div class="flex items-center gap-4">
-                             <button @click="mobileSidebarOpen = false" class="lg:hidden p-2 bg-background rounded-xl border border-outline-variant/20 mr-1">
+                    <!-- Foro header: compact on mobile -->
+                    <header class="flex-shrink-0 px-4 md:px-8 py-3 md:py-5 border-b border-outline-variant/20 flex items-center justify-between bg-white shadow-sm">
+                         <div class="flex items-center gap-3">
+                             <button @click="mobileSidebarOpen = false" class="lg:hidden p-2 bg-background rounded-xl border border-outline-variant/20 active:scale-90 transition-all">
                                  <X class="w-4 h-4 text-on-background" />
                              </button>
-                             <div class="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center border border-primary/10">
-                                <MessageSquare class="w-6 h-6 text-primary" />
+                             <div class="w-9 h-9 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-primary/5 flex items-center justify-center border border-primary/10">
+                                <MessageSquare class="w-4 h-4 md:w-6 md:h-6 text-primary" />
                              </div>
                              <div>
-                                <h3 class="text-sm font-black uppercase tracking-[0.15em] text-on-background">Foro Académico</h3>
-                                <p class="text-[10px] text-on-surface-variant/40 font-bold">{{ comments.length }} aportes científicos</p>
+                                <h3 class="text-xs md:text-sm font-black uppercase tracking-[0.15em] text-on-background">Foro Académico</h3>
+                                <p class="text-[9px] text-on-surface-variant/40 font-bold">{{ comments.length }} comentarios</p>
                              </div>
                          </div>
-                         <button @click="activeSidebarTab = 'curriculum'" class="p-3 hover:bg-surface-container-highest rounded-2xl transition-all">
-                            <AlertCircle class="w-5 h-5 text-outline-variant" />
+                         <button @click="activeSidebarTab = 'curriculum'" class="p-2 md:p-3 hover:bg-surface-container-highest rounded-xl md:rounded-2xl transition-all">
+                            <ListVideo class="w-4 h-4 md:w-5 md:h-5 text-outline-variant" />
                          </button>
                     </header>
 
@@ -763,8 +801,9 @@ onMounted(() => {
                                  </div>
                                  <textarea 
                                     v-model="newComment"
-                                    :placeholder="replyingTo ? 'Escriba su respuesta técnica...' : 'Inicie una consulta académica con sus pares y mentores...'"
-                                    class="w-full bg-transparent border-none p-0 text-base placeholder:text-on-surface-variant/30 focus:ring-0 min-h-[120px] resize-none font-serif italic leading-relaxed"
+                                    :placeholder="replyingTo ? 'Escriba su respuesta...' : 'Escribe tu consulta aquí...'"
+                                    class="w-full bg-transparent border-none p-0 text-base placeholder:text-on-surface-variant/30 focus:ring-0 min-h-[100px] md:min-h-[120px] resize-none font-serif italic leading-relaxed"
+                                    @focus="($event.target as HTMLElement)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })"
                                  ></textarea>
                                  <div class="flex items-center justify-between pt-6 border-t border-background">
                                      <div class="flex items-center gap-2">
@@ -786,8 +825,15 @@ onMounted(() => {
                                     <div class="p-8 bg-white border border-outline-variant/20 rounded-[3rem] space-y-6 hover:border-primary/30 transition-all group shadow-sm">
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center gap-4">
-                                                <div class="w-14 h-14 rounded-2xl bg-background border border-outline-variant/30 flex items-center justify-center text-lg font-serif font-bold text-primary italic">
-                                                    {{ c.user.name.charAt(0) }}
+                                                <div class="w-14 h-14 rounded-2xl bg-background border border-outline-variant/30 overflow-hidden flex items-center justify-center text-lg font-serif font-bold text-primary italic flex-shrink-0">
+                                                    <img 
+                                                        v-if="c.user.avatar"
+                                                        :src="'/storage/' + c.user.avatar"
+                                                        :alt="c.user.name"
+                                                        class="w-full h-full object-cover"
+                                                        @error="($event.target as HTMLImageElement).style.display='none'"
+                                                    />
+                                                    <span v-else>{{ c.user.name.charAt(0) }}</span>
                                                 </div>
                                                 <div>
                                                     <p class="text-[13px] font-bold text-on-background flex items-center gap-2">
@@ -1044,10 +1090,11 @@ iframe {
     padding-bottom: 0 !important;
 }
 
-/* Institutional Video Polish: Push away context UI */
+/* Institutional Video Polish */
 :deep(.plyr iframe) {
-    pointer-events: none !important;
-    transform: scale(1.4) !important;
+    /* pointer-events habilitados: necesario para controles nativos de volumen en móvil */
+    pointer-events: auto;
+    /* Sin escala que cubra los controles en mobile */
 }
 
 :deep(.plyr__poster) {
