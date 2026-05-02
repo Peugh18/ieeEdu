@@ -210,7 +210,8 @@ const selectedSub = ref<Subscription | null>(null);
 
             <!-- ── Table ──────────────────────────────────────────── -->
             <div class="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden relative">
-                <table class="w-full text-left">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left min-w-[900px]">
                     <thead class="bg-slate-50/80 border-b border-slate-100">
                         <tr>
                             <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Estudiante / Cuenta</th>
@@ -289,7 +290,8 @@ const selectedSub = ref<Subscription | null>(null);
                             </td>
                         </tr>
                     </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
 
             <!-- ── Pagination ─────────────────────────────────────── -->
@@ -316,7 +318,7 @@ const selectedSub = ref<Subscription | null>(null);
             <Transition name="modal-bounce">
                 <div v-if="showAddModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" @click.self="showAddModal = false">
                     <div class="w-full max-w-xl rounded-[2.5rem] bg-white shadow-2xl overflow-hidden flex flex-col transition-all max-h-[95vh]">
-                        <div class="bg-[#1a1a1a] p-10 text-white relative">
+                        <div class="bg-[#1a1a1a] p-10 text-white relative shrink-0">
                             <div class="absolute top-0 right-0 p-10 opacity-10"><Crown class="w-24 h-24" /></div>
                             <h2 class="font-serif text-3xl">Activar <span class="italic underline decoration-amber-500 underline-offset-8">Suscripción</span></h2>
                             <p class="mt-4 text-slate-400 text-xs font-bold uppercase tracking-[0.2em]">Habilita el acceso total a la plataforma</p>

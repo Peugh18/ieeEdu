@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, watch, nextTick } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
+import BottomNav from '@/components/student/BottomNav.vue';
 import { Head } from '@inertiajs/vue3';
 import {
     Chart, CategoryScale, LinearScale, BarElement, PointElement,
@@ -256,7 +257,7 @@ watch(period, () => buildChart());
 
     <AppLayout>
         <div class="min-h-screen bg-background dark:bg-[#141410] font-sans">
-            <div class="max-w-[1700px] mx-auto px-6 lg:px-14 py-12 space-y-14">
+            <div class="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-14 py-6 md:py-12 space-y-8 md:space-y-14">
 
                 <!-- ══════════════════════════════════════════════════════
                      CABECERA
@@ -267,7 +268,7 @@ watch(period, () => buildChart());
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                             <span class="text-[10px] tracking-[0.3em] font-black uppercase text-primary/60">Panel de Inteligencia · iieEdu</span>
                         </div>
-                        <h1 class="font-serif text-5xl lg:text-6xl text-gray-900 leading-none tracking-tight">
+                        <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl text-gray-900 leading-none tracking-tight">
                             Dashboard <span class="italic text-primary">Administrativo</span>
                         </h1>
                         <p class="text-gray-400 text-sm max-w-xl">Métricas en tiempo real de ingresos, suscripciones, cursos, libros y engagement estudiantil.</p>
@@ -293,9 +294,9 @@ watch(period, () => buildChart());
                         <h2 class="text-[11px] font-black uppercase tracking-[0.25em] text-gray-400">Flujos de Ingresos</h2>
                     </div>
 
-                    <div class="grid gap-6 sm:grid-cols-3">
+                    <div class="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-3">
                         <!-- Total -->
-                        <article class="relative bg-on-background dark:bg-primary rounded-[2.5rem] p-9 overflow-hidden group hover:scale-[1.01] transition-all shadow-2xl">
+                        <article class="relative bg-on-background dark:bg-primary rounded-[2.5rem] p-6 md:p-9 overflow-hidden group hover:scale-[1.01] transition-all shadow-2xl">
                             <div class="relative z-10 space-y-8">
                                 <div class="flex items-center justify-between">
                                     <div class="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-primary-fixed">
@@ -313,7 +314,7 @@ watch(period, () => buildChart());
                         </article>
 
                         <!-- Suscripciones -->
-                        <article class="relative bg-white rounded-[2.5rem] p-9 border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:scale-[1.01] transition-all">
+                        <article class="relative bg-white rounded-[2.5rem] p-6 md:p-9 border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:scale-[1.01] transition-all">
                             <div class="relative z-10 space-y-8">
                                 <div class="flex items-center justify-between">
                                     <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
@@ -339,7 +340,7 @@ watch(period, () => buildChart());
                         </article>
 
                         <!-- Cursos -->
-                        <article class="relative bg-white rounded-[2.5rem] p-9 border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:scale-[1.01] transition-all">
+                        <article class="relative bg-white rounded-[2.5rem] p-6 md:p-9 border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:scale-[1.01] transition-all">
                             <div class="relative z-10 space-y-8">
                                 <div class="flex items-center justify-between">
                                     <div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600">
@@ -378,51 +379,51 @@ watch(period, () => buildChart());
                     <div class="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
 
                         <!-- Alumnos activos -->
-                        <article class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-3">
+                        <article class="bg-white rounded-2xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-2 md:gap-3">
                             <UserCheck class="w-5 h-5 text-emerald-500" />
-                            <span class="text-3xl font-serif font-black text-gray-900 tabular-nums">{{ props.stats.activeUsers }}</span>
+                            <span class="text-2xl md:text-3xl font-serif font-black text-gray-900 tabular-nums">{{ props.stats.activeUsers }}</span>
                             <span class="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-tight">Alumnos Activos</span>
                         </article>
 
                         <!-- Alumnos inactivos -->
-                        <article class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-3">
+                        <article class="bg-white rounded-2xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-2 md:gap-3">
                             <UserX class="w-5 h-5 text-red-400" />
-                            <span class="text-3xl font-serif font-black text-gray-900 tabular-nums">{{ props.stats.inactiveUsers }}</span>
+                            <span class="text-2xl md:text-3xl font-serif font-black text-gray-900 tabular-nums">{{ props.stats.inactiveUsers }}</span>
                             <span class="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-tight">Inactivos</span>
                         </article>
 
                         <!-- Premium -->
-                        <article class="bg-primary rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col gap-3 group hover:scale-105">
+                        <article class="bg-primary rounded-2xl p-4 md:p-6 shadow-sm hover:shadow-md transition-all flex flex-col gap-2 md:gap-3 group hover:scale-105">
                             <Crown class="w-5 h-5 text-primary-fixed" />
-                            <span class="text-3xl font-serif font-black text-primary-fixed tabular-nums">{{ props.stats.premiumUsers }}</span>
+                            <span class="text-2xl md:text-3xl font-serif font-black text-primary-fixed tabular-nums">{{ props.stats.premiumUsers }}</span>
                             <span class="text-[9px] font-black uppercase tracking-widest text-primary-fixed/60 leading-tight">Usuarios Premium</span>
                         </article>
 
                         <!-- Nuevos este mes -->
-                        <article class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-3">
+                        <article class="bg-white rounded-2xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-2 md:gap-3">
                             <ArrowUpRight class="w-5 h-5 text-blue-400" />
-                            <span class="text-3xl font-serif font-black text-gray-900 tabular-nums">{{ props.stats.newUsersThisMonth }}</span>
+                            <span class="text-2xl md:text-3xl font-serif font-black text-gray-900 tabular-nums">{{ props.stats.newUsersThisMonth }}</span>
                             <span class="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-tight">Nuevos este mes</span>
                         </article>
 
                         <!-- Pagos pendientes -->
-                        <article class="bg-white rounded-2xl p-6 border border-orange-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-3">
+                        <article class="bg-white rounded-2xl p-4 md:p-6 border border-orange-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-2 md:gap-3">
                             <Clock class="w-5 h-5 text-orange-400" />
-                            <span class="text-3xl font-serif font-black text-orange-500 tabular-nums">{{ props.stats.pendingPayments }}</span>
+                            <span class="text-2xl md:text-3xl font-serif font-black text-orange-500 tabular-nums">{{ props.stats.pendingPayments }}</span>
                             <span class="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-tight">Pagos Pendientes</span>
                         </article>
 
                         <!-- Certificados -->
-                        <article class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-3">
+                        <article class="bg-white rounded-2xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-2 md:gap-3">
                             <Award class="w-5 h-5 text-purple-400" />
-                            <span class="text-3xl font-serif font-black text-gray-900 tabular-nums">{{ props.stats.certificatesIssued }}</span>
+                            <span class="text-2xl md:text-3xl font-serif font-black text-gray-900 tabular-nums">{{ props.stats.certificatesIssued }}</span>
                             <span class="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-tight">Certificados Emitidos</span>
                         </article>
 
                         <!-- WhatsApp Leads -->
-                        <article class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-3">
+                        <article class="bg-white rounded-2xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col gap-2 md:gap-3">
                             <MessageCircle class="w-5 h-5 text-green-500" />
-                            <span class="text-3xl font-serif font-black text-gray-900 tabular-nums">{{ props.stats.whatsappLeadsMonth }}</span>
+                            <span class="text-2xl md:text-3xl font-serif font-black text-gray-900 tabular-nums">{{ props.stats.whatsappLeadsMonth }}</span>
                             <span class="text-[9px] font-black uppercase tracking-widest text-gray-400 leading-tight">Leads WhatsApp / mes</span>
                         </article>
 
@@ -435,13 +436,13 @@ watch(period, () => buildChart());
                 <section class="grid gap-8 xl:grid-cols-3">
 
                     <!-- Gráfica de Ingresos -->
-                    <article class="xl:col-span-2 bg-white rounded-[3rem] p-10 border border-gray-100 shadow-sm flex flex-col gap-8">
-                        <header class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <article class="xl:col-span-2 bg-white rounded-[2rem] md:rounded-[3rem] p-5 md:p-10 border border-gray-100 shadow-sm flex flex-col gap-6 md:gap-8 overflow-hidden">
+                        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
                             <div class="space-y-1">
-                                <h3 class="font-serif text-2xl font-bold text-gray-900">Evolución de Ingresos</h3>
+                                <h3 class="font-serif text-xl md:text-2xl font-bold text-gray-900">Evolución de Ingresos</h3>
                                 <p class="text-[12px] text-gray-400 font-medium">Facturación Total · Membresías · Cursos Individuales</p>
                             </div>
-                            <div class="flex items-center bg-gray-50 p-1.5 rounded-2xl border border-gray-100 self-start shrink-0">
+                            <div class="flex items-center bg-gray-50 p-1.5 rounded-2xl border border-gray-100 self-start shrink-0 overflow-x-auto max-w-full custom-scrollbar">
                                 <button v-for="(label, key) in periodLabels" :key="key"
                                     type="button"
                                     @click="period = key as any"
@@ -462,7 +463,7 @@ watch(period, () => buildChart());
                     <div class="flex flex-col gap-6">
 
                         <!-- Composición de Ingresos -->
-                        <article class="bg-surface-dim rounded-[2.5rem] p-9 border border-primary/10 space-y-8 flex-1">
+                        <article class="bg-surface-dim rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-9 border border-primary/10 space-y-6 md:space-y-8 flex-1">
                             <h3 class="font-serif text-lg font-bold text-gray-900 italic">Composición de Caja</h3>
 
                             <div class="space-y-6">
@@ -507,7 +508,7 @@ watch(period, () => buildChart());
                         </article>
 
                         <!-- Insight Inteligente -->
-                        <article class="bg-primary rounded-[2.5rem] p-8 text-white flex gap-5 items-start group">
+                        <article class="bg-primary rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 text-white flex gap-5 items-start group">
                             <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
                                 <Lightbulb class="w-6 h-6 text-primary-fixed" />
                             </div>
@@ -526,7 +527,7 @@ watch(period, () => buildChart());
                 <section class="grid gap-8 xl:grid-cols-3">
 
                     <!-- Top Cursos por Ventas -->
-                    <article class="xl:col-span-2 bg-white rounded-[3rem] p-10 border border-gray-100 shadow-sm space-y-8">
+                    <article class="xl:col-span-2 bg-white rounded-[2rem] md:rounded-[3rem] p-5 md:p-10 border border-gray-100 shadow-sm space-y-6 md:space-y-8 overflow-hidden">
                         <header class="flex items-center justify-between">
                             <div class="space-y-1">
                                 <h3 class="font-serif text-2xl font-bold text-gray-900">Top Cursos · Ranking de Ventas</h3>
@@ -582,7 +583,7 @@ watch(period, () => buildChart());
                     <!-- Inventario de Contenidos -->
                     <div class="flex flex-col gap-6">
                         <!-- Cursos -->
-                        <article class="bg-primary-fixed/30 rounded-[2.5rem] p-9 border border-primary/10 space-y-6">
+                        <article class="bg-primary-fixed/30 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-9 border border-primary/10 space-y-6">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-fixed">
                                     <Video class="w-5 h-5" />
@@ -610,7 +611,7 @@ watch(period, () => buildChart());
                         </article>
 
                         <!-- Libros -->
-                        <article class="bg-white rounded-[2.5rem] p-9 border border-gray-100 shadow-sm space-y-6">
+                        <article class="bg-white rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-9 border border-gray-100 shadow-sm space-y-6">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
                                     <BookOpen class="w-5 h-5" />
@@ -643,7 +644,7 @@ watch(period, () => buildChart());
                     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
 
                         <!-- Tasa de Aprobación (donut visual) -->
-                        <article class="bg-white rounded-[2.5rem] p-9 border border-gray-100 shadow-sm flex flex-col items-center gap-6 text-center">
+                        <article class="bg-white rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-9 border border-gray-100 shadow-sm flex flex-col items-center gap-6 text-center">
                             <div class="relative w-28 h-28">
                                 <svg class="w-full h-full -rotate-90">
                                     <circle cx="56" cy="56" r="48" stroke="currentColor" stroke-width="8" fill="none" class="text-gray-100" />
@@ -661,7 +662,7 @@ watch(period, () => buildChart());
                         </article>
 
                         <!-- Completitud -->
-                        <article class="bg-white rounded-[2.5rem] p-9 border border-gray-100 shadow-sm flex flex-col items-center gap-6 text-center">
+                        <article class="bg-white rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-9 border border-gray-100 shadow-sm flex flex-col items-center gap-6 text-center">
                             <div class="relative w-28 h-28">
                                 <svg class="w-full h-full -rotate-90">
                                     <circle cx="56" cy="56" r="48" stroke="currentColor" stroke-width="8" fill="none" class="text-gray-100" />
@@ -679,7 +680,7 @@ watch(period, () => buildChart());
                         </article>
 
                         <!-- Usuarios vs Premium -->
-                        <article class="bg-white rounded-[2.5rem] p-9 border border-gray-100 shadow-sm space-y-6">
+                        <article class="bg-white rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-9 border border-gray-100 shadow-sm space-y-6">
                             <div class="flex items-center gap-3">
                                 <ShieldCheck class="w-5 h-5 text-primary" />
                                 <h4 class="font-serif font-bold text-gray-900">Alumnos vs Premium</h4>
@@ -718,7 +719,7 @@ watch(period, () => buildChart());
                         </article>
 
                         <!-- Conversión & Leads -->
-                        <article class="bg-on-background dark:bg-[#2a2a1a] dark:border dark:border-[rgba(231,230,171,0.10)] rounded-[2.5rem] p-9 text-white space-y-8">
+                        <article class="bg-on-background dark:bg-[#2a2a1a] dark:border dark:border-[rgba(231,230,171,0.10)] rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-9 text-white space-y-6 md:space-y-8">
                             <div class="flex items-center gap-3">
                                 <MessageCircle class="w-5 h-5 text-primary-fixed" />
                                 <h4 class="font-serif font-bold text-primary-fixed">Leads & Conversión</h4>
@@ -740,6 +741,7 @@ watch(period, () => buildChart());
 
             </div>
         </div>
+        <BottomNav />
     </AppLayout>
 </template>
 

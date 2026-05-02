@@ -103,7 +103,7 @@ export function useCart() {
         const firstCourse = cartItems.value[0];
         const imageUrl = firstCourse?.image?.startsWith('http') 
             ? firstCourse.image 
-            : `${baseUrl}${firstCourse?.image?.startsWith('/') ? '' : '/'}${firstCourse?.image || 'images/empresa/IEE-Logo02.png'}`;
+            : `${baseUrl}${firstCourse?.image?.startsWith('/') ? '' : '/'}${firstCourse?.image || 'images/empresa/LogoLight.png'}`;
 
         const wav = "\u{1F44B}"; // 👋
         const bx = "\u{1F4DA}"; // 📚

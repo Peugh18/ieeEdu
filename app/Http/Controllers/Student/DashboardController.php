@@ -11,6 +11,7 @@ use App\Models\Certificate;
 use App\Models\CourseExamAttempt;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use App\Services\CertificateService;
 use App\Services\ProgressService;
@@ -40,31 +41,35 @@ class DashboardController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        // Obtener IDs inscritos filtrados por acceso (pago o suscripción activa)
-        $enrolledIds = Enrollment::where('user_id', $user->id)->visible()->pluck('course_id');
+        $dashboardData = Cache::remember('student_dashboard_' . $user->id, 60, function () use ($user, $getStats, $getContinue, $getRecommendations) {
+            // Obtener IDs inscritos filtrados por acceso (pago o suscripción activa)
+            $enrolledIds = Enrollment::where('user_id', $user->id)->visible()->pluck('course_id');
 
-        // 1. Sesión en vivo próxima
-        $nextLiveClass = CourseLesson::whereIn('course_id', $enrolledIds)
-            ->whereNotNull('start_time')
-            ->whereNull('video_url') // Si ya tiene video, no es una "próxima clase"
-            ->where('start_time', '>=', now()->subHours(5)) // Margen amplio por posibles desfases de zona horaria
-            ->orderBy('start_time')
-            ->first();
+            // 1. Sesión en vivo próxima
+            $nextLiveClass = CourseLesson::whereIn('course_id', $enrolledIds)
+                ->whereNotNull('start_time')
+                ->whereNull('video_url')
+                ->where('start_time', '>=', now()->subHours(5))
+                ->orderBy('start_time')
+                ->first();
 
-        return Inertia::render('Dashboard', [
-            'stats'            => $getStats->execute($user),
-            'continueLearning' => $getContinue->execute($user),
-            'recommendations'  => $getRecommendations->execute($user),
-            'certificates'     => $this->getRecentCertificates($user),
-            'nextLiveClass'    => $nextLiveClass ? [
-                'id' => $nextLiveClass->id,
-                'title' => $nextLiveClass->title,
-                'course_title' => $nextLiveClass->course?->title ?? 'Curso',
-                'start_time' => $nextLiveClass->start_time->format('Y-m-d H:i:s'),
-                'start_time_human' => $nextLiveClass->start_time->isoFormat('dddd D [de] MMMM [a las] h:mm A'),
-                'course_slug' => $nextLiveClass->course?->slug,
-            ] : null,
-        ]);
+            return [
+                'stats'            => $getStats->execute($user),
+                'continueLearning' => $getContinue->execute($user),
+                'recommendations'  => $getRecommendations->execute($user),
+                'certificates'     => $this->getRecentCertificates($user),
+                'nextLiveClass'    => $nextLiveClass ? [
+                    'id' => $nextLiveClass->id,
+                    'title' => $nextLiveClass->title,
+                    'course_title' => $nextLiveClass->course?->title ?? 'Curso',
+                    'start_time' => $nextLiveClass->start_time->format('Y-m-d H:i:s'),
+                    'start_time_human' => $nextLiveClass->start_time->isoFormat('dddd D [de] MMMM [a las] h:mm A'),
+                    'course_slug' => $nextLiveClass->course?->slug,
+                ] : null,
+            ];
+        });
+
+        return Inertia::render('Dashboard', $dashboardData);
     }
 
     /**
@@ -327,14 +332,38 @@ class DashboardController extends Controller
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
+
+        // Si viene contraseña, validar y actualizar solo eso
+        if ($request->has('password') && $request->filled('password')) {
+            $request->validate([
+                'password' => 'required|string|min:8|confirmed',
+            ]);
+            $user->update([
+                'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+            ]);
+            return back()->with('success', 'Contraseña actualizada correctamente.');
+        }
+
+        // Actualizar perfil normal (nombre, teléfono, avatar)
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name'     => 'required|string|max:255',
             'telefono' => 'nullable|string|max:20',
+            'avatar'   => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
+
+        // Procesar imagen si se envió
+        if ($request->hasFile('avatar')) {
+            // Borrar avatar anterior si existe
+            if ($user->avatar) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+            }
+            // Guardar nueva imagen en public/storage/avatars/
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+        }
 
         $user->update($data);
 
-        return back()->with('success', 'Perfil actualizado.');
+        return back()->with('success', 'Perfil actualizado correctamente.');
     }
 
     /**
@@ -360,10 +389,13 @@ class DashboardController extends Controller
         $courses = $query->paginate(12)
             ->withQueryString();
 
+        $banner = \App\Models\Banner::where('section', 'cursos')->first();
+
         return Inertia::render('Cursos', [
             'courses' => $courses,
             'categories' => \App\Models\Category::all(),
             'filters' => $request->only(['search', 'modality', 'category']),
+            'banner' => $banner,
             'isDashboard' => true
         ]);
     }
@@ -395,9 +427,12 @@ class DashboardController extends Controller
             'download_url' => $a->download_url,
         ]);
 
+        $banner = \App\Models\Banner::where('section', 'publicaciones')->orderBy('order')->first();
+
         return Inertia::render('Publications', [
             'books' => $books,
             'articles' => $articles,
+            'banner' => $banner,
             'isDashboard' => true
         ]);
     }
@@ -407,10 +442,17 @@ class DashboardController extends Controller
      */
     public function exploreMasterclasses(Request $request)
     {
+        $banner = \App\Models\Banner::where('section', 'masterclass')->first();
+
+        $categories = \App\Models\Category::whereHas('courses', function($q) {
+            $q->where('type', 'evento');
+        })->orderBy('name')->get();
+
         return Inertia::render('Masterclasses', [
-            'courses' => Course::published()->where('type', 'masterclass')->get(),
-            'categories' => \App\Models\Category::all(),
+            'courses' => Course::published()->where('type', 'evento')->get(),
+            'categories' => $categories,
             'filters' => $request->only(['category']),
+            'banner' => $banner,
             'isDashboard' => true
         ]);
     }
@@ -420,7 +462,10 @@ class DashboardController extends Controller
      */
     public function exploreConsultoria()
     {
+        $banner = \App\Models\Banner::where('section', 'consultoria')->orderBy('order')->first();
+
         return Inertia::render('Consultoria', [
+            'banner' => $banner,
             'isDashboard' => true
         ]);
     }

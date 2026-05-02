@@ -13,6 +13,8 @@ class LessonCommentController extends Controller
 {
     public function store(Request $request, CourseLesson $lesson)
     {
+        $this->authorize('viewClassroom', $lesson->course);
+
         $request->validate([
             'content' => 'required|string|max:1000',
             'parent_id' => 'nullable|exists:lesson_comments,id'

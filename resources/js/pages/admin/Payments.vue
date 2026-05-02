@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import {
     AlertCircle, Check, CheckCircle2, Clock,
     Download, Eye, FileImage, Plus, RefreshCw,
     Search, X, XCircle, Wallet, TrendingUp, Filter,
-    Calendar, CreditCard, Hash, ExternalLink, ChevronRight
+    Calendar, CreditCard, Hash, ExternalLink, ChevronRight, Activity
 } from 'lucide-vue-next';
 import { computed, ref, watch, onMounted } from 'vue';
 import { useForm as useInertiaForm } from '@inertiajs/vue3';
@@ -220,8 +221,9 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
 
             <!-- ── Table View ── -->
             <div class="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden relative">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50/80 border-b border-slate-100">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left min-w-[900px]">
+                        <thead class="bg-slate-50/80 border-b border-slate-100">
                         <tr>
                             <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Estudiante / Programa</th>
                             <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 text-center">Inversión</th>
@@ -289,7 +291,8 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                             </td>
                         </tr>
                     </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
 
             <!-- ── Pagination ── -->
@@ -308,8 +311,8 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
         <Teleport to="body">
             <Transition name="slide">
                 <div v-if="detailPayment" class="fixed inset-0 z-50 flex items-center justify-end bg-slate-900/40 backdrop-blur-sm" @click.self="detailPayment = null">
-                    <div class="h-full w-full max-w-md bg-white shadow-2xl overflow-y-auto flex flex-col">
-                        <div class="sticky top-0 z-20 bg-slate-900 p-8 text-white">
+                    <div class="h-full w-full max-w-md bg-white shadow-2xl overflow-hidden flex flex-col">
+                        <div class="bg-slate-900 p-8 text-white shrink-0 relative">
                             <div class="absolute top-0 right-0 p-8 opacity-10"><Hash class="w-24 h-24" /></div>
                             <button @click="detailPayment = null" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
                                 <X class="h-5 w-5" />
@@ -318,7 +321,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                             <h2 class="font-serif text-3xl mt-1">Transacción <span class="italic text-outline-variant">#{{ detailPayment.id }}</span></h2>
                         </div>
 
-                        <div class="p-8 space-y-8 flex-1">
+                        <div class="p-8 space-y-8 flex-1 overflow-y-auto custom-scrollbar">
                             <div :class="`flex items-center gap-3 p-4 rounded-2xl ring-1 ring-inset ${statusCfg[detailPayment.status]?.cls}`">
                                 <component :is="statusCfg[detailPayment.status]?.icon ?? AlertCircle" class="h-5 w-5" />
                                 <span class="font-extrabold text-[10px] uppercase tracking-widest">Estatus Actual: {{ statusCfg[detailPayment.status]?.label }}</span>
@@ -397,7 +400,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
             <Transition name="modal-bounce">
                 <div v-if="showCreate" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
                     <div class="w-full max-w-lg rounded-[2.5rem] bg-white shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
-                        <div class="bg-primary p-8 text-white relative">
+                        <div class="bg-primary p-8 text-white relative shrink-0">
                             <div class="absolute top-0 right-0 p-8 opacity-10"><Plus class="w-24 h-24" /></div>
                             <h2 class="font-serif text-3xl">Registrar <span class="italic underline decoration-white/20 underline-offset-8">Venta</span></h2>
                             <p class="mt-2 text-outline-variant text-sm italic">Gestión de Ingreso Manual</p>
@@ -493,6 +496,7 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
                 </div>
             </div>
         </Transition>
+        <BottomNav />
     </AppLayout>
 </template>
 

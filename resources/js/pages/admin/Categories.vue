@@ -215,8 +215,9 @@ const getACls = (id: number) => avatarColors[id % avatarColors.length];
 
             <!-- ── Table ──────────────────────────────────────────── -->
             <div class="bg-white rounded-[3rem] border border-slate-100 shadow-sm overflow-hidden relative">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50/80 border-b border-slate-100">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left min-w-[800px]">
+                        <thead class="bg-slate-50/80 border-b border-slate-100">
                         <tr>
                             <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Identidad / Slug</th>
                             <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 text-center">Cursos Vinculados</th>
@@ -282,7 +283,8 @@ const getACls = (id: number) => avatarColors[id % avatarColors.length];
                             </td>
                         </tr>
                     </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
 
             <!-- ── Pagination ─────────────────────────────────────── -->
@@ -308,8 +310,8 @@ const getACls = (id: number) => avatarColors[id % avatarColors.length];
         <Teleport to="body">
             <Transition name="modal-bounce">
                 <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" @click.self="showModal = false">
-                    <div class="w-full max-w-md rounded-[2.5rem] bg-white shadow-2xl overflow-hidden flex flex-col transition-all">
-                        <div class="bg-primary p-8 text-white relative">
+                    <div class="w-full max-w-md rounded-[2.5rem] bg-white shadow-2xl overflow-hidden flex flex-col transition-all max-h-[90vh]">
+                        <div class="bg-primary p-8 text-white relative shrink-0">
                             <div class="absolute top-0 right-0 p-8 opacity-10"><Tag class="w-24 h-24" /></div>
                             <h2 class="font-serif text-3xl">
                                 {{ editingCategory ? 'Editar' : 'Nueva' }} <span class="italic underline decoration-white/20 underline-offset-8">Categoría</span>
@@ -320,7 +322,7 @@ const getACls = (id: number) => avatarColors[id % avatarColors.length];
                             </button>
                         </div>
 
-                        <form @submit.prevent="submit" class="p-8 space-y-6">
+                        <form @submit.prevent="submit" class="p-8 space-y-6 overflow-y-auto">
                             <div class="space-y-2">
                                 <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Título de la Categoría *</label>
                                 <div class="relative group">

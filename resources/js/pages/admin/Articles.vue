@@ -188,7 +188,7 @@ watch(() => props.articles.data, (newData) => {
             sync-accent="Sync"
         >
             <template #filters>
-                <div class="flex items-center gap-2 p-1.5 bg-surface-container rounded-full border border-on-background/5 shadow-inner">
+                <div class="flex items-center gap-2 p-1.5 bg-surface-container rounded-full border border-on-background/5 shadow-inner overflow-x-auto whitespace-nowrap custom-scrollbar">
                     <button
                         @click="activeFilter = 'Todos'"
                         class="px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-500"
@@ -251,8 +251,9 @@ watch(() => props.articles.data, (newData) => {
 
          <!-- Elite Editorial Table View -->
         <div v-else-if="filteredArticles.length > 0 && viewMode === 'list'" class="bg-white rounded-[2.5rem] border border-on-background/5 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <table class="w-full text-left border-collapse">
-                <thead>
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
                     <tr class="bg-white border-b border-on-background/5">
                         <th class="px-10 py-8 text-[10px] font-black uppercase tracking-[0.25em] text-[#9ca3af]">Identidad del Artículo</th>
                         <th class="px-10 py-8 text-[10px] font-black uppercase tracking-[0.25em] text-[#9ca3af] text-center">Publicación</th>
@@ -296,7 +297,8 @@ watch(() => props.articles.data, (newData) => {
                         </td>
                     </tr>
                 </tbody>
-            </table>
+                </table>
+            </div>
         </div>
             
         <AdminEmptyState v-else title="Sin registros en el archivo" :query="searchQuery" />

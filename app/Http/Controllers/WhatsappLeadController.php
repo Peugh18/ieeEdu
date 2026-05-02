@@ -11,11 +11,12 @@ class WhatsappLeadController extends Controller
     {
         $validated = $request->validate([
             'courses' => 'required|array',
-            'total' => 'required|numeric',
+            'courses.*' => 'integer|exists:courses,id',
+            'total' => 'required|numeric|min:0',
         ]);
 
         WhatsappLead::create([
-            'user_id' => $request->user()->id,
+            'user_id' => $request->user()?->id,
             'courses' => $validated['courses'],
             'total' => $validated['total'],
         ]);
