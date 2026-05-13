@@ -185,6 +185,9 @@ class DashboardController extends Controller
     protected function getRecentCertificates($user)
     {
         return Certificate::where('user_id', $user->id)
+            ->whereHas('course', function ($q) {
+                $q->where('certificate_enabled', true);
+            })
             ->with('course')
             ->orderByDesc('issue_date')
             ->take(3)
@@ -258,6 +261,9 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $certificates = Certificate::where('user_id', $user->id)
+            ->whereHas('course', function ($q) {
+                $q->where('certificate_enabled', true);
+            })
             ->with(['course.category', 'course.certificateTemplate'])
             ->orderByDesc('issue_date')
             ->get()

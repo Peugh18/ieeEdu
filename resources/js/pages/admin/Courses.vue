@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, useForm, Link } from '@inertiajs/vue3';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { 
     Plus, Search, Eye, EyeOff, Trash2, 
     Pen, FileBadge, Filter, CopyPlus, GraduationCap 
@@ -41,6 +41,18 @@ const filtersForm = useForm({
 function applyFilters() {
     filtersForm.get(route('admin.courses.index'), { preserveState: true, replace: true });
 }
+
+let searchTimeout: ReturnType<typeof setTimeout>;
+watch(
+    () => [filtersForm.search, filtersForm.status, filtersForm.type],
+    () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            applyFilters();
+        }, 300);
+    },
+    { deep: true }
+);
 
 function openCreateModal(course: CourseItem | null = null) {
     courseToDuplicate.value = course;
