@@ -19,6 +19,11 @@ class CertificateService
      */
     public function checkEligibility(User $user, Course $course): bool
     {
+        // Check if certificate feature is enabled for this course
+        if (!$course->certificate_enabled) {
+            return false;
+        }
+
         // 1. Check Course Progress
         $allLessons = $course->modules->flatMap->lessons->concat($course->lessons->whereNull('module_id'));
         $lessonIds = $allLessons->pluck('id');
@@ -104,18 +109,11 @@ class CertificateService
             'is_custom' => $template && $template->template_image ? true : false,
         ];
 
-        $pdf = \Spatie\LaravelPdf\Facades\Pdf::view('pdf.certificate', $data)
-            ->format('a4')
-            ->landscape()
-            ->margins(0, 0, 0, 0)
-            ->withBrowsershot(function ($browsershot) {
-                $browsershot->noSandbox()
-                   ->setOption('args', ['--disable-web-security'])
-                   ->windowSize(1122, 794);
-            });
+        $pdf = Pdf::loadView('pdf.certificate', $data)
+            ->setPaper('a4', 'landscape');
 
         if ($action === 'stream') {
-            return $pdf->inline($certificate->code . '.pdf');
+            return $pdf->stream($certificate->code . '.pdf');
         }
         
         return $pdf->download($certificate->code . '.pdf');
