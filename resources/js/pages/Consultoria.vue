@@ -247,8 +247,7 @@ function submitForm() {
                             <!-- CTA principal -->
                             <a
                                 href="#solicitar"
-                                class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl ml-auto sm:ml-0"
-                                style="background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);"
+                                class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl ml-auto sm:ml-0 bg-primary text-white"
                             >
                                 Solicitar consultoría
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>

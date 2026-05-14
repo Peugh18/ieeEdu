@@ -25,17 +25,8 @@ class PublicCourseController extends Controller
                 'class_hours', 'category_id', 'instructor_name', 'instructor_image'
             ]);
 
-        if (Auth::check()) {
-            $user = Auth::user();
-            if ($user->hasSubscriptionActive()) {
-                $query->whereIn('id', []); // Force empty result cleanly
-            } else {
-                $visibleCourseIds = \App\Models\Enrollment::where('user_id', $user->id)
-                    ->visible()
-                    ->pluck('course_id');
-                $query->whereNotIn('id', $visibleCourseIds);
-            }
-        }
+        // Remover la exclusión de cursos para que el landing siempre muestre la oferta académica completa.
+        // Los usuarios suscritos deben poder ver el catálogo, y luego el sistema les indica su acceso.
 
         $courses = $query->get();
 
@@ -98,17 +89,7 @@ class PublicCourseController extends Controller
             ->whereIn('type', ['grabado', 'en vivo', 'hibrido'])
             ->with('category');
 
-        if (Auth::check()) {
-            $user = Auth::user();
-            if ($user->hasSubscriptionActive()) {
-                $query->whereRaw('1 = 0');
-            } else {
-                $visibleCourseIds = \App\Models\Enrollment::where('user_id', $user->id)
-                    ->visible()
-                    ->pluck('course_id');
-                $query->whereNotIn('id', $visibleCourseIds);
-            }
-        }
+        // Remover la exclusión de cursos para que el catálogo siempre muestre la oferta académica.
 
         if ($request->filled('search')) {
             $query->where('title', 'like', '%' . $request->search . '%');

@@ -5,7 +5,7 @@ import { Link, usePage, router } from '@inertiajs/vue3';
 import {
     LayoutGrid, BookOpen, Calendar, ClipboardCheck, Award,
     Folder, Crown, LogOut, ChevronRight, Settings,
-    Users, CreditCard, FileText, Newspaper, Image as ImageIcon
+    Users, CreditCard, FileText, Newspaper, Image as ImageIcon, Briefcase
 } from 'lucide-vue-next';
 import { ref, computed } from 'vue';
 import { useSidebar } from '@/components/ui/sidebar';
@@ -43,12 +43,14 @@ const adminNavItems: NavItem[] = [
     { title: 'Dashboard',      href: 'admin.dashboard',           icon: LayoutGrid },
     { title: 'Usuarios',       href: 'admin.users.index',         icon: Users },
     { title: 'Cursos',         href: 'admin.courses.index',       icon: BookOpen },
+    { title: 'Certificados',   href: 'admin.certificates.index',  icon: Award },
     { title: 'Categorías',     href: 'admin.categories.index',    icon: Folder },
     { title: 'Pagos',          href: 'admin.payments.index',      icon: CreditCard },
     { title: 'Suscripciones',  href: 'admin.subscriptions.index', icon: Crown },
     { title: 'Libros',         href: 'admin.books.index',         icon: FileText },
     { title: 'Artículos',      href: 'admin.articles.index',      icon: Newspaper },
     { title: 'Banners',        href: 'admin.banners.index',       icon: ImageIcon },
+    { title: 'Consultorías',   href: 'admin.consultancies.index', icon: Briefcase },
 ];
 
 const studentNavItems: NavItem[] = [

@@ -150,6 +150,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', EnsureAdmin::class])
     Route::patch('subscriptions/{subscription}/toggle', [\App\Http\Controllers\Admin\SubscriptionController::class, 'toggleStatus'])->name('subscriptions.toggle');
     Route::delete('subscriptions/{subscription}', [\App\Http\Controllers\Admin\SubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
 
+    // Certificates
+    Route::get('certificates', [\App\Http\Controllers\Admin\CertificateController::class, 'index'])->name('certificates.index');
+    Route::get('certificates/{certificate}/download', [\App\Http\Controllers\Admin\CertificateController::class, 'download'])->name('certificates.download');
+
+    // Consultancies
+    Route::get('consultancies', [\App\Http\Controllers\Admin\ConsultancyRequestController::class, 'index'])->name('consultancies.index');
+    Route::patch('consultancies/{consultancyRequest}/status', [\App\Http\Controllers\Admin\ConsultancyRequestController::class, 'updateStatus'])->name('consultancies.status');
+
+
     // Certificate Templates
     Route::get('courses/{course}/certificate-template', [\App\Http\Controllers\Admin\CertificateTemplateController::class, 'edit'])->name('courses.certificate-template.edit');
     Route::post('courses/{course}/certificate-template', [\App\Http\Controllers\Admin\CertificateTemplateController::class, 'update'])->name('courses.certificate-template.update');
