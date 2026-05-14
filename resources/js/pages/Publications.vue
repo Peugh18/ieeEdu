@@ -64,6 +64,12 @@ function getArticleDownloadLink(article: Article) {
     return article.download_url;
 }
 
+function getWhatsAppLink(book: Book) {
+    const whatsappNumber = '51959166911'; 
+    const message = `Hola, estoy interesado en adquirir el material: *${book.title}* que tiene un costo de S/ ${book.price}. ¿Me podrían brindar más información?`;
+    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+}
+
 const breadcrumbs = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Publicaciones e Investigación', href: '#' },
@@ -202,20 +208,30 @@ const breadcrumbs = [
                                         </template>
                                         <template v-else>
                                             <a
-                                                v-if="Number(book.price) === 0"
+                                                v-if="Number(book.price) === 0 && (book.file_path || book.download_url)"
                                                 :href="getDownloadLink(book)"
                                                 target="_blank"
+                                                download
                                                 class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-primary text-on-primary hover:opacity-90 transition-all shadow-lg shadow-primary/10 flex items-center gap-2"
                                             >
                                                 Descargar
                                             </a>
-                                            <Link
+                                            <button
+                                                v-else-if="Number(book.price) === 0"
+                                                disabled
+                                                class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-surface-container-highest text-on-surface-variant/40 cursor-not-allowed border border-outline-variant/10"
+                                                title="El archivo aún no ha sido subido"
+                                            >
+                                                No disponible
+                                            </button>
+                                            <a
                                                 v-else
-                                                href="#"
-                                                class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-primary text-on-primary hover:opacity-90 transition-all shadow-lg shadow-primary/10"
+                                                :href="getWhatsAppLink(book)"
+                                                target="_blank"
+                                                class="rounded-xl text-[10px] uppercase tracking-widest font-bold px-6 py-3 bg-primary text-on-primary hover:opacity-90 transition-all shadow-lg shadow-primary/10 flex items-center justify-center gap-2"
                                             >
                                                 Adquirir
-                                            </Link>
+                                            </a>
                                         </template>
                                     </div>
                                 </div>

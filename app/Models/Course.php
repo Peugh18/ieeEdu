@@ -93,6 +93,11 @@ class Course extends Model
         return $this->hasOne(CertificateTemplate::class);
     }
 
+    public function certificates()
+    {
+        return $this->hasMany(Certificate::class);
+    }
+
     /**
      * SCOPES
      */
