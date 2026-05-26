@@ -300,7 +300,13 @@ class DashboardController extends Controller
                 ->with('error', 'Debes completar el 100% del curso para rendir la evaluación final.');
         }
 
-        // 3. Cargar preguntas con sus alternativas (IMPORTANTE)
+        // 3. Verificar intentos permitidos
+        if (!$this->examService->canTakeQuiz($user, $quiz)) {
+            return redirect()->route('student.classroom', ['course' => $quiz->course->slug])
+                ->with('error', 'Has superado el límite de intentos permitido para esta evaluación.');
+        }
+
+        // 4. Cargar preguntas con sus alternativas (IMPORTANTE)
         return Inertia::render('student/TakeExam', [
             'quiz'            => $quiz->load(['questions.answers', 'course']),
             'current_attempt' => CourseExamAttempt::where('user_id', $user->id)->where('course_quiz_id', $quiz->id)->count() + 1,

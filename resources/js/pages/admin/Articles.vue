@@ -118,11 +118,18 @@ function destroy(id: number) {
     }
 }
 
-function formatDate(date: string) {
-    return new Date(date).toLocaleDateString('es-PE', {
-        month: 'long',
-        year: 'numeric'
-    });
+function formatDate(date?: string) {
+    if (!date) return 'Sin fecha';
+    try {
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return date;
+        return d.toLocaleDateString('es-PE', {
+            month: 'long',
+            year: 'numeric'
+        });
+    } catch (e) {
+        return date || 'Sin fecha';
+    }
 }
 
 function getDownloadUrl(article: Article) {
@@ -199,48 +206,41 @@ watch(() => props.articles.data, (newData) => {
         </AdminSearchBar>
 
         <!-- Elite Archive Grid -->
-        <div v-if="filteredArticles.length > 0 && viewMode === 'grid'" class="grid gap-x-8 gap-y-16 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 px-6">
-            <div v-for="article in filteredArticles" :key="article.id" class="flex flex-col group">
-                <!-- Archive Container -->
-                <div class="aspect-[3/4] bg-white rounded-[2rem] p-3 shadow-md ring-1 ring-on-background/5 group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-500 relative">
-                    <div class="h-full w-full rounded-[1.5rem] overflow-hidden bg-[#fdfdfc] relative">
-                        <img v-if="article.thumbnail" :src="`/storage/${article.thumbnail}`" class="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-                        <div v-else class="flex h-full w-full items-center justify-center text-on-background/5">
-                            <Calendar class="h-16 w-16" />
-                        </div>
-                        
-                        <!-- Badges -->
-                        <div class="absolute inset-x-0 top-0 p-3 flex justify-between pointer-events-none">
-                            <span class="bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-lg text-[7px] font-black uppercase tracking-widest text-on-background shadow-sm">
-                                External Media
-                            </span>
-                        </div>
+        <div v-if="filteredArticles.length > 0 && viewMode === 'grid'" class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div v-for="article in filteredArticles" :key="article.id" class="flex flex-col group bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-sm hover:shadow-[0_30px_60px_rgba(87,87,42,0.12)] transition-all duration-700 overflow-hidden hover:-translate-y-3">
+                <!-- Thumbnail Container -->
+                <div class="relative aspect-[4/3] bg-surface-container-highest overflow-hidden border-b border-outline-variant/10">
+                    <img v-if="article.thumbnail" :src="`/storage/${article.thumbnail}`" class="h-full w-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                    <div v-else class="flex h-full w-full items-center justify-center text-primary/10">
+                        <Calendar class="h-16 w-16" />
                     </div>
+                    
+                    <div class="absolute inset-0 bg-gradient-to-t from-on-background/60 via-transparent to-transparent opacity-60"></div>
                 </div>
                 
-                <!-- Archive Info -->
-                <div class="mt-5 px-2 flex flex-col">
-                    <span class="text-[8px] font-black uppercase tracking-[0.2em] text-[#9ca3af] mb-1 leading-none">{{ article.media }}</span>
-                    <h3 class="font-serif text-lg font-black text-on-background line-clamp-2 mb-4 leading-tight group-hover:text-primary transition-colors">
+                <!-- Info Section -->
+                <div class="p-6 flex flex-col flex-1">
+                    <span class="text-[10px] font-bold text-primary/60 uppercase tracking-[0.2em] mb-2 leading-none">{{ article.media }}</span>
+                    <h3 class="font-serif text-xl font-bold text-on-background leading-snug group-hover:text-primary transition-colors italic line-clamp-2 mb-4" :title="article.title">
                         {{ article.title }}
                     </h3>
                     
-                    <div class="flex items-center justify-between border-t border-on-background/5 pt-4">
+                    <div class="flex items-center justify-between border-t border-surface-container-highest pt-4 mt-auto">
                         <div class="flex flex-col">
-                            <span class="text-[7px] font-black uppercase tracking-widest text-[#9ca3af] mb-0.5">Fecha Publicación</span>
-                            <span class="text-[10px] font-black text-on-background uppercase tracking-tighter">
+                            <span class="text-[8px] font-black uppercase tracking-widest text-[#9ca3af] mb-0.5">Publicado</span>
+                            <span class="text-[10px] font-black text-on-surface uppercase tracking-tighter">
                                 {{ formatDate(article.published_at) }}
                             </span>
                         </div>
                         
-                        <div class="flex gap-2">
-                            <AdminIconButton as="a" :href="getDownloadUrl(article)" target="_blank" :disabled="article.download_url === 'PDF_DOCUMENT_PENDING'" size="sm">
+                        <div class="flex items-center bg-surface-container-highest/30 p-1.5 rounded-xl border border-outline-variant/20 lg:border-transparent group-hover:border-outline-variant/20 group-hover:bg-white group-hover:shadow-lg transition-all duration-700">
+                            <AdminIconButton as="a" :href="getDownloadUrl(article)" target="_blank" :disabled="article.download_url === 'PDF_DOCUMENT_PENDING'" size="sm" title="Ver enlace">
                                 <template #default="{ iconClass }"><ExternalLink :class="iconClass" /></template>
                             </AdminIconButton>
-                            <AdminIconButton @click="openEdit(article)" size="sm">
+                            <AdminIconButton variant="outline" @click="openEdit(article)" size="sm" title="Editar">
                                 <template #default="{ iconClass }"><Edit2 :class="iconClass" /></template>
                             </AdminIconButton>
-                            <AdminIconButton variant="danger" @click="destroy(article.id)" size="sm">
+                            <AdminIconButton variant="danger" @click="destroy(article.id)" size="sm" title="Eliminar">
                                 <template #default="{ iconClass }"><Trash2 :class="iconClass" /></template>
                             </AdminIconButton>
                         </div>
@@ -250,53 +250,56 @@ watch(() => props.articles.data, (newData) => {
         </div>
 
          <!-- Elite Editorial Table View -->
-        <div v-else-if="filteredArticles.length > 0 && viewMode === 'list'" class="bg-white rounded-[2.5rem] border border-on-background/5 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div v-else-if="filteredArticles.length > 0 && viewMode === 'list'" class="rounded-[3rem] border border-outline-variant/10 bg-white overflow-hidden shadow-2xl shadow-surface-tint/5 relative z-0 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div class="overflow-x-auto custom-scrollbar">
                 <table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
-                    <tr class="bg-white border-b border-on-background/5">
-                        <th class="px-10 py-8 text-[10px] font-black uppercase tracking-[0.25em] text-[#9ca3af]">Identidad del Artículo</th>
-                        <th class="px-10 py-8 text-[10px] font-black uppercase tracking-[0.25em] text-[#9ca3af] text-center">Publicación</th>
-                        <th class="px-10 py-8 text-[10px] font-black uppercase tracking-[0.25em] text-[#9ca3af] text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-on-background/5">
-                    <tr v-for="article in filteredArticles" :key="article.id" class="group hover:bg-surface-container/40 transition-all duration-500">
-                        <td class="px-10 py-7">
-                            <div class="flex items-center gap-6">
-                                <div class="w-14 h-14 bg-[#fdfdfc] rounded-2xl border border-on-background/5 overflow-hidden shadow-sm group-hover:shadow-md transition-all duration-500 flex-shrink-0 relative">
-                                    <img v-if="article.thumbnail" :src="`/storage/${article.thumbnail}`" class="w-full h-full object-cover">
-                                    <div v-else class="w-full h-full flex items-center justify-center text-on-background/5">
-                                        <Calendar class="h-6 w-6" />
+                        <tr class="bg-surface-container-highest/40 border-b border-outline-variant/10">
+                            <th class="px-10 py-8 text-[11px] font-black uppercase tracking-[0.2em] text-primary/60">Identidad del Artículo</th>
+                            <th class="px-10 py-8 text-[11px] font-black uppercase tracking-[0.2em] text-primary/60 text-center">Publicación</th>
+                            <th class="px-10 py-8 text-[11px] font-black uppercase tracking-[0.2em] text-primary/60 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant/5">
+                        <tr v-for="article in filteredArticles" :key="article.id" class="group transition-all hover:bg-primary/[0.02] duration-500">
+                            <td class="px-10 py-7 relative">
+                                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-12 bg-primary transition-all duration-500 rounded-r-full"></div>
+                                <div class="flex items-center gap-6">
+                                    <div class="w-20 h-14 bg-surface-container-low border border-outline-variant/10 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md transition-all duration-500 flex-shrink-0 relative">
+                                        <img v-if="article.thumbnail" :src="`/storage/${article.thumbnail}`" class="w-full h-full object-cover">
+                                        <div v-else class="w-full h-full flex items-center justify-center text-primary/10">
+                                            <Calendar class="h-6 w-6" />
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <h4 class="text-[15px] font-bold text-on-background leading-tight">{{ article.title }}</h4>
+                                        <span class="text-[9px] font-bold uppercase tracking-widest text-[#9ca3af] mt-1">{{ article.media }}</span>
                                     </div>
                                 </div>
-                                <div class="flex flex-col">
-                                    <h4 class="text-[15px] font-bold text-on-background leading-tight">{{ article.title }}</h4>
-                                    <span class="text-[9px] font-bold uppercase tracking-widest text-[#9ca3af] mt-1">{{ article.media }}</span>
+                            </td>
+                            <td class="px-10 py-7 text-center">
+                                <div class="flex flex-col items-center">
+                                    <span class="text-[10px] font-black text-on-surface uppercase tracking-tighter">{{ formatDate(article.published_at) }}</span>
+                                    <span class="text-[9px] font-bold uppercase tracking-widest text-primary/40 mt-0.5">Vigente</span>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="px-10 py-7 text-center">
-                            <div class="flex flex-col items-center">
-                                <span class="text-[10px] font-black text-on-background uppercase tracking-tighter">{{ formatDate(article.published_at) }}</span>
-                                <span class="text-[7px] font-black uppercase tracking-widest text-[#9ca3af] mt-0.5 opacity-60">Vigente</span>
-                            </div>
-                        </td>
-                        <td class="px-10 py-7">
-                            <div class="flex items-center justify-center gap-3">
-                                <AdminIconButton as="a" variant="outline" :href="getDownloadUrl(article)" target="_blank" :disabled="article.download_url === 'PDF_DOCUMENT_PENDING'" size="md">
-                                    <template #default="{ iconClass }"><ExternalLink :class="iconClass" /></template>
-                                </AdminIconButton>
-                                <AdminIconButton variant="outline" @click="openEdit(article)" size="md">
-                                    <template #default="{ iconClass }"><Edit2 :class="iconClass" /></template>
-                                </AdminIconButton>
-                                <AdminIconButton variant="danger" @click="destroy(article.id)" size="md">
-                                    <template #default="{ iconClass }"><Trash2 :class="iconClass" /></template>
-                                </AdminIconButton>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
+                            </td>
+                            <td class="px-10 py-7">
+                                <div class="flex items-center justify-center">
+                                    <div class="flex items-center bg-surface-container-highest/30 p-2 rounded-2xl border border-outline-variant/20 lg:border-transparent group-hover:border-outline-variant/20 group-hover:bg-white group-hover:shadow-xl transition-all duration-700 opacity-100 lg:opacity-40 group-hover:opacity-100 transform lg:group-hover:-translate-x-2">
+                                        <AdminIconButton as="a" variant="outline" :href="getDownloadUrl(article)" target="_blank" :disabled="article.download_url === 'PDF_DOCUMENT_PENDING'" size="sm" title="Ver enlace">
+                                            <template #default="{ iconClass }"><ExternalLink :class="iconClass" /></template>
+                                        </AdminIconButton>
+                                        <AdminIconButton variant="outline" @click="openEdit(article)" size="sm" title="Editar">
+                                            <template #default="{ iconClass }"><Edit2 :class="iconClass" /></template>
+                                        </AdminIconButton>
+                                        <AdminIconButton variant="danger" @click="destroy(article.id)" size="sm" title="Eliminar">
+                                            <template #default="{ iconClass }"><Trash2 :class="iconClass" /></template>
+                                        </AdminIconButton>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>

@@ -87,6 +87,29 @@ class ClassroomController extends Controller
                 return $c;
             });
 
+        $quiz = $course->quizzes->first();
+        $quizStats = null;
+        if ($quiz) {
+            $attempts = \App\Models\CourseExamAttempt::where('user_id', $user->id)
+                ->where('course_quiz_id', $quiz->id)
+                ->whereNotNull('completed_at');
+            
+            $passed = $attempts->clone()->where('status', 'aprobado')->exists();
+            $attemptsLeft = max(0, $quiz->max_attempts - $attempts->count());
+            
+            $certificate = \App\Models\Certificate::where('user_id', $user->id)
+                ->where('course_id', $course->id)
+                ->first();
+                
+            $quizStats = [
+                'quiz_id' => $quiz->id,
+                'passed' => $passed,
+                'attempts_left' => $attemptsLeft,
+                'max_attempts' => $quiz->max_attempts,
+                'certificate_url' => $certificate ? route('student.certificates.download', ['certificate' => $certificate->id]) . '?action=stream' : null,
+            ];
+        }
+
         return Inertia::render('student/Classroom', [
             'course' => $course,
             'currentLesson' => $lesson->load('materials'),
@@ -97,6 +120,7 @@ class ClassroomController extends Controller
             'completedLessons' => $completedLessons,
             'allLessonsCompleted' => $allLessonsCompleted,
             'comments' => $comments,
+            'quizStats' => $quizStats,
         ]);
     }
 
