@@ -8,7 +8,7 @@ import {
     Download, ExternalLink, Play, Clock, 
     Send, Users, X, CheckCircle2, ChevronDown,
     ArrowRight, HandIcon, Flag, ListVideo,
-    Heart, Reply, Trash2, Edit2, Trophy, AlertCircle,
+    Heart, Reply, Trash2, Edit2, Trophy, AlertCircle, XCircle,
     LayoutGrid, BookOpen, Calendar, ClipboardCheck, Award
 } from 'lucide-vue-next';
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
@@ -53,6 +53,14 @@ interface Course {
 
 import { router, usePage } from '@inertiajs/vue3';
 
+interface QuizStats {
+    quiz_id: number;
+    passed: boolean;
+    attempts_left: number;
+    max_attempts: number;
+    certificate_url: string | null;
+}
+
 const props = defineProps<{
     course: Course;
     currentLesson: Lesson | null;
@@ -63,6 +71,7 @@ const props = defineProps<{
     completedLessons: number[];
     allLessonsCompleted: boolean;
     comments: any[];
+    quizStats: QuizStats | null;
 }>();
 
 const { props: pageProps } = usePage() as any;
@@ -440,6 +449,17 @@ onMounted(() => {
     startCountdown();
 });
 
+// Error handling logic
+const showLocalError = ref(false);
+const localErrorMessage = ref('');
+
+const page = usePage();
+watch(() => (page.props as any).flash?.error, (newVal) => {
+    if (newVal) {
+        localErrorMessage.value = newVal;
+        showLocalError.value = true;
+    }
+}, { immediate: true });
 </script>
 
 <template>
@@ -522,14 +542,26 @@ onMounted(() => {
                           <div class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none opacity-40"></div>
                           
                           <div class="relative z-10 space-y-6 md:space-y-10">
-                               <div class="inline-flex p-5 md:p-8 rounded-2xl md:rounded-[2.5rem] border shadow-inner" :class="localAllCompleted ? 'bg-primary/5 border-primary/20' : 'bg-orange-500/5 border-orange-500/10'">
-                                  <Trophy v-if="localAllCompleted" class="w-12 h-12 md:w-20 md:h-20 text-[#D4AF37]" />
+                               <div class="inline-flex p-5 md:p-8 rounded-2xl md:rounded-[2.5rem] border shadow-inner" 
+                                    :class="quizStats?.passed ? 'bg-emerald-500/5 border-emerald-500/20' : (quizStats?.attempts_left === 0 ? 'bg-red-500/5 border-red-500/20' : (localAllCompleted ? 'bg-primary/5 border-primary/20' : 'bg-orange-500/5 border-orange-500/10'))">
+                                  <Trophy v-if="quizStats?.passed" class="w-12 h-12 md:w-20 md:h-20 text-emerald-600" />
+                                  <XCircle v-else-if="quizStats?.attempts_left === 0" class="w-12 h-12 md:w-20 md:h-20 text-red-600" />
+                                  <Trophy v-else-if="localAllCompleted" class="w-12 h-12 md:w-20 md:h-20 text-[#D4AF37]" />
                                   <AlertCircle v-else class="w-12 h-12 md:w-20 md:h-20 text-orange-400" />
                               </div>
 
                               <div class="space-y-3 md:space-y-6">
-                                 <h2 class="text-2xl md:text-4xl lg:text-6xl font-serif font-bold italic text-on-background">Certificación Final</h2>
-                                 <p v-if="localAllCompleted" class="text-on-surface-variant italic font-serif text-sm md:text-xl max-w-2xl mx-auto leading-relaxed">
+                                 <h2 class="text-2xl md:text-4xl lg:text-6xl font-serif font-bold italic text-on-background">
+                                     {{ quizStats?.passed ? '¡Certificación Obtenida!' : (quizStats?.attempts_left === 0 ? 'Evaluación Finalizada' : 'Certificación Final') }}
+                                 </h2>
+                                 
+                                 <p v-if="quizStats?.passed" class="text-on-surface-variant italic font-serif text-sm md:text-xl max-w-2xl mx-auto leading-relaxed">
+                                    Has aprobado exitosamente la evaluación final de este curso. Tu certificado de aprobación ya se encuentra disponible para su descarga en formato oficial.
+                                 </p>
+                                 <p v-else-if="quizStats?.attempts_left === 0" class="text-on-surface-variant italic font-serif text-sm md:text-xl max-w-2xl mx-auto leading-relaxed">
+                                    Has agotado todos los intentos permitidos para esta evaluación sin alcanzar la nota mínima requerida. Por favor, ponte en contacto con la coordinación académica para solicitar una re-evaluación.
+                                 </p>
+                                 <p v-else-if="localAllCompleted" class="text-on-surface-variant italic font-serif text-sm md:text-xl max-w-2xl mx-auto leading-relaxed">
                                     Excelencia académica alcanzada. Has completado exitosamente todos los módulos curriculares. Ahora puedes proceder con la evaluación final para acreditar tus conocimientos.
                                  </p>
                                  <p v-else class="text-on-surface-variant italic font-serif text-sm md:text-xl max-w-2xl mx-auto leading-relaxed">
@@ -537,7 +569,7 @@ onMounted(() => {
                                  </p>
                               </div>
                               
-                              <div v-if="!localAllCompleted" class="pt-4 md:pt-10">
+                              <div v-if="!localAllCompleted && !(quizStats?.attempts_left === 0) && !quizStats?.passed" class="pt-4 md:pt-10">
                                   <div class="px-5 py-4 md:px-10 md:py-6 bg-background rounded-xl md:rounded-[2rem] border border-outline-variant/20 shadow-inner inline-block">
                                       <p class="text-[9px] md:text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] md:tracking-[0.3em] mb-2 md:mb-3">Progreso del programa</p>
                                       <div class="flex items-center gap-4 md:gap-6">
@@ -550,13 +582,29 @@ onMounted(() => {
                               </div>
                               
                               <div class="pt-4 md:pt-8">
-                                <Link v-if="localAllCompleted" :href="route('student.exams.index')" class="inline-flex px-8 py-4 md:px-16 md:py-6 bg-primary text-white font-black text-[10px] md:text-[12px] uppercase tracking-[0.2em] md:tracking-[0.25em] rounded-xl md:rounded-2xl hover:bg-on-background hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-primary/20 group">
-                                    Iniciar Evaluación
-                                    <ArrowRight class="w-4 h-4 md:w-5 md:h-5 ml-3 md:ml-4 group-hover:translate-x-2 transition-transform" />
-                                </Link>
-                                <button v-else disabled class="px-8 py-4 md:px-16 md:py-6 bg-outline-variant/20 text-outline-variant font-black text-[10px] md:text-[12px] uppercase tracking-[0.2em] md:tracking-[0.25em] rounded-xl md:rounded-2xl cursor-not-allowed">
-                                    Evaluación Bloqueada
-                                </button>
+                                <template v-if="quizStats?.passed">
+                                    <a v-if="quizStats.certificate_url" :href="quizStats.certificate_url" target="_blank" class="inline-flex px-8 py-4 md:px-16 md:py-6 bg-emerald-600 text-white font-black text-[10px] md:text-[12px] uppercase tracking-[0.2em] md:tracking-[0.25em] rounded-xl md:rounded-2xl hover:bg-emerald-700 hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-emerald-900/20 group">
+                                        Descargar Certificado
+                                        <Download class="w-4 h-4 md:w-5 md:h-5 ml-3 md:ml-4" />
+                                    </a>
+                                    <span v-else class="inline-flex px-8 py-4 md:px-16 md:py-6 bg-emerald-50 text-emerald-600 font-black text-[10px] md:text-[12px] uppercase tracking-[0.2em] md:tracking-[0.25em] rounded-xl md:rounded-2xl italic border border-emerald-100">
+                                        Procesando Certificado...
+                                    </span>
+                                </template>
+                                <template v-else-if="quizStats?.attempts_left === 0">
+                                    <button disabled class="px-8 py-4 md:px-16 md:py-6 bg-rose-50 text-rose-500 font-black text-[10px] md:text-[12px] uppercase tracking-[0.2em] md:tracking-[0.25em] rounded-xl md:rounded-2xl cursor-not-allowed border border-rose-100">
+                                        Evaluación Bloqueada (Sin Intentos)
+                                    </button>
+                                </template>
+                                <template v-else>
+                                    <Link v-if="localAllCompleted" :href="course.quizzes?.length ? route('student.exams.take', { quiz: course.quizzes[0].id }) : '#'" class="inline-flex px-8 py-4 md:px-16 md:py-6 bg-primary text-white font-black text-[10px] md:text-[12px] uppercase tracking-[0.2em] md:tracking-[0.25em] rounded-xl md:rounded-2xl hover:bg-on-background hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-primary/20 group">
+                                        Iniciar Evaluación (Intentos: {{ quizStats ? quizStats.attempts_left : course.quizzes[0]?.max_attempts }})
+                                        <ArrowRight class="w-4 h-4 md:w-5 md:h-5 ml-3 md:ml-4 group-hover:translate-x-2 transition-transform" />
+                                    </Link>
+                                    <button v-else disabled class="px-8 py-4 md:px-16 md:py-6 bg-outline-variant/20 text-outline-variant font-black text-[10px] md:text-[12px] uppercase tracking-[0.2em] md:tracking-[0.25em] rounded-xl md:rounded-2xl cursor-not-allowed">
+                                        Evaluación Bloqueada
+                                    </button>
+                                </template>
                               </div>
                           </div>
                      </div>
@@ -1017,8 +1065,9 @@ onMounted(() => {
                                      </div>
                                      <div>
                                          <h4 class="text-[12px] font-black uppercase tracking-[0.2em] text-on-background">Examen de Titulación</h4>
-                                         <p class="text-[9px] font-bold uppercase tracking-[0.1em] mt-2 opacity-50" :class="localAllCompleted ? 'text-emerald-600 opacity-100' : 'text-orange-600'">
-                                             {{ localAllCompleted ? 'Candidato Apto' : 'Requisito: Ver Clases' }}
+                                         <p class="text-[9px] font-bold uppercase tracking-[0.15em] mt-2 font-black italic" 
+                                            :class="quizStats?.passed ? 'text-emerald-600 opacity-100' : (quizStats?.attempts_left === 0 ? 'text-rose-600 opacity-100' : (localAllCompleted ? 'text-[#D4AF37] opacity-100' : 'text-orange-600'))">
+                                             {{ quizStats?.passed ? 'Certificado Obtenido' : (quizStats?.attempts_left === 0 ? 'Intentos Agotados' : (localAllCompleted ? 'Candidato Apto' : 'Requisito: Ver Clases')) }}
                                          </p>
                                      </div>
                                  </div>
@@ -1037,6 +1086,24 @@ onMounted(() => {
             :course-id="course.id"
             @close="viewingExam = false"
         />
+
+        <!-- Error Flash Modal (e.g. limit reached) -->
+        <div v-if="showLocalError" class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div class="bg-white rounded-[3rem] shadow-2xl max-w-sm w-full p-10 text-center border border-outline-variant/10 animate-in zoom-in-95 duration-200">
+                <div class="w-14 h-14 md:w-20 md:h-20 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-6">
+                    <AlertCircle class="w-7 h-7 md:w-10 md:h-10 text-red-600 animate-pulse" />
+                </div>
+                <h3 class="text-xl md:text-2xl font-serif font-bold italic text-on-surface mb-2 md:mb-3">Atención</h3>
+                <p class="text-on-surface-variant leading-relaxed font-serif italic text-sm md:text-base mb-6 md:mb-8">{{ localErrorMessage }}</p>
+                
+                <button 
+                    @click="showLocalError = false"
+                    class="w-full py-3.5 md:py-4 bg-primary text-white font-bold rounded-xl md:rounded-2xl shadow-xl shadow-primary/20 hover:opacity-90 transition-all uppercase tracking-widest text-[10px] active:scale-95"
+                >
+                    Aceptar
+                </button>
+            </div>
+        </div>
         </div>
         <BottomNav active="courses" />
 
