@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import Navigation from '@/components/landing/Navigation.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -41,19 +41,54 @@ const props = defineProps<{
     } | null;
 }>();
 
-// Valores dinámicos con fallback
+// Dynamic hero values with elegant fallbacks
 const heroHeading = computed(() => props.banner?.heading || 'Nuestras Publicaciones Especializadas');
 const heroSubheading = computed(() => props.banner?.subheading || 'Acceda a nuestra biblioteca de investigación, libros y artículos técnicos para su desarrollo profesional.');
 const heroBg = computed(() => props.banner?.image_path || '/images/landing/publications_hero.png');
 const showText = computed(() => props.banner?.show_text !== false);
 
 const currentTab = ref<'libros' | 'articulos'>('libros');
+const searchQuery = ref('');
 
+// Client-side pagination state
+const booksPage = ref(1);
+const articlesPage = ref(1);
+const itemsPerPage = 6;
+
+// Reset pages when query changes
+watch(searchQuery, () => {
+    booksPage.value = 1;
+    articlesPage.value = 1;
+});
+
+function changeBooksPage(p: number) {
+    booksPage.value = p;
+    if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function changeArticlesPage(p: number) {
+    articlesPage.value = p;
+    if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+// Format dates nicely
 function formatDate(date: string) {
     return new Date(date).toLocaleDateString('es-PE', {
+        day: 'numeric',
         month: 'long',
         year: 'numeric'
     });
+}
+
+// Estimate dynamic reading time based on title length
+function estimateReadingTime(title: string) {
+    const wpm = 180; // average words per minute reading speed
+    const words = title.split(/\s+/).length + 30; // base weight for text reading
+    return Math.max(3, Math.ceil(words / wpm) + 2);
 }
 
 function getDownloadLink(book: Book) {
@@ -72,6 +107,42 @@ function getWhatsAppLink(book: Book) {
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
+// Client-side search filters
+const filteredBooks = computed(() => {
+    if (!searchQuery.value.trim()) return props.books;
+    const query = searchQuery.value.toLowerCase().trim();
+    return props.books.filter(
+        b => b.title.toLowerCase().includes(query) || (b.author && b.author.toLowerCase().includes(query))
+    );
+});
+
+const filteredArticles = computed(() => {
+    if (!searchQuery.value.trim()) return props.articles;
+    const query = searchQuery.value.toLowerCase().trim();
+    return props.articles.filter(
+        a => a.title.toLowerCase().includes(query) || (a.media && a.media.toLowerCase().includes(query))
+    );
+});
+
+// Paginating filtered lists
+const paginatedBooks = computed(() => {
+    const start = (booksPage.value - 1) * itemsPerPage;
+    return filteredBooks.value.slice(start, start + itemsPerPage);
+});
+
+const booksTotalPages = computed(() => {
+    return Math.ceil(filteredBooks.value.length / itemsPerPage);
+});
+
+const paginatedArticles = computed(() => {
+    const start = (articlesPage.value - 1) * itemsPerPage;
+    return filteredArticles.value.slice(start, start + itemsPerPage);
+});
+
+const articlesTotalPages = computed(() => {
+    return Math.ceil(filteredArticles.value.length / itemsPerPage);
+});
+
 const breadcrumbs = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Publicaciones e Investigación', href: '#' },
@@ -87,25 +158,25 @@ const breadcrumbs = [
 
             <main :class="['flex-1 pb-20', !isDashboard ? 'pt-28' : 'pt-0']">
 
-                <!-- Hero Banner: Tarjeta Contenida Premium -->
+                <!-- Hero Banner: Contained Premium Card -->
                 <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10">
                     <div
-                        :class="['relative overflow-hidden shadow-2xl', isDashboard ? 'rounded-[1.5rem]' : 'rounded-[2rem]']"
+                        :class="['relative overflow-hidden shadow-2xl transition-all duration-500', isDashboard ? 'rounded-[1.5rem]' : 'rounded-[2rem]']"
                         style="aspect-ratio: 16 / 5;"
                     >
                         <img :src="heroBg" alt="Publicaciones IEE" class="absolute inset-0 w-full h-full object-cover object-center" />
-                        <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/10"></div>
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/20"></div>
 
-                        <div v-if="showText" class="relative z-10 h-full px-10 md:px-14 flex flex-col justify-center">
+                        <div v-if="showText" class="relative z-10 h-full px-8 md:px-14 flex flex-col justify-center">
                             <div class="max-w-2xl space-y-4">
                                 <span class="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/80 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                                    <span class="w-1.5 h-1.5 rounded-full bg-[#D4AF37] animate-pulse"></span>
                                     Investigación de Alto Nivel
                                 </span>
-                                <h1 class="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white leading-[1.15] tracking-tight">
+                                <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white leading-[1.15] tracking-tight">
                                     {{ heroHeading }}
                                 </h1>
-                                <p class="text-base text-white/75 max-w-lg font-light leading-relaxed">
+                                <p class="text-xs sm:text-sm md:text-base text-white/75 max-w-lg font-light leading-relaxed">
                                     {{ heroSubheading }}
                                 </p>
                             </div>
@@ -113,153 +184,277 @@ const breadcrumbs = [
                     </div>
                 </div>
 
-                <!-- Tabs Section (Segmented Control) -->
+                <!-- Tabs & Interactive Filter Section -->
                 <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex items-center justify-center mb-12">
-                        <div class="inline-flex p-1.5 bg-surface-container rounded-2xl border border-outline-variant/20 shadow-inner">
+                    <!-- Modern Tabs (Segmented Control) -->
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 border-b border-outline-variant/20 pb-6">
+                        <div class="inline-flex p-1.5 bg-surface-container rounded-2xl border border-outline-variant/15 shadow-inner">
                             <button 
                                 @click="currentTab = 'libros'"
                                 :class="[
-                                    'px-8 py-3.5 rounded-xl font-serif text-xs font-black tracking-[0.05em] uppercase transition-all duration-300',
+                                    'px-6 sm:px-8 py-3.5 rounded-xl font-serif text-xs font-bold tracking-[0.05em] uppercase transition-all duration-300 flex items-center gap-2',
                                     currentTab === 'libros' ? 'bg-surface text-primary shadow-md' : 'text-on-surface-variant/60 hover:text-on-surface'
                                 ]"
                             >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                                 Libros y Guías
                             </button>
                             <button 
                                 @click="currentTab = 'articulos'"
                                 :class="[
-                                    'px-8 py-3.5 rounded-xl font-serif text-xs font-black tracking-[0.05em] uppercase transition-all duration-300',
+                                    'px-6 sm:px-8 py-3.5 rounded-xl font-serif text-xs font-bold tracking-[0.05em] uppercase transition-all duration-300 flex items-center gap-2',
                                     currentTab === 'articulos' ? 'bg-surface text-primary shadow-md' : 'text-on-surface-variant/60 hover:text-on-surface'
                                 ]"
                             >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
                                 Artículos de Análisis
+                            </button>
+                        </div>
+
+                        <!-- Real-time Search input -->
+                        <div class="relative w-full md:w-80">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </span>
+                            <input 
+                                v-model="searchQuery"
+                                type="text"
+                                :placeholder="currentTab === 'libros' ? 'Buscar libro o autor...' : 'Buscar artículo o medio...'"
+                                class="w-full pl-11 pr-10 py-3 bg-surface-container rounded-2xl border border-outline-variant/15 text-xs focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary focus:bg-surface transition-all text-on-surface placeholder:text-on-surface-variant/50 shadow-sm"
+                            />
+                            <button 
+                                v-if="searchQuery"
+                                @click="searchQuery = ''"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-on-surface-variant/40 hover:text-on-surface transition-colors"
+                            >
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
                         </div>
                     </div>
 
-                    <!-- ──────────────── LIBROS ──────────────────── -->
+                    <!-- ──────────────── TABS CONTENT: BOOKS ──────────────────── -->
                     <div v-if="currentTab === 'libros'">
-                        <div v-if="!props.books.length" class="py-24 text-center">
-                            <p class="text-on-surface-variant font-serif italic text-lg opacity-40">Nos encontramos digitalizando nuevos títulos académicos.</p>
+                        <!-- Empty Search State -->
+                        <div v-if="!filteredBooks.length" class="py-24 text-center bg-surface-container-low rounded-[2.5rem] border-2 border-dashed border-outline-variant/30 max-w-3xl mx-auto flex flex-col items-center justify-center p-8 space-y-4">
+                            <div class="p-4 rounded-full bg-primary/5 text-primary/40">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                            </div>
+                            <h3 class="text-xl font-serif font-bold text-on-surface">Sin resultados académicos</h3>
+                            <p class="text-xs text-on-surface-variant max-w-sm">No hemos encontrado ningún libro o guía que coincida con la búsqueda "{{ searchQuery }}". Pruebe con otro término.</p>
+                            <button @click="searchQuery = ''" class="px-5 py-2 bg-primary text-on-primary text-xs font-bold rounded-xl shadow-md hover:bg-primary/90 transition-all">Mostrar todos</button>
                         </div>
-                        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                            <article
-                                v-for="book in props.books"
-                                :key="book.id"
-                                class="flex flex-col bg-surface border border-outline-variant/15 p-5 rounded-[2rem] hover:shadow-2xl hover:border-primary/20 transition-all duration-500 hover:-translate-y-1.5 group h-full"
-                            >
-                                <div class="aspect-[3/4] rounded-2xl overflow-hidden bg-surface-container-low shadow-sm relative border border-outline-variant/5 mb-5 flex-shrink-0">
-                                    <img v-if="book.cover_image" :src="`/storage/${book.cover_image}`" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out" />
-                                    <div v-else class="flex h-full w-full items-center justify-center opacity-10">
-                                        <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+
+                        <!-- Books Grid -->
+                        <div v-else>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
+                                <article
+                                    v-for="book in paginatedBooks"
+                                    :key="book.id"
+                                    class="flex flex-col bg-surface border border-outline-variant/15 p-5 rounded-3xl hover:shadow-2xl hover:border-primary/20 transition-all duration-500 hover:-translate-y-1.5 group h-full relative"
+                                >
+                                    <!-- Book Cover Mockup representation -->
+                                    <div class="aspect-[3/4] rounded-2xl overflow-hidden bg-surface-container-low shadow-md relative border border-outline-variant/10 mb-5 flex-shrink-0">
+                                        <img v-if="book.cover_image" :src="`/storage/${book.cover_image}`" :alt="book.title" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out" />
+                                        
+                                        <!-- Premium SVG Fallback -->
+                                        <div v-else class="w-full h-full bg-gradient-to-br from-primary/15 via-primary/5 to-surface-container-highest flex items-center justify-center relative group-hover:scale-105 transition-transform duration-[1.5s] ease-out">
+                                            <svg class="absolute inset-0 size-full stroke-primary/[0.04]" fill="none">
+                                                <defs>
+                                                    <pattern :id="`book-pattern-${book.id}`" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
+                                                        <path d="M-1 5L5 -1M3 9L8.5 3.5" stroke-width="0.5"></path>
+                                                    </pattern>
+                                                </defs>
+                                                <rect stroke="none" :fill="`url(#book-pattern-${book.id})`" width="100%" height="100%"></rect>
+                                            </svg>
+                                            <div class="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary/60 shadow-inner">
+                                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                        <!-- Book Spine Shadow (Vertical crease line mimicking physical binding depth) -->
+                                        <div class="absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/35 via-black/10 to-transparent z-10"></div>
+                                        <div class="absolute inset-y-0 left-[3px] w-[1px] bg-white/20 z-10"></div>
+                                        <div class="absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-white/10 pointer-events-none z-10"></div>
+
+                                        <!-- Category Tag -->
+                                        <div class="absolute top-3 left-3 z-20">
+                                            <span class="px-2.5 py-1 bg-surface/90 backdrop-blur-md rounded-lg text-[9px] font-bold tracking-widest uppercase text-primary border border-outline-variant/20 shadow-sm">
+                                                {{ book.category }}
+                                            </span>
+                                        </div>
+
+                                        <!-- Free Tag Badge -->
+                                        <div v-if="Number(book.price) === 0 && book.category !== 'Libro en camino'" class="absolute bottom-3 right-3 z-20">
+                                            <span class="px-2.5 py-1 bg-emerald-500 text-white text-[9px] font-bold uppercase tracking-widest shadow-lg rounded-lg">Gratuito</span>
+                                        </div>
                                     </div>
                                     
-                                    <div class="absolute top-3 left-3 z-10">
-                                        <span class="px-2.5 py-1 bg-surface/90 backdrop-blur-md rounded-lg text-[8px] font-black tracking-widest uppercase text-primary border border-outline-variant/20 shadow-sm">
-                                            {{ book.category }}
+                                    <div class="flex-1 flex flex-col">
+                                        <!-- Author -->
+                                        <span class="text-[10px] font-bold uppercase tracking-widest text-[#9ca3af] mb-1.5 leading-none h-4 truncate">
+                                            {{ book.author || 'Instituto IEE' }}
                                         </span>
-                                    </div>
+                                        <!-- Title -->
+                                        <h2 class="font-serif text-base font-bold text-on-surface leading-snug group-hover:text-primary transition-colors line-clamp-2 min-h-[2.5rem] mb-2" :title="book.title">
+                                            {{ book.title }}
+                                        </h2>
+                                        <!-- Description -->
+                                        <p class="text-xs text-on-surface-variant/70 line-clamp-3 mb-6 flex-1 leading-relaxed">
+                                            {{ book.description }}
+                                        </p>
 
-                                    <div v-if="Number(book.price) === 0 && book.category !== 'Libro en camino'" class="absolute bottom-3 right-3 z-10">
-                                        <span class="px-2 py-0.5 bg-primary text-white text-[8px] font-bold uppercase tracking-widest shadow-xl rounded">Gratuito</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex-1 flex flex-col">
-                                    <span class="text-[8px] font-black uppercase tracking-[0.2em] text-[#9ca3af] mb-1.5 leading-none">{{ book.author || 'Instituto IEE' }}</span>
-                                    <h2 class="font-serif text-base font-black text-on-surface leading-snug group-hover:text-primary transition-colors line-clamp-2 min-h-[2.5rem] mb-2 italic">
-                                        {{ book.title }}
-                                    </h2>
-                                    <p class="text-xs text-on-surface-variant line-clamp-3 mb-6 flex-1 italic leading-relaxed">{{ book.description }}</p>
-
-                                    <div class="pt-4 border-t border-outline-variant/10 flex items-center justify-between mt-auto">
-                                        <div class="text-xl font-serif font-black text-on-surface italic">
-                                            <template v-if="Number(book.price) > 0">S/ {{ book.price }}</template>
-                                            <template v-else-if="book.category === 'Libro en camino'">---</template>
-                                            <template v-else>Libre</template>
+                                        <!-- Pricing and Actions -->
+                                        <div class="pt-4 border-t border-outline-variant/10 flex items-center justify-between mt-auto">
+                                            <div class="text-lg font-serif font-bold text-on-surface">
+                                                <template v-if="Number(book.price) > 0">S/ {{ book.price }}</template>
+                                                <template v-else-if="book.category === 'Libro en camino'">---</template>
+                                                <template v-else>Libre</template>
+                                            </div>
+                                            
+                                            <!-- Buttons -->
+                                            <template v-if="book.category === 'Libro en camino'">
+                                                <button disabled class="rounded-xl text-[10px] uppercase tracking-wider font-bold px-4 py-2.5 border border-outline-variant/20 text-on-surface-variant/40 opacity-50 cursor-not-allowed">
+                                                    Pronto
+                                                </button>
+                                            </template>
+                                            <template v-else-if="!book.is_available">
+                                                <button disabled class="rounded-xl text-[10px] uppercase tracking-wider font-bold px-4 py-2.5 bg-red-500/10 text-red-500 border border-red-500/20">
+                                                    Agotado
+                                                </button>
+                                            </template>
+                                            <template v-else>
+                                                <a
+                                                    v-if="Number(book.price) === 0 && (book.file_path || book.download_url)"
+                                                    :href="getDownloadLink(book)"
+                                                    target="_blank"
+                                                    download
+                                                    class="rounded-xl text-[10px] uppercase tracking-wider font-bold px-5 py-2.5 bg-primary text-on-primary hover:bg-primary/95 hover:shadow-lg transition-all shadow-md flex items-center gap-1.5"
+                                                >
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                                    Descargar
+                                                </a>
+                                                <button
+                                                    v-else-if="Number(book.price) === 0"
+                                                    disabled
+                                                    class="rounded-xl text-[10px] uppercase tracking-wider font-bold px-5 py-2.5 bg-surface-container-highest text-on-surface-variant/40 cursor-not-allowed border border-outline-variant/10"
+                                                    title="Archivo no disponible"
+                                                >
+                                                    No disponible
+                                                </button>
+                                                <a
+                                                    v-else
+                                                    :href="getWhatsAppLink(book)"
+                                                    target="_blank"
+                                                    class="rounded-xl text-[10px] uppercase tracking-wider font-bold px-5 py-2.5 bg-primary text-on-primary hover:bg-primary/95 hover:shadow-lg transition-all shadow-md flex items-center justify-center gap-1.5"
+                                                >
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+                                                    Adquirir
+                                                </a>
+                                            </template>
                                         </div>
-                                        
-                                        <template v-if="book.category === 'Libro en camino'">
-                                            <button disabled class="rounded-xl text-[9px] uppercase tracking-widest font-black px-4 py-3 border border-outline-variant/20 text-on-surface-variant/40 opacity-50 cursor-not-allowed">
-                                                Pronto
-                                            </button>
-                                        </template>
-                                        <template v-else-if="!book.is_available">
-                                            <button disabled class="rounded-xl text-[9px] uppercase tracking-widest font-black px-4 py-3 bg-red-500/10 text-red-500 border border-red-500/20">
-                                                Agotado
-                                            </button>
-                                        </template>
-                                        <template v-else>
-                                            <a
-                                                v-if="Number(book.price) === 0 && (book.file_path || book.download_url)"
-                                                :href="getDownloadLink(book)"
-                                                target="_blank"
-                                                download
-                                                class="rounded-xl text-[9px] uppercase tracking-widest font-black px-5 py-3.5 bg-primary text-on-primary hover:opacity-90 transition-all shadow-lg shadow-primary/10 flex items-center gap-1.5"
-                                            >
-                                                Descargar
-                                            </a>
-                                            <button
-                                                v-else-if="Number(book.price) === 0"
-                                                disabled
-                                                class="rounded-xl text-[9px] uppercase tracking-widest font-black px-5 py-3.5 bg-surface-container-highest text-on-surface-variant/40 cursor-not-allowed border border-outline-variant/10"
-                                                title="El archivo aún no ha sido subido"
-                                            >
-                                                No disponible
-                                            </button>
-                                            <a
-                                                v-else
-                                                :href="getWhatsAppLink(book)"
-                                                target="_blank"
-                                                class="rounded-xl text-[9px] uppercase tracking-widest font-black px-5 py-3.5 bg-primary text-on-primary hover:opacity-90 transition-all shadow-lg shadow-primary/10 flex items-center justify-center gap-1.5"
-                                            >
-                                                Adquirir
-                                            </a>
-                                        </template>
                                     </div>
+                                </article>
+                            </div>
+
+                            <!-- Client-side Books Pagination -->
+                            <div v-if="booksTotalPages > 1" class="mt-12 flex justify-center">
+                                <div class="flex flex-wrap gap-2">
+                                    <button
+                                        v-for="p in booksTotalPages"
+                                        :key="p"
+                                        @click="changeBooksPage(p)"
+                                        class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all border"
+                                        :class="booksPage === p 
+                                            ? 'bg-primary border-primary text-on-primary shadow-md shadow-primary/10' 
+                                            : 'bg-surface border-outline-variant/20 text-on-surface-variant hover:border-primary/40 hover:text-primary'"
+                                    >
+                                        {{ p }}
+                                    </button>
                                 </div>
-                            </article>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- ──────────────── ARTÍCULOS ───────────────────── -->
+                    <!-- ──────────────── TABS CONTENT: ARTICLES ───────────────────── -->
                     <div v-if="currentTab === 'articulos'">
-                        <div v-if="!props.articles.length" class="py-24 text-center">
-                            <p class="text-on-surface-variant font-serif italic text-lg opacity-40">Publicando nuevos artículos de análisis estratégico.</p>
+                        <!-- Empty Search State -->
+                        <div v-if="!filteredArticles.length" class="py-24 text-center bg-surface-container-low rounded-[2.5rem] border-2 border-dashed border-outline-variant/30 max-w-3xl mx-auto flex flex-col items-center justify-center p-8 space-y-4">
+                            <div class="p-4 rounded-full bg-primary/5 text-primary/40">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                            </div>
+                            <h3 class="text-xl font-serif font-bold text-on-surface">Sin análisis estratégico</h3>
+                            <p class="text-xs text-on-surface-variant max-w-sm">No hemos encontrado ningún artículo o medio que coincida con la búsqueda "{{ searchQuery }}". Pruebe con otro término.</p>
+                            <button @click="searchQuery = ''" class="px-5 py-2 bg-primary text-on-primary text-xs font-bold rounded-xl shadow-md hover:bg-primary/90 transition-all">Mostrar todos</button>
                         </div>
-                        <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <article 
-                                v-for="article in props.articles" 
-                                :key="article.id"
-                                class="flex flex-col sm:flex-row gap-6 bg-surface border border-outline-variant/15 p-6 rounded-[2rem] hover:shadow-2xl hover:border-primary/20 transition-all duration-500 overflow-hidden group hover:-translate-y-1.5"
-                            >
-                                <!-- Miniatura -->
-                                <div class="w-full sm:w-40 h-40 flex-shrink-0 overflow-hidden bg-surface-container-low rounded-2xl border border-outline-variant/10 relative">
-                                    <img v-if="article.thumbnail" :src="`/storage/${article.thumbnail}`" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out">
-                                    <div v-else class="flex h-full w-full items-center justify-center opacity-10">
-                                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+
+                        <!-- Articles Grid -->
+                        <div v-else>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                                <article 
+                                    v-for="article in paginatedArticles" 
+                                    :key="article.id"
+                                    class="flex flex-col sm:flex-row gap-6 bg-surface border border-outline-variant/15 p-5 rounded-3xl hover:shadow-xl hover:border-primary/20 transition-all duration-500 overflow-hidden group hover:-translate-y-1"
+                                >
+                                    <!-- Article Thumbnail cover -->
+                                    <div class="w-full sm:w-40 h-40 flex-shrink-0 overflow-hidden bg-surface-container-low rounded-2xl border border-outline-variant/10 relative">
+                                        <img v-if="article.thumbnail" :src="`/storage/${article.thumbnail}`" :alt="article.title" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out">
+                                        <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 text-primary/20">
+                                            <svg class="w-12 h-12 stroke-current" fill="none" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                                        </div>
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
                                     </div>
-                                </div>
-                                
-                                <div class="flex-1 flex flex-col justify-center space-y-4">
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-[8px] font-black uppercase tracking-widest text-primary bg-primary/5 px-3 py-1 rounded-full border border-primary/10">{{ article.media }}</span>
-                                        <span class="text-[8px] font-black uppercase tracking-widest text-on-surface-variant/60 italic">{{ formatDate(article.published_at) }}</span>
+                                    
+                                    <div class="flex-1 flex flex-col justify-center space-y-4">
+                                        <!-- Meta Row -->
+                                        <div class="flex flex-wrap items-center gap-3">
+                                            <span class="text-[9px] font-bold uppercase tracking-widest text-primary bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
+                                                {{ article.media }}
+                                            </span>
+                                            <span class="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/50">
+                                                {{ formatDate(article.published_at) }}
+                                            </span>
+                                            <span class="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-widest text-[#AA7C11] bg-[#AA7C11]/5 px-2.5 py-1 rounded-full border border-[#AA7C11]/15 shadow-inner">
+                                                <span class="material-symbols-outlined text-[10px]" translate="no" style="font-size: 11px;">schedule</span>
+                                                Lectura: {{ estimateReadingTime(article.title) }} min
+                                            </span>
+                                        </div>
+
+                                        <!-- Title -->
+                                        <h3 class="font-serif text-lg font-bold text-on-surface group-hover:text-primary transition-colors leading-snug line-clamp-2">
+                                            {{ article.title }}
+                                        </h3>
+
+                                        <!-- CTA Link -->
+                                        <a 
+                                            :href="getArticleDownloadLink(article)" 
+                                            target="_blank"
+                                            class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary border-b border-primary/20 pb-1 w-fit hover:border-primary transition-all group-hover:gap-2.5"
+                                        >
+                                            Lectura Completa
+                                            <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                        </a>
                                     </div>
-                                    <h3 class="font-serif text-xl font-black text-on-surface group-hover:text-primary transition-colors leading-snug line-clamp-2 italic">
-                                        {{ article.title }}
-                                    </h3>
-                                    <a 
-                                        :href="getArticleDownloadLink(article)" 
-                                        target="_blank"
-                                        class="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-primary border-b border-primary/20 pb-1.5 w-fit hover:border-primary transition-all group-hover:gap-3"
+                                </article>
+                            </div>
+
+                            <!-- Client-side Articles Pagination -->
+                            <div v-if="articlesTotalPages > 1" class="mt-12 flex justify-center">
+                                <div class="flex flex-wrap gap-2">
+                                    <button
+                                        v-for="p in articlesTotalPages"
+                                        :key="p"
+                                        @click="changeArticlesPage(p)"
+                                        class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all border"
+                                        :class="articlesPage === p 
+                                            ? 'bg-primary border-primary text-on-primary shadow-md shadow-primary/10' 
+                                            : 'bg-surface border-outline-variant/20 text-on-surface-variant hover:border-primary/40 hover:text-primary'"
                                     >
-                                        Lectura Completa
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                    </a>
+                                        {{ p }}
+                                    </button>
                                 </div>
-                            </article>
+                            </div>
                         </div>
                     </div>
                 </section>
