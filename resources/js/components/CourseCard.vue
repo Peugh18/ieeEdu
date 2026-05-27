@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { useCart } from '@/composables/useCart';
 
 interface Course {
     id: number | string;
@@ -21,8 +22,9 @@ const props = defineProps<{
     isDashboard?: boolean;
 }>();
 
-import { useCart } from '@/composables/useCart';
 const { addItem } = useCart();
+
+const patternId = computed(() => `card-pattern-${props.course.id}`);
 
 // Promotion Logic
 const hasDiscount = computed(() => {
@@ -31,7 +33,8 @@ const hasDiscount = computed(() => {
 
 const savings = computed(() => {
     if (!hasDiscount.value) return 0;
-    return props.course.price - (props.course.sale_price as number);
+    const diff = props.course.price - (props.course.sale_price as number);
+    return Math.round(diff * 100) / 100;
 });
 
 // Date formatting logic
@@ -108,18 +111,37 @@ const handleAddToCart = (e: Event) => {
         </div>
 
         <!-- Visual Cover -->
-        <Link :href="courseRoute" class="relative h-48 w-full block bg-surface-container overflow-hidden">
+        <Link :href="courseRoute" class="relative h-48 w-full block overflow-hidden bg-surface-container-high border-b border-outline-variant/10">
             <img 
                 v-if="course.image" 
                 :src="course.image" 
                 :alt="course.title" 
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
+            <!-- Premium Placeholder Fallback when no image is provided -->
+            <div v-else class="w-full h-full bg-gradient-to-br from-primary/10 via-primary/5 to-surface-container-highest flex items-center justify-center relative group-hover:scale-105 transition-transform duration-700">
+                <!-- Decorative subtle geometric background grid -->
+                <svg class="absolute inset-0 size-full stroke-primary/[0.04]" fill="none">
+                    <defs>
+                        <pattern :id="patternId" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
+                            <path d="M-1 5L5 -1M3 9L8.5 3.5" stroke-width="0.5"></path>
+                        </pattern>
+                    </defs>
+                    <rect stroke="none" :fill="`url(#${patternId})`" width="100%" height="100%"></rect>
+                </svg>
+                <!-- Central Icon -->
+                <div class="relative w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary/60 shadow-inner">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent"></div>
             
             <!-- Type Tag -->
             <div class="absolute top-3 left-3 z-10">
-                <span class="px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md text-white text-[10px] font-bold tracking-widest uppercase flex items-center gap-2 border border-white/10">
+                <span class="px-3 py-1.5 rounded-full bg-black/30 backdrop-blur-md text-white text-[10px] font-bold tracking-widest uppercase flex items-center gap-2 border border-white/10 shadow-sm">
                     <span class="w-1.5 h-1.5 rounded-full" :class="course.type === 'en vivo' ? 'bg-red-400' : (course.type === 'evento' ? 'bg-purple-400' : 'bg-emerald-400')"></span>
                     {{ course.type === 'en vivo' ? 'EN VIVO' : (course.type === 'evento' ? 'EVENTO' : 'GRABADO') }}
                 </span>
@@ -131,7 +153,7 @@ const handleAddToCart = (e: Event) => {
             <span class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-2 block">{{ categoryName }}</span>
             
             <Link :href="courseRoute">
-                <h3 class="font-serif font-bold text-base text-on-surface leading-snug group-hover:text-primary transition-colors mb-3 line-clamp-2" :title="course.title">
+                <h3 class="font-serif font-bold text-base text-on-surface leading-snug group-hover:text-primary transition-colors mb-3 line-clamp-2 min-h-[2.75rem] flex items-start" :title="course.title">
                     {{ course.title }}
                 </h3>
             </Link>

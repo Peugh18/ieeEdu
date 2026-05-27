@@ -25,5 +25,9 @@ class DatabaseSeeder extends Seeder
             'role' => 'usuario',
             'status' => 'activo',
         ]);
+
+        $this->call([
+            PublicationsAndMasterclassSeeder::class,
+        ]);
     }
 }

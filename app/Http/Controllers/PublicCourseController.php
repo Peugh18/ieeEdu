@@ -113,7 +113,7 @@ class PublicCourseController extends Controller
             });
         }
 
-        $courses = $query->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
+        $courses = $query->orderBy('created_at', 'desc')->paginate(6)->withQueryString();
 
         $categories = Category::has('courses')->orderBy('name')->get();
 
@@ -159,7 +159,7 @@ class PublicCourseController extends Controller
             });
         }
 
-        $courses = $query->orderBy('created_at', 'desc')->get(); // we can use get instead of paginate for masterclasses or paginate if preferred. I'll use get().
+        $courses = $query->orderBy('created_at', 'desc')->paginate(6)->withQueryString();
 
         $categories = Category::whereHas('courses', function($q){
             $q->where('type', 'evento');

@@ -398,7 +398,7 @@ class DashboardController extends Controller
             $query->whereNotIn('id', $visibleCourseIds);
         }
 
-        $courses = $query->paginate(12)
+        $courses = $query->paginate(6)
             ->withQueryString();
 
         $banner = \App\Models\Banner::where('section', 'cursos')->first();
@@ -436,6 +436,7 @@ class DashboardController extends Controller
             'media' => $a->media ?? 'Análisis',
             'published_at' => $a->published_at ? $a->published_at->format('Y-m-d') : now()->format('Y-m-d'),
             'thumbnail' => $a->thumbnail,
+            'file_path' => $a->file_path,
             'download_url' => $a->download_url,
         ]);
 
@@ -449,9 +450,6 @@ class DashboardController extends Controller
         ]);
     }
 
-    /**
-     * Explorar Masterclasses
-     */
     public function exploreMasterclasses(Request $request)
     {
         $banner = \App\Models\Banner::where('section', 'masterclass')->first();
@@ -460,8 +458,20 @@ class DashboardController extends Controller
             $q->where('type', 'evento');
         })->orderBy('name')->get();
 
+        $query = Course::published()
+            ->where('type', 'evento')
+            ->with(['category']);
+
+        if ($request->filled('category') && $request->category !== 'Todas') {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('name', $request->category);
+            });
+        }
+
+        $courses = $query->orderBy('created_at', 'desc')->paginate(6)->withQueryString();
+
         return Inertia::render('Masterclasses', [
-            'courses' => Course::published()->where('type', 'evento')->get(),
+            'courses' => $courses,
             'categories' => $categories,
             'filters' => $request->only(['category']),
             'banner' => $banner,
