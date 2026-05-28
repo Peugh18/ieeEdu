@@ -45,6 +45,15 @@ const startCourseAutoplay = () => {
         if (filteredCourses.value.length > 1) {
             currentCourseIndex.value = (currentCourseIndex.value + 1) % filteredCourses.value.length;
         }
+        if (courseScrollContainer.value && !isMobile.value) {
+            const container = courseScrollContainer.value;
+            if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+                container.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                const amount = container.clientWidth * 0.8;
+                container.scrollBy({ left: amount, behavior: 'smooth' });
+            }
+        }
     }, 4000);
 };
 
@@ -97,7 +106,16 @@ const startBookAutoplay = () => {
         if (filteredPublications.value.length > 1) {
             currentBookIndex.value = (currentBookIndex.value + 1) % filteredPublications.value.length;
         }
-    }, 5000);
+        if (bookScrollContainer.value && !isMobile.value) {
+            const container = bookScrollContainer.value;
+            if (container.scrollLeft + container.clientWidth >= container.scrollWidth - 10) {
+                container.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                const amount = container.clientWidth * 0.8;
+                container.scrollBy({ left: amount, behavior: 'smooth' });
+            }
+        }
+    }, 4000);
 };
 
 const stopBookAutoplay = () => {
@@ -131,6 +149,22 @@ watch([activePublicationTab, () => filteredPublications.value], () => {
     currentBookIndex.value = 0;
     startBookAutoplay();
 });
+
+const courseScrollContainer = ref<HTMLElement | null>(null);
+const scrollCourses = (direction: 'left' | 'right') => {
+    if (courseScrollContainer.value) {
+        const amount = courseScrollContainer.value.clientWidth * 0.8;
+        courseScrollContainer.value.scrollBy({ left: direction === 'right' ? amount : -amount, behavior: 'smooth' });
+    }
+};
+
+const bookScrollContainer = ref<HTMLElement | null>(null);
+const scrollBooks = (direction: 'left' | 'right') => {
+    if (bookScrollContainer.value) {
+        const amount = bookScrollContainer.value.clientWidth * 0.8;
+        bookScrollContainer.value.scrollBy({ left: direction === 'right' ? amount : -amount, behavior: 'smooth' });
+    }
+};
 
 let revealObserver: IntersectionObserver | null = null;
 onMounted(() => {
@@ -308,13 +342,19 @@ const clientLogos = [
                         </div>
                     </div>
 
-                    <!-- Desktop Grid -->
-                    <div class="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                        <CourseCard
-                            v-for="course in filteredCourses"
-                            :key="course.id"
-                            :course="course"
-                        />
+                    <!-- Desktop Grid / Carousel -->
+                    <div class="hidden md:block relative group">
+                        <div ref="courseScrollContainer" class="flex overflow-x-auto snap-x snap-mandatory gap-4 md:gap-6 lg:gap-8 pb-6 hide-scrollbar scroll-smooth">
+                            <div v-for="course in filteredCourses" :key="course.id" class="snap-start flex-shrink-0 w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)]">
+                                <CourseCard :course="course" class="h-full" />
+                            </div>
+                        </div>
+                        <button v-if="filteredCourses.length > 3" @click="scrollCourses('left')" class="absolute -left-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-surface-container border border-outline-variant/30 shadow-lg flex items-center justify-center text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary transition-all opacity-0 group-hover:opacity-100 z-10">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                        <button v-if="filteredCourses.length > 3" @click="scrollCourses('right')" class="absolute -right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-surface-container border border-outline-variant/30 shadow-lg flex items-center justify-center text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary transition-all opacity-0 group-hover:opacity-100 z-10">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
                     </div>
 
                     <!-- Empty State -->
@@ -451,12 +491,22 @@ const clientLogos = [
                                                 <span class="text-lg font-bold text-primary font-serif">
                                                     {{ !book.price || Number(book.price) === 0 ? 'Gratis' : `S/ ${Number(book.price).toFixed(0)}` }}
                                                 </span>
-                                                <a :href="(!book.price || Number(book.price) === 0) ? (book.download_url || book.file_path || '/publicaciones') : '/publicaciones'"
-                                                   :target="(!book.price || Number(book.price) === 0) && (book.download_url || book.file_path) ? '_blank' : '_self'"
+                                                <a v-if="Number(book.price) > 0" href="/publicaciones"
                                                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold">
-                                                    {{ !book.price || Number(book.price) === 0 ? 'Descargar' : 'Ver más' }}
+                                                    Ver más
                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                                                 </a>
+                                                <a v-else-if="book.download_url || book.file_path" 
+                                                   :href="book.download_url || `/storage/${book.file_path}`"
+                                                   target="_blank" download
+                                                   class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold">
+                                                    Descargar
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                                </a>
+                                                <button v-else disabled
+                                                   class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surface-container-highest text-on-surface-variant/40 text-xs font-bold cursor-not-allowed">
+                                                    No disp.
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -483,15 +533,13 @@ const clientLogos = [
                         </div>
                     </div>
 
-                    <!-- Desktop Grid -->
-                    <div v-if="filteredPublications.length > 0" class="hidden md:grid gap-5 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
-                        <div
-                            v-for="book in filteredPublications"
-                            :key="book.id"
-                            class="group relative bg-surface-container rounded-2xl border border-outline-variant/15 overflow-hidden hover:shadow-2xl hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 flex flex-col"
-                        >
-                            <!-- Cover image or gradient placeholder -->
-                            <div class="relative h-44 overflow-hidden bg-gradient-to-br from-primary/10 to-tertiary-container/20 flex-shrink-0">
+                    <!-- Desktop Grid / Carousel -->
+                    <div v-if="filteredPublications.length > 0" class="hidden md:block relative group">
+                        <div ref="bookScrollContainer" class="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-6 hide-scrollbar scroll-smooth">
+                            <div v-for="book in filteredPublications" :key="book.id" class="snap-start flex-shrink-0 w-[calc(50%-1.25rem)] lg:w-[calc(25%-1.25rem)] min-w-[240px] flex">
+                                <div class="group relative bg-surface-container rounded-2xl border border-outline-variant/15 overflow-hidden hover:shadow-2xl hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 flex flex-col w-full">
+                                    <!-- Cover image or gradient placeholder -->
+                                    <div class="relative h-44 overflow-hidden bg-gradient-to-br from-primary/10 to-tertiary-container/20 flex-shrink-0">
                                 <img
                                     v-if="book.cover_image"
                                     :src="book.cover_image"
@@ -518,17 +566,33 @@ const clientLogos = [
                                     <span class="text-lg font-bold text-primary font-serif">
                                         {{ !book.price || Number(book.price) === 0 ? 'Gratis' : `S/ ${Number(book.price).toFixed(0)}` }}
                                     </span>
-                                    <a
-                                        :href="(!book.price || Number(book.price) === 0) ? (book.download_url || book.file_path || '/publicaciones') : '/publicaciones'"
-                                        :target="(!book.price || Number(book.price) === 0) && (book.download_url || book.file_path) ? '_blank' : '_self'"
-                                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold hover:opacity-90 hover:shadow-md active:scale-95 transition-all"
-                                    >
-                                        {{ !book.price || Number(book.price) === 0 ? 'Descargar' : 'Ver más' }}
+                                    <a v-if="Number(book.price) > 0" href="/publicaciones"
+                                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold hover:opacity-90 hover:shadow-md active:scale-95 transition-all">
+                                        Ver más
                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                                     </a>
+                                    <a v-else-if="book.download_url || book.file_path" 
+                                        :href="book.download_url || `/storage/${book.file_path}`"
+                                        target="_blank" download
+                                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-bold hover:opacity-90 hover:shadow-md active:scale-95 transition-all">
+                                        Descargar
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    </a>
+                                    <button v-else disabled
+                                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surface-container-highest text-on-surface-variant/40 text-xs font-bold cursor-not-allowed">
+                                        No disp.
+                                    </button>
                                 </div>
                             </div>
                         </div>
+                        </div>
+                        </div>
+                        <button v-if="filteredPublications.length > 4" @click="scrollBooks('left')" class="absolute -left-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-surface-container border border-outline-variant/30 shadow-lg flex items-center justify-center text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary transition-all opacity-0 group-hover:opacity-100 z-10">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                        </button>
+                        <button v-if="filteredPublications.length > 4" @click="scrollBooks('right')" class="absolute -right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-surface-container border border-outline-variant/30 shadow-lg flex items-center justify-center text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary transition-all opacity-0 group-hover:opacity-100 z-10">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </button>
                     </div>
 
                     <!-- Empty state -->
@@ -704,6 +768,14 @@ const clientLogos = [
 </template>
 
 <style scoped>
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
 @keyframes scroll {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }

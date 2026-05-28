@@ -2,7 +2,8 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { Award, Download, Eye, Lock, FileBadge2, ShieldCheck, Share2, Printer } from 'lucide-vue-next';
+import { ref, computed } from 'vue';
+import { Award, Download, Eye, Lock, FileBadge2, ShieldCheck, Share2, Printer, Search } from 'lucide-vue-next';
 
 interface Certificate {
     id: number;
@@ -23,6 +24,17 @@ const breadcrumbs = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Mis Certificados', href: '/student/certificates' },
 ];
+
+const searchQuery = ref('');
+
+const filteredCertificates = computed(() => {
+    if (!searchQuery.value) return props.certificates;
+    const query = searchQuery.value.toLowerCase().trim();
+    return props.certificates.filter(cert => 
+        (cert.title && cert.title.toLowerCase().includes(query)) || 
+        (cert.course_title && cert.course_title.toLowerCase().includes(query))
+    );
+});
 </script>
 
 <template>
@@ -43,12 +55,26 @@ const breadcrumbs = [
                         <h1 class="text-2xl md:text-5xl font-serif font-bold italic tracking-tight text-on-background">Honores y Certificaciones</h1>
                         <p class="hidden md:block text-on-surface-variant font-serif italic text-lg max-w-2xl leading-relaxed">Su trayectoria de excelencia académica debidamente acreditada y validada por nuestra institución.</p>
                     </div>
+                    
+                    <!-- Search Input -->
+                    <div v-if="certificates.length > 0" class="relative w-full md:w-80 shrink-0">
+                        <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-on-surface-variant/40 group-focus-within:text-primary transition-colors">
+                            <Search class="w-4 h-4" />
+                        </div>
+                        <input 
+                            v-model="searchQuery"
+                            type="text" 
+                            placeholder="Buscar certificación..."
+                            class="w-full pl-11 pr-4 py-3 bg-white border border-outline-variant/30 rounded-2xl text-xs font-medium placeholder-on-surface-variant/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 shadow-sm transition-all"
+                        />
+                    </div>
                 </header>
 
-                <div v-if="certificates.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-12">
-                    <article v-for="cert in certificates" :key="cert.id" 
-                        class="group bg-white rounded-[4rem] border border-outline-variant/20 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-700 overflow-hidden flex flex-col relative"
-                    >
+                <div v-if="certificates.length > 0" class="space-y-6">
+                    <div v-if="filteredCertificates.length > 0" class="flex gap-6 md:gap-12 overflow-x-auto pb-6 scroll-smooth snap-x snap-mandatory custom-scrollbar">
+                        <article v-for="cert in filteredCertificates" :key="cert.id" 
+                            class="flex-shrink-0 w-[290px] sm:w-[360px] md:w-[420px] snap-start group bg-white rounded-[4rem] border border-outline-variant/20 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-700 overflow-hidden flex flex-col relative hover:-translate-y-2"
+                        >
                         <!-- Premium framing -->
                         <div class="relative aspect-[16/11] bg-background p-2 overflow-hidden flex items-center justify-center">
                             <!-- Verification Overlay (desktop hover only) -->
@@ -107,7 +133,17 @@ const breadcrumbs = [
                                 </div>
                             </div>
                         </div>
-                    </article>
+                        </article>
+                    </div>
+
+                    <!-- Search Empty State -->
+                    <div v-else class="py-20 flex flex-col items-center text-center bg-white rounded-[4rem] border border-dashed border-outline-variant/30 shadow-inner group">
+                         <div class="w-16 h-16 bg-background rounded-2xl border border-outline-variant/20 flex items-center justify-center mb-6">
+                            <Search class="w-6 h-6 text-outline-variant" />
+                         </div>
+                         <h3 class="text-xl font-serif font-bold italic text-on-background mb-2">Sin coincidencias</h3>
+                         <p class="text-on-surface-variant font-serif italic text-xs leading-relaxed max-w-xs">No encontramos certificaciones que coincidan con "{{ searchQuery }}".</p>
+                    </div>
                 </div>
 
                 <!-- Cinematic Empty State -->
@@ -126,6 +162,21 @@ const breadcrumbs = [
 </template>
 
 <style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(87, 87, 42, 0.08);
+    border-radius: 20px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(87, 87, 42, 0.15);
+}
+
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;

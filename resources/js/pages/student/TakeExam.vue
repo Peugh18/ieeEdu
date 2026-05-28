@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, router, usePage, Link as InertiaLink } from '@inertiajs/vue3';
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { Trophy, XCircle, Download, RotateCcw, ArrowRight, Clock, CheckCircle2 } from 'lucide-vue-next';
 
 interface Answer {
@@ -18,7 +18,10 @@ interface Question {
 interface Quiz {
     id: number;
     title: string;
-    course?: { title: string };
+    course?: { 
+        title: string;
+        slug: string;
+    };
     time_limit: number;
     max_attempts: number;
     questions: Question[];
@@ -191,6 +194,27 @@ const triggerSubmitConfirm = () => {
     };
     showModal.value = true;
 };
+
+// Error handling logic
+const showLocalError = ref(false);
+const localErrorMessage = ref('');
+
+watch(() => page.props.flash?.error, (newVal) => {
+    if (newVal) {
+        localErrorMessage.value = newVal;
+        showLocalError.value = true;
+    }
+}, { immediate: true });
+
+const clearFlashErrorAndRedirect = () => {
+    showLocalError.value = false;
+    clearState();
+    if (props.quiz.course?.slug) {
+        router.visit(route('student.classroom', { course: props.quiz.course.slug }));
+    } else {
+        router.visit(route('student.exams.index'));
+    }
+};
 </script>
 
 <template>
@@ -353,13 +377,33 @@ const triggerSubmitConfirm = () => {
                         </template>
                         <template v-else>
                             <button 
-                                @click="clearState(); router.visit(route('student.exams.index'));"
+                                @click="clearState(); quiz.course?.slug ? router.visit(route('student.classroom', { course: quiz.course.slug })) : router.visit(route('student.exams.index'));"
                                 class="w-full sm:w-auto px-10 py-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:opacity-90 transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-xs"
                             >
-                                <RotateCcw class="w-4 h-4" /> Volver al listado
+                                <RotateCcw class="w-4 h-4" /> Volver al curso
                             </button>
                         </template>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Modal -->
+        <div v-if="showLocalError" class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div class="bg-white rounded-[3rem] shadow-2xl max-w-md w-full p-10 text-center border border-outline-variant/10 animate-in zoom-in-95 duration-200">
+                <div class="w-24 h-24 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-8">
+                    <XCircle class="w-12 h-12 text-red-600 animate-pulse" />
+                </div>
+                <h3 class="text-3xl font-serif font-bold italic text-on-surface mb-4">Error</h3>
+                <p class="text-on-surface-variant leading-relaxed font-serif italic text-lg mb-10">{{ localErrorMessage }}</p>
+                
+                <div class="flex flex-col gap-4">
+                    <button 
+                        @click="clearFlashErrorAndRedirect"
+                        class="w-full py-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 hover:opacity-90 active:scale-95 transition-all uppercase tracking-widest text-xs"
+                    >
+                        Volver al curso
+                    </button>
                 </div>
             </div>
         </div>

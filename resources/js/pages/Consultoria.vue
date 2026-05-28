@@ -58,118 +58,161 @@ const pasos = [
     },
     {
         n: '02',
-        titulo: 'Propuesta técnica',
-        desc: 'Diseñamos una solución a medida, basada en evidencia y alineada con los objetivos estratégicos de tu organización.',
-        svg: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>`,
-    },
-    {
-        n: '03',
-        titulo: 'Ejecución y resultados',
-        desc: 'Acompañamos la implementación, medimos el impacto real y garantizamos la sostenibilidad de los cambios.',
-        svg: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>`,
-    },
-];
+                <!-- Public Page Hero (Only when not in Dashboard) -->
+                <template v-else>
+                    <!-- HERO MOBILE — compacto, sin imagen, llamativo -->
+                    <section class="md:hidden relative overflow-hidden bg-surface-container-low px-6 pt-6 pb-8">
+                        <!-- Blob decorativo -->
+                        <div class="absolute top-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
 
-const form = useForm({
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    area: '',
-    message: '',
-});
-
-const page = usePage();
-const flashSuccess = computed(() => (page.props.flash as any)?.success);
-
-function submitForm() {
-    form.post(route('consultoria.store'), {
-        preserveScroll: true,
-        onSuccess: () => form.reset(),
-    });
-}
-</script>
-
-<template>
-    <Head title="Consultoría Especializada — IEE" />
-
-    <component :is="isDashboard ? AppLayout : 'div'" v-bind="isDashboard ? { breadcrumbs } : {}">
-        <div :class="['min-h-screen font-sans', !isDashboard ? 'bg-surface text-on-surface' : 'bg-transparent']">
-            <Navigation v-if="!isDashboard" />
-
-            <main :class="[!isDashboard ? 'pt-20' : 'pt-0']">
-
-                <!-- ═══════════════════════════════════════════
-                     HERO MOBILE — compacto, sin imagen, llamativo
-                ═══════════════════════════════════════════ -->
-                <section class="md:hidden relative overflow-hidden bg-surface-container-low px-6 pt-6 pb-8">
-                    <!-- Blob decorativo -->
-                    <div class="absolute top-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
-
-                    <!-- Badge -->
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-4">
-                        <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
-                        <span class="text-[11px] font-bold text-primary uppercase tracking-widest">Consultoría IEE</span>
-                    </div>
-
-                    <!-- Título -->
-                    <h1 class="font-serif text-[1.75rem] leading-tight font-bold text-on-surface mb-2">
-                        ¿Necesitas asesoría<br/>
-                        <span class="text-primary italic">especializada?</span>
-                    </h1>
-                    <p class="text-on-surface-variant text-sm mb-6">Trujillo, Perú · Respondemos en 24h</p>
-
-                    <!-- CTAs de contacto -->
-                    <div class="flex flex-col gap-3">
-                        <!-- WhatsApp — principal -->
-                        <a
-                            :href="whatsappLink"
-                            target="_blank"
-                            rel="noopener"
-                            class="flex items-center gap-3 px-4 py-4 rounded-2xl bg-green-500 text-white font-bold shadow-lg shadow-green-500/20"
-                        >
-                            <svg class="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                            <div class="flex-1">
-                                <p class="text-[11px] text-white/80 font-normal">Contáctanos ahora</p>
-                                <p class="text-sm font-bold">WhatsApp</p>
-                            </div>
-                            <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-                        </a>
-
-                        <!-- Email + Formulario en fila -->
-                        <div class="grid grid-cols-2 gap-3">
-                            <a
-                                :href="`mailto:${heroEmail}`"
-                                class="flex items-center gap-2.5 px-4 py-3.5 rounded-2xl bg-surface-container border border-outline-variant/20"
-                            >
-                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                <div>
-                                    <p class="text-[10px] text-on-surface-variant">Email</p>
-                                    <p class="text-xs font-semibold text-on-surface truncate">Escribir</p>
-                                </div>
-                            </a>
-                            <a
-                                href="#solicitar"
-                                class="flex items-center gap-2.5 px-4 py-3.5 rounded-2xl border border-primary/30 bg-primary/5"
-                            >
-                                <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                <div>
-                                    <p class="text-[10px] text-on-surface-variant">Formulario</p>
-                                    <p class="text-xs font-semibold text-primary">Solicitar</p>
-                                </div>
-                            </a>
+                        <!-- Badge -->
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-4">
+                            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                            <span class="text-[11px] font-bold text-primary uppercase tracking-widest">Consultoría IEE</span>
                         </div>
-                    </div>
-                </section>
 
-                <!-- ═══════════════════════════════════════════
-                     HERO DESKTOP — foto full-width premium
-                ═══════════════════════════════════════════ -->
-                <section class="hidden md:block relative overflow-hidden w-full" style="aspect-ratio: 1920 / 600;">
-                    <!-- Imagen dinámica desde admin -->
-                    <img
-                        :src="heroBg"
-                        alt="IEE Consultoría"
+                        <!-- Título -->
+                        <h1 class="font-serif text-[1.75rem] leading-tight font-bold text-on-surface mb-2">
+                            ¿Necesitas asesoría<br/>
+                            <span class="text-primary italic">especializada?</span>
+                        </h1>
+                        <p class="text-on-surface-variant text-sm mb-6">Trujillo, Perú · Respondemos en 24h</p>
+
+                        <!-- CTAs de contacto -->
+                        <div class="flex flex-col gap-3">
+                            <!-- WhatsApp — principal -->
+                            <a
+                                :href="whatsappLink"
+                                target="_blank"
+                                rel="noopener"
+                                class="flex items-center gap-3 px-4 py-4 rounded-2xl bg-green-500 text-white font-bold shadow-lg shadow-green-500/20"
+                            >
+                                <svg class="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                <div class="flex-1">
+                                    <p class="text-[11px] text-white/80 font-normal">Contáctanos ahora</p>
+                                    <p class="text-sm font-bold">WhatsApp</p>
+                                </div>
+                                <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            </a>
+
+                            <!-- Email + Formulario en fila -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <a
+                                    :href="`mailto:${heroEmail}`"
+                                    class="flex items-center gap-2.5 px-4 py-3.5 rounded-2xl bg-surface-container border border-outline-variant/20"
+                                >
+                                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    <div>
+                                        <p class="text-[10px] text-on-surface-variant">Email</p>
+                                        <p class="text-xs font-semibold text-on-surface truncate">Escribir</p>
+                                    </div>
+                                </a>
+                                <a
+                                    href="#solicitar"
+                                    class="flex items-center gap-2.5 px-4 py-3.5 rounded-2xl border border-primary/30 bg-primary/5"
+                                >
+                                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <div>
+                                        <p class="text-[10px] text-on-surface-variant">Formulario</p>
+                                        <p class="text-xs font-semibold text-primary">Solicitar</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- HERO DESKTOP — foto full-width premium -->
+                    <section class="hidden md:block relative overflow-hidden w-full" style="aspect-ratio: 1920 / 600;">
+                        <!-- Imagen dinámica desde admin -->
+                        <img
+                            :src="heroBg"
+                            alt="IEE Consultoría"
+                            class="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-[8s] ease-out"
+                            style="animation: heroZoom 8s ease-out forwards;"
+                        />
+                        <!-- Gradiente multi-capa -->
+                        <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.3) 100%);"></div>
+                        <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);"></div>
+                        <!-- Texture overlay sutil -->
+                        <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%224%22 height=%224%22><rect width=%224%22 height=%224%22 fill=%22white%22/><rect width=%221%22 height=%221%22 fill=%22black%22/></svg>');"></div>
+
+                        <!-- Contenido del hero -->
+                        <div class="relative z-10 h-full flex flex-col justify-end max-w-7xl mx-auto px-6 lg:px-8 pb-10 md:pb-14">
+
+                            <!-- Badge institucional -->
+                            <div class="flex items-center gap-2.5 mb-5">
+                                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.18em] text-white/70 border border-white/15 backdrop-blur-sm" style="background: rgba(255,255,255,0.07);">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0"></span>
+                                    IEE · Desde 2009 · Trujillo, Perú
+                                </span>
+                            </div>
+
+                            <!-- Título dinámico -->
+                            <h1 class="font-serif text-3xl md:text-5xl lg:text-[3.25rem] text-white font-bold leading-[1.12] mb-4 max-w-3xl drop-shadow-2xl">
+                                {{ heroHeading }}
+                            </h1>
+
+                            <!-- Subtítulo dinámico -->
+                            <p class="text-white/65 text-sm md:text-base max-w-xl mb-8 leading-relaxed">
+                                {{ heroSubtitle }}
+                            </p>
+
+                            <!-- Chips de contacto rápido -->
+                            <div class="flex flex-wrap gap-3">
+                                <!-- Email dinámico -->
+                                <a
+                                    :href="`mailto:${heroEmail}`"
+                                    class="group flex items-center gap-2.5 px-4 py-2.5 rounded-xl transition-all duration-300"
+                                    style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(8px);"
+                                    onmouseover="this.style.background='rgba(255,255,255,0.15)'"
+                                    onmouseout="this.style.background='rgba(255,255,255,0.08)'"
+                                >
+                                    <svg class="w-4 h-4 flex-shrink-0" style="color: var(--md-sys-color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span class="text-white text-sm font-medium">{{ heroEmail }}</span>
+                                </a>
+
+                                <!-- WhatsApp dinámico -->
+                                <a
+                                    :href="whatsappLink"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl transition-all duration-300"
+                                    style="background: rgba(37,211,102,0.15); border: 1px solid rgba(37,211,102,0.25); backdrop-filter: blur(8px);"
+                                    onmouseover="this.style.background='rgba(37,211,102,0.25)'"
+                                    onmouseout="this.style.background='rgba(37,211,102,0.15)'"
+                                >
+                                    <svg class="w-4 h-4 flex-shrink-0 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                    </svg>
+                                    <span class="text-white text-sm font-medium">WhatsApp</span>
+                                </a>
+
+                                <!-- Separador visual -->
+                                <div class="w-px bg-white/10 self-stretch mx-1 hidden sm:block"></div>
+
+                                <!-- Ubicación dinámica -->
+                                <div class="flex items-center gap-2 px-4 py-2.5 text-white/50 text-sm">
+                                    <svg class="w-4 h-4 flex-shrink-0 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                    {{ heroAddress }}
+                                </div>
+
+                                <!-- CTA principal -->
+                                <a
+                                    href="#solicitar"
+                                    class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl ml-auto sm:ml-0 bg-primary text-white"
+                                >
+                                    Solicitar consultoría
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+                </template>
                         class="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-[transition-duration:8s] ease-out"
                         style="animation: heroZoom 8s ease-out forwards;"
                     />
@@ -178,56 +221,135 @@ function submitForm() {
                     <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);"></div>
                     <!-- Texture overlay sutil -->
                     <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%224%22 height=%224%22><rect width=%224%22 height=%224%22 fill=%22white%22/><rect width=%221%22 height=%221%22 fill=%22black%22/></svg>');"></div>
+=======
+                <!-- Public Page Hero (Only when not in Dashboard) -->
+                <template v-else>
+                    <!-- HERO MOBILE — compacto, sin imagen, llamativo -->
+                    <section class="md:hidden relative overflow-hidden bg-surface-container-low px-6 pt-6 pb-8">
+                        <!-- Blob decorativo -->
+                        <div class="absolute top-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+>>>>>>> d5d531e943534425caba6085685cfaacc16a2711
 
-                    <!-- Contenido del hero -->
-                    <div class="relative z-10 h-full flex flex-col justify-end max-w-7xl mx-auto px-6 lg:px-8 pb-10 md:pb-14">
-
-                        <!-- Badge institucional -->
-                        <div class="flex items-center gap-2.5 mb-5">
-                            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.18em] text-white/70 border border-white/15 backdrop-blur-sm" style="background: rgba(255,255,255,0.07);">
-                                <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0"></span>
-                                IEE · Desde 2009 · Trujillo, Perú
-                            </span>
+                        <!-- Badge -->
+                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-4">
+                            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                            <span class="text-[11px] font-bold text-primary uppercase tracking-widest">Consultoría IEE</span>
                         </div>
 
-                        <!-- Título dinámico -->
-                        <h1 class="font-serif text-3xl md:text-5xl lg:text-[3.25rem] text-white font-bold leading-[1.12] mb-4 max-w-3xl drop-shadow-2xl">
-                            {{ heroHeading }}
+                        <!-- Título -->
+                        <h1 class="font-serif text-[1.75rem] leading-tight font-bold text-on-surface mb-2">
+                            ¿Necesitas asesoría<br/>
+                            <span class="text-primary italic">especializada?</span>
                         </h1>
+                        <p class="text-on-surface-variant text-sm mb-6">Trujillo, Perú · Respondemos en 24h</p>
 
-                        <!-- Subtítulo dinámico -->
-                        <p class="text-white/65 text-sm md:text-base max-w-xl mb-8 leading-relaxed">
-                            {{ heroSubtitle }}
-                        </p>
-
-                        <!-- Chips de contacto rápido -->
-                        <div class="flex flex-wrap gap-3">
-                            <!-- Email dinámico -->
-                            <a
-                                :href="`mailto:${heroEmail}`"
-                                class="group flex items-center gap-2.5 px-4 py-2.5 rounded-xl transition-all duration-300"
-                                style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(8px);"
-                                onmouseover="this.style.background='rgba(255,255,255,0.15)'"
-                                onmouseout="this.style.background='rgba(255,255,255,0.08)'"
-                            >
-                                <svg class="w-4 h-4 flex-shrink-0" style="color: var(--md-sys-color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
-                                <span class="text-white text-sm font-medium">{{ heroEmail }}</span>
-                            </a>
-
-                            <!-- WhatsApp dinámico -->
+                        <!-- CTAs de contacto -->
+                        <div class="flex flex-col gap-3">
+                            <!-- WhatsApp — principal -->
                             <a
                                 :href="whatsappLink"
                                 target="_blank"
                                 rel="noopener"
-                                class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl transition-all duration-300"
-                                style="background: rgba(37,211,102,0.15); border: 1px solid rgba(37,211,102,0.25); backdrop-filter: blur(8px);"
-                                onmouseover="this.style.background='rgba(37,211,102,0.25)'"
-                                onmouseout="this.style.background='rgba(37,211,102,0.15)'"
+                                class="flex items-center gap-3 px-4 py-4 rounded-2xl bg-green-500 text-white font-bold shadow-lg shadow-green-500/20"
                             >
-                                <svg class="w-4 h-4 flex-shrink-0 text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                <svg class="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                <div class="flex-1">
+                                    <p class="text-[11px] text-white/80 font-normal">Contáctanos ahora</p>
+                                    <p class="text-sm font-bold">WhatsApp</p>
+                                </div>
+                                <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            </a>
+
+                            <!-- Email + Formulario en fila -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <a
+                                    :href="`mailto:${heroEmail}`"
+                                    class="flex items-center gap-2.5 px-4 py-3.5 rounded-2xl bg-surface-container border border-outline-variant/20"
+                                >
+                                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    <div>
+                                        <p class="text-[10px] text-on-surface-variant">Email</p>
+                                        <p class="text-xs font-semibold text-on-surface truncate">Escribir</p>
+                                    </div>
+                                </a>
+                                <a
+                                    href="#solicitar"
+                                    class="flex items-center gap-2.5 px-4 py-3.5 rounded-2xl border border-primary/30 bg-primary/5"
+                                >
+                                    <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <div>
+                                        <p class="text-[10px] text-on-surface-variant">Formulario</p>
+                                        <p class="text-xs font-semibold text-primary">Solicitar</p>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- HERO DESKTOP — foto full-width premium -->
+                    <section class="hidden md:block relative overflow-hidden w-full" style="aspect-ratio: 1920 / 600;">
+                        <!-- Imagen dinámica desde admin -->
+                        <img
+                            :src="heroBg"
+                            alt="IEE Consultoría"
+                            class="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-[8s] ease-out"
+                            style="animation: heroZoom 8s ease-out forwards;"
+                        />
+                        <!-- Gradiente multi-capa -->
+                        <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.3) 100%);"></div>
+                        <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 60%);"></div>
+                        <!-- Texture overlay sutil -->
+                        <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%224%22 height=%224%22><rect width=%224%22 height=%224%22 fill=%22white%22/><rect width=%221%22 height=%221%22 fill=%22black%22/></svg>');"></div>
+
+                        <!-- Contenido del hero -->
+                        <div class="relative z-10 h-full flex flex-col justify-end max-w-7xl mx-auto px-6 lg:px-8 pb-10 md:pb-14">
+
+                            <!-- Badge institucional -->
+                            <div class="flex items-center gap-2.5 mb-5">
+                                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.18em] text-white/70 border border-white/15 backdrop-blur-sm" style="background: rgba(255,255,255,0.07);">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0"></span>
+                                    IEE · Desde 2009 · Trujillo, Perú
+                                </span>
+                            </div>
+
+                            <!-- Título dinámico -->
+                            <h1 class="font-serif text-3xl md:text-5xl lg:text-[3.25rem] text-white font-bold leading-[1.12] mb-4 max-w-3xl drop-shadow-2xl">
+                                {{ heroHeading }}
+                            </h1>
+
+                            <!-- Subtítulo dinámico -->
+                            <p class="text-white/65 text-sm md:text-base max-w-xl mb-8 leading-relaxed">
+                                {{ heroSubtitle }}
+                            </p>
+
+                            <!-- Chips de contacto rápido -->
+                            <div class="flex flex-wrap gap-3">
+                                <!-- Email dinámico -->
+                                <a
+                                    :href="`mailto:${heroEmail}`"
+                                    class="group flex items-center gap-2.5 px-4 py-2.5 rounded-xl transition-all duration-300"
+                                    style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(8px);"
+                                    onmouseover="this.style.background='rgba(255,255,255,0.15)'"
+                                    onmouseout="this.style.background='rgba(255,255,255,0.08)'"
+                                >
+                                    <svg class="w-4 h-4 flex-shrink-0" style="color: var(--md-sys-color-primary);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span class="text-white text-sm font-medium">{{ heroEmail }}</span>
+                                </a>
+
+                                <!-- WhatsApp dinámico -->
+                                <a
+                                    :href="whatsappLink"
+                                    target="_blank"
+                                    rel="noopener"
+                                    class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl transition-all duration-300"
+                                    style="background: rgba(37,211,102,0.15); border: 1px solid rgba(37,211,102,0.25); backdrop-filter: blur(8px);"
+                                    onmouseover="this.style.background='rgba(37,211,102,0.25)'"
+                                    onmouseout="this.style.background='rgba(37,211,102,0.15)'"
+                                >
+                                    <svg class="w-4 h-4 flex-shrink-0 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                                 </svg>
                                 <span class="text-white text-sm font-medium">WhatsApp</span>
                             </a>
@@ -247,8 +369,7 @@ function submitForm() {
                             <!-- CTA principal -->
                             <a
                                 href="#solicitar"
-                                class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl ml-auto sm:ml-0"
-                                style="background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);"
+                                class="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl ml-auto sm:ml-0 bg-primary text-white"
                             >
                                 Solicitar consultoría
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
@@ -256,75 +377,84 @@ function submitForm() {
                         </div>
                     </div>
                 </section>
+                </template>
+
 
                 <!-- ═══════════════════════════════════════════
-                     SERVICIOS — lista 2 columnas elegante
+                     SERVICIOS — Grid de Tarjetas Premium
                 ═══════════════════════════════════════════ -->
-                <section class="py-16 md:py-24 bg-surface">
+                <section class="py-16 md:py-24 bg-transparent">
                     <div class="max-w-7xl mx-auto px-6 lg:px-8">
                         <!-- Label -->
                         <div class="flex items-center gap-3 mb-4">
                             <div class="h-px w-8 bg-primary/40"></div>
-                            <span class="text-[11px] font-bold text-primary tracking-[0.22em] uppercase">Portafolio de Servicios</span>
+                            <span class="text-[11px] font-black text-primary tracking-[0.22em] uppercase">Portafolio de Servicios</span>
                         </div>
 
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
-                            <h2 class="font-serif text-3xl md:text-4xl lg:text-5xl text-on-surface leading-tight">
-                                ¿En qué podemos <em class="not-italic text-primary">ayudarte?</em>
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
+                            <h2 class="font-serif text-3xl md:text-4xl lg:text-5xl text-on-surface leading-tight font-black">
+                                ¿En qué podemos <em class="not-italic text-primary italic">ayudarte?</em>
                             </h2>
-                            <a href="#solicitar" class="flex-shrink-0 group inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:gap-3 transition-all underline underline-offset-4 decoration-primary/30 hover:decoration-primary">
+                            <a href="#solicitar" class="flex-shrink-0 group inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-primary hover:gap-3 transition-all">
                                 Solicitar ahora
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                             </a>
                         </div>
 
-                        <div class="grid sm:grid-cols-2 gap-x-16 gap-y-0">
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             <div
                                 v-for="(area, i) in areas"
                                 :key="area"
-                                class="group flex items-center gap-4 py-4 border-b border-outline-variant/15 hover:border-primary/25 transition-all duration-300 cursor-default"
-                                :class="{ 'border-t': i === 0 || i === 1 }"
+                                class="group bg-surface border border-outline-variant/15 p-6 rounded-[1.75rem] hover:border-primary/30 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between cursor-default"
                             >
-                                <span class="text-[11px] font-bold text-primary/30 font-mono w-5 flex-shrink-0 group-hover:text-primary transition-colors">{{ String(i + 1).padStart(2, '0') }}</span>
-                                <span class="text-sm text-on-surface-variant group-hover:text-on-surface transition-colors leading-snug flex-1">{{ area }}</span>
-                                <svg class="w-3.5 h-3.5 text-primary/0 group-hover:text-primary/50 flex-shrink-0 transition-all -translate-x-2 group-hover:translate-x-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                <div class="flex items-start gap-4">
+                                    <span class="text-[11px] font-black text-primary bg-primary/5 w-6 h-6 rounded-lg flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300">{{ String(i + 1).padStart(2, '0') }}</span>
+                                    <span class="text-sm font-serif italic font-bold text-on-surface-variant group-hover:text-on-surface transition-colors leading-snug flex-1">{{ area }}</span>
+                                </div>
+                                <div class="flex justify-end mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1">
+                                        Solicitar
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- ═══════════════════════════════════════════
-                     CÓMO TRABAJAMOS — 3 pasos con línea
+                     CÓMO TRABAJAMOS — Tarjetas de Proceso
                 ═══════════════════════════════════════════ -->
-                <section class="hidden md:block py-16 md:py-20 bg-surface-container-low relative overflow-hidden">
+                <section class="py-16 md:py-20 bg-surface-container-low relative overflow-hidden">
                     <div class="absolute inset-0 pointer-events-none overflow-hidden">
                         <div class="absolute top-0 left-1/3 w-96 h-96 bg-primary/[0.04] rounded-full blur-[100px]"></div>
                     </div>
                     <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
                         <div class="flex items-center gap-3 mb-4">
                             <div class="h-px w-8 bg-primary/40"></div>
-                            <span class="text-[11px] font-bold text-primary tracking-[0.22em] uppercase">Metodología</span>
+                            <span class="text-[11px] font-black text-primary tracking-[0.22em] uppercase">Metodología</span>
                         </div>
-                        <h2 class="font-serif text-3xl md:text-4xl text-on-surface mb-12 md:mb-16">
-                            Cómo <em class="not-italic text-primary">trabajamos</em>
+                        <h2 class="font-serif text-3xl md:text-4xl text-on-surface mb-12 md:mb-16 font-black">
+                            Cómo <em class="not-italic text-primary italic">trabajamos</em>
                         </h2>
 
-                        <div class="grid md:grid-cols-3 gap-0 md:divide-x divide-outline-variant/15">
+                        <div class="grid md:grid-cols-3 gap-6">
                             <div
                                 v-for="(paso, i) in pasos"
                                 :key="paso.n"
-                                class="group px-0 md:px-10 first:pl-0 last:pr-0 pb-10 md:pb-0"
-                                :class="{ 'border-b border-outline-variant/15 md:border-b-0 mb-10 md:mb-0': i < 2 }"
+                                class="group bg-surface border border-outline-variant/15 p-8 rounded-[2rem] hover:shadow-xl hover:border-primary/20 transition-all duration-300 relative flex flex-col justify-between"
                             >
-                                <!-- Número grande decorativo -->
-                                <div class="flex items-center gap-4 mb-6">
-                                    <span class="font-serif text-5xl font-bold text-on-surface/[0.06] leading-none select-none tabular-nums">{{ paso.n }}</span>
-                                    <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 group-hover:scale-105 transition-all duration-300">
-                                        <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="paso.svg"></svg>
+                                <div>
+                                    <!-- Número grande decorativo -->
+                                    <div class="flex items-center gap-4 mb-6">
+                                        <span class="font-serif text-5xl font-black text-primary/10 leading-none select-none tabular-nums group-hover:text-primary/20 transition-colors">{{ paso.n }}</span>
+                                        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 group-hover:scale-105 transition-all duration-300">
+                                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="paso.svg"></svg>
+                                        </div>
                                     </div>
+                                    <h3 class="font-serif font-black text-on-surface text-xl mb-3 group-hover:text-primary transition-colors duration-300 italic">{{ paso.titulo }}</h3>
+                                    <p class="text-on-surface-variant/80 text-xs leading-relaxed">{{ paso.desc }}</p>
                                 </div>
-                                <h3 class="font-serif font-bold text-on-surface text-xl mb-3 group-hover:text-primary transition-colors duration-300">{{ paso.titulo }}</h3>
-                                <p class="text-on-surface-variant text-sm leading-relaxed">{{ paso.desc }}</p>
                             </div>
                         </div>
                     </div>
@@ -403,8 +533,8 @@ function submitForm() {
                                         v-model="form.name"
                                         type="text"
                                         placeholder="Nombre completo *"
-                                        class="w-full px-4 py-3.5 rounded-xl bg-surface-container text-on-surface placeholder:text-on-surface-variant/35 text-sm focus:outline-none transition-all"
-                                        :class="form.errors.name ? 'border-2 border-red-400' : 'border border-outline-variant/20 focus:border-primary/40 focus:ring-1 focus:ring-primary/20'"
+                                        class="elite-input w-full placeholder:text-on-surface-variant/35 text-sm transition-all focus:outline-none"
+                                        :class="form.errors.name ? '!border-red-500 focus:!border-red-500 focus:!ring-red-500/20' : ''"
                                     />
                                     <p v-if="form.errors.name" class="text-xs text-red-500 -mt-2 pl-1">{{ form.errors.name }}</p>
 
@@ -414,8 +544,8 @@ function submitForm() {
                                                 v-model="form.email"
                                                 type="email"
                                                 placeholder="Correo electrónico *"
-                                                class="w-full px-4 py-3.5 rounded-xl bg-surface-container text-on-surface placeholder:text-on-surface-variant/35 text-sm focus:outline-none transition-all"
-                                                :class="form.errors.email ? 'border-2 border-red-400' : 'border border-outline-variant/20 focus:border-primary/40 focus:ring-1 focus:ring-primary/20'"
+                                                class="elite-input w-full placeholder:text-on-surface-variant/35 text-sm transition-all focus:outline-none"
+                                                :class="form.errors.email ? '!border-red-500 focus:!border-red-500 focus:!ring-red-500/20' : ''"
                                             />
                                             <p v-if="form.errors.email" class="text-xs text-red-500 mt-1 pl-1">{{ form.errors.email }}</p>
                                         </div>
@@ -423,7 +553,7 @@ function submitForm() {
                                             v-model="form.phone"
                                             type="tel"
                                             placeholder="Teléfono / WhatsApp"
-                                            class="w-full px-4 py-3.5 rounded-xl bg-surface-container border border-outline-variant/20 text-on-surface placeholder:text-on-surface-variant/35 text-sm focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all"
+                                            class="elite-input w-full placeholder:text-on-surface-variant/35 text-sm transition-all focus:outline-none"
                                         />
                                     </div>
 
@@ -431,16 +561,16 @@ function submitForm() {
                                         v-model="form.company"
                                         type="text"
                                         placeholder="Empresa o institución"
-                                        class="w-full px-4 py-3.5 rounded-xl bg-surface-container border border-outline-variant/20 text-on-surface placeholder:text-on-surface-variant/35 text-sm focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all"
+                                        class="elite-input w-full placeholder:text-on-surface-variant/35 text-sm transition-all focus:outline-none"
                                     />
 
                                     <div class="relative">
                                         <select
                                             v-model="form.area"
-                                            class="w-full px-4 py-3.5 rounded-xl bg-surface-container text-sm focus:outline-none transition-all appearance-none pr-10"
+                                            class="elite-input w-full text-sm transition-all appearance-none pr-10 focus:outline-none"
                                             :class="[
                                                 form.area ? 'text-on-surface' : 'text-on-surface-variant/35',
-                                                form.errors.area ? 'border-2 border-red-400' : 'border border-outline-variant/20 focus:border-primary/40 focus:ring-1 focus:ring-primary/20'
+                                                form.errors.area ? '!border-red-500 focus:!border-red-500 focus:!ring-red-500/20' : ''
                                             ]"
                                         >
                                             <option value="" disabled>Área de consultoría de interés *</option>
@@ -454,16 +584,15 @@ function submitForm() {
                                         v-model="form.message"
                                         rows="4"
                                         placeholder="Tu mensaje *"
-                                        class="w-full px-4 py-3.5 rounded-xl bg-surface-container text-on-surface placeholder:text-on-surface-variant/35 text-sm focus:outline-none transition-all resize-none"
-                                        :class="form.errors.message ? 'border-2 border-red-400' : 'border border-outline-variant/20 focus:border-primary/40 focus:ring-1 focus:ring-primary/20'"
+                                        class="elite-input w-full placeholder:text-on-surface-variant/35 text-sm transition-all resize-none focus:outline-none"
+                                        :class="form.errors.message ? '!border-red-500 focus:!border-red-500 focus:!ring-red-500/20' : ''"
                                     ></textarea>
                                     <p v-if="form.errors.message" class="text-xs text-red-500 -mt-2 pl-1">{{ form.errors.message }}</p>
 
                                     <button
                                         type="submit"
                                         :disabled="form.processing"
-                                        class="w-full flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl font-bold text-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl disabled:opacity-60 disabled:translate-y-0 disabled:cursor-not-allowed"
-                                        style="background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);"
+                                        class="elite-btn-primary w-full flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:translate-y-0 disabled:cursor-not-allowed"
                                     >
                                         <svg v-if="form.processing" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>

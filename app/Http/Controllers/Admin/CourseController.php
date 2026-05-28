@@ -19,7 +19,7 @@ class CourseController extends Controller
 
     public function index(Request $request)
     {
-        $courses = $this->service->list(15, $request->only('status', 'type', 'search'));
+        $courses = $this->service->list(10, $request->only('status', 'type', 'search'));
         $categories = \App\Models\Category::orderBy('name')->get();
 
         return Inertia::render('admin/Courses', [
@@ -67,7 +67,7 @@ class CourseController extends Controller
     public function edit(Course $course)
     {
         $categories = \App\Models\Category::orderBy('name')->get();
-        $course->load(['modules', 'lessons', 'quizzes.questions.answers']);
+        $course->load(['modules', 'lessons', 'quizzes.questions.answers', 'certificates.user', 'enrollments.user']);
 
         return Inertia::render('admin/CourseEditor', [
             'course' => $course,

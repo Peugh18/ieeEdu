@@ -117,12 +117,12 @@ const breadcrumbs = [
                 </div>
             </div>
 
-            <!-- Enhanced Course Grid -->
-            <div v-if="filteredCourses.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            <!-- Enhanced Course Grid (Horizontal Scroll-Snap) -->
+            <div v-if="filteredCourses.length > 0" class="flex gap-10 overflow-x-auto pb-8 scroll-smooth snap-x snap-mandatory custom-scrollbar">
                 <article 
                     v-for="course in filteredCourses" 
                     :key="course.id"
-                    class="bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-sm overflow-hidden group hover:shadow-[0_30px_60px_rgba(87,87,42,0.12)] transition-all duration-700 flex flex-col hover:-translate-y-3"
+                    class="flex-shrink-0 w-[295px] sm:w-[360px] md:w-[420px] snap-start bg-white rounded-[2.5rem] border border-outline-variant/20 shadow-sm overflow-hidden group hover:shadow-[0_30px_60px_rgba(87,87,42,0.12)] transition-all duration-700 flex flex-col hover:-translate-y-3"
                 >
                     <!-- Visual Cover -->
                     <div class="relative h-44 md:h-64 overflow-hidden bg-surface-container-highest">
@@ -221,13 +221,17 @@ const breadcrumbs = [
 
 <style scoped>
 .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
+    height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(87, 87, 42, 0.1);
-    border-radius: 10px;
+    background: rgba(87, 87, 42, 0.08);
+    border-radius: 20px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(87, 87, 42, 0.15);
 }
 </style>

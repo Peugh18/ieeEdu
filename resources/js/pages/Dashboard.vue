@@ -505,6 +505,55 @@ onUnmounted(() => {
                             </Link>
                         </div>
 
+                        <!-- QUICK LINKS (Accesos rápidos) -->
+                        <div class="space-y-4">
+                            <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                <Sparkles class="w-5 h-5 text-primary" />
+                                Accesos rápidos
+                            </h2>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <!-- Mis evaluaciones -->
+                                <Link :href="route('student.exams.index')"
+                                    class="group bg-white rounded-2xl border border-gray-100 p-5 flex flex-col items-center text-center hover:border-purple-200 hover:shadow-md transition-all duration-300">
+                                    <div class="p-3 bg-purple-50 rounded-2xl group-hover:scale-110 transition-transform mb-3">
+                                        <ClipboardCheck class="w-6 h-6 text-purple-500" />
+                                    </div>
+                                    <h4 class="text-xs font-bold text-gray-800">Mis evaluaciones</h4>
+                                    <p class="text-[10px] text-gray-400 mt-1">{{ stats.available_exams }} disponibles</p>
+                                </Link>
+
+                                <!-- Clases en vivo -->
+                                <Link :href="route('student.live-classes.index')"
+                                    class="group bg-white rounded-2xl border border-gray-100 p-5 flex flex-col items-center text-center hover:border-amber-200 hover:shadow-md transition-all duration-300">
+                                    <div class="p-3 bg-amber-50 rounded-2xl group-hover:scale-110 transition-transform mb-3">
+                                        <Calendar class="w-6 h-6 text-amber-500" />
+                                    </div>
+                                    <h4 class="text-xs font-bold text-gray-800">Clases en vivo</h4>
+                                    <p class="text-[10px] text-gray-400 mt-1">{{ stats.upcoming_classes }} próximas</p>
+                                </Link>
+
+                                <!-- Publicaciones -->
+                                <Link :href="route('student.explore.publications')"
+                                    class="group bg-white rounded-2xl border border-gray-100 p-5 flex flex-col items-center text-center hover:border-blue-200 hover:shadow-md transition-all duration-300">
+                                    <div class="p-3 bg-blue-50 rounded-2xl group-hover:scale-110 transition-transform mb-3">
+                                        <BookOpen class="w-6 h-6 text-blue-500" />
+                                    </div>
+                                    <h4 class="text-xs font-bold text-gray-800">Publicaciones</h4>
+                                    <p class="text-[10px] text-gray-400 mt-1">Libros y artículos</p>
+                                </Link>
+
+                                <!-- Masterclasses -->
+                                <Link :href="route('student.explore.masterclasses')"
+                                    class="group bg-white rounded-2xl border border-gray-100 p-5 flex flex-col items-center text-center hover:border-rose-200 hover:shadow-md transition-all duration-300">
+                                    <div class="p-3 bg-rose-50 rounded-2xl group-hover:scale-110 transition-transform mb-3">
+                                        <Star class="w-6 h-6 text-rose-500" />
+                                    </div>
+                                    <h4 class="text-xs font-bold text-gray-800">Masterclasses</h4>
+                                    <p class="text-[10px] text-gray-400 mt-1">Sesiones especiales</p>
+                                </Link>
+                            </div>
+                        </div>
+
                         <!-- CERTIFICATES SECTION -->
                         <div v-if="certificates.length > 0" class="space-y-4">
                             <div class="flex items-center justify-between">
@@ -685,59 +734,6 @@ onUnmounted(() => {
                                     Ver planes
                                 </Link>
                             </div>
-                        </div>
-
-                        <!-- QUICK LINKS -->
-                        <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-3">
-                            <h3 class="text-sm font-bold text-gray-900 mb-4">Accesos rápidos</h3>
-
-                            <Link :href="route('student.exams.index')"
-                                class="flex items-center gap-3 p-3.5 rounded-2xl hover:bg-gray-50 transition-colors group">
-                                <div class="p-2 bg-purple-50 rounded-xl group-hover:scale-110 transition-transform">
-                                    <ClipboardCheck class="w-4 h-4 text-purple-500" />
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-800">Mis evaluaciones</p>
-                                    <p class="text-[10px] text-gray-400">{{ stats.available_exams }} disponibles</p>
-                                </div>
-                                <ChevronRight class="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
-                            </Link>
-
-                            <Link :href="route('student.live-classes.index')"
-                                class="flex items-center gap-3 p-3.5 rounded-2xl hover:bg-gray-50 transition-colors group">
-                                <div class="p-2 bg-amber-50 rounded-xl group-hover:scale-110 transition-transform">
-                                    <Calendar class="w-4 h-4 text-amber-500" />
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-800">Clases en vivo</p>
-                                    <p class="text-[10px] text-gray-400">{{ stats.upcoming_classes }} próximas</p>
-                                </div>
-                                <ChevronRight class="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
-                            </Link>
-
-                            <Link :href="route('student.explore.publications')"
-                                class="flex items-center gap-3 p-3.5 rounded-2xl hover:bg-gray-50 transition-colors group">
-                                <div class="p-2 bg-blue-50 rounded-xl group-hover:scale-110 transition-transform">
-                                    <BookOpen class="w-4 h-4 text-blue-500" />
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-800">Publicaciones</p>
-                                    <p class="text-[10px] text-gray-400">Libros y artículos</p>
-                                </div>
-                                <ChevronRight class="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
-                            </Link>
-
-                            <Link :href="route('student.explore.masterclasses')"
-                                class="flex items-center gap-3 p-3.5 rounded-2xl hover:bg-gray-50 transition-colors group">
-                                <div class="p-2 bg-rose-50 rounded-xl group-hover:scale-110 transition-transform">
-                                    <Star class="w-4 h-4 text-rose-500" />
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-800">Masterclasses</p>
-                                    <p class="text-[10px] text-gray-400">Sesiones especializadas</p>
-                                </div>
-                                <ChevronRight class="w-4 h-4 text-gray-300 group-hover:text-gray-500 transition-colors" />
-                            </Link>
                         </div>
                     </aside>
                 </div>
