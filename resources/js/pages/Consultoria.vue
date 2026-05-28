@@ -170,7 +170,7 @@ function submitForm() {
                     <img
                         :src="heroBg"
                         alt="IEE Consultoría"
-                        class="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-[8s] ease-out"
+                        class="absolute inset-0 w-full h-full object-cover object-center scale-105 transition-transform duration-[transition-duration:8s] ease-out"
                         style="animation: heroZoom 8s ease-out forwards;"
                     />
                     <!-- Gradiente multi-capa -->

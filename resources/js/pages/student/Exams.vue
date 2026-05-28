@@ -92,7 +92,7 @@ const getStatusStyles = (status: string) => {
                                     :class="exam.progress < 100 ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-2'"
                                 >
                                     <!-- Goal post watermark -->
-                                    <div class="absolute -right-8 -top-8 opacity-[0.03] group-hover:scale-125 transition-transform duration-[2s]">
+                                    <div class="absolute -right-8 -top-8 opacity-[0.03] group-hover:scale-125 transition-transform duration-[transition-duration:2s]">
                                         <Award class="w-48 h-48 text-primary" />
                                     </div>
 
@@ -237,7 +237,7 @@ const getStatusStyles = (status: string) => {
                         <!-- Global Stats Card -->
                         <div class="bg-primary rounded-[4rem] p-12 text-white shadow-2xl shadow-primary/20 relative overflow-hidden group">
                             <!-- Cinematic highlights -->
-                            <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-[0.03] -rotate-45 translate-x-32 -translate-y-32 group-hover:translate-x-24 transition-transform duration-[3s]"></div>
+                            <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-[0.03] -rotate-45 translate-x-32 -translate-y-32 group-hover:translate-x-24 transition-transform duration-[transition-duration:3s]"></div>
                             <div class="absolute bottom-0 left-0 w-48 h-48 bg-[#D4AF37] opacity-[0.05] rounded-full blur-[80px]"></div>
 
                             <div class="relative z-10 space-y-12">
@@ -276,7 +276,7 @@ const getStatusStyles = (status: string) => {
 
                         <!-- Assistance Card -->
                         <div class="bg-white rounded-[3rem] border border-outline-variant/20 p-8 shadow-sm group cursor-pointer hover:bg-background transition-all relative overflow-hidden">
-                             <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:scale-125 transition-transform duration-[2s]">
+                             <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:scale-125 transition-transform duration-[transition-duration:2s]">
                                 <RotateCw class="w-24 h-24 text-primary" />
                              </div>
                              

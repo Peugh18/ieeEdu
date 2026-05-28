@@ -99,9 +99,9 @@ onUnmounted(() => { if (timer) clearInterval(timer); });
 
         <!-- ── Background slides (crossfade + subtle Ken Burns) ── -->
         <div v-for="(slide, i) in slides" :key="i"
-             :class="['absolute inset-0 transition-opacity duration-[1200ms] ease-in-out', i === current ? 'opacity-100' : 'opacity-0']">
+             :class="['absolute inset-0 transition-opacity duration-[transition-duration:1200ms] ease-in-out', i === current ? 'opacity-100' : 'opacity-0']">
             <img :src="slide.image" :alt="slide.tag"
-                 :class="['w-full h-full object-cover transition-transform duration-[6000ms] ease-linear', i === current ? 'scale-110' : 'scale-100']"
+                 :class="['w-full h-full object-cover transition-transform duration-[transition-duration:6000ms] ease-linear', i === current ? 'scale-110' : 'scale-100']"
                  loading="lazy" />
         </div>
 

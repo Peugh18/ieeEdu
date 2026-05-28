@@ -330,7 +330,7 @@ watch(period, () => buildChart());
                                     <h3 class="font-serif text-5xl font-black text-gray-900 tabular-nums leading-none">S/ {{ props.stats.subIncome.toLocaleString() }}</h3>
                                     <div class="mt-3 flex items-center gap-2">
                                         <div class="w-full h-1.5 rounded-full bg-gray-100">
-                                            <div class="h-full bg-primary rounded-full transition-all duration-[2000ms]" :style="{width: subIncomeShare + '%'}"></div>
+                                             <div class="h-full bg-primary rounded-full transition-all duration-[transition-duration:2000ms]" :style="{width: subIncomeShare + '%'}"></div>
                                         </div>
                                     </div>
                                     <p class="text-[11px] text-gray-400 mt-2 font-medium">{{ props.stats.activeSubs }} suscripciones activas</p>
@@ -356,7 +356,7 @@ watch(period, () => buildChart());
                                     <h3 class="font-serif text-5xl font-black text-gray-900 tabular-nums leading-none">S/ {{ props.stats.courseIncome.toLocaleString() }}</h3>
                                     <div class="mt-3 flex items-center gap-2">
                                         <div class="w-full h-1.5 rounded-full bg-gray-100">
-                                            <div class="h-full bg-amber-400 rounded-full transition-all duration-[2000ms]" :style="{width: courseIncomeShare + '%'}"></div>
+                                             <div class="h-full bg-amber-400 rounded-full transition-all duration-[transition-duration:2000ms]" :style="{width: courseIncomeShare + '%'}"></div>
                                         </div>
                                     </div>
                                     <p class="text-[11px] text-gray-400 mt-2 font-medium">{{ props.stats.publishedCourses }} cursos publicados</p>
@@ -476,7 +476,7 @@ watch(period, () => buildChart());
                                         </div>
                                     </div>
                                     <div class="h-2 bg-white rounded-full overflow-hidden border border-gray-100">
-                                        <div class="h-full bg-primary rounded-full transition-all duration-[2s]" :style="{width: subIncomeShare + '%'}"></div>
+                                         <div class="h-full bg-primary rounded-full transition-all duration-[transition-duration:2s]" :style="{width: subIncomeShare + '%'}"></div>
                                     </div>
                                 </div>
 
@@ -489,7 +489,7 @@ watch(period, () => buildChart());
                                         </div>
                                     </div>
                                     <div class="h-2 bg-white rounded-full overflow-hidden border border-gray-100">
-                                        <div class="h-full bg-amber-400 rounded-full transition-all duration-[2s]" :style="{width: courseIncomeShare + '%'}"></div>
+                                         <div class="h-full bg-amber-400 rounded-full transition-all duration-[transition-duration:2s]" :style="{width: courseIncomeShare + '%'}"></div>
                                     </div>
                                 </div>
                             </div>
@@ -558,7 +558,7 @@ watch(period, () => buildChart());
                                     <!-- Barra de progreso -->
                                     <div class="w-24 space-y-1 hidden sm:block">
                                         <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                            <div class="h-full rounded-full transition-all duration-[1500ms]"
+                                             <div class="h-full rounded-full transition-all duration-[transition-duration:1500ms]"
                                                 :class="idx === 0 ? 'bg-primary' : 'bg-gray-300'"
                                                 :style="{width: (course.approved_payments_count / (props.courseSales[0]?.approved_payments_count || 1) * 100) + '%'}">
                                             </div>
@@ -651,7 +651,7 @@ watch(period, () => buildChart());
                                     <circle cx="56" cy="56" r="48" stroke="currentColor" stroke-width="10" fill="none"
                                         :stroke-dasharray="301.6"
                                         :stroke-dashoffset="301.6 - (301.6 * props.stats.approvalRate / 100)"
-                                        stroke-linecap="round" class="text-primary transition-all duration-[2s]" />
+                                         stroke-linecap="round" class="text-primary transition-all duration-[transition-duration:2s]" />
                                 </svg>
                                 <span class="absolute inset-0 flex items-center justify-center font-serif font-black text-xl text-gray-900 tabular-nums">{{ props.stats.approvalRate.toFixed(0) }}%</span>
                             </div>
@@ -669,7 +669,7 @@ watch(period, () => buildChart());
                                     <circle cx="56" cy="56" r="48" stroke="currentColor" stroke-width="10" fill="none"
                                         :stroke-dasharray="301.6"
                                         :stroke-dashoffset="301.6 - (301.6 * Number(completionRate) / 100)"
-                                        stroke-linecap="round" class="text-emerald-500 transition-all duration-[2s]" />
+                                         stroke-linecap="round" class="text-emerald-500 transition-all duration-[transition-duration:2s]" />
                                 </svg>
                                 <span class="absolute inset-0 flex items-center justify-center font-serif font-black text-xl text-gray-900 tabular-nums">{{ completionRate }}%</span>
                             </div>
@@ -701,7 +701,7 @@ watch(period, () => buildChart());
                                         <span class="text-sm font-black text-emerald-600 tabular-nums">{{ props.stats.activeUsers }}</span>
                                     </div>
                                     <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                        <div class="h-full bg-emerald-400 rounded-full transition-all duration-[2s]"
+                                         <div class="h-full bg-emerald-400 rounded-full transition-all duration-[transition-duration:2s]"
                                             :style="{width: (props.stats.activeUsers / props.stats.totalUsers * 100) + '%'}"></div>
                                     </div>
                                 </div>

@@ -62,7 +62,7 @@ const breadcrumbs = [
                             </div>
 
                             <!-- Decorative institutional seal watermark -->
-                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] group-hover:scale-150 transition-transform duration-[3s]">
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] group-hover:scale-150 transition-transform duration-[transition-duration:3s]">
                                 <Award class="w-64 h-64 text-primary" />
                             </div>
 

@@ -268,7 +268,7 @@ const getCourseLightColor = (courseId: number) => {
                     <!-- Calendar View: Institutional Grid -->
                     <div class="lg:col-span-8 flex flex-col bg-white rounded-[4rem] border border-outline-variant/20 shadow-2xl relative overflow-hidden group">
                          <!-- Decorative watermark -->
-                         <div class="absolute -right-20 -bottom-20 opacity-[0.03] pointer-events-none group-hover:scale-110 transition-transform duration-[3s]">
+                         <div class="absolute -right-20 -bottom-20 opacity-[0.03] pointer-events-none group-hover:scale-110 transition-transform duration-[transition-duration:3s]">
                              <CalendarIcon class="w-96 h-96 text-primary" />
                          </div>
 
