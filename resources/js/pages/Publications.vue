@@ -107,6 +107,17 @@ function getWhatsAppLink(book: Book) {
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 }
 
+function getBookCoverStyle(id: number) {
+    const covers = [
+        { bg: 'from-[#2D391B] to-[#171E0E]' }, // Olive / Forest Green
+        { bg: 'from-[#14283D] to-[#0A141F]' }, // Midnight Navy Blue
+        { bg: 'from-[#4D1A1F] to-[#2B0E11]' }, // Crimson / Burgundy
+        { bg: 'from-[#3D3219] to-[#201A0D]' }, // Scholarly Golden Amber
+        { bg: 'from-[#242526] to-[#121314]' }  // Premium Deep Charcoal
+    ];
+    return covers[id % covers.length];
+}
+
 // Client-side search filters
 const filteredBooks = computed(() => {
     if (!searchQuery.value.trim()) return props.books;
@@ -257,26 +268,33 @@ const breadcrumbs = [
                                         <img v-if="book.cover_image" :src="`/storage/${book.cover_image}`" :alt="book.title" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out" />
                                         
                                         <!-- Premium SVG Fallback -->
-                                        <div v-else class="w-full h-full bg-gradient-to-br from-primary/15 via-primary/5 to-surface-container-highest flex items-center justify-center relative group-hover:scale-105 transition-transform duration-[1.5s] ease-out">
-                                            <svg class="absolute inset-0 size-full stroke-primary/[0.04]" fill="none">
-                                                <defs>
-                                                    <pattern :id="`book-pattern-${book.id}`" x="0" y="0" width="16" height="16" patternUnits="userSpaceOnUse">
-                                                        <path d="M-1 5L5 -1M3 9L8.5 3.5" stroke-width="0.5"></path>
-                                                    </pattern>
-                                                </defs>
-                                                <rect stroke="none" :fill="`url(#book-pattern-${book.id})`" width="100%" height="100%"></rect>
-                                            </svg>
-                                            <div class="w-14 h-14 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary/60 shadow-inner">
-                                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                                </svg>
+                                        <div v-else :class="['w-full h-full bg-gradient-to-br p-6 flex flex-col justify-between relative group-hover:scale-105 transition-all duration-700 ease-out select-none', getBookCoverStyle(book.id).bg]">
+                                            <!-- Subtle paper texture grid -->
+                                            <div class="absolute inset-0 opacity-[0.04] bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:12px_12px] pointer-events-none"></div>
+                                            
+                                            <!-- Elegant layout for book cover -->
+                                            <div class="flex-1 flex flex-col items-center justify-center py-6 z-10">
+                                                <h4 class="font-serif text-[11px] sm:text-xs md:text-sm font-bold text-white text-center leading-snug tracking-tight px-1 line-clamp-4 mb-2">
+                                                    {{ book.title }}
+                                                </h4>
+                                                <div class="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/30 my-2">
+                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                                    </svg>
+                                                </div>
+                                                <span class="text-[8px] font-sans uppercase tracking-widest text-white/40 font-medium">IEE Editorial</span>
+                                            </div>
+                                            
+                                            <div class="flex flex-col items-center pb-2 z-10">
+                                                <p class="text-[9px] font-sans font-semibold uppercase tracking-wider text-white/60 text-center line-clamp-1 max-w-full px-2">
+                                                    {{ book.author || 'Instituto IEE' }}
+                                                </p>
                                             </div>
                                         </div>
 
-                                        <!-- Book Spine Shadow (Vertical crease line mimicking physical binding depth) -->
-                                        <div class="absolute inset-y-0 left-0 w-3 bg-gradient-to-r from-black/35 via-black/10 to-transparent z-10"></div>
-                                        <div class="absolute inset-y-0 left-[3px] w-[1px] bg-white/20 z-10"></div>
-                                        <div class="absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-white/10 pointer-events-none z-10"></div>
+                                        <!-- Book Spine Shadow (Subtle vertical crease line mimicking physical binding depth) -->
+                                        <div class="absolute inset-y-0 left-0 w-2.5 bg-gradient-to-r from-black/25 via-black/5 to-transparent z-10 pointer-events-none"></div>
+                                        <div class="absolute inset-y-0 left-[2.5px] w-[1px] bg-white/10 z-10 pointer-events-none"></div>
 
                                         <!-- Category Tag -->
                                         <div class="absolute top-3 left-3 z-20">
