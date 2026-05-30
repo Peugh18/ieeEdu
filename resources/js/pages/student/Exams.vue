@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import BottomNav from '@/components/student/BottomNav.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { ClipboardCheck, Clock, FileText, CheckCircle2, XCircle, MoreVertical, PlayCircle, BarChart3, RotateCw, Award } from 'lucide-vue-next';
+import { Award } from 'lucide-vue-next';
+import ExamAvailableList from '@/components/student/exams/ExamAvailableList.vue';
+import ExamHistory from '@/components/student/exams/ExamHistory.vue';
 
 interface ExamAttempt {
     id: number;
@@ -12,33 +14,24 @@ interface ExamAttempt {
     date: string;
     score: number;
     passing_score: number;
-    status: 'aprobado' | 'reprobado' | 'pendiente';
+    status: 'bloqueado' | 'disponible' | 'aprobado' | 'reprobado' | 'pendiente';
     attempts_left: number;
     progress: number;
     passed: boolean;
+    time_limit: number;
 }
 
 const props = defineProps<{
-    exams: ExamAttempt[];
+    availableExams: ExamAttempt[];
+    blockedExams: ExamAttempt[];
     history: ExamAttempt[];
-    stats: {
-        average_score: number;
-        certificate_count: number;
-    }
+    stats: { average_score: number; certificate_count: number };
 }>();
 
 const breadcrumbs = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Mis Exámenes', href: '/student/exams' },
 ];
-
-const getStatusStyles = (status: string) => {
-    switch (status) {
-        case 'aprobado': return 'bg-primary/5 text-primary border-primary/20';
-        case 'reprobado': return 'bg-rose-50 text-rose-900 border-rose-100';
-        default: return 'bg-amber-50 text-amber-900 border-amber-100';
-    }
-};
 
 const activeTab = ref<'available' | 'history'>('available');
 </script>
@@ -47,9 +40,7 @@ const activeTab = ref<'available' | 'history'>('available');
     <Head title="Mis Exámenes - IEE" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="min-h-screen bg-background text-on-background flex justify-center overflow-x-hidden">
-            
             <div class="w-full max-w-7xl p-4 md:p-12 space-y-6 md:space-y-16">
-                <!-- Academic Header -->
                 <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-10">
                     <div class="space-y-4">
                         <div class="inline-flex items-center gap-1.5 px-3 py-1 md:px-4 md:py-1.5 bg-primary/5 border border-primary/10 rounded-full">
@@ -61,306 +52,71 @@ const activeTab = ref<'available' | 'history'>('available');
                     </div>
                 </header>
 
-                <!-- Mobile stats strip -->
                 <div class="md:hidden flex gap-3 mb-2">
                     <div class="flex-1 bg-primary rounded-2xl p-4 text-white text-center">
-                        <div class="text-2xl font-serif font-bold italic">{{ (stats.average_score / 20 * 10).toFixed(1) }}</div>
+                        <div class="text-2xl font-serif font-bold italic">{{ (props.stats.average_score / 20 * 10).toFixed(1) }}</div>
                         <div class="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 mt-0.5">Promedio</div>
                     </div>
                     <div class="flex-1 bg-white rounded-2xl p-4 border border-outline-variant/20 text-center">
-                        <div class="text-2xl font-serif font-bold italic text-primary">{{ stats.certificate_count }}</div>
+                        <div class="text-2xl font-serif font-bold italic text-primary">{{ props.stats.certificate_count }}</div>
                         <div class="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant/50 mt-0.5">Certificados</div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-12">
-                    <!-- Main Content Panel -->
                     <div class="lg:col-span-8 space-y-8">
-                        <!-- Premium Tabs Navigation -->
                         <div class="flex items-center gap-8 border-b border-outline-variant/20 mb-6">
-                            <button 
-                                @click="activeTab = 'available'"
-                                class="pb-5 text-[11px] font-black uppercase tracking-[0.25em] transition-all relative group flex items-center gap-2"
-                                :class="activeTab === 'available' ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'"
-                            >
-                                Exámenes Habilitados
-                                <span v-if="exams.length > 0" class="px-2 py-0.5 text-[9px] bg-primary/10 text-primary rounded-full font-bold leading-none">{{ exams.length }}</span>
-                                <span class="absolute bottom-0 left-0 w-full h-[4px] scale-x-0 group-hover:scale-x-50 transition-transform bg-primary/10"></span>
-                                <span v-if="activeTab === 'available'" class="absolute bottom-0 left-0 w-full h-[4px] bg-primary rounded-full animate-in zoom-in duration-500"></span>
-                            </button>
-                            <button 
-                                @click="activeTab = 'history'"
-                                class="pb-5 text-[11px] font-black uppercase tracking-[0.25em] transition-all relative group flex items-center gap-2"
-                                :class="activeTab === 'history' ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'"
-                            >
-                                Historial de Excelencia
-                                <span v-if="history.length > 0" class="px-2 py-0.5 text-[9px] bg-on-surface-variant/10 text-on-surface-variant rounded-full font-bold leading-none">{{ history.length }}</span>
-                                <span class="absolute bottom-0 left-0 w-full h-[4px] scale-x-0 group-hover:scale-x-50 transition-transform bg-primary/10"></span>
-                                <span v-if="activeTab === 'history'" class="absolute bottom-0 left-0 w-full h-[4px] bg-primary rounded-full animate-in zoom-in duration-500"></span>
-                            </button>
+                            <button @click="activeTab = 'available'" class="pb-5 text-[11px] font-black uppercase tracking-[0.25em] transition-all relative group flex items-center gap-2" :class="activeTab === 'available' ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'">Exámenes Habilitados<span v-if="availableExams.length > 0" class="px-2 py-0.5 text-[9px] bg-primary/10 text-primary rounded-full font-bold leading-none">{{ availableExams.length }}</span><span class="absolute bottom-0 left-0 w-full h-[4px] scale-x-0 group-hover:scale-x-50 transition-transform bg-primary/10"></span><span v-if="activeTab === 'available'" class="absolute bottom-0 left-0 w-full h-[4px] bg-primary rounded-full"></span></button>
+                            <button @click="activeTab = 'history'" class="pb-5 text-[11px] font-black uppercase tracking-[0.25em] transition-all relative group flex items-center gap-2" :class="activeTab === 'history' ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'">Historial de Excelencia<span v-if="history.length > 0" class="px-2 py-0.5 text-[9px] bg-on-surface-variant/10 text-on-surface-variant rounded-full font-bold leading-none">{{ history.length }}</span><span class="absolute bottom-0 left-0 w-full h-[4px] scale-x-0 group-hover:scale-x-50 transition-transform bg-primary/10"></span><span v-if="activeTab === 'history'" class="absolute bottom-0 left-0 w-full h-[4px] bg-primary rounded-full"></span></button>
                         </div>
-
-                        <!-- Tab: Available Exams -->
-                        <div v-show="activeTab === 'available'" class="animate-in fade-in duration-500 space-y-4 md:space-y-8">
-                            <section class="space-y-4 md:space-y-8">
-                                <div v-if="exams.length > 0" class="flex gap-4 md:gap-8 overflow-x-auto pb-6 scroll-smooth snap-x snap-mandatory custom-scrollbar">
-                                    <div v-for="exam in exams" :key="exam.id" 
-                                        class="flex-shrink-0 w-[285px] sm:w-[325px] md:w-[365px] snap-start group bg-white rounded-2xl md:rounded-[3rem] border border-outline-variant/20 p-5 md:p-8 shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all relative overflow-hidden flex flex-col"
-                                        :class="exam.progress < 100 ? 'opacity-60 cursor-not-allowed' : 'hover:-translate-y-2'"
-                                    >
-                                        <!-- Goal post watermark -->
-                                        <div class="absolute -right-8 -top-8 opacity-[0.03] group-hover:scale-125 transition-transform duration-[2s]">
-                                            <Award class="w-48 h-48 text-primary" />
-                                        </div>
-
-                                        <div class="flex justify-between items-start mb-4 md:mb-8 relative z-10">
-                                            <div class="w-11 h-11 md:w-14 md:h-14 rounded-xl md:rounded-[1.5rem] flex items-center justify-center shadow-inner" :class="exam.progress < 100 ? 'bg-background' : 'bg-primary/5 border border-primary/10'">
-                                                <FileText class="w-5 h-5 md:w-6 md:h-6" :class="exam.progress < 100 ? 'text-outline-variant' : 'text-primary'" />
-                                            </div>
-                                            <div class="px-3 py-1.5 md:px-5 md:py-2 bg-background rounded-xl md:rounded-2xl text-[8px] md:text-[9px] font-black text-on-surface-variant uppercase tracking-[0.15em] md:tracking-[0.2em] border border-outline-variant/20">
-                                                Oport: {{ exam.attempts_left }} 
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="space-y-1 md:space-y-2 flex-1 relative z-10">
-                                            <h4 class="font-serif font-bold text-base md:text-xl text-on-background italic leading-[1.3] group-hover:text-primary transition-colors line-clamp-2">{{ exam.title }}</h4>
-                                            <p class="text-[8px] md:text-[9px] text-[#D4AF37] font-black uppercase tracking-[0.2em] md:tracking-[0.25em] mb-3 md:mb-6 italic">{{ exam.course_title }}</p>
-                                        </div>
-                                        
-                                        <!-- Requirement Bar -->
-                                        <div v-if="exam.progress < 100" class="mb-4 md:mb-8 relative z-10">
-                                            <div class="flex items-center justify-between text-[8px] font-black uppercase tracking-[0.25em] text-outline-variant mb-3">
-                                                <span>Progreso Lectivo</span>
-                                                <span class="text-primary">{{ exam.progress }}%</span>
-                                            </div>
-                                            <div class="h-1.5 w-full bg-background rounded-full overflow-hidden border border-outline-variant/10 p-0.5">
-                                                 <div class="h-full bg-gradient-to-r from-[#D4AF37] to-primary rounded-full transition-all duration-1000 shadow-sm shadow-[#D4AF37]/20" :style="{ width: exam.progress + '%' }"></div>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex items-center justify-between pt-4 md:pt-8 border-t border-outline-variant/10 mt-auto relative z-10">
-                                            <div class="flex items-center gap-2 md:gap-3 text-[9px] md:text-[10px] font-bold italic text-outline-variant">
-                                                <Clock class="w-3.5 h-3.5 md:w-4 md:h-4" />
-                                                <span>{{ exam.time_limit }} min</span>
-                                            </div>
-                                            
-                                            <template v-if="!exam.passed">
-                                                <Link v-if="exam.attempts_left > 0 && exam.progress >= 100" :href="route('student.exams.take', exam.id)" class="px-5 py-3 md:px-8 md:py-4 rounded-xl md:rounded-2xl bg-primary text-white text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] hover:bg-on-background transition-all shadow-xl shadow-primary/10 active:scale-95">
-                                                    Iniciar
-                                                </Link>
-                                                <div v-else-if="exam.progress < 100" class="px-4 py-2.5 md:px-6 md:py-4 bg-background rounded-xl md:rounded-2xl text-[7px] md:text-[8px] font-black text-outline-variant/60 uppercase tracking-[0.15em] md:tracking-[0.2em] border border-outline-variant/10 flex items-center gap-2 md:gap-3 italic">
-                                                    <RotateCw class="w-3 h-3 md:w-3.5 md:h-3.5" /> Requisito
-                                                </div>
-                                                <a v-else href="https://wa.me/51900000000?text=Hola,%20agote%20mis%20intentos%20en%20el%20examen" target="_blank" class="px-4 py-2.5 md:px-6 md:py-4 bg-rose-50 rounded-xl md:rounded-2xl text-[7px] md:text-[8px] font-black text-rose-600 uppercase tracking-[0.15em] md:tracking-[0.2em] border border-rose-100 flex items-center gap-2 md:gap-3 hover:bg-rose-100 transition-all italic">
-                                                    <RotateCw class="w-3 h-3 md:w-3.5 md:h-3.5" /> Sin intentos
-                                                </a>
-                                            </template>
-                                            <span v-else class="text-[8px] md:text-[9px] font-black text-primary uppercase tracking-[0.2em] md:tracking-[0.3em] px-4 py-2.5 md:px-6 md:py-4 bg-primary/5 rounded-xl md:rounded-2xl italic flex items-center gap-2">
-                                                <div class="w-1 h-1 rounded-full bg-primary"></div> Calificado
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div v-else class="py-12 md:py-24 flex flex-col items-center text-center bg-white rounded-2xl md:rounded-[4rem] border border-dashed border-outline-variant/30 shadow-inner group px-4">
-                                     <div class="w-16 h-16 md:w-20 md:h-20 bg-background rounded-2xl md:rounded-[1.75rem] border border-outline-variant/20 flex items-center justify-center mb-6 md:mb-8 group-hover:bg-primary/5 transition-colors">
-                                        <ClipboardCheck class="w-6 h-6 md:w-8 md:h-8 text-outline-variant" />
-                                     </div>
-                                     <h4 class="text-lg md:text-xl font-serif font-bold italic text-on-background mb-2 md:mb-3">Sin evaluaciones lectivas</h4>
-                                     <p class="text-on-surface-variant font-serif italic text-xs md:text-sm leading-relaxed max-w-xs">No se presentan evaluaciones magistrales disponibles en su cronograma actual.</p>
-                                </div>
-                            </section>
-                        </div>
-
-                        <!-- Tab: Academic History -->
-                        <div v-show="activeTab === 'history'" class="animate-in fade-in duration-500 space-y-6 md:space-y-8">
-                            <!-- Academic History: Mobile Cards -->
-                            <section class="md:hidden space-y-4" v-if="history.length > 0">
-                                <div v-for="attempt in history" :key="attempt.id + '_' + attempt.date"
-                                    class="bg-white rounded-2xl border border-outline-variant/20 p-4 shadow-sm"
-                                >
-                                    <div class="flex items-start justify-between gap-3 mb-3">
-                                        <div class="flex-1 min-w-0">
-                                            <p class="font-serif font-bold text-sm text-on-background italic leading-tight truncate">{{ attempt.title }}</p>
-                                            <p class="text-[9px] text-outline-variant font-black uppercase tracking-widest mt-0.5">{{ attempt.course_title }}</p>
-                                        </div>
-                                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-[0.15em] italic shrink-0" :class="getStatusStyles(attempt.status)">
-                                            {{ attempt.status }}
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center justify-between pt-3 border-t border-outline-variant/10">
-                                        <span class="text-[10px] text-on-surface-variant/50 font-serif italic">{{ attempt.date }}</span>
-                                        <div class="flex flex-col items-end">
-                                            <span class="text-lg font-serif font-bold italic" :class="attempt.score >= attempt.passing_score ? 'text-primary' : 'text-rose-900'">{{ (attempt.score / 20 * 10).toFixed(1) }}</span>
-                                            <span class="text-[8px] text-outline-variant font-black uppercase tracking-[0.15em]">{{ attempt.score }}/20 Pts</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- Academic History Table (desktop) -->
-                            <section class="hidden md:block space-y-8" v-if="history.length > 0">
-                                <div class="bg-white rounded-[3.5rem] border border-outline-variant/20 shadow-2xl overflow-hidden overflow-x-auto custom-scrollbar">
-                                    <table class="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr class="bg-background/50 border-b border-outline-variant/10 font-serif">
-                                                <th class="px-10 py-8 text-[10px] font-black text-primary/60 uppercase tracking-[0.3em] italic">Módulo Académico</th>
-                                                <th class="px-10 py-8 text-[10px] font-black text-primary/60 uppercase tracking-[0.3em] italic">Fecha de Conclusión</th>
-                                                <th class="px-10 py-8 text-[10px] font-black text-primary/60 uppercase tracking-[0.3em] italic text-center">Calificación Final</th>
-                                                <th class="px-10 py-8 text-[10px] font-black text-primary/60 uppercase tracking-[0.3em] italic text-right">Estatus Institucional</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-outline-variant/5">
-                                            <tr v-for="attempt in history" :key="attempt.id + '_' + attempt.date" class="group transition-all hover:bg-background/80">
-                                                <td class="px-10 py-8 relative">
-                                                    <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-12 bg-primary transition-all duration-500 rounded-r-full"></div>
-                                                    <div class="flex flex-col gap-1">
-                                                        <span class="font-serif font-bold text-on-background text-base group-hover:text-primary transition-colors italic leading-tight">{{ attempt.title }}</span>
-                                                        <span class="text-[9px] text-outline-variant uppercase font-black tracking-widest">{{ attempt.course_title }}</span>
-                                                    </div>
-                                                </td>
-                                                <td class="px-10 py-8 text-sm font-serif italic text-on-surface-variant/60">{{ attempt.date }}</td>
-                                                <td class="px-10 py-8 text-center">
-                                                    <div class="inline-flex flex-col">
-                                                        <span class="text-2xl font-serif font-bold italic" :class="attempt.score >= attempt.passing_score ? 'text-primary' : 'text-rose-900'">{{ (attempt.score / 20 * 10).toFixed(1) }}</span>
-                                                        <span class="text-[8px] text-outline-variant font-black uppercase tracking-[0.2em] italic">{{ attempt.score }}/20 Pts</span>
-                                                    </div>
-                                                </td>
-                                                <td class="px-10 py-8 text-right">
-                                                    <div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border text-[9px] font-black uppercase tracking-[0.2em] italic" :class="getStatusStyles(attempt.status)">
-                                                        <div class="w-1.5 h-1.5 rounded-full" :class="attempt.status === 'aprobado' ? 'bg-primary' : 'bg-rose-900'"></div>
-                                                        {{ attempt.status }}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </section>
-
-                            <div v-else class="py-12 md:py-24 flex flex-col items-center text-center bg-white rounded-2xl md:rounded-[4rem] border border-dashed border-outline-variant/30 shadow-inner group px-4">
-                                 <div class="w-16 h-16 md:w-20 md:h-20 bg-background rounded-2xl md:rounded-[1.75rem] border border-outline-variant/20 flex items-center justify-center mb-6 md:mb-8 group-hover:bg-primary/5 transition-colors">
-                                    <BarChart3 class="w-6 h-6 md:w-8 md:h-8 text-outline-variant" />
-                                 </div>
-                                 <h4 class="text-lg md:text-xl font-serif font-bold italic text-on-background mb-2 md:mb-3">Sin historial disponible</h4>
-                                 <p class="text-on-surface-variant font-serif italic text-xs md:text-sm leading-relaxed max-w-xs">Aún no registra evaluaciones finalizadas en el sistema académico.</p>
+                        <div v-show="activeTab === 'available'" class="animate-in fade-in duration-500 space-y-6 md:space-y-8">
+                            <ExamAvailableList :exams="availableExams" />
+                            <div v-if="availableExams.length === 0 && blockedExams.length === 0" class="text-center py-12 text-on-surface-variant">
+                                No tienes exámenes disponibles en este momento.
+                            </div>
+                            <div v-if="blockedExams.length > 0" class="space-y-4">
+                                <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant/60 px-1">
+                                    Próximamente — completa el curso al 100%
+                                </p>
+                                <ExamAvailableList :exams="blockedExams" />
                             </div>
                         </div>
+                        <div v-show="activeTab === 'history'" class="animate-in fade-in duration-500 space-y-6 md:space-y-8"><ExamHistory :history="history" /></div>
                     </div>
 
-                    <!-- Statistics Sidebar (hidden on mobile — shown as strip above) -->
                     <aside class="hidden md:block lg:col-span-4 space-y-10 h-fit lg:sticky lg:top-8">
-                        <!-- Global Stats Card -->
                         <div class="bg-primary rounded-[4rem] p-12 text-white shadow-2xl shadow-primary/20 relative overflow-hidden group">
-                            <!-- Cinematic highlights -->
                             <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-[0.03] -rotate-45 translate-x-32 -translate-y-32 group-hover:translate-x-24 transition-transform duration-[3s]"></div>
                             <div class="absolute bottom-0 left-0 w-48 h-48 bg-[#D4AF37] opacity-[0.05] rounded-full blur-[80px]"></div>
-
                             <div class="relative z-10 space-y-12">
                                 <div class="space-y-4">
                                     <h3 class="text-xl font-serif font-bold italic opacity-60 uppercase tracking-widest text-center">Promedio lectivo</h3>
                                     <div class="flex flex-col items-center">
                                         <div class="relative inline-block">
-                                            <span class="text-8xl lg:text-9xl font-serif font-bold italic leading-none">{{ (stats.average_score / 20 * 10).toFixed(1) }}</span>
-                                            <div class="absolute -right-6 bottom-4 flex flex-col items-center opacity-40">
-                                                <span class="text-sm font-black text-white/50 border-t border-white/20 pt-1">SCORE 2.0</span>
-                                            </div>
+                                            <span class="text-8xl lg:text-9xl font-serif font-bold italic leading-none">{{ (props.stats.average_score / 20 * 10).toFixed(1) }}</span>
+                                            <div class="absolute -right-6 bottom-4 flex flex-col items-center opacity-40"><span class="text-sm font-black text-white/50 border-t border-white/20 pt-1">SCORE 2.0</span></div>
                                         </div>
-                                        <div class="mt-4 flex items-center justify-center gap-3 text-white/40">
-                                            <span class="text-[10px] font-black uppercase tracking-[0.4em] italic">{{ stats.average_score.toFixed(1) }} / 20 Puntos</span>
-                                        </div>
+                                        <div class="mt-4 flex items-center justify-center gap-3 text-white/40"><span class="text-[10px] font-black uppercase tracking-[0.4em] italic">{{ props.stats.average_score.toFixed(1) }} / 20 Puntos</span></div>
                                     </div>
                                 </div>
-
                                 <div class="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 p-8 space-y-8">
                                     <div class="flex items-center gap-6">
-                                        <div class="w-16 h-16 bg-[#D4AF37]/20 rounded-[1.25rem] border border-[#D4AF37]/30 flex items-center justify-center shadow-inner">
-                                            <Award class="w-8 h-8 text-[#D4AF37]" />
-                                        </div>
+                                        <div class="w-16 h-16 bg-[#D4AF37]/20 rounded-[1.25rem] border border-[#D4AF37]/30 flex items-center justify-center shadow-inner"><Award class="w-8 h-8 text-[#D4AF37]" /></div>
                                         <div class="flex-1">
                                             <p class="text-[9px] font-black uppercase tracking-[0.3em] text-white/40 mb-1">Cátedras Acreditadas</p>
-                                            <p class="text-2xl font-serif font-bold italic">{{ stats.certificate_count < 10 ? '0' + stats.certificate_count : stats.certificate_count }} Certificaciones</p>
+                                            <p class="text-2xl font-serif font-bold italic">{{ props.stats.certificate_count < 10 ? '0' + props.stats.certificate_count : props.stats.certificate_count }} Certificaciones</p>
                                         </div>
                                     </div>
-                                    
                                     <div class="h-px bg-white/10 w-full"></div>
-                                    
                                     <p class="text-sm font-serif italic text-white/60 leading-relaxed text-center">Su rendimiento académico lo sitúa en el percentil superior institucional.</p>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Assistance Card -->
-                        <div class="bg-white rounded-[3rem] border border-outline-variant/20 p-8 shadow-sm group cursor-pointer hover:bg-background transition-all relative overflow-hidden">
-                             <div class="absolute -right-4 -bottom-4 opacity-[0.02] group-hover:scale-125 transition-transform duration-[2s]">
-                                <RotateCw class="w-24 h-24 text-primary" />
-                             </div>
-                             
-                             <div class="flex items-center gap-6 relative z-10">
-                                <div class="w-16 h-16 bg-[#D4AF37]/5 rounded-[1.5rem] border border-[#D4AF37]/10 flex items-center justify-center group-hover:bg-[#D4AF37]/10 transition-colors">
-                                    <RotateCw class="w-7 h-7 text-[#D4AF37]" />
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-serif font-bold italic text-on-background">Solicitar Re-evaluación</h4>
-                                    <p class="text-[10px] text-on-surface-variant/60 font-black uppercase tracking-widest italic leading-relaxed">Si ha agotado sus intentos lectivos reglamentarios</p>
-                                </div>
-                             </div>
                         </div>
                     </aside>
                 </div>
             </div>
         </div>
-        <!-- Bottom nav spacer -->
         <div class="h-16 lg:hidden"></div>
         <BottomNav active="exams" />
     </AppLayout>
 </template>
-
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(87, 87, 42, 0.08);
-    border-radius: 20px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(87, 87, 42, 0.15);
-}
-
-.animate-spin-slow {
-    animation: spin 3s linear infinite;
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-tr:last-child td:first-child {
-    border-bottom-left-radius: 3.5rem;
-}
-tr:last-child td:last-child {
-    border-bottom-right-radius: 3.5rem;
-}
-
-section, aside > div {
-    animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-</style>

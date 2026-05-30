@@ -1,12 +1,13 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 require __DIR__.'/vendor/autoload.php';
 $app = require_once __DIR__.'/bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
 echo "Iniciando limpieza de usuarios...\n";
@@ -19,7 +20,7 @@ if (empty($nonAdminIds)) {
     exit;
 }
 
-echo "Se eliminarán " . count($nonAdminIds) . " usuarios y sus datos asociados.\n";
+echo 'Se eliminarán '.count($nonAdminIds)." usuarios y sus datos asociados.\n";
 
 $tablesWithUserId = [
     'certificates',
@@ -31,7 +32,7 @@ $tablesWithUserId = [
     'lesson_comments',
     'comment_likes',
     'lesson_user',
-    'whatsapp_leads'
+    'whatsapp_leads',
 ];
 
 try {
@@ -55,8 +56,8 @@ try {
     DB::commit();
 
     echo "Limpieza completada con éxito.\n";
-} catch (\Exception $e) {
+} catch (Exception $e) {
     DB::rollBack();
     Schema::enableForeignKeyConstraints();
-    echo "Error durante la limpieza: " . $e->getMessage() . "\n";
+    echo 'Error durante la limpieza: '.$e->getMessage()."\n";
 }

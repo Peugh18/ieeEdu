@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Payment;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -38,13 +39,13 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
-        return [
+        $sharedData = [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user() ? array_merge($request->user()->toArray(), [
-                    'has_subscription' => $request->user()->hasSubscriptionActive()
+                    'has_subscription' => $request->user()->hasSubscriptionActive(),
                 ]) : null,
             ],
             'flash' => [
@@ -52,6 +53,15 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
                 'exam_result' => $request->session()->get('exam_result'),
             ],
+            'whatsapp_sales' => config('iie.whatsapp_sales'),
         ];
+
+        if ($request->user() && $request->user()->role === 'admin') {
+            $sharedData['admin_nav'] = [
+                'pending_payments' => Payment::where('status', 'pendiente')->count(),
+            ];
+        }
+
+        return $sharedData;
     }
 }

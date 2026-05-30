@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
+use App\Models\CommentLike;
 use App\Models\CourseLesson;
 use App\Models\LessonComment;
-use App\Models\CommentLike;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,7 +17,7 @@ class LessonCommentController extends Controller
 
         $request->validate([
             'content' => 'required|string|max:1000',
-            'parent_id' => 'nullable|exists:lesson_comments,id'
+            'parent_id' => 'nullable|exists:lesson_comments,id',
         ]);
 
         $comment = LessonComment::create([
@@ -32,7 +32,7 @@ class LessonCommentController extends Controller
 
     public function update(Request $request, LessonComment $comment)
     {
-        $this->authorizeUser($comment);
+        $this->authorize('update', $comment);
 
         $request->validate([
             'content' => 'required|string|max:1000',
@@ -48,7 +48,7 @@ class LessonCommentController extends Controller
 
     public function destroy(LessonComment $comment)
     {
-        $this->authorizeUser($comment);
+        $this->authorize('delete', $comment);
         $comment->delete();
 
         return back()->with('success', 'Comentario eliminado.');
@@ -56,6 +56,8 @@ class LessonCommentController extends Controller
 
     public function toggleLike(LessonComment $comment)
     {
+        $this->authorize('like', $comment);
+
         $user_id = Auth::id();
         $like = CommentLike::where('user_id', $user_id)
             ->where('lesson_comment_id', $comment->id)
@@ -71,12 +73,5 @@ class LessonCommentController extends Controller
         }
 
         return back();
-    }
-
-    protected function authorizeUser(LessonComment $comment)
-    {
-        if ($comment->user_id !== Auth::id()) {
-            abort(403, 'No tienes permiso para realizar esta acción.');
-        }
     }
 }

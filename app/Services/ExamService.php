@@ -2,12 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\User;
-use App\Models\CourseQuiz;
 use App\Models\CourseExamAttempt;
+use App\Models\CourseQuiz;
 use App\Models\Enrollment;
-use Illuminate\Support\Facades\Auth;
-use App\Services\CertificateService;
+use App\Models\User;
 
 class ExamService
 {
@@ -37,23 +35,23 @@ class ExamService
     public function submit(User $user, CourseQuiz $quiz, array $answers)
     {
         // 1. Validaciones preventivas
-        if (!$this->canTakeQuiz($user, $quiz)) {
+        if (! $this->canTakeQuiz($user, $quiz)) {
             throw new \Exception('Has superado el límite de intentos permitido para esta evaluación.');
         }
 
         // Asegurar que el curso esté completado (Doble validación de seguridad)
-        $progressService = app(\App\Services\ProgressService::class);
+        $progressService = app(ProgressService::class);
         $progress = $progressService->calculateCourseProgress($user, $quiz->course);
         if ($progress < 100) {
             throw new \Exception('Debes completar el 100% de las lecciones antes de rendir el examen.');
         }
 
         $quiz->load('questions.answers');
-        
+
         $correctCount = 0;
         $totalQuestions = $quiz->questions->count();
-        
-        foreach($quiz->questions as $q) {
+
+        foreach ($quiz->questions as $q) {
             if (isset($answers[$q->id])) {
                 $selectedAns = $q->answers->where('id', $answers[$q->id])->first();
                 if ($selectedAns && $selectedAns->is_correct) {
@@ -61,7 +59,7 @@ class ExamService
                 }
             }
         }
-        
+
         // Escala 0-20
         $finalScore = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 20) : 0;
         $minScore = $quiz->minimum_score ?? 14;
@@ -81,7 +79,7 @@ class ExamService
         if ($status === 'aprobado') {
             $certificate = $this->handlePassing($user, $quiz);
             if ($certificate) {
-                $certificateUrl = route('student.certificates.download', ['certificate' => $certificate->id]) . '?action=stream';
+                $certificateUrl = route('student.certificates.download', ['certificate' => $certificate->id]).'?action=stream';
             }
         }
 
@@ -93,7 +91,7 @@ class ExamService
             'total_questions' => $totalQuestions,
             'passing_score' => $minScore,
             'certificate_url' => $certificateUrl,
-            'message' => $status === 'aprobado' ? '¡Felicidades! Has aprobado la evaluación.' : 'Evaluación finalizada. Sigue practicando.'
+            'message' => $status === 'aprobado' ? '¡Felicidades! Has aprobado la evaluación.' : 'Evaluación finalizada. Sigue practicando.',
         ];
     }
 
@@ -105,19 +103,19 @@ class ExamService
         $enrollment = Enrollment::where('user_id', $user->id)
             ->where('course_id', $quiz->course_id)
             ->first();
-        
+
         $certificate = null;
         if ($enrollment) {
             $isEligible = $this->certificateService->checkEligibility($user, $quiz->course);
             if ($isEligible) {
-                if (!$enrollment->completed_at) {
+                if (! $enrollment->completed_at) {
                     $enrollment->update(['completed_at' => now()]);
                 }
                 // Only create the RECORD, no PDF generation here!
                 $certificate = $this->certificateService->getOrCreateRecord($user, $quiz->course);
             }
         }
-        
+
         return $certificate;
     }
 }

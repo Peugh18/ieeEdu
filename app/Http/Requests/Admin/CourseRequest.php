@@ -16,7 +16,7 @@ class CourseRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|alpha_dash|unique:courses,slug,' . ($this->course?->id ?? 'null'),
+            'slug' => 'nullable|alpha_dash|unique:courses,slug,'.($this->course?->id ?? 'null'),
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             // sale_price is computed by the backend from price+discount, just validate its type if sent
@@ -32,7 +32,7 @@ class CourseRequest extends FormRequest
             'docente_id' => 'nullable|exists:users,id',
             // Image can be either an uploaded file (new) or an existing stored URL/path (update)
             'image' => 'nullable',
-            'image_file' => ($this->isMethod('post') ? 'required' : 'nullable') . '|file|mimes:jpg,jpeg,png,webp|max:5120',
+            'image_file' => ($this->isMethod('post') ? 'required' : 'nullable').'|file|mimes:jpg,jpeg,png,webp|max:5120',
             'certificate_enabled' => 'sometimes|boolean',
             'instructor_name' => 'nullable|string|max:255',
             'instructor_title' => 'nullable|string|max:255',

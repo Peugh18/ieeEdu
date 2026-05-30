@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Certificate;
+use App\Services\CertificateService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -11,6 +12,8 @@ class CertificateController extends Controller
 {
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Certificate::class);
+
         $perPage = (int) $request->input('per_page', 20);
         $perPage = in_array($perPage, [10, 20, 50]) ? $perPage : 20;
 
@@ -19,9 +22,9 @@ class CertificateController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%")
-                                                   ->orWhere('email', 'like', "%{$search}%"))
-                  ->orWhereHas('course', fn ($c) => $c->where('title', 'like', "%{$search}%"))
-                  ->orWhere('code', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%"))
+                    ->orWhereHas('course', fn ($c) => $c->where('title', 'like', "%{$search}%"))
+                    ->orWhere('code', 'like', "%{$search}%");
             });
         }
 
@@ -31,16 +34,19 @@ class CertificateController extends Controller
 
         return Inertia::render('admin/Certificates', [
             'certificates' => $certificates,
-            'filters'      => $request->only('search', 'per_page'),
-            'stats'        => [
-                'total'       => Certificate::count(),
+            'filters' => $request->only('search', 'per_page'),
+            'stats' => [
+                'total' => Certificate::count(),
             ],
         ]);
     }
 
-    public function download(Request $request, Certificate $certificate, \App\Services\CertificateService $service)
+    public function download(Request $request, Certificate $certificate, CertificateService $service)
     {
+        $this->authorize('download', $certificate);
+
         $action = $request->query('action', 'stream');
+
         return $service->downloadPdf($certificate, $action);
     }
 }

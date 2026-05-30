@@ -11,7 +11,7 @@ class LessonComment extends Model
         'course_lesson_id',
         'parent_id',
         'content',
-        'is_edited'
+        'is_edited',
     ];
 
     public function user()
@@ -36,7 +36,10 @@ class LessonComment extends Model
 
     public function isLikedBy($user)
     {
-        if (!$user) return false;
+        if (! $user) {
+            return false;
+        }
+
         return $this->likes()->where('user_id', $user->id)->exists();
     }
 }

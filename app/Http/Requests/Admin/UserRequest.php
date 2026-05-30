@@ -18,7 +18,7 @@ class UserRequest extends FormRequest
 
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $userId,
+            'email' => 'required|email|max:255|unique:users,email,'.$userId,
             'telefono' => 'nullable|string|max:20',
             'role' => 'required|in:admin,usuario',
             'status' => 'required|in:activo,inactivo',

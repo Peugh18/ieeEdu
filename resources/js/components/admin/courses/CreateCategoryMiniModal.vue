@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { X } from 'lucide-vue-next';
-import axios from 'axios';
+import axios from '@/lib/axios';
 
 const props = defineProps<{
     open: boolean;
@@ -43,7 +43,7 @@ async function submit() {
         );
         emit('created', res.data);
         emit('close');
-    } catch (e: any) {
+    } catch (e: unknown) {
         error.value = e?.response?.data?.message ?? 'No se pudo crear la categoría.';
     } finally {
         loading.value = false;

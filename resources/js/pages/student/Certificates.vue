@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import { Award, Download, Eye, Lock, FileBadge2, ShieldCheck, Share2, Printer, Search } from 'lucide-vue-next';
+import { Award, Download, Eye, ShieldCheck, Printer, Search } from 'lucide-vue-next';
 
 interface Certificate {
     id: number;
@@ -88,7 +88,7 @@ const filteredCertificates = computed(() => {
                             </div>
 
                             <!-- Decorative institutional seal watermark -->
-                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] group-hover:scale-150 transition-transform duration-[3s]">
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] group-hover:scale-150 transition-transform duration-[transition-duration:3s]">
                                 <Award class="w-64 h-64 text-primary" />
                             </div>
 

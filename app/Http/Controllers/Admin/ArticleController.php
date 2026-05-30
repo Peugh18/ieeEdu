@@ -34,7 +34,7 @@ class ArticleController extends Controller
 
         if ($request->hasFile('file_path')) {
             $data['file_path'] = $request->file('file_path')->store('articles/pdfs', 'public');
-            $data['download_url'] = asset('storage/' . $data['file_path']);
+            $data['download_url'] = asset('storage/'.$data['file_path']);
         }
 
         Article::create($data);
@@ -67,7 +67,7 @@ class ArticleController extends Controller
                 Storage::disk('public')->delete($article->file_path);
             }
             $data['file_path'] = $request->file('file_path')->store('articles/pdfs', 'public');
-            $data['download_url'] = asset('storage/' . $data['file_path']);
+            $data['download_url'] = asset('storage/'.$data['file_path']);
         } else {
             unset($data['file_path']);
         }

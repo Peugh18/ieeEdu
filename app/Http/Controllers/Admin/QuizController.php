@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreQuizRequest;
 use App\Models\Course;
 use App\Models\CourseQuiz;
-use Illuminate\Http\Request;
 
 class QuizController extends Controller
 {
@@ -14,30 +14,18 @@ class QuizController extends Controller
         return response()->json($course->quizzes()->with(['questions.answers', 'attempts.user'])->get());
     }
 
-    public function store(Request $request, Course $course)
+    public function store(StoreQuizRequest $request, Course $course)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'time_limit' => 'required|integer|min:0',
-            'max_attempts' => 'required|integer|min:1',
-            'minimum_score' => 'required|numeric|min:0|max:100',
-            'randomize_questions' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         $quiz = $course->quizzes()->create($validated);
 
         return response()->json($quiz, 201);
     }
 
-    public function update(Request $request, CourseQuiz $quiz)
+    public function update(StoreQuizRequest $request, CourseQuiz $quiz)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'time_limit' => 'required|integer|min:0',
-            'max_attempts' => 'required|integer|min:1',
-            'minimum_score' => 'required|numeric|min:0|max:100',
-            'randomize_questions' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         $quiz->update($validated);
 
@@ -47,6 +35,7 @@ class QuizController extends Controller
     public function destroy(CourseQuiz $quiz)
     {
         $quiz->delete();
+
         return response()->json(['message' => 'Quiz eliminado']);
     }
 }

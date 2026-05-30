@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Services\SubscriptionAccessService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use App\Services\SubscriptionAccessService;
 
 class SyncSubscriptionAccess extends Command
 {
     protected $signature = 'subscription:sync {--backfill : Mark pre-migration enrollments with correct subscription_granted flag}';
+
     protected $description = 'Sync subscription access flags across all users';
 
     public function __construct(protected SubscriptionAccessService $accessService)
@@ -67,6 +68,6 @@ class SyncSubscriptionAccess extends Command
             $this->accessService->sync($userId);
         }
 
-        $this->info('✅ Sync complete for ' . count($userIds) . ' users.');
+        $this->info('✅ Sync complete for '.count($userIds).' users.');
     }
 }

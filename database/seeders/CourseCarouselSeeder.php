@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Course;
-use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
 
 class CourseCarouselSeeder extends Seeder
 {
@@ -13,7 +12,7 @@ class CourseCarouselSeeder extends Seeder
         // 5 Cursos en vivo
         for ($i = 1; $i <= 5; $i++) {
             Course::create([
-                'title' => 'Curso en Vivo de Especialización ' . $i,
+                'title' => 'Curso en Vivo de Especialización '.$i,
                 'description' => 'Un curso espectacular en vivo con metodología comprobada para líderes.',
                 'price' => 120.00,
                 'sale_price' => 90.00,
@@ -29,7 +28,7 @@ class CourseCarouselSeeder extends Seeder
         // 5 Cursos grabados
         for ($i = 1; $i <= 5; $i++) {
             Course::create([
-                'title' => 'Programa Grabado de Gestión ' . $i,
+                'title' => 'Programa Grabado de Gestión '.$i,
                 'description' => 'Aprende a tu propio ritmo con nuestros programas asíncronos.',
                 'price' => 150.00,
                 'sale_price' => 0.00, // Sin descuento

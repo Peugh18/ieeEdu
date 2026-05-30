@@ -4,6 +4,7 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import BrandLogo from '@/components/BrandLogo.vue';
 import type { BreadcrumbItemType } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const props = withDefaults(defineProps<{
     breadcrumbs?: BreadcrumbItemType[];
@@ -12,6 +13,7 @@ const props = withDefaults(defineProps<{
 });
 
 const page = usePage();
+const user = computed(() => page.props.auth?.user);
 </script>
 
 <template>
@@ -48,7 +50,7 @@ const page = usePage();
         </div>
 
         <!-- Dynamic Navigation Links (from Landing) -->
-        <nav class="hidden md:flex items-center gap-10">
+        <nav class="hidden md:flex items-center gap-10" v-if="user?.role !== 'admin'">
             <Link 
                 v-for="link in [
                     { title: 'Cursos', href: route('student.explore.courses') },

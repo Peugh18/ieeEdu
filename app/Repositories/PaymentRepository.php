@@ -10,12 +10,12 @@ class PaymentRepository
     {
         $query = Payment::query()->with(['user', 'course']);
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['search'])) {
-            $query->whereHas('user', fn($q) => $q->where('name', 'like', "%{$filters['search']}%"));
+        if (! empty($filters['search'])) {
+            $query->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$filters['search']}%"));
         }
 
         return $query->orderBy('created_at', 'desc')->paginate($perPage);

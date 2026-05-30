@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StorePaymentRequest;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Payment;
-use App\Models\User;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,12 +14,12 @@ use Inertia\Inertia;
 
 class PaymentController extends Controller
 {
-    public function __construct(protected PaymentService $service)
-    {
-    }
+    public function __construct(protected PaymentService $service) {}
 
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Payment::class);
+
         $perPage = (int) $request->input('per_page', 20);
         $perPage = in_array($perPage, [10, 20, 50]) ? $perPage : 20;
 
@@ -28,8 +28,8 @@ class PaymentController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->whereHas('user', fn ($u) => $u->where('name', 'like', "%{$search}%")
-                                                   ->orWhere('email', 'like', "%{$search}%"))
-                  ->orWhereHas('course', fn ($c) => $c->where('title', 'like', "%{$search}%"));
+                    ->orWhere('email', 'like', "%{$search}%"))
+                    ->orWhereHas('course', fn ($c) => $c->where('title', 'like', "%{$search}%"));
             });
         }
 
@@ -53,50 +53,23 @@ class PaymentController extends Controller
 
         return Inertia::render('admin/Payments', [
             'payments' => $payments,
-            'filters'  => $request->only('status', 'search', 'date', 'per_page'),
-            'stats'    => [
-                'total'       => Payment::count(),
-                'pendiente'   => Payment::where('status', 'pendiente')->count(),
+            'filters' => $request->only('status', 'search', 'date', 'per_page'),
+            'stats' => [
+                'total' => Payment::count(),
+                'pendiente' => Payment::where('status', 'pendiente')->count(),
                 'en_revision' => Payment::where('status', 'en_revision')->count(),
-                'aprobado'    => Payment::where('status', 'aprobado')->count(),
-                'rechazado'   => Payment::where('status', 'rechazado')->count(),
+                'aprobado' => Payment::where('status', 'aprobado')->count(),
+                'rechazado' => Payment::where('status', 'rechazado')->count(),
             ],
             'courses' => $courses,
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StorePaymentRequest $request)
     {
-        $data = $request->validate([
-            'user_id'     => 'required|exists:users,id',
-            'course_id'   => 'required|exists:courses,id',
-            'amount'      => 'required|numeric|min:0',
-            'status'      => 'required|in:pendiente,en_revision,aprobado,rechazado',
-            'comprobante' => 'nullable|image|max:5120',
-        ]);
+        $this->authorize('create', Payment::class);
 
-        // ── Guard: ¿Ya tiene acceso a este curso? ─────────────────
-        $alreadyEnrolled = Enrollment::where('user_id', $data['user_id'])
-            ->where('course_id', $data['course_id'])
-            ->exists();
-
-        if ($alreadyEnrolled) {
-            return back()->withErrors([
-                'course_id' => 'Este estudiante ya tiene acceso a este curso.',
-            ])->withInput();
-        }
-
-        // ── Guard: ¿Ya hay un pago aprobado o en revisión? ────────
-        $pendingOrApproved = Payment::where('user_id', $data['user_id'])
-            ->where('course_id', $data['course_id'])
-            ->whereIn('status', ['aprobado', 'en_revision', 'pendiente'])
-            ->exists();
-
-        if ($pendingOrApproved) {
-            return back()->withErrors([
-                'course_id' => 'Ya existe un pago registrado para este estudiante en este curso.',
-            ])->withInput();
-        }
+        $data = $request->validated();
 
         // ── Upload comprobante ────────────────────────────────────
         $comprobanteUrl = null;
@@ -106,10 +79,10 @@ class PaymentController extends Controller
         }
 
         $payment = Payment::create([
-            'user_id'     => $data['user_id'],
-            'course_id'   => $data['course_id'],
-            'amount'      => $data['amount'],
-            'status'      => $data['status'],
+            'user_id' => $data['user_id'],
+            'course_id' => $data['course_id'],
+            'amount' => $data['amount'],
+            'status' => $data['status'],
             'comprobante' => $comprobanteUrl,
         ]);
 
@@ -123,6 +96,8 @@ class PaymentController extends Controller
 
     public function show(Payment $payment)
     {
+        $this->authorize('view', $payment);
+
         $payment->load(['user', 'course']);
 
         return Inertia::render('admin/PaymentShow', [
@@ -132,13 +107,19 @@ class PaymentController extends Controller
 
     public function approve(Payment $payment)
     {
+        $this->authorize('approve', $payment);
+
         $this->service->approve($payment);
+
         return redirect()->back()->with('success', 'Pago aprobado — curso desbloqueado.');
     }
 
     public function reject(Payment $payment)
     {
+        $this->authorize('reject', $payment);
+
         $this->service->reject($payment);
+
         return redirect()->back()->with('success', 'Pago rechazado.');
     }
 }

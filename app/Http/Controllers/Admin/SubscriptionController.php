@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Subscription;
+use App\Http\Requests\Admin\StoreSubscriptionRequest;
 use App\Models\Payment;
+use App\Models\Subscription;
 use App\Services\SubscriptionAccessService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class SubscriptionController extends Controller
@@ -17,13 +19,15 @@ class SubscriptionController extends Controller
 
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Subscription::class);
+
         $perPage = (int) $request->input('per_page', 20);
         $query = Subscription::query()->with('user:id,name,email');
 
         if ($search = $request->input('search')) {
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -31,75 +35,79 @@ class SubscriptionController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        // Vincular pagos: adjuntar monto y captura si existe
-        $subscriptions->getCollection()->transform(function ($sub) {
-            $payment = Payment::where('user_id', $sub->user_id)
-                ->where('status', 'aprobado')
-                ->whereNull('course_id')
-                ->latest()
-                ->first();
-            
+        // Optimización N+1: Vincular pagos adjuntando monto y captura si existe en una consulta única
+        $userIds = $subscriptions->pluck('user_id')->unique()->toArray();
+        $payments = Payment::whereIn('user_id', $userIds)
+            ->where('status', 'aprobado')
+            ->whereNull('course_id')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->groupBy('user_id');
+
+        $subscriptions->getCollection()->transform(function ($sub) use ($payments) {
+            $userPayments = $payments->get($sub->user_id);
+            $payment = $userPayments ? $userPayments->first() : null;
+
             $sub->payment_amount = $payment ? $payment->amount : null;
             $sub->payment_capture = $payment ? $payment->comprobante : null;
+
             return $sub;
         });
 
         return Inertia::render('admin/Subscriptions', [
             'subscriptions' => $subscriptions,
-            'filters'       => $request->only('search', 'per_page'),
+            'filters' => $request->only('search', 'per_page'),
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreSubscriptionRequest $request)
     {
-        $data = $request->validate([
-            'user_id'     => 'required|exists:users,id',
-            'type'        => 'required|string',
-            'months'      => 'required|integer|min:1',
-            'amount'      => 'required|numeric|min:0',
-            'comprobante' => 'nullable|file|image|max:5120',
-        ]);
+        $this->authorize('create', Subscription::class);
+
+        $data = $request->validated();
 
         try {
             // Desactivar suscripciones activas previas (sin Observer: usamos update masivo)
             Subscription::where('user_id', $data['user_id'])
-                ->where('status', 'activa')
-                ->update(['status' => 'expirada']);
+                ->where('status', Subscription::STATUS_ACTIVE)
+                ->update(['status' => Subscription::STATUS_EXPIRED]);
 
             // Crear nueva suscripción (el Observer la ignorará porque no fue updated)
             $sub = Subscription::create([
-                'user_id'    => $data['user_id'],
-                'type'       => $data['type'],
+                'user_id' => $data['user_id'],
+                'type' => $data['type'],
                 'start_date' => now(),
-                'end_date'   => now()->addMonths((int) $data['months']),
-                'status'     => 'activa',
+                'end_date' => now()->addMonths((int) $data['months']),
+                'status' => Subscription::STATUS_ACTIVE,
             ]);
 
-            // Gestión de comprobante
+            // Gestión de comprobante (H4: sanitizar nombre de archivo)
             $comprobantePath = null;
             if ($request->hasFile('comprobante')) {
-                $file     = $request->file('comprobante');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $path     = $file->storeAs('comprobantes', $filename, 'public');
-                $comprobantePath = '/storage/' . $path;
+                $file = $request->file('comprobante');
+                $ext = $file->getClientOriginalExtension();
+                $safeName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'_'.time();
+                $filename = $safeName.'.'.$ext;
+                $path = $file->storeAs('comprobantes', $filename, 'public');
+                $comprobantePath = '/storage/'.$path;
             }
 
             // Registrar pago
             Payment::create([
-                'user_id'     => $data['user_id'],
-                'amount'      => $data['amount'],
-                'status'      => 'aprobado',
-                'comprobante' => $comprobantePath ?: ('Membresía ' . $data['type'] . ' - Activación Admin'),
-                'course_id'   => null,
+                'user_id' => $data['user_id'],
+                'amount' => $data['amount'],
+                'status' => 'aprobado',
+                'comprobante' => $comprobantePath ?: ('Membresía '.$data['type'].' - Activación Admin'),
+                'course_id' => null,
             ]);
 
             // Otorgar acceso mediante el servicio (con flags de suscripción)
             $this->accessService->grantAccess($data['user_id']);
 
-            return back()->with('success', 'Membresía ' . $data['type'] . ' activada. Acceso total a cursos habilitado.');
+            return back()->with('success', 'Membresía '.$data['type'].' activada. Acceso total a cursos habilitado.');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Error al procesar la suscripción: ' . $e->getMessage());
+            return back()->with('error', 'Error al procesar la suscripción: '.$e->getMessage());
         }
     }
 
@@ -109,10 +117,14 @@ class SubscriptionController extends Controller
      */
     public function toggleStatus(Subscription $subscription)
     {
-        $subscription->status = $subscription->status === 'activa' ? 'cancelada' : 'activa';
+        $this->authorize('toggle', $subscription);
+
+        $subscription->status = $subscription->status === Subscription::STATUS_ACTIVE
+            ? Subscription::STATUS_CANCELLED
+            : Subscription::STATUS_ACTIVE;
         $subscription->save(); // <-- Observer disparado aquí
 
-        return back()->with('success', 'Estado de suscripción actualizado a ' . $subscription->status . '.');
+        return back()->with('success', 'Estado de suscripción actualizado a '.$subscription->status.'.');
     }
 
     /**
@@ -121,6 +133,8 @@ class SubscriptionController extends Controller
      */
     public function destroy(Subscription $subscription)
     {
+        $this->authorize('delete', $subscription);
+
         $subscription->delete(); // <-- Observer disparado aquí
 
         return back()->with('success', 'Suscripción eliminada del historial.');

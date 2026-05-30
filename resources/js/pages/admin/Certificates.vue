@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import BottomNav from '@/components/student/BottomNav.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import {
-    Search, Award, Clock, FileText, Download, CheckCircle2, ChevronRight, Filter, Activity
+    Search, Award, FileText, Download, Filter, Activity
 } from 'lucide-vue-next';
-import { ref, computed, watch } from 'vue';
+import { watch } from 'vue';
+import type { PaginationLink } from '@/types/pagination';
 
 interface CertificateItem {
     id: number;
@@ -17,32 +17,36 @@ interface CertificateItem {
 }
 
 const props = defineProps<{
-    certificates: { data: CertificateItem[]; links: any[]; total: number; per_page: number };
+    certificates: { data: CertificateItem[]; links: PaginationLink[]; total: number; per_page: number };
     filters: { search?: string; per_page?: string };
     stats: { total: number };
 }>();
 
+import { useDebouncedInertiaFilters } from '@/composables/useDebouncedInertiaFilters';
+import { usePaginationLinks } from '@/composables/usePaginationLinks';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
+
 // ─── Filters ────────────────────────────────────────────────────
-const searchInput  = ref(props.filters.search || '');
-const perPage      = ref(props.filters.per_page || '20');
+const filterForm = useForm({
+    search: props.filters.search || '',
+    per_page: props.filters.per_page || '20',
+});
 
 function applyFilters() {
     router.get(route('admin.certificates.index'), {
-        search:   searchInput.value || undefined,
-        per_page: perPage.value !== '20' ? perPage.value : undefined,
-    }, { preserveState: true, replace: true });
+        search:   filterForm.search || undefined,
+        per_page: filterForm.per_page !== '20' ? filterForm.per_page : undefined,
+    }, { preserveState: false, replace: true });
 }
 
-watch([perPage], applyFilters);
-let searchTimer: any;
-watch(searchInput, () => { clearTimeout(searchTimer); searchTimer = setTimeout(applyFilters, 400); });
+useDebouncedInertiaFilters(filterForm, applyFilters);
 
 // ─── Helpers ─────────────────────────────────────────────────────
 const initials = (n: string) => n.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
 const avatarColors = ['bg-indigo-50 text-indigo-700','bg-blue-50 text-blue-700','bg-emerald-50 text-emerald-700','bg-amber-50 text-amber-700','bg-rose-50 text-rose-700'];
 const aCls     = (id: number) => avatarColors[id % avatarColors.length];
 const fDate    = (d: string) => new Date(d).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' });
-const pgLinks  = computed(() => props.certificates.links?.filter((l: any) => l.url) ?? []);
+const pgLinks  = usePaginationLinks(props.certificates.links);
 </script>
 
 <template>
@@ -50,16 +54,11 @@ const pgLinks  = computed(() => props.certificates.links?.filter((l: any) => l.u
     <AppLayout>
         <div class="max-w-7xl mx-auto px-4 py-8 space-y-10">
             <!-- ── Header ── -->
-            <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                <div class="space-y-1">
-                    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                        <span>Académico</span>
-                        <span class="text-slate-300">/</span>
-                        <span class="text-slate-900">Historial de Certificados</span>
-                    </div>
-                    <h1 class="font-serif text-5xl text-slate-900 leading-tight">Control de <span class="italic">Certificados</span></h1>
-                </div>
-            </div>
+            <AdminPageHeader
+                title="Control de "
+                titleAccent="Certificados"
+                subtitle="Académico / Historial de Certificados"
+            />
 
             <!-- ── Stats Grid ── -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -81,12 +80,12 @@ const pgLinks  = computed(() => props.certificates.links?.filter((l: any) => l.u
             <div class="bg-slate-50 rounded-[2.5rem] p-4 border border-slate-100 flex flex-col lg:flex-row items-center gap-4">
                 <div class="relative flex-1 w-full lg:w-auto">
                     <Search class="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                    <input v-model="searchInput" placeholder="Buscar por estudiante, curso o código..." class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-medium outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all" />
+                    <input v-model="filterForm.search" placeholder="Buscar por estudiante, curso o código..." class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-medium outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all" />
                 </div>
                 <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                     <div class="relative flex-1 lg:flex-none min-w-[160px]">
                         <Filter class="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-                        <select v-model="perPage" class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-10 pr-10 text-xs font-bold text-slate-600 appearance-none outline-none cursor-pointer">
+                        <select v-model="filterForm.per_page" class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-10 pr-10 text-xs font-bold text-slate-600 appearance-none outline-none cursor-pointer">
                             <option value="10">10 por página</option>
                             <option value="20">20 por página</option>
                             <option value="50">50 por página</option>
@@ -161,7 +160,7 @@ const pgLinks  = computed(() => props.certificates.links?.filter((l: any) => l.u
             <div v-if="pgLinks.length > 1" class="flex flex-col md:flex-row items-center justify-between gap-4 px-2">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Mostrando {{ props.certificates.data.length }} de {{ props.stats.total }} certificados</p>
                 <div class="flex items-center gap-1.5">
-                    <Link v-for="link in pgLinks" :key="link.label" :href="link.url"
+                    <Link v-for="link in pgLinks" :key="link.label" :href="link.url ?? '#'"
                         class="h-10 min-w-[2.5rem] flex items-center justify-center rounded-xl px-3 text-[10px] font-black tracking-widest transition-all"
                         :class="link.active ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-400 border border-slate-100 hover:border-slate-300 hover:text-slate-600'"
                         v-html="link.label" />
@@ -169,7 +168,6 @@ const pgLinks  = computed(() => props.certificates.links?.filter((l: any) => l.u
             </div>
         </div>
 
-        <BottomNav />
     </AppLayout>
 </template>
 

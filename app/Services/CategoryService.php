@@ -7,9 +7,7 @@ use App\Repositories\CategoryRepository;
 
 class CategoryService
 {
-    public function __construct(protected CategoryRepository $repo)
-    {
-    }
+    public function __construct(protected CategoryRepository $repo) {}
 
     public function list($perPage = 15)
     {

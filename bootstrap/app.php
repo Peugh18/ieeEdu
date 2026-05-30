@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckUserStatus;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,15 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            CheckUserStatus::class,
         ]);
 
         // 🔒 Registrar alias para usarlo en rutas protegidas
         $middleware->alias([
-            'check.status' => \App\Http\Middleware\CheckUserStatus::class,
+            'check.status' => CheckUserStatus::class,
         ]);
-
-        // 🔒 Aplicar a TODAS las rutas del grupo 'auth'
-        $middleware->appendToGroup('auth', \App\Http\Middleware\CheckUserStatus::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -2,11 +2,9 @@
 
 namespace App\Models;
 
-use App\Models\User;
+use App\Traits\Slugifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-use App\Traits\Slugifiable;
 
 class Course extends Model
 {
@@ -41,10 +39,10 @@ class Course extends Model
     ];
 
     protected $casts = [
-        'price'      => 'float',
+        'price' => 'float',
         'sale_price' => 'float',
-        'discount'   => 'float',
-        'is_featured'         => 'boolean',
+        'discount' => 'float',
+        'is_featured' => 'boolean',
         'certificate_enabled' => 'boolean',
     ];
 
@@ -98,6 +96,11 @@ class Course extends Model
         return $this->hasMany(Certificate::class);
     }
 
+    public function hasFinalQuiz(): bool
+    {
+        return $this->quizzes()->exists();
+    }
+
     /**
      * SCOPES
      */
@@ -106,4 +109,3 @@ class Course extends Model
         return $query->where('status', 'PUBLICADO');
     }
 }
-

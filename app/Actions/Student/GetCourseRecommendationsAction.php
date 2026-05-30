@@ -2,23 +2,24 @@
 
 namespace App\Actions\Student;
 
-use App\Models\User;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\User;
+use Illuminate\Support\Collection;
 
 class GetCourseRecommendationsAction
 {
     /**
      * Obtiene recomendaciones de cursos basadas en las categorías inscritas del usuario.
      */
-    public function execute(User $user, int $limit = 3): \Illuminate\Support\Collection
+    public function execute(User $user, int $limit = 3): Collection
     {
         $enrolledIds = Enrollment::where('user_id', $user->id)->pluck('course_id');
         $enrolledCategories = Enrollment::where('user_id', $user->id)
             ->join('courses', 'enrollments.course_id', '=', 'courses.id')
             ->pluck('courses.category_id')
             ->unique();
-        
+
         // 1. Cursos de la misma categoría (mejor recomendación)
         $recommendations = Course::whereNotIn('id', $enrolledIds)
             ->where('status', 'PUBLICADO')
@@ -40,7 +41,7 @@ class GetCourseRecommendationsAction
                 ->latest()
                 ->take($limit - $recommendations->count())
                 ->get();
-            
+
             $recommendations = $recommendations->concat($moreRecs);
         }
 

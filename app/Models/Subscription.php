@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 #[ObservedBy([SubscriptionObserver::class])]
 class Subscription extends Model
 {
+    public const STATUS_ACTIVE = 'activa';
+
+    public const STATUS_CANCELLED = 'cancelada';
+
+    public const STATUS_EXPIRED = 'expirada';
+
     protected $fillable = [
         'user_id',
         'type',

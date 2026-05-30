@@ -1,7 +1,8 @@
 import type { LucideIcon } from 'lucide-vue-next';
+import type { ExamResult } from '@/types/exam';
 
 export interface Auth {
-    user: User;
+    user: User | null;
 }
 
 export interface BreadcrumbItem {
@@ -16,16 +17,26 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+export interface FlashMessages {
+    success?: string;
+    error?: string;
+    exam_result?: ExamResult;
+}
+
 export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
+    flash: FlashMessages;
     ziggy: {
         location: string;
         url: string;
         port: null | number;
         defaults: Record<string, unknown>;
         routes: Record<string, string>;
+    };
+    admin_nav?: {
+        pending_payments: number;
     };
     [key: string]: unknown;
 }

@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class EnrollmentService
@@ -19,10 +19,18 @@ class EnrollmentService
                 ['user_id' => $user->id, 'course_id' => $course->id],
                 [
                     'payment_id' => $paymentId,
-                    'status' => 'activo',
+                    'enrolled_at' => now(),
                     'progress' => 0,
                 ]
             );
+
+            if ($paymentId && (int) $enrollment->payment_id !== (int) $paymentId) {
+                $enrollment->update(['payment_id' => $paymentId]);
+            }
+
+            if (! $enrollment->enrolled_at) {
+                $enrollment->update(['enrolled_at' => now()]);
+            }
 
             // Potential for Welcome Email or Notification
             // Mail::to($user->email)->send(new CourseWelcomeMail($course));

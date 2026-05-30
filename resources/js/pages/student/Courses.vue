@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import { BookOpen, Clock, CheckCircle, PlayCircle, Search, Filter, ArrowRight, Star } from 'lucide-vue-next';
+import { BookOpen, CheckCircle, PlayCircle, Search, ArrowRight } from 'lucide-vue-next';
 
 interface Course {
     id: number;

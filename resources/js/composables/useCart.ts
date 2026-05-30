@@ -2,6 +2,7 @@ import { ref, computed } from 'vue';
 import { useStorage } from '@vueuse/core';
 import { usePage, router } from '@inertiajs/vue3';
 import axios from 'axios';
+import type { SharedData } from '@/types';
 
 interface Course {
     id: number | string;
@@ -20,8 +21,8 @@ const cartItems = useStorage<Course[]>('iee-cart-items', []);
 const isCartOpen = ref(false);
 
 export function useCart() {
-    const page = usePage();
-    const user = computed(() => (page.props as any).auth?.user);
+    const page = usePage<SharedData>();
+    const user = computed(() => page.props.auth?.user);
     const isAuthenticated = computed(() => !!user.value);
 
     const itemCount = computed(() => cartItems.value.length);
@@ -69,7 +70,7 @@ export function useCart() {
                 timeFormatted = ` - ${h}:${minutes || '00'} ${ampm}`;
             }
             return `${dayMonth}${timeFormatted}`;
-        } catch (e) {
+        } catch (_e) {
             return dateStr;
         }
     }
@@ -91,8 +92,8 @@ export function useCart() {
                 courses: cartItems.value.map(c => c.id),
                 total: total.value
             });
-        } catch (e) {
-            console.error('Tracking error:', e);
+        } catch (_e) {
+            console.error('Tracking error:', _e);
         }
 
         // Generar mensaje
@@ -125,7 +126,8 @@ export function useCart() {
         message += `${csh} *Total a pagar: S/ ${total.value}*\n\n`;
         message += `Quedo atento para continuar con la matrícula.`;
         
-        const whatsappNumber = '51959166911'; 
+        const pageProps = page.props as Record<string, unknown>;
+        const whatsappNumber = (pageProps.whatsapp_sales as string) || '51959166911';
         const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
         
         window.open(url, '_blank');

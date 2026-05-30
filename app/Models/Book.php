@@ -2,10 +2,9 @@
 
 namespace App\Models;
 
+use App\Traits\Slugifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-use App\Traits\Slugifiable;
 
 class Book extends Model
 {

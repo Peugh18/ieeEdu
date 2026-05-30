@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UserRequest;
 use App\Models\Course;
-use App\Models\Enrollment;
 use App\Models\User;
+use App\Services\EnrollmentService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -15,9 +15,8 @@ class UserController extends Controller
 {
     public function __construct(
         protected UserService $service,
-        protected \App\Services\EnrollmentService $enrollmentService
-    ) {
-    }
+        protected EnrollmentService $enrollmentService
+    ) {}
 
     public function index(Request $request)
     {
@@ -29,7 +28,7 @@ class UserController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -46,12 +45,12 @@ class UserController extends Controller
             ->withQueryString();
 
         return Inertia::render('admin/Users', [
-            'users'   => $users,
+            'users' => $users,
             'filters' => $request->only('role', 'status', 'search', 'per_page'),
-            'stats'   => [
-                'total'    => User::count(),
-                'active'   => User::where('status', 'activo')->count(),
-                'admins'   => User::where('role', 'admin')->count(),
+            'stats' => [
+                'total' => User::count(),
+                'active' => User::where('status', 'activo')->count(),
+                'admins' => User::where('role', 'admin')->count(),
                 'students' => User::where('role', 'usuario')->count(),
             ],
         ]);
@@ -61,7 +60,7 @@ class UserController extends Controller
     {
         $user->load([
             'enrollments' => fn ($q) => $q->with('course:id,title,image,type')->latest(),
-            'payments'    => fn ($q) => $q->with('course:id,title')->latest(),
+            'payments' => fn ($q) => $q->with('course:id,title')->latest(),
         ]);
 
         $availableCourses = Course::where('status', 'PUBLICADO')
@@ -72,8 +71,8 @@ class UserController extends Controller
         $enrolledIds = $user->enrollments->pluck('course_id')->toArray();
 
         return Inertia::render('admin/UserDetail', [
-            'user'             => $user,
-            'enrolledIds'      => $enrolledIds,
+            'user' => $user,
+            'enrolledIds' => $enrolledIds,
             'availableCourses' => $availableCourses,
         ]);
     }
@@ -81,33 +80,44 @@ class UserController extends Controller
     public function store(UserRequest $request)
     {
         $this->service->create($request->validated());
+
         return redirect()->back()->with('success', 'Usuario creado.');
     }
 
     public function update(UserRequest $request, User $user)
     {
+        $this->authorize('update', $user);
         $this->service->update($user, $request->validated());
+
         return redirect()->back()->with('success', 'Usuario actualizado.');
     }
 
     public function destroy(User $user)
     {
+        $this->authorize('delete', $user);
         // Soft delete: mark as inactivo instead of physically deleting
         $user->update(['status' => 'inactivo']);
+
         return redirect()->back()->with('success', 'Usuario desactivado.');
     }
 
     public function toggleStatus(User $user)
     {
+        $this->authorize('toggleStatus', $user);
         $newStatus = $user->status === 'activo' ? 'inactivo' : 'activo';
         $user->update(['status' => $newStatus]);
+
         return redirect()->back()->with('success', 'Estado actualizado.');
     }
 
     public function assignCourse(Request $request, User $user)
     {
         $request->validate(['course_id' => 'required|exists:courses,id']);
-        
+
+        if ($user->hasAccess($request->course_id)) {
+            return redirect()->back()->with('error', 'El estudiante ya tiene acceso a este curso.');
+        }
+
         $course = Course::findOrFail($request->course_id);
         $this->enrollmentService->enroll($user, $course);
 
@@ -124,7 +134,7 @@ class UserController extends Controller
             ->when(strlen($q) >= 2, function ($query) use ($q) {
                 $query->where(function ($q2) use ($q) {
                     $q2->where('name', 'like', "%{$q}%")
-                       ->orWhere('email', 'like', "%{$q}%");
+                        ->orWhere('email', 'like', "%{$q}%");
                 });
             })
             ->orderBy('name')
@@ -148,19 +158,19 @@ class UserController extends Controller
         $csv = "Nombre,Email,Teléfono,Rol,Estado,Cursos Inscritos,Fecha Registro\n";
         foreach ($users as $u) {
             $csv .= implode(',', [
-                '"' . str_replace('"', '""', $u->name) . '"',
-                '"' . $u->email . '"',
-                '"' . ($u->telefono ?? '') . '"',
+                '"'.str_replace('"', '""', $u->name).'"',
+                '"'.$u->email.'"',
+                '"'.($u->telefono ?? '').'"',
                 $u->role === 'admin' ? 'Admin' : 'Estudiante',
                 ucfirst($u->status),
                 $u->enrollments_count,
-                '"' . $u->created_at->format('d/m/Y') . '"',
-            ]) . "\n";
+                '"'.$u->created_at->format('d/m/Y').'"',
+            ])."\n";
         }
 
         return response($csv, 200, [
-            'Content-Type'        => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="usuarios-iee-' . now()->format('Ymd') . '.csv"',
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="usuarios-iee-'.now()->format('Ymd').'.csv"',
         ]);
     }
 }
