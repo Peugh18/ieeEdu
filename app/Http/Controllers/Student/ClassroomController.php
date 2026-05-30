@@ -11,6 +11,7 @@ use App\Models\CourseLesson;
 use App\Models\Enrollment;
 use App\Models\LessonComment;
 use App\Models\LessonProgress;
+use App\Models\Payment;
 use App\Services\CertificateService;
 use App\Services\ProgressService;
 use Illuminate\Http\Request;
@@ -38,13 +39,8 @@ class ClassroomController extends Controller
             abort(404);
         }
 
-        // Ensure enrollment exists for stats tracking (SAAS Logic)
-        if ($user->hasSubscriptionActive() || $course->price <= 0) {
-            Enrollment::firstOrCreate([
-                'user_id' => $user->id,
-                'course_id' => $course->id,
-            ]);
-        }
+        // Registrar inscripción para métricas, diferenciando Premium vs gratis vs compra individual
+        $this->ensureEnrollmentForTracking($user, $course);
 
         // Cargar módulos y lecciones
         $course->load(['modules.lessons.materials', 'quizzes']);
@@ -192,5 +188,76 @@ class ClassroomController extends Controller
         return $request->wantsJson()
             ? response()->json(['success' => true, 'progress' => $lastSyncProgress])
             : back();
+    }
+
+    /**
+     * Crea o actualiza inscripción para seguimiento de progreso.
+     * Premium → subscription_granted=true (revocable al expirar).
+     * Gratis → subscription_granted=false (permanente).
+     * Compra individual → la crea PaymentService::approve(), no se toca aquí.
+     */
+    protected function ensureEnrollmentForTracking($user, Course $course): void
+    {
+        $price = $course->sale_price > 0 ? $course->sale_price : $course->price;
+
+        $purchasedIndividually = Payment::where('user_id', $user->id)
+            ->where('course_id', $course->id)
+            ->where('status', 'aprobado')
+            ->exists();
+
+        if ($purchasedIndividually) {
+            return;
+        }
+
+        if ($course->retainsAccessAfterSubscriptionEnds()) {
+            Enrollment::firstOrCreate(
+                ['user_id' => $user->id, 'course_id' => $course->id],
+                [
+                    'enrolled_at' => now(),
+                    'progress' => 0,
+                    'subscription_granted' => false,
+                ]
+            );
+
+            Enrollment::where('user_id', $user->id)
+                ->where('course_id', $course->id)
+                ->where('subscription_granted', true)
+                ->update([
+                    'subscription_granted' => false,
+                    'subscription_active' => true,
+                ]);
+
+            return;
+        }
+
+        if ($user->hasSubscriptionActive()) {
+            Enrollment::firstOrCreate(
+                ['user_id' => $user->id, 'course_id' => $course->id],
+                [
+                    'enrolled_at' => now(),
+                    'progress' => 0,
+                    'subscription_granted' => true,
+                    'subscription_active' => true,
+                ]
+            );
+
+            Enrollment::where('user_id', $user->id)
+                ->where('course_id', $course->id)
+                ->where('subscription_granted', true)
+                ->update(['subscription_active' => true]);
+
+            return;
+        }
+
+        if ($price <= 0) {
+            Enrollment::firstOrCreate(
+                ['user_id' => $user->id, 'course_id' => $course->id],
+                [
+                    'enrolled_at' => now(),
+                    'progress' => 0,
+                    'subscription_granted' => false,
+                ]
+            );
+        }
     }
 }

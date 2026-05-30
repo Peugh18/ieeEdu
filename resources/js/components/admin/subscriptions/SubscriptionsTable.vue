@@ -86,7 +86,10 @@ function getACls(id: number) {
                         </td>
                         <td class="px-6 py-6 text-center">
                             <div class="flex flex-col items-center">
-                                <span class="text-base font-black text-slate-900 tracking-tighter">{{ sub.payment_amount ? formatMoney(sub.payment_amount) : 'S/ 0.00' }}</span>
+                                <span class="text-base font-black text-slate-900 tracking-tighter">{{ formatMoney(sub.payment_amount ?? 0) }}</span>
+                                <span v-if="sub.payment_status && sub.payment_status !== 'aprobado'" class="mt-1 text-[9px] font-bold uppercase tracking-widest text-amber-600">
+                                    Pago {{ sub.payment_status === 'en_revision' ? 'en revisión' : 'pendiente' }}
+                                </span>
                                 <button v-if="sub.payment_capture" @click="emit('preview', sub)" class="mt-1 flex items-center gap-1.5 text-[9px] font-black uppercase text-blue-500 hover:text-blue-700 transition-colors">
                                     <AlertCircle class="w-2.5 h-2.5" /> Ver Evidencia
                                 </button>

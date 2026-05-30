@@ -5,15 +5,27 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Banner;
 use App\Models\Book;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class PublicPublicationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $banner = Banner::where('section', 'publicaciones')->orderBy('order')->first();
 
-        $books = Book::latest()->get()->map(fn ($b) => [
+        $search = $request->input('search');
+
+        $booksQuery = Book::latest();
+        if ($search) {
+            $booksQuery->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('author', 'like', "%{$search}%");
+            });
+        }
+
+        $books = $booksQuery->paginate(6, ['*'], 'books_page')->withQueryString();
+        $books->getCollection()->transform(fn ($b) => [
             'id' => $b->id,
             'category' => $b->category ?? 'Libro',
             'title' => $b->title,
@@ -25,7 +37,16 @@ class PublicPublicationController extends Controller
             'is_available' => (bool) $b->is_available,
         ]);
 
-        $articles = Article::latest()->get()->map(fn ($a) => [
+        $articlesQuery = Article::latest();
+        if ($search) {
+            $articlesQuery->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('media', 'like', "%{$search}%");
+            });
+        }
+
+        $articles = $articlesQuery->paginate(6, ['*'], 'articles_page')->withQueryString();
+        $articles->getCollection()->transform(fn ($a) => [
             'id' => $a->id,
             'title' => $a->title,
             'media' => $a->media ?? 'Análisis',

@@ -10,6 +10,7 @@ use App\Http\Controllers\Student\LessonCommentController;
 use App\Http\Controllers\Student\LiveClassController as StudentLiveClassController;
 use App\Http\Controllers\Student\PaymentController as StudentPaymentController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
+use App\Http\Controllers\Student\PurchaseIntentController;
 use App\Http\Controllers\Student\SubscriptionPaymentController;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,7 @@ Route::prefix('student')->name('student.')->middleware(['auth'])->group(function
     Route::get('/explore/courses', [StudentCourseController::class, 'exploreCourses'])->name('explore.courses');
     Route::get('/explore/publications', [StudentCatalogController::class, 'explorePublications'])->name('explore.publications');
     Route::get('/publications/books/{book}/download', [StudentCatalogController::class, 'downloadBook'])->name('publications.books.download');
+    Route::get('/publications/books/{book}/interest', [StudentCatalogController::class, 'bookPurchaseInterest'])->name('publications.books.interest');
     Route::get('/publications/articles/{article}/download', [StudentCatalogController::class, 'downloadArticle'])->name('publications.articles.download');
     Route::get('/explore/masterclass', [StudentCatalogController::class, 'exploreMasterclasses'])->name('explore.masterclasses');
     Route::get('/explore/consultoria', [StudentCatalogController::class, 'exploreConsultoria'])->name('explore.consultoria');
@@ -48,6 +50,8 @@ Route::prefix('student')->name('student.')->middleware(['auth'])->group(function
     // Pagos Membresías
     Route::post('/subscriptions/payment', [SubscriptionPaymentController::class, 'store'])->name('subscriptions.payment.store');
     Route::get('/subscriptions/payment/status', [SubscriptionPaymentController::class, 'status'])->name('subscriptions.payment.status');
+
+    Route::post('/purchase-intent', [PurchaseIntentController::class, 'store'])->name('purchase-intent.store');
 
     // Pagos
     Route::get('/payments', [StudentPaymentController::class, 'index'])->name('payments.index');

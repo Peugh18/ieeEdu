@@ -9,17 +9,26 @@ import ConsultoriaProcess from '@/components/consultoria/ConsultoriaProcess.vue'
 import ConsultoriaContact from '@/components/consultoria/ConsultoriaContact.vue';
 import type { ConsultoriaProps, ConsultoriaPaso } from '@/types/consultoria';
 import { computed } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+import type { SharedData } from '@/types';
 
 const props = defineProps<ConsultoriaProps>();
+
+const page = usePage<SharedData>();
+const siteSettings = computed(() => page.props.site_settings as {
+    whatsapp_sales?: string;
+    contact_email?: string;
+    contact_address?: string;
+} | undefined);
 
 const breadcrumbs = [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Consultoría', href: '#' },
 ];
 
-const heroWhatsapp = computed(() => props.banner?.whatsapp_number || '51959166911');
-const heroEmail = computed(() => props.banner?.contact_email || 'info@iee.edu.pe');
-const heroAddress = computed(() => props.banner?.contact_address || 'Trujillo, La Libertad — Perú');
+const heroWhatsapp = computed(() => props.banner?.whatsapp_number || siteSettings.value?.whatsapp_sales || '51959166911');
+const heroEmail = computed(() => props.banner?.contact_email || siteSettings.value?.contact_email || 'info@iee.edu.pe');
+const heroAddress = computed(() => props.banner?.contact_address || siteSettings.value?.contact_address || 'Trujillo, La Libertad — Perú');
 const whatsappLink = computed(() => `https://wa.me/${heroWhatsapp.value}?text=Hola%2C%20me%20interesa%20una%20consultor%C3%ADa%20con%20el%20IEE`);
 
 const areas = [

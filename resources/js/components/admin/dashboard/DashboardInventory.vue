@@ -8,6 +8,11 @@ interface InventoryStats {
     liveCourses: number;
     totalBooks: number;
     availableBooks: number;
+    totalBookDownloads: number;
+    bookDownloadsThisMonth: number;
+    bookWhatsappLeads: number;
+    bookIncome: number;
+    bookSalesCount: number;
 }
 
 defineProps<{
@@ -53,16 +58,35 @@ defineProps<{
                 </div>
                 <h3 class="font-serif font-bold text-gray-900">Publicaciones</h3>
             </div>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div class="bg-blue-50 rounded-2xl p-4 text-center border border-blue-100">
-                    <p class="text-3xl font-serif font-black text-blue-600 tabular-nums">{{ stats.totalBooks }}</p>
+                    <p class="text-2xl font-serif font-black text-blue-600 tabular-nums">{{ stats.totalBooks }}</p>
                     <p class="text-[9px] font-black uppercase tracking-widest text-blue-400 mt-1">Total Libros</p>
                 </div>
+                <div class="bg-violet-50 rounded-2xl p-4 text-center border border-violet-100">
+                    <p class="text-xl font-serif font-black text-violet-700 tabular-nums">S/ {{ Number(stats.bookIncome || 0).toLocaleString() }}</p>
+                    <p class="text-[9px] font-black uppercase tracking-widest text-violet-500 mt-1">Recaudado</p>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100">
+                    <p class="text-2xl font-serif font-black text-slate-800 tabular-nums">{{ stats.bookSalesCount ?? 0 }}</p>
+                    <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1">Ventas</p>
+                </div>
+                <div class="bg-emerald-50 rounded-2xl p-4 text-center border border-emerald-100">
+                    <p class="text-2xl font-serif font-black text-emerald-600 tabular-nums">{{ stats.totalBookDownloads }}</p>
+                    <p class="text-[9px] font-black uppercase tracking-widest text-emerald-400 mt-1">Descargas</p>
+                </div>
+                <div class="bg-amber-50 rounded-2xl p-4 text-center border border-amber-100">
+                    <p class="text-2xl font-serif font-black text-amber-600 tabular-nums">{{ stats.bookDownloadsThisMonth }}</p>
+                    <p class="text-[9px] font-black uppercase tracking-widest text-amber-500 mt-1">Descargas / mes</p>
+                </div>
                 <div class="bg-gray-50 rounded-2xl p-4 text-center border border-gray-100">
-                    <p class="text-3xl font-serif font-black text-gray-900 tabular-nums">{{ stats.availableBooks }}</p>
+                    <p class="text-2xl font-serif font-black text-gray-900 tabular-nums">{{ stats.availableBooks }}</p>
                     <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Disponibles</p>
                 </div>
             </div>
+            <p v-if="stats.bookWhatsappLeads > 0" class="text-[10px] text-center text-gray-400 font-medium">
+                {{ stats.bookWhatsappLeads }} consultas de compra vía WhatsApp
+            </p>
         </article>
     </div>
 </template>

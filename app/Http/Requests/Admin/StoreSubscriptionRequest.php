@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Support\PlanPricing;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -17,7 +18,7 @@ class StoreSubscriptionRequest extends FormRequest
     {
         return [
             'user_id' => 'required|exists:users,id',
-            'type' => ['required', Rule::in(['trimestral', 'semestral', 'anual'])],
+            'type' => ['required', Rule::in(PlanPricing::allSlugs())],
             'months' => 'required|integer|min:1',
             'amount' => 'required|numeric|min:0',
             'comprobante' => 'nullable|file|image|max:5120',

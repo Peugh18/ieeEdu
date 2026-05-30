@@ -6,7 +6,7 @@ const props = defineProps<{
     type: string;
     modules?: CourseModule[];
     lessons?: CourseLesson[];
-    duration?: string;
+    duration?: string | number;
 }>();
 
 const openModules = ref<number[]>([props.modules?.[0]?.id ?? 0]);

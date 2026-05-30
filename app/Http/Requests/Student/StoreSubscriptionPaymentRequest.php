@@ -2,30 +2,56 @@
 
 namespace App\Http\Requests\Student;
 
+use App\Models\Payment;
+use App\Support\PlanPricing;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class StoreSubscriptionPaymentRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return true;
+        return Auth::check();
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'plan' => ['required', 'string', 'in:trimestral,semestral,anual'],
+            'plan' => ['required', 'string', Rule::in(PlanPricing::activeSlugs())],
             'comprobante' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
         ];
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if ($validator->errors()->any()) {
+                return;
+            }
+
+            $user = $this->user();
+
+            if ($user->hasSubscriptionActive()) {
+                $validator->errors()->add('plan', 'Ya tienes una membresía Premium activa.');
+
+                return;
+            }
+
+            $pending = Payment::where('user_id', $user->id)
+                ->whereNull('course_id')
+                ->whereNotNull('subscription_type')
+                ->whereIn('status', ['pendiente', 'en_revision'])
+                ->exists();
+
+            if ($pending) {
+                $validator->errors()->add('plan', 'Ya tienes un pago de membresía en revisión.');
+            }
+        });
     }
 
     public function messages(): array

@@ -108,4 +108,22 @@ class Course extends Model
     {
         return $query->where('status', 'PUBLICADO');
     }
+
+    public function effectivePrice(): float
+    {
+        return $this->sale_price > 0 ? $this->sale_price : (float) $this->price;
+    }
+
+    public function isMasterclass(): bool
+    {
+        return in_array($this->type, ['evento', 'masterclass'], true);
+    }
+
+    /**
+     * Masterclasses gratuitas: acceso permanente aunque expire Premium.
+     */
+    public function retainsAccessAfterSubscriptionEnds(): bool
+    {
+        return $this->isMasterclass();
+    }
 }

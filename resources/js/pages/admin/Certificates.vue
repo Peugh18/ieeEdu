@@ -55,9 +55,10 @@ const pgLinks  = usePaginationLinks(props.certificates.links);
         <div class="max-w-7xl mx-auto px-4 py-8 space-y-10">
             <!-- ── Header ── -->
             <AdminPageHeader
-                title="Control de "
-                titleAccent="Certificados"
-                subtitle="Académico / Historial de Certificados"
+                title="Certificados "
+                titleAccent="emitidos"
+                subtitle="Historial de certificados generados para estudiantes."
+                compact
             />
 
             <!-- ── Stats Grid ── -->

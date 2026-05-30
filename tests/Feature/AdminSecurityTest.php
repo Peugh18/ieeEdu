@@ -41,6 +41,7 @@ test('payment store request validates unique active enrollment', function () {
 
     $response = $this->actingAs($admin)->post(route('admin.payments.store'), [
         'user_id' => $student->id,
+        'product_type' => 'course',
         'course_id' => $course->id,
         'amount' => 100,
         'status' => 'pendiente',

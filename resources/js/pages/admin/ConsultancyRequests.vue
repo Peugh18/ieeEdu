@@ -38,10 +38,10 @@ function updateStatus(id: number, status: string) {
     <AppLayout>
         <div class="px-4 py-8 max-w-7xl mx-auto min-h-screen">
             <AdminPageHeader
-                title="Solicitudes de"
-                title-accent="Consultoría"
-                subtitle="Gestiona y haz seguimiento de las empresas interesadas en nuestros servicios."
-                badge="Comercial / Leads"
+                title="Solicitudes de "
+                title-accent="consultoría"
+                subtitle="Leads y contactos del formulario web."
+                compact
             />
 
             <ConsultancyStats :stats="stats" />

@@ -3,25 +3,36 @@ import { useForm } from '@inertiajs/vue3';
 import axios from 'axios';
 import type { SubscriptionUser } from '@/types/subscription';
 
-export function useSubscriptionForm() {
+export interface PlanOption {
+    slug: string;
+    name: string;
+    price: number;
+    months: number;
+}
+
+export function useSubscriptionForm(planOptions: PlanOption[] = []) {
     const showModal = ref(false);
     const usersResults = ref<SubscriptionUser[]>([]);
     const searchUserQuery = ref('');
     const isSearchingUser = ref(false);
     const showUserDropdown = ref(false);
 
+    const defaultPlan = planOptions[0];
+
     const form = useForm({
         user_id: '',
-        type: 'trimestral',
-        months: 3,
-        amount: 350,
+        type: defaultPlan?.slug ?? 'trimestral',
+        months: defaultPlan?.months ?? 3,
+        amount: defaultPlan?.price ?? 350,
         comprobante: null as File | null,
     });
 
     watch(() => form.type, (newType) => {
-        if (newType === 'trimestral') { form.months = 3; form.amount = 350; }
-        else if (newType === 'semestral') { form.months = 6; form.amount = 600; }
-        else if (newType === 'anual') { form.months = 12; form.amount = 990; }
+        const plan = planOptions.find((item) => item.slug === newType);
+        if (plan) {
+            form.months = plan.months;
+            form.amount = plan.price;
+        }
     });
 
     function onFileChange(e: Event) {
@@ -64,6 +75,11 @@ export function useSubscriptionForm() {
 
     function open() {
         form.reset();
+        if (defaultPlan) {
+            form.type = defaultPlan.slug;
+            form.months = defaultPlan.months;
+            form.amount = defaultPlan.price;
+        }
         searchUserQuery.value = '';
         usersResults.value = [];
         showUserDropdown.value = false;

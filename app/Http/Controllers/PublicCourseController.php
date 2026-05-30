@@ -8,6 +8,7 @@ use App\Models\Book;
 use App\Models\Category;
 use App\Models\Course;
 use App\Models\Payment;
+use App\Support\PlanPricing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -141,9 +142,12 @@ class PublicCourseController extends Controller
         $hasPendingPayment = false;
         $isEnrolled = false;
         $canEnrollFree = false;
+        $hasPermanentAccess = false;
+        $canPurchasePermanent = false;
 
         if (auth()->check()) {
             $user = auth()->user();
+            $hasPermanentAccess = $user->hasPermanentCourseAccess($course->id);
             $isEnrolled = $user->hasAccess($course->id);
 
             $hasPendingPayment = Payment::where('user_id', $user->id)
@@ -151,8 +155,14 @@ class PublicCourseController extends Controller
                 ->whereIn('status', ['pendiente', 'en_revision'])
                 ->exists();
 
-            $price = $course->sale_price > 0 ? $course->sale_price : $course->price;
-            $canEnrollFree = ($price <= 0) && ! $isEnrolled;
+            $canEnrollFree = $course->effectivePrice() <= 0
+                && ! $hasPermanentAccess
+                && ! in_array($course->type, ['evento', 'masterclass'], true);
+
+            $canPurchasePermanent = $course->effectivePrice() > 0
+                && ! in_array($course->type, ['evento', 'masterclass'], true)
+                && ! $hasPermanentAccess
+                && ! $hasPendingPayment;
         }
 
         return Inertia::render('CourseDetail', [
@@ -161,6 +171,8 @@ class PublicCourseController extends Controller
             'isEnrolled' => $isEnrolled,
             'hasPendingPayment' => $hasPendingPayment,
             'canEnrollFree' => $canEnrollFree,
+            'hasPermanentAccess' => $hasPermanentAccess,
+            'canPurchasePermanent' => $canPurchasePermanent,
         ]);
     }
 
@@ -200,13 +212,23 @@ class PublicCourseController extends Controller
         $user = auth()->user();
         $subscription = $user ? $user->subscription : null;
 
+        $hasPendingSubscriptionPayment = false;
+        if ($user) {
+            $hasPendingSubscriptionPayment = Payment::where('user_id', $user->id)
+                ->whereNull('course_id')
+                ->whereNotNull('subscription_type')
+                ->whereIn('status', ['pendiente', 'en_revision'])
+                ->exists();
+        }
+
         return Inertia::render('Planes', [
-            'planesConfig' => array_values(config('iie.planes', [])),
+            'planesConfig' => PlanPricing::activePlansForPublic(),
             'userSubscription' => $subscription ? [
                 'type' => $subscription->type,
                 'status' => $subscription->status,
                 'end_date' => $subscription->end_date?->format('d/m/Y'),
             ] : null,
+            'hasPendingSubscriptionPayment' => $hasPendingSubscriptionPayment,
         ]);
     }
 }

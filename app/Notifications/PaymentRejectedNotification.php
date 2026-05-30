@@ -21,12 +21,21 @@ class PaymentRejectedNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
+        $message = (new MailMessage)
             ->subject('Actualización sobre tu pago')
             ->greeting('Hola '.$notifiable->name.',')
-            ->line('Hubo un inconveniente con la validación de tu pago por S/ '.number_format($this->payment->amount, 2).' para el curso: '.$this->payment->course->title.'.')
-            ->line('El pago ha sido rechazado. Por favor, verifica el comprobante e intenta subirlo nuevamente.')
+            ->line('Tu pago por S/ '.number_format($this->payment->amount, 2).' ha sido rechazado.');
+
+        if ($this->payment->course) {
+            $message->line('Curso: '.$this->payment->course->title)
+                ->line('Verifica el comprobante e intenta subirlo nuevamente.');
+        } elseif ($this->payment->subscription_type) {
+            $message->line('Membresía: '.ucfirst($this->payment->subscription_type))
+                ->line('Verifica el comprobante de tu plan Premium e intenta nuevamente.');
+        }
+
+        return $message
             ->action('Ver mis pagos', route('student.payments.index'))
-            ->line('Si tienes dudas, por favor contáctanos.');
+            ->line('Si tienes dudas, contáctanos.');
     }
 }

@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import type { Course } from '@/types/course';
 
-defineProps<{
-    type: Course['type'];
-}>();
-
 const grabadoFeatures = [
     { title: 'Acceso Ilimitado', desc: 'Estudia a tu propio ritmo, 24/7 sin restricciones.', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>' },
     { title: 'Material Descargable', desc: 'Recursos, plantillas y lecturas especializadas.', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>' },
@@ -22,6 +18,10 @@ const eventoFeatures = [
     { title: 'Acceso Directo', desc: 'Preguntas y respuestas con el experto.', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>' },
     { title: 'Grupo WhatsApp', desc: 'Avisos y recordatorios directamente en tu móvil.', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>' },
 ];
+
+const props = defineProps<{
+    type: Course['type'];
+}>();
 
 const features = props.type === 'en vivo' ? vivoFeatures : props.type === 'evento' ? eventoFeatures : grabadoFeatures;
 </script>

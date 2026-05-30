@@ -93,10 +93,11 @@ function duplicateCourse(course: CourseItem) {
         <div class="mb-10 flex flex-col gap-8">
             <!-- PAGE HEADER -->
             <AdminPageHeader
-                title="Gestión de "
-                titleAccent="Cursos"
-                subtitle="Administra y organiza el catálogo académico de la institución."
+                title="Catálogo de "
+                titleAccent="cursos"
+                subtitle="Publica, edita y organiza el contenido académico."
                 actionLabel="Crear nuevo curso"
+                compact
                 @action="openCreateModal(null)"
             />
 

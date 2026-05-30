@@ -9,6 +9,7 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Services\EnrollmentService;
 use App\Services\ProgressService;
+use App\Services\SubscriptionAccessService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -26,7 +27,11 @@ class CourseController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Obtener inscripciones del estudiante (con relaciones eager-loaded)
+        if ($user->hasSubscriptionActive()) {
+            app(SubscriptionAccessService::class)->sync($user->id);
+        }
+
+        // Inscripciones visibles: compra individual/gratis o suscripción activa
         $enrollments = Enrollment::where('user_id', $user->id)
             ->visible()
             ->with(['course.category', 'course.modules.lessons'])
@@ -84,27 +89,44 @@ class CourseController extends Controller
     {
         $user = Auth::user();
         $query = Course::published()
+            ->where('type', '!=', 'evento')
             ->with(['category', 'instructor'])
             ->withCount('lessons');
 
-        // Filtrar cursos que ya tiene acceso activo
-        if ($user->hasSubscriptionActive()) {
-            $query->whereRaw('1 = 0');
-        } else {
-            $visibleCourseIds = Enrollment::where('user_id', $user->id)
-                ->visible()
-                ->pluck('course_id');
-            $query->whereNotIn('id', $visibleCourseIds);
+        $visibleCourseIds = Enrollment::where('user_id', $user->id)
+            ->visible()
+            ->pluck('course_id');
+        $query->whereNotIn('id', $visibleCourseIds);
+
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%'.$request->search.'%');
         }
 
-        $courses = $query->paginate(6)
-            ->withQueryString();
+        if ($request->filled('modality') && $request->modality !== 'Todos') {
+            $mapType = [
+                'Grabado' => 'grabado',
+                'En vivo' => 'en vivo',
+                'Evento' => 'evento',
+            ];
+
+            if (isset($mapType[$request->modality])) {
+                $query->where('type', $mapType[$request->modality]);
+            }
+        }
+
+        if ($request->filled('category') && $request->category !== 'Todas las áreas') {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('name', $request->category);
+            });
+        }
+
+        $courses = $query->orderBy('created_at', 'desc')->paginate(6)->withQueryString();
 
         $banner = Banner::where('section', 'cursos')->first();
 
         return Inertia::render('Cursos', [
             'courses' => $courses,
-            'categories' => Category::all(),
+            'categories' => Category::has('courses')->orderBy('name')->get(),
             'filters' => $request->only(['search', 'modality', 'category']),
             'banner' => $banner,
             'isDashboard' => true,
@@ -125,13 +147,13 @@ class CourseController extends Controller
             return redirect()->back()->with('error', 'El curso no es gratuito.');
         }
 
-        // Validar que no esté ya inscrito (puede tener acceso lectivo en gratis sin fila aún)
+        // Validar que no esté ya inscrito permanentemente
         $alreadyEnrolled = Enrollment::where('user_id', $user->id)
             ->where('course_id', $course->id)
-            ->visible()
+            ->where('subscription_granted', false)
             ->exists();
 
-        if ($alreadyEnrolled) {
+        if ($alreadyEnrolled || $user->hasPermanentCourseAccess($course->id)) {
             return redirect()->route('student.classroom', $course->slug)
                 ->with('success', 'Ya tienes acceso a este curso.');
         }

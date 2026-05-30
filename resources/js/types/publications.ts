@@ -3,12 +3,27 @@ export interface PublicationBook {
     category: 'Libro' | 'Libro en camino' | 'Guía';
     title: string;
     price: string | number;
+    stock?: number | null;
     author: string;
     description: string;
     cover_image: string | null;
-    file_path: string | null;
     download_url: string | null;
     is_available: boolean;
+    payment_status?: string;
+    needs_comprobante?: boolean;
+    has_pending_payment?: boolean;
+    has_approved_purchase?: boolean;
+    can_purchase?: boolean;
+    is_out_of_stock?: boolean;
+    shipping?: {
+        status: string;
+        label: string;
+        tracking_url?: string | null;
+        delivery_mode?: string | null;
+        pickup_location?: string | null;
+        student_note?: string | null;
+        carrier?: string | null;
+    } | null;
 }
 
 export interface PublicationArticle {
@@ -17,7 +32,6 @@ export interface PublicationArticle {
     media: string;
     published_at: string;
     thumbnail: string | null;
-    file_path?: string | null;
     download_url: string;
 }
 

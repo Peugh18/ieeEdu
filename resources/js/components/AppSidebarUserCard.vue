@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import UserMenuContent from '@/components/UserMenuContent.vue';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useSidebar } from '@/components/ui/sidebar';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import type { User } from '@/types';
+import { ChevronsUpDown } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 const { state } = useSidebar();
 
@@ -20,30 +21,39 @@ const avatarUrl = computed(() =>
 </script>
 
 <template>
-    <Tooltip :disabled="state === 'expanded'">
-        <TooltipTrigger as-child>
-            <Link
-                :href="isAdmin ? route('profile.edit') : route('student.profile.index')"
-                class="group mx-3 mt-3 mb-1 p-2 rounded-2xl flex items-center gap-3 bg-surface-container-low hover:bg-surface-container hover:shadow-sm border border-outline-variant/10 transition-all duration-300"
+    <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+            <button
+                type="button"
+                class="group mx-2 mt-1 mb-0.5 w-[calc(100%-1rem)] p-1.5 rounded-xl flex items-center gap-2.5 bg-surface-container-low hover:bg-surface-container hover:shadow-sm border border-outline-variant/10 transition-all duration-300 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 :class="{ 'justify-center mx-2 px-0 py-2': state === 'collapsed' }"
+                aria-label="Abrir menú de cuenta"
             >
                 <div class="relative flex-shrink-0">
-                    <img :src="avatarUrl" :alt="user.name" class="w-9 h-9 rounded-full object-cover border-2 border-outline-variant/20 shadow-sm transition-transform duration-300 group-hover:scale-105" />
+                    <img :src="avatarUrl" :alt="user.name" class="w-8 h-8 rounded-full object-cover border-2 border-outline-variant/20 shadow-sm transition-transform duration-300 group-hover:scale-105" />
                     <div class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-[1.5px] border-surface"></div>
                 </div>
 
-                <div class="flex-1 min-w-0 flex flex-col justify-center overflow-hidden" v-if="state === 'expanded'">
-                    <span class="text-sm font-bold tracking-wide text-on-surface truncate">
+                <div v-if="state === 'expanded'" class="flex-1 min-w-0 flex flex-col justify-center overflow-hidden">
+                    <span class="text-sm font-bold tracking-wide text-on-surface truncate leading-tight">
                         {{ user.name }}
                     </span>
-                    <span class="flex items-center gap-1.5 text-xs font-medium tracking-wide text-on-surface-variant/70 group-hover:text-primary transition-colors truncate">
-                        <span class="truncate">{{ isAdmin ? 'Administrador' : 'Estudiante' }} &middot; Ver perfil</span>
+                    <span class="text-[11px] font-medium text-on-surface-variant/60 group-hover:text-primary transition-colors truncate">
+                        {{ isAdmin ? 'Admin · Mi cuenta' : 'Estudiante' }}
                     </span>
                 </div>
-            </Link>
-        </TooltipTrigger>
-        <TooltipContent side="right" class="bg-surface-container-highest border-outline-variant/10 text-on-surface font-bold">
-            <p>{{ user.name }}</p>
-        </TooltipContent>
-    </Tooltip>
+
+                <ChevronsUpDown v-if="state === 'expanded'" class="w-4 h-4 shrink-0 text-on-surface-variant/50 group-hover:text-on-surface-variant" />
+            </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent
+            class="w-56 rounded-xl border border-outline-variant/15 bg-surface-container-lowest shadow-xl p-1"
+            :side="state === 'collapsed' ? 'right' : 'bottom'"
+            :align="state === 'collapsed' ? 'start' : 'center'"
+            :side-offset="6"
+        >
+            <UserMenuContent :user="user" :is-admin="isAdmin" />
+        </DropdownMenuContent>
+    </DropdownMenu>
 </template>

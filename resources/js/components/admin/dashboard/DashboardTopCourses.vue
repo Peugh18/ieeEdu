@@ -18,7 +18,7 @@ defineProps<{
 </script>
 
 <template>
-    <article class="xl:col-span-2 bg-white rounded-[2rem] md:rounded-[3rem] p-5 md:p-10 border border-gray-100 shadow-sm space-y-6 md:space-y-8 overflow-hidden">
+    <article class="bg-white rounded-[2rem] md:rounded-[3rem] p-5 md:p-10 border border-gray-100 shadow-sm space-y-6 md:space-y-8 overflow-hidden">
         <header class="flex items-center justify-between">
             <div class="space-y-1">
                 <h3 class="font-serif text-2xl font-bold text-gray-900">Top Cursos · Ranking de Ventas</h3>

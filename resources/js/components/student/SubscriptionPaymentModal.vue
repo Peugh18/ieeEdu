@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useForm } from '@inertiajs/vue3';
-import { X, Upload, CreditCard, CheckCircle2 } from 'lucide-vue-next';
+import { useForm, usePage } from '@inertiajs/vue3';
+import { MessageCircle, Upload, CheckCircle2, Crown } from 'lucide-vue-next';
+import type { SharedData } from '@/types';
 
 const props = defineProps<{
     show: boolean;
@@ -19,28 +19,20 @@ const emit = defineEmits<{
 
 const form = useForm({
     plan: '',
-    comprobante: null as File | null,
 });
 
-const fileInput = ref<HTMLInputElement | null>(null);
-const previewUrl = ref<string | null>(null);
-
-function handleFile(e: Event) {
-    const target = e.target as HTMLInputElement;
-    if (!target.files?.length) return;
-    form.comprobante = target.files[0];
-    previewUrl.value = URL.createObjectURL(target.files[0]);
-}
-
-function submit() {
+function submitWhatsApp() {
     if (!props.plan) return;
     form.plan = props.plan.id;
-    form.post(route('student.subscriptions.payment.store'), {
-        forceFormData: true,
+    form.post(route('student.purchase-intent.store'), {
+        preserveScroll: true,
         onSuccess: () => {
-            emit('close');
+            const flash = usePage<SharedData>().props.flash as { open_whatsapp?: string };
+            if (flash?.open_whatsapp) {
+                window.open(flash.open_whatsapp, '_blank', 'noopener');
+            }
             form.reset();
-            previewUrl.value = null;
+            emit('close');
         },
     });
 }
@@ -49,90 +41,74 @@ function close() {
     emit('close');
     form.reset();
     form.clearErrors();
-    previewUrl.value = null;
 }
 </script>
 
 <template>
     <Teleport to="body">
-        <Transition name="modal">
-            <div v-if="show && plan" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="close">
-                <div class="bg-white rounded-[2rem] w-full max-w-md shadow-2xl overflow-hidden">
-                    <!-- Header -->
-                    <div class="bg-primary p-6 text-white relative overflow-hidden">
-                        <div class="absolute inset-0 bg-white/5 opacity-50"></div>
-                        <div class="relative z-10 flex items-start justify-between">
+        <Transition enter-active-class="transition duration-300" enter-from-class="opacity-0" enter-to-class="opacity-100">
+            <div v-if="show && plan" class="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4" @click.self="close">
+                <div class="bg-white rounded-[2.5rem] p-8 md:p-10 w-full max-w-lg shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 to-amber-600"></div>
+                    <button @click="close" class="absolute top-5 right-5 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-700 transition-colors">✕</button>
+
+                    <div class="mb-6">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-2">Membresía Premium</p>
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                                <Crown class="w-5 h-5" />
+                            </div>
                             <div>
-                                <p class="text-[10px] font-extrabold uppercase tracking-[0.25em] opacity-60 mb-1">Pago con comprobante</p>
-                                <h2 class="text-2xl font-serif font-bold italic">{{ plan.name }}</h2>
-                                <p class="mt-1 opacity-80 text-sm">S/ {{ plan.price }} <span class="opacity-60">/ {{ plan.period }}</span></p>
+                                <h2 class="text-xl font-bold text-slate-900">{{ plan.name }}</h2>
+                                <p class="text-sm text-slate-500 mt-1">
+                                    S/ {{ Number(plan.price).toFixed(2) }} <span class="text-slate-400">/ {{ plan.period }}</span>
+                                </p>
                             </div>
-                            <button @click="close" class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
-                                <X class="w-4 h-4" />
-                            </button>
                         </div>
                     </div>
 
-                    <!-- Body -->
-                    <div class="p-6 space-y-5">
-                        <!-- Instructions -->
-                        <div class="bg-slate-50 rounded-2xl p-4 space-y-2">
-                            <p class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Instrucciones</p>
-                            <ol class="text-sm text-slate-600 space-y-1.5 list-decimal list-inside">
-                                <li>Realiza la transferencia a nuestra cuenta Yape/BCP.</li>
-                                <li>Toma captura o foto del comprobante.</li>
-                                <li>Súbela aquí. Te confirmaremos en menos de 24h.</li>
-                            </ol>
-                        </div>
-
-                        <!-- File Upload -->
-                        <div>
-                            <p class="text-xs font-extrabold uppercase tracking-widest text-slate-400 mb-3">Comprobante de pago</p>
-                            <div
-                                @click="fileInput?.click()"
-                                class="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group"
-                                :class="previewUrl ? 'border-primary/30 bg-primary/5' : ''"
-                            >
-                                <div v-if="previewUrl" class="space-y-2">
-                                    <CheckCircle2 class="w-8 h-8 text-primary mx-auto" />
-                                    <p class="text-sm font-bold text-primary">Archivo seleccionado</p>
-                                    <p class="text-xs text-slate-400">{{ form.comprobante?.name }}</p>
-                                </div>
-                                <div v-else class="space-y-2">
-                                    <Upload class="w-8 h-8 text-slate-300 mx-auto group-hover:text-primary/50 transition-colors" />
-                                    <p class="text-sm font-semibold text-slate-400">Click para subir comprobante</p>
-                                    <p class="text-xs text-slate-300">JPG, PNG o PDF — máx 2MB</p>
-                                </div>
+                    <ol class="space-y-4 mb-8">
+                        <li class="flex gap-3 items-start">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"><MessageCircle class="w-4 h-4" /></div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">1. Coordina por WhatsApp</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Te indicamos a quién pagar (Yape/BCP) y resolvemos tus dudas.</p>
                             </div>
-                            <input ref="fileInput" type="file" accept=".jpg,.jpeg,.png,.pdf" class="hidden" @change="handleFile" />
-                            <p v-if="form.errors.comprobante" class="text-xs text-red-500 mt-1">{{ form.errors.comprobante }}</p>
-                        </div>
+                        </li>
+                        <li class="flex gap-3 items-start">
+                            <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><Upload class="w-4 h-4" /></div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">2. Sube tu comprobante</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Cuando el asesor te lo indique, en <strong>Mis Pagos</strong>.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-3 items-start">
+                            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><CheckCircle2 class="w-4 h-4" /></div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">3. Activación</p>
+                                <p class="text-xs text-slate-500 mt-0.5">Validamos tu pago y activamos tu acceso Premium ilimitado.</p>
+                            </div>
+                        </li>
+                    </ol>
 
-                        <p v-if="form.errors.plan" class="text-xs text-red-500">{{ form.errors.plan }}</p>
+                    <div v-if="form.errors.plan" class="text-rose-600 text-xs font-bold bg-rose-50 p-3 rounded-xl border border-rose-100 mb-4">
+                        {{ form.errors.plan }}
                     </div>
 
-                    <!-- Footer -->
-                    <div class="p-6 pt-0 flex gap-3">
-                        <button @click="close" class="flex-1 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-500 hover:bg-slate-50 transition-colors">
-                            Cancelar
-                        </button>
+                    <div class="flex flex-col gap-3">
                         <button
-                            @click="submit"
-                            :disabled="!form.comprobante || form.processing"
-                            class="flex-1 py-3 rounded-xl bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            type="button"
+                            @click="submitWhatsApp"
+                            :disabled="form.processing"
+                            class="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
                         >
-                            <CreditCard class="w-4 h-4" />
-                            {{ form.processing ? 'Enviando...' : 'Enviar comprobante' }}
+                            <MessageCircle class="w-5 h-5" />
+                            {{ form.processing ? 'Registrando...' : 'Continuar por WhatsApp' }}
                         </button>
+                        <button type="button" @click="close" class="w-full py-3 text-xs font-bold text-slate-500 hover:text-slate-700">Cancelar</button>
                     </div>
                 </div>
             </div>
         </Transition>
     </Teleport>
 </template>
-
-<style scoped>
-.modal-enter-active, .modal-leave-active { transition: all 0.3s ease; }
-.modal-enter-from, .modal-leave-to { opacity: 0; }
-.modal-enter-from .bg-white, .modal-leave-to .bg-white { transform: translateY(20px); }
-</style>

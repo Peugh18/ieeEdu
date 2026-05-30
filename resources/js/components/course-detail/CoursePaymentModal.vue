@@ -15,7 +15,6 @@ const emit = defineEmits<{
 
 const form = useForm({
     course_id: props.course.id,
-    amount: props.amount,
     comprobante: null as File | null,
 });
 

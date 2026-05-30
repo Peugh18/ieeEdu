@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Certificate;
 use App\Models\CourseLesson;
 use App\Models\Enrollment;
+use App\Services\SubscriptionAccessService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
@@ -28,6 +29,8 @@ class DashboardController extends Controller
         if ($user && $user->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }
+
+        app(SubscriptionAccessService::class)->sync($user->id);
 
         $dashboardData = Cache::remember('student_dashboard_'.$user->id, 60, function () use ($user, $getStats, $getContinue, $getRecommendations) {
             // Obtener IDs inscritos filtrados por acceso (pago o suscripción activa)

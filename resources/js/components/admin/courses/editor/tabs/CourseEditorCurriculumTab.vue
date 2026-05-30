@@ -91,7 +91,7 @@ defineProps<{
 
                     <div class="space-y-3">
                         <div
-                            v-for="lesson in curriculum.lessons.filter((l) => isMasterclass ? true : l.module_id === m.id)"
+                            v-for="lesson in curriculum.lessonsForModule(m.id)"
                             :key="lesson.id"
                             class="w-full rounded-2xl bg-white border border-outline-variant/10 p-4 shadow-sm transition"
                         >
@@ -203,7 +203,7 @@ defineProps<{
                             </div>
                         </div>
 
-                        <p v-if="!curriculum.lessons.filter((l) => isMasterclass ? true : l.module_id === m.id).length" class="text-xs text-on-surface-variant">
+                        <p v-if="!curriculum.lessonsForModule(m.id).length" class="text-xs text-on-surface-variant">
                             Sin clases todavía.
                         </p>
                     </div>

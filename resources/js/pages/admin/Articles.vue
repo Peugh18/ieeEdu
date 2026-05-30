@@ -78,7 +78,7 @@ watch(() => props.articles.data, (newData) => {
 <template>
     <Head title="Admin - Artículos" />
     <AppLayout>
-        <AdminPageHeader badge="Difusión Académica de Elite" title="Gestión de" title-accent="Artículos" subtitle="Publicaciones académicas y de opinión en medios externos." action-label="Nuevo Artículo" action-order="first" @action="openCreate" />
+        <AdminPageHeader title="Artículos" subtitle="Difusión académica y prensa institucional." action-label="Nuevo artículo" action-order="first" compact @action="openCreate" />
         <AdminSearchBar v-model="searchQuery" v-model:view-mode="viewMode" placeholder="Filtrar colección de artículos... (Título, Medio, Editorial)" :result-count="filteredArticles.length" result-label="Resultados" sync-label="Archive" sync-accent="Sync" />
 
         <ArticlesTable v-if="filteredArticles.length > 0" :articles="filteredArticles" :view-mode="viewMode" @edit="openEdit" @destroy="destroy" />

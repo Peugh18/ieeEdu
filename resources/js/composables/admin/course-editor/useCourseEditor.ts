@@ -1,5 +1,5 @@
 import type { CourseEditorCategory, CourseEditorCourse } from '@/types/course-editor';
-import { ref, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { useCourseCurriculum } from './useCourseCurriculum';
 import { useCourseEditorNotifications } from './useCourseEditorNotifications';
 import { useCourseForm } from './useCourseForm';
@@ -14,23 +14,26 @@ export function useCourseEditor(course: CourseEditorCourse, categories: CourseEd
 
     const formApi = useCourseForm(course, notifications, lessonsCount);
 
-    const curriculum = useCourseCurriculum(
-        course.id,
-        course.modules ?? [],
-        course.lessons ?? [],
-        formApi.isMasterclass,
-        notifications.notifySuccess,
+    // reactive() desenvuelve los Ref internos para que los templates accedan arrays/objetos directamente
+    const curriculum = reactive(
+        useCourseCurriculum(
+            course.id,
+            course.modules ?? [],
+            course.lessons ?? [],
+            formApi.isMasterclass,
+            notifications.notifySuccess,
+        ),
     );
 
     watch(
-        () => curriculum.lessons.value.length,
+        () => curriculum.lessons.length,
         (count) => {
             lessonsCount.value = count;
         },
         { immediate: true },
     );
 
-    const quizzesApi = useCourseQuizzes(course.id, course.quizzes ?? []);
+    const quizzes = reactive(useCourseQuizzes(course.id, course.quizzes ?? []));
     const studentsApi = useCourseStudents(course);
     const schedule = useLessonSchedule();
 
@@ -48,7 +51,7 @@ export function useCourseEditor(course: CourseEditorCourse, categories: CourseEd
         publishCourse: formApi.publishCourse,
         hideCourse: formApi.hideCourse,
         curriculum,
-        quizzes: quizzesApi,
+        quizzes,
         students: studentsApi,
         schedule,
     };

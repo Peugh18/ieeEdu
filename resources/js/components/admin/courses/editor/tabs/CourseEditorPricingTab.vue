@@ -88,15 +88,13 @@ defineProps<{
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
                     <div class="space-y-3">
                         <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Estado en Catálogo</label>
-                        <select
-                            v-model="form.status"
-                            class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans text-on-surface focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent appearance-none font-bold"
-                            :class="{ 'text-amber-600': form.status === 'BORRADOR', 'text-emerald-700': form.status === 'PUBLICADO' }"
+                        <div
+                            class="w-full rounded-[1.5rem] bg-surface-container-highest px-6 py-5 text-[15px] font-sans font-bold border border-outline-variant/10"
+                            :class="{ 'text-amber-600': form.status === 'BORRADOR', 'text-emerald-700': form.status === 'PUBLICADO', 'text-slate-500': form.status === 'OCULTO' }"
                         >
-                            <option value="BORRADOR">Borrador (Privado)</option>
-                            <option value="PUBLICADO">Publicado (Visible)</option>
-                            <option value="OCULTO">Oculto (Secreto)</option>
-                        </select>
+                            {{ form.status === 'PUBLICADO' ? 'Publicado (Visible)' : form.status === 'OCULTO' ? 'Oculto' : 'Borrador (Privado)' }}
+                        </div>
+                        <p class="text-[12px] text-on-surface-variant ml-1">Usa los botones <strong>Publicar Oficial</strong> u <strong>Ocultar</strong> en la cabecera del editor.</p>
                     </div>
                     <div class="space-y-3">
                         <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Categoría Principal</label>

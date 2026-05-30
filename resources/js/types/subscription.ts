@@ -15,6 +15,7 @@ export interface Subscription {
     status: 'activa' | 'expirada' | 'cancelada';
     payment_amount?: number;
     payment_capture?: string;
+    payment_status?: string;
 }
 
 export interface SubscriptionStatusConfig {

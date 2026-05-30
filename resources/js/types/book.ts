@@ -9,4 +9,8 @@ export interface Book {
     file_path: string | null;
     download_url: string | null;
     is_available: boolean;
+    stock?: number | null;
+    downloads_count?: number;
+    approved_sales_count?: number;
+    total_earned?: number | string | null;
 }

@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
+import { Download } from 'lucide-vue-next';
 import AppLayout from '@/layouts/AppLayout.vue';
-import DashboardHeader from '@/components/admin/dashboard/DashboardHeader.vue';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import DashboardStatsGrid from '@/components/admin/dashboard/DashboardStatsGrid.vue';
 import DashboardKpisGrid from '@/components/admin/dashboard/DashboardKpisGrid.vue';
 import DashboardRevenueChart from '@/components/admin/dashboard/DashboardRevenueChart.vue';
 import DashboardComposition from '@/components/admin/dashboard/DashboardComposition.vue';
 import DashboardInsight from '@/components/admin/dashboard/DashboardInsight.vue';
 import DashboardTopCourses from '@/components/admin/dashboard/DashboardTopCourses.vue';
+import DashboardTopBooks from '@/components/admin/dashboard/DashboardTopBooks.vue';
 import DashboardInventory from '@/components/admin/dashboard/DashboardInventory.vue';
 import DashboardAcademicMetrics from '@/components/admin/dashboard/DashboardAcademicMetrics.vue';
 
@@ -17,6 +19,7 @@ interface ChartPoint {
     total: number;
     subs: number;
     courses: number;
+    books: number;
 }
 
 interface CourseSale {
@@ -34,6 +37,8 @@ interface Stats {
     totalIncome: number;
     subIncome: number;
     courseIncome: number;
+    bookIncome: number;
+    bookSalesCount: number;
     totalUsers: number;
     activeUsers: number;
     inactiveUsers: number;
@@ -46,6 +51,9 @@ interface Stats {
     liveCourses: number;
     totalBooks: number;
     availableBooks: number;
+    totalBookDownloads: number;
+    bookDownloadsThisMonth: number;
+    bookWhatsappLeads: number;
     totalEnrollments: number;
     completedCourses: number;
     approvalRate: number;
@@ -58,6 +66,16 @@ interface Stats {
     whatsappLeadsMonth: number;
 }
 
+interface TopBook {
+    id: number;
+    title: string;
+    category: string;
+    price: number | string;
+    downloads_count: number;
+    approved_sales_count: number;
+    total_earned: number | string | null;
+}
+
 const props = defineProps<{
     stats: Stats;
     charts: {
@@ -67,6 +85,7 @@ const props = defineProps<{
         annually: ChartPoint[];
     };
     courseSales: CourseSale[];
+    topBooks: TopBook[];
 }>();
 
 // Computeds
@@ -86,6 +105,11 @@ const courseIncomeShare = computed(() => {
 const subIncomeShare = computed(() => {
     if (!props.stats.totalIncome) return 0;
     return ((props.stats.subIncome / props.stats.totalIncome) * 100).toFixed(1);
+});
+
+const bookIncomeShare = computed(() => {
+    if (!props.stats.totalIncome) return 0;
+    return ((props.stats.bookIncome / props.stats.totalIncome) * 100).toFixed(1);
 });
 
 const completionRate = computed(() => {
@@ -118,15 +142,29 @@ function downloadPDF() {
         <div class="min-h-screen bg-background dark:bg-[#141410] font-sans">
             <div class="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-14 py-6 md:py-12 space-y-8 md:space-y-14">
                 
-                <DashboardHeader 
-                    :formatted-date="formattedDate"
-                    @download-p-d-f="downloadPDF"
-                />
+                <AdminPageHeader
+                    badge="Panel de Control"
+                    title="Dashboard"
+                    title-accent="Institucional"
+                    subtitle="Métricas de ingresos, usuarios y actividad académica."
+                >
+                    <template #actions>
+                        <div class="px-6 py-3.5 bg-surface rounded-2xl border border-outline-variant/15 shadow-sm flex items-center gap-3">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">{{ formattedDate }}</span>
+                        </div>
+                        <button @click="downloadPDF" class="px-8 py-3.5 bg-on-background text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group">
+                            <Download class="w-4 h-4 opacity-50 group-hover:opacity-100 transition" />
+                            Reporte PDF
+                        </button>
+                    </template>
+                </AdminPageHeader>
 
                 <DashboardStatsGrid 
                     :stats="stats"
                     :sub-income-share="subIncomeShare"
                     :course-income-share="courseIncomeShare"
+                    :book-income-share="bookIncomeShare"
                 />
 
                 <DashboardKpisGrid 
@@ -142,8 +180,10 @@ function downloadPDF() {
                         <DashboardComposition 
                             :sub-income="stats.subIncome"
                             :course-income="stats.courseIncome"
+                            :book-income="stats.bookIncome"
                             :sub-income-share="subIncomeShare"
                             :course-income-share="courseIncomeShare"
+                            :book-income-share="bookIncomeShare"
                             :active-subs="stats.activeSubs"
                             :expired-subs="stats.expiredSubs"
                         />
@@ -154,10 +194,13 @@ function downloadPDF() {
                     </div>
                 </section>
 
-                <section class="grid gap-8 xl:grid-cols-3">
+                <section class="grid gap-8 xl:grid-cols-4">
                     <DashboardTopCourses 
+                        class="xl:col-span-2"
                         :course-sales="courseSales"
                     />
+
+                    <DashboardTopBooks :top-books="topBooks" />
 
                     <DashboardInventory 
                         :stats="stats"

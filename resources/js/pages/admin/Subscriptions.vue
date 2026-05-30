@@ -18,12 +18,13 @@ import type { SharedData } from '@/types';
 const props = defineProps<{
     subscriptions: PaginatedResponse<Subscription>;
     filters: { search?: string };
+    planOptions?: { slug: string; name: string; price: number; months: number }[];
 }>();
 
 const page = usePage<SharedData>();
 const flash = computed(() => page.props.flash ?? {});
 
-const formCtx = useSubscriptionForm();
+const formCtx = useSubscriptionForm(props.planOptions ?? []);
 const selectedSub = ref<Subscription | null>(null);
 const searchQuery = ref(props.filters.search || '');
 const filtered = ref<Subscription[]>(props.subscriptions.data);
@@ -48,7 +49,7 @@ function handleSubmit() {
     <Head title="Suscripciones Premium - Admin IEE" />
     <AppLayout>
         <div class="max-w-7xl mx-auto px-4 py-8 space-y-10">
-            <AdminPageHeader badge="Accesos / Membresías" title="Suscripciones" title-accent="Premium" subtitle="Control total de accesos ilimitados para la red de estudiantes." action-label="Nueva Suscripción" action-order="first" @action="formCtx.open" />
+            <AdminPageHeader title="Membresías" subtitle="Suscripciones Premium activas y asignación manual." action-label="Nueva suscripción" action-order="first" compact @action="formCtx.open" />
 
             <SubscriptionStats :active-count="activeCount" :total-count="subscriptions.total" />
 
@@ -64,7 +65,20 @@ function handleSubmit() {
             <AdminPagination :links="paginationLinks" label="Navegación de Suscripciones" />
         </div>
 
-        <SubscriptionFormModal :show="formCtx.showModal.value" :form="formCtx.form" :users-results="formCtx.usersResults.value" :search-user-query="formCtx.searchUserQuery.value" :is-searching-user="formCtx.isSearchingUser.value" @close="formCtx.showModal.value = false" @submit="handleSubmit" @search="formCtx.searchUsers" @select-user="formCtx.selectUser" @file-change="formCtx.onFileChange" />
+        <SubscriptionFormModal
+            :show="formCtx.showModal.value"
+            :form="formCtx.form"
+            :plan-options="planOptions ?? []"
+            :users-results="formCtx.usersResults.value"
+            :search-user-query="formCtx.searchUserQuery.value"
+            :is-searching-user="formCtx.isSearchingUser.value"
+            @close="formCtx.showModal.value = false"
+            @submit="handleSubmit"
+            @update:search-user-query="formCtx.searchUserQuery.value = $event"
+            @search="formCtx.searchUsers"
+            @select-user="formCtx.selectUser"
+            @file-change="formCtx.onFileChange"
+        />
 
         <SubscriptionCapturePreview :subscription="selectedSub" @close="selectedSub = null" />
 

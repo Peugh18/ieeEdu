@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\StoreSubscriptionRequest;
 use App\Models\Payment;
 use App\Models\Subscription;
 use App\Services\SubscriptionAccessService;
+use App\Support\PlanPricing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -35,21 +36,33 @@ class SubscriptionController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        // Optimización N+1: Vincular pagos adjuntando monto y captura si existe en una consulta única
+        // Vincular pagos de membresía (aprobados o pendientes) con cada suscripción
         $userIds = $subscriptions->pluck('user_id')->unique()->toArray();
         $payments = Payment::whereIn('user_id', $userIds)
-            ->where('status', 'aprobado')
             ->whereNull('course_id')
-            ->orderBy('created_at', 'desc')
+            ->whereIn('status', ['aprobado', 'en_revision', 'pendiente'])
+            ->orderByDesc('created_at')
             ->get()
             ->groupBy('user_id');
 
-        $subscriptions->getCollection()->transform(function ($sub) use ($payments) {
-            $userPayments = $payments->get($sub->user_id);
-            $payment = $userPayments ? $userPayments->first() : null;
+        $statusPriority = ['aprobado' => 0, 'en_revision' => 1, 'pendiente' => 2];
 
-            $sub->payment_amount = $payment ? $payment->amount : null;
-            $sub->payment_capture = $payment ? $payment->comprobante : null;
+        $subscriptions->getCollection()->transform(function ($sub) use ($payments, $statusPriority) {
+            $userPayments = $payments->get($sub->user_id, collect())
+                ->filter(fn ($p) => $p->subscription_type === null || $p->subscription_type === $sub->type)
+                ->sortBy(fn ($p) => [$statusPriority[$p->status] ?? 99, -$p->created_at->timestamp])
+                ->values();
+
+            $payment = $userPayments->first();
+
+            $amount = $payment ? (float) $payment->amount : 0.0;
+            if ($amount <= 0) {
+                $amount = PlanPricing::price($sub->type);
+            }
+
+            $sub->payment_amount = $amount;
+            $sub->payment_capture = $payment?->comprobante;
+            $sub->payment_status = $payment?->status;
 
             return $sub;
         });
@@ -57,6 +70,7 @@ class SubscriptionController extends Controller
         return Inertia::render('admin/Subscriptions', [
             'subscriptions' => $subscriptions,
             'filters' => $request->only('search', 'per_page'),
+            'planOptions' => PlanPricing::adminOptions(),
         ]);
     }
 
@@ -99,6 +113,7 @@ class SubscriptionController extends Controller
                 'status' => 'aprobado',
                 'comprobante' => $comprobantePath ?: ('Membresía '.$data['type'].' - Activación Admin'),
                 'course_id' => null,
+                'subscription_type' => $data['type'],
             ]);
 
             // Otorgar acceso mediante el servicio (con flags de suscripción)

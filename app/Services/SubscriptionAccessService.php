@@ -29,17 +29,22 @@ class SubscriptionAccessService
             ->pluck('course_id')
             ->toArray();
 
-        $courses = Course::where('status', 'PUBLICADO')->pluck('id');
+        $courses = Course::where('status', 'PUBLICADO')->get();
 
-        foreach ($courses as $courseId) {
+        foreach ($courses as $course) {
+            // Masterclass = gancho de marketing, no depende de la suscripción
+            if ($course->retainsAccessAfterSubscriptionEnds()) {
+                $this->ensurePermanentEnrollment($userId, $course->id);
+
+                continue;
+            }
+
             $enrollment = Enrollment::where('user_id', $userId)
-                ->where('course_id', $courseId)
+                ->where('course_id', $course->id)
                 ->first();
 
             if ($enrollment) {
-                // Si fue comprado individualmente: solo activar el flag de acceso,
-                // pero NO cambiar subscription_granted para que no sea revocado después.
-                if (in_array($courseId, $individualCourseIds)) {
+                if (in_array($course->id, $individualCourseIds)) {
                     $enrollment->update(['subscription_active' => true]);
                 } else {
                     $enrollment->update([
@@ -48,10 +53,9 @@ class SubscriptionAccessService
                     ]);
                 }
             } else {
-                // Nueva inscripción creada por suscripción
                 Enrollment::create([
                     'user_id' => $userId,
-                    'course_id' => $courseId,
+                    'course_id' => $course->id,
                     'enrolled_at' => now(),
                     'progress' => 0,
                     'subscription_granted' => true,
@@ -70,22 +74,60 @@ class SubscriptionAccessService
      */
     public function revokeAccess(int $userId): void
     {
-        // IDs de cursos pagados individualmente → nunca revocar
         $individualCourseIds = Payment::where('user_id', $userId)
             ->where('status', 'aprobado')
             ->whereNotNull('course_id')
             ->pluck('course_id')
             ->toArray();
 
-        // Revocar acceso por suscripción sin borrar el historial de progreso
+        $masterclassCourseIds = Course::whereIn('type', ['evento', 'masterclass'])
+            ->pluck('id')
+            ->toArray();
+
+        // Masterclasses visitadas con Premium → convertir a acceso permanente
+        if ($masterclassCourseIds !== []) {
+            DB::table('enrollments')
+                ->where('user_id', $userId)
+                ->where('subscription_granted', true)
+                ->whereIn('course_id', $masterclassCourseIds)
+                ->update([
+                    'subscription_granted' => false,
+                    'subscription_active' => true,
+                    'updated_at' => now(),
+                ]);
+        }
+
         DB::table('enrollments')
             ->where('user_id', $userId)
             ->where('subscription_granted', true)
             ->whereNotIn('course_id', $individualCourseIds)
+            ->whereNotIn('course_id', $masterclassCourseIds)
             ->update([
                 'subscription_active' => false,
                 'updated_at' => now(),
             ]);
+    }
+
+    /**
+     * Inscripción permanente (no revocable al expirar Premium).
+     */
+    protected function ensurePermanentEnrollment(int $userId, int $courseId): void
+    {
+        $enrollment = Enrollment::firstOrCreate(
+            ['user_id' => $userId, 'course_id' => $courseId],
+            [
+                'enrolled_at' => now(),
+                'progress' => 0,
+                'subscription_granted' => false,
+            ]
+        );
+
+        if ($enrollment->subscription_granted) {
+            $enrollment->update([
+                'subscription_granted' => false,
+                'subscription_active' => true,
+            ]);
+        }
     }
 
     /**

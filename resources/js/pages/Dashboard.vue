@@ -12,6 +12,7 @@ import StudentDashboardRecommendations from '@/components/student/dashboard/Stud
 import StudentDashboardAcademicPerformance from '@/components/student/dashboard/StudentDashboardAcademicPerformance.vue';
 import StudentDashboardSubscription from '@/components/student/dashboard/StudentDashboardSubscription.vue';
 import StudentDashboardLiveModal from '@/components/student/dashboard/StudentDashboardLiveModal.vue';
+import EmailVerificationBanner from '@/components/student/EmailVerificationBanner.vue';
 import { useAnimatedStats } from '@/composables/useAnimatedStats';
 import { type BreadcrumbItem } from '@/types';
 import { type SharedData, type User } from '@/types';
@@ -77,6 +78,8 @@ onUnmounted(() => {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30 dark:from-[#141410] dark:via-on-background dark:to-on-background pb-24">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+                <EmailVerificationBanner :email-verified-at="user?.email_verified_at" />
+
                 <StudentDashboardLiveBanner
                     :user="user"
                     :animated-stats="animatedStats"

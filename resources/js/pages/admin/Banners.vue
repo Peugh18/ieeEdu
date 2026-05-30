@@ -30,10 +30,10 @@ const carouselPreviews = computed(() =>
     <AppLayout>
         <div class="max-w-7xl mx-auto px-4 py-8 space-y-8">
             <AdminPageHeader
-                title="Gestión de"
-                title-accent="Banners"
-                subtitle="Configura las imágenes de cabecera sincronizadas con la base de datos."
-                badge="Marketing / Web"
+                title="Banners del "
+                title-accent="sitio"
+                subtitle="Imágenes de cabecera y textos del home."
+                compact
             >
                 <button @click="saveChanges" :disabled="isSaving" class="h-12 inline-flex items-center gap-2.5 rounded-2xl px-7 text-sm font-bold shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed bg-primary text-white">
                     <Loader2 v-if="isSaving" class="h-4 w-4 animate-spin" />

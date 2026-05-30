@@ -31,11 +31,10 @@ test('student cannot view another users payments', function () {
 
 test('student can create payment for course', function () {
     $student = User::factory()->create(['role' => 'usuario']);
-    $course = Course::factory()->create(['price' => 100]);
+    $course = Course::factory()->create(['price' => 100, 'status' => 'PUBLICADO', 'type' => 'grabado']);
 
     $response = $this->actingAs($student)->post(route('student.payments.store'), [
         'course_id' => $course->id,
-        'amount' => 100,
     ]);
 
     $response->assertRedirect();
@@ -49,7 +48,7 @@ test('student can create payment for course', function () {
 
 test('student cannot create duplicate pending payment for same course', function () {
     $student = User::factory()->create(['role' => 'usuario']);
-    $course = Course::factory()->create(['price' => 100]);
+    $course = Course::factory()->create(['price' => 100, 'status' => 'PUBLICADO', 'type' => 'grabado']);
 
     Payment::factory()->create([
         'user_id' => $student->id,
@@ -60,7 +59,6 @@ test('student cannot create duplicate pending payment for same course', function
 
     $response = $this->actingAs($student)->post(route('student.payments.store'), [
         'course_id' => $course->id,
-        'amount' => 100,
     ]);
 
     $response->assertSessionHasErrors('course_id');
@@ -68,33 +66,36 @@ test('student cannot create duplicate pending payment for same course', function
 
 test('student cannot create payment for already enrolled course', function () {
     $student = User::factory()->create(['role' => 'usuario']);
-    $course = Course::factory()->create(['price' => 100]);
+    $course = Course::factory()->create(['price' => 100, 'status' => 'PUBLICADO', 'type' => 'grabado']);
     Enrollment::factory()->create(['user_id' => $student->id, 'course_id' => $course->id]);
 
     $response = $this->actingAs($student)->post(route('student.payments.store'), [
         'course_id' => $course->id,
-        'amount' => 100,
     ]);
 
     $response->assertSessionHasErrors('course_id');
 });
 
-test('student payment amount must be coherent with course price', function () {
+test('student payment amount is set from course price on server', function () {
     $student = User::factory()->create(['role' => 'usuario']);
-    $course = Course::factory()->create(['price' => 100, 'sale_price' => 0]);
+    $course = Course::factory()->create(['price' => 100, 'sale_price' => 0, 'status' => 'PUBLICADO', 'type' => 'grabado']);
 
     $response = $this->actingAs($student)->post(route('student.payments.store'), [
         'course_id' => $course->id,
-        'amount' => 1,
     ]);
 
-    $response->assertSessionHasErrors('amount');
+    $response->assertRedirect();
+    $this->assertDatabaseHas('payments', [
+        'user_id' => $student->id,
+        'course_id' => $course->id,
+        'amount' => 100,
+    ]);
 });
 
 test('student can upload comprobante for pending payment', function () {
     Storage::fake('public');
     $student = User::factory()->create(['role' => 'usuario']);
-    $course = Course::factory()->create(['price' => 100]);
+    $course = Course::factory()->create(['price' => 100, 'status' => 'PUBLICADO', 'type' => 'grabado']);
     $payment = Payment::factory()->create([
         'user_id' => $student->id,
         'course_id' => $course->id,

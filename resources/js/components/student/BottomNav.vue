@@ -45,6 +45,12 @@ function isActive(itemPath: string): boolean {
     if (itemPath === '/admin/dashboard') {
         return url === '/admin/dashboard' || url.startsWith('/admin/dashboard?');
     }
+    if (itemPath === '/admin/courses') {
+        return url.startsWith('/admin/courses') || url.startsWith('/admin/categories') || url.startsWith('/admin/certificates');
+    }
+    if (itemPath === '/admin/payments') {
+        return url.startsWith('/admin/payments') || url.startsWith('/admin/subscriptions');
+    }
     if (itemPath === '/student/exams') {
         return url.startsWith('/student/exams');
     }

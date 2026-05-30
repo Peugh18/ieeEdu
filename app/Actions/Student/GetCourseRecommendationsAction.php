@@ -14,8 +14,9 @@ class GetCourseRecommendationsAction
      */
     public function execute(User $user, int $limit = 3): Collection
     {
-        $enrolledIds = Enrollment::where('user_id', $user->id)->pluck('course_id');
+        $enrolledIds = Enrollment::where('user_id', $user->id)->visible()->pluck('course_id');
         $enrolledCategories = Enrollment::where('user_id', $user->id)
+            ->visible()
             ->join('courses', 'enrollments.course_id', '=', 'courses.id')
             ->pluck('courses.category_id')
             ->unique();

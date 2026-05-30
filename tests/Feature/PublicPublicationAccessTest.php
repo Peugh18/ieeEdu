@@ -35,13 +35,13 @@ test('public publications catalog does not expose file_path in json', function (
 
     $response->assertInertia(fn (Assert $page) => $page
         ->component('Publications')
-        ->has('books', 1)
-        ->has('articles', 1)
-        ->missing('books.0.file_path')
-        ->missing('articles.0.file_path')
-        ->has('books.0.id')
-        ->has('books.0.title')
-        ->has('articles.0.id')
-        ->has('articles.0.title')
+        ->has('books.data', 1)
+        ->has('articles.data', 1)
+        ->missing('books.data.0.file_path')
+        ->missing('articles.data.0.file_path')
+        ->has('books.data.0.id')
+        ->has('books.data.0.title')
+        ->has('articles.data.0.id')
+        ->has('articles.data.0.title')
     );
 });
