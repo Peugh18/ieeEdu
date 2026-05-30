@@ -1,3 +1,5 @@
+import type { BookOrder } from '@/types/book-order';
+
 export interface StudentPayment {
     id: number;
     course: {
@@ -6,6 +8,12 @@ export interface StudentPayment {
         slug: string;
         image: string | null;
     } | null;
+    book: {
+        id: number;
+        title: string;
+        cover_image: string | null;
+    } | null;
+    book_order?: BookOrder | null;
     amount: number;
     status: 'pendiente' | 'en_revision' | 'aprobado' | 'rechazado';
     comprobante: string | null;

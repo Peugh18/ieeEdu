@@ -15,66 +15,84 @@ const { state } = useSidebar();
 
 const pendingPaymentsCount = computed(() => page.props.admin_nav?.pending_payments || 0);
 
-// We process the static adminNavItems to inject the dynamic badge
 const adminGroups = computed<NavGroup[]>(() => {
     return adminNavItems.map(group => ({
         ...group,
         items: group.items.map(item => {
-            if (item.title === 'Pagos' && pendingPaymentsCount.value > 0) {
-                return { ...item, badge: pendingPaymentsCount.value > 9 ? '9+' : pendingPaymentsCount.value };
+            if (item.href === 'admin.payments.index' && pendingPaymentsCount.value > 0) {
+                return {
+                    ...item,
+                    badge: pendingPaymentsCount.value > 9 ? '9+' : pendingPaymentsCount.value,
+                };
             }
             return item;
-        })
+        }),
     }));
 });
 
-function isActive(href: string): boolean {
+function routePath(routeName: string): string {
     try {
-        const resolved = route(href, undefined, false);
-        return page.url.startsWith(resolved);
+        return route(routeName, undefined, false).split('?')[0];
     } catch {
-        return false;
+        return '';
     }
+}
+
+function isActive(item: NavItem): boolean {
+    const current = page.url.split('?')[0];
+    const paths = item.matchPaths?.length
+        ? item.matchPaths
+        : [routePath(item.href)].filter(Boolean);
+
+    return paths.some((path) => current === path || current.startsWith(`${path}/`));
 }
 </script>
 
 <template>
-    <div class="px-3 py-2 overflow-y-auto custom-scrollbar flex-1">
-        
-        <!-- Vista Administrador -->
+    <div class="px-2 py-1 overflow-y-auto custom-scrollbar flex-1">
+
         <template v-if="isAdmin">
-            <template v-for="(group, gIdx) in adminGroups" :key="gIdx">
-                <!-- Section Label -->
-                <div class="px-3 pt-5 pb-2" v-if="state === 'expanded'">
-                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-on-surface-variant/40">
+            <template v-for="(group, gIdx) in adminGroups" :key="group.label ?? gIdx">
+                <div
+                    v-if="gIdx > 0"
+                    class="mx-3 border-t border-outline-variant/20"
+                    :class="state === 'expanded' ? 'mt-3 mb-1' : 'my-2'"
+                />
+
+                <div
+                    v-if="group.label && state === 'expanded'"
+                    class="px-3 pt-1 pb-1.5 flex items-center gap-2"
+                >
+                    <span class="text-[10px] font-bold uppercase tracking-[0.12em] text-on-surface-variant/70 whitespace-nowrap">
                         {{ group.label }}
                     </span>
+                    <span class="h-px flex-1 bg-outline-variant/25" />
                 </div>
-                <div v-else class="h-5"></div>
+                <div v-else-if="group.label && state === 'collapsed'" class="h-1" />
 
-                <!-- Section Items -->
-                <nav class="flex flex-col gap-1">
-                    <Tooltip v-for="item in group.items" :key="item.title" :disabled="state === 'expanded'">
+                <nav class="flex flex-col gap-0.5" :class="gIdx === 0 ? 'pt-0.5' : ''">
+                    <Tooltip v-for="item in group.items" :key="item.href" :disabled="state === 'expanded'">
                         <TooltipTrigger as-child>
-                            <Link 
-                                :href="route(item.href)" 
-                                class="relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300"
-                                :class="isActive(item.href) 
-                                    ? 'bg-primary/10 dark:bg-white/5 border-l-[3px] border-l-primary text-primary dark:!text-primary font-bold' 
+                            <Link
+                                :href="route(item.href)"
+                                class="relative flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300"
+                                :class="isActive(item)
+                                    ? 'bg-primary/10 dark:bg-white/5 border-l-[3px] border-l-primary text-primary dark:!text-primary font-bold'
                                     : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-medium border-l-[3px] border-l-transparent'"
                             >
-                                <component 
-                                    :is="item.icon" 
-                                    class="w-[18px] h-[18px] flex-shrink-0" 
+                                <component
+                                    :is="item.icon"
+                                    class="w-[18px] h-[18px] flex-shrink-0"
                                 />
-                                
-                                <span class="text-sm tracking-tight truncate flex-1" v-if="state === 'expanded'">
+
+                                <span v-if="state === 'expanded'" class="text-sm tracking-tight truncate flex-1">
                                     {{ item.title }}
                                 </span>
-                                
-                                <span v-if="item.badge && state === 'expanded'" 
+
+                                <span
+                                    v-if="item.badge && state === 'expanded'"
                                     class="px-2 py-0.5 rounded-full text-[10px] font-bold"
-                                    :class="isActive(item.href) ? 'bg-primary text-white dark:!text-black' : 'bg-surface-container-highest text-on-surface-variant'"
+                                    :class="isActive(item) ? 'bg-primary text-white dark:!text-black' : 'bg-surface-container-highest text-on-surface-variant'"
                                 >
                                     {{ item.badge }}
                                 </span>
@@ -88,30 +106,26 @@ function isActive(href: string): boolean {
                         </TooltipContent>
                     </Tooltip>
                 </nav>
-
-                <!-- Sutil separator between sections, except the last one -->
-                <div v-if="gIdx < adminGroups.length - 1" class="border-t border-outline-variant/10 my-2 mx-2"></div>
             </template>
         </template>
 
-        <!-- Vista Estudiante (Plana) -->
         <template v-else>
             <nav class="flex flex-col gap-1 pt-2">
                 <Tooltip v-for="item in studentNavItems" :key="item.title" :disabled="state === 'expanded'">
                     <TooltipTrigger as-child>
-                        <Link 
-                            :href="route(item.href)" 
+                        <Link
+                            :href="route(item.href)"
                             class="relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300"
-                            :class="isActive(item.href) 
-                                ? 'bg-primary/10 dark:bg-white/5 border-l-[3px] border-l-primary text-primary dark:!text-primary font-bold' 
+                            :class="isActive(item)
+                                ? 'bg-primary/10 dark:bg-white/5 border-l-[3px] border-l-primary text-primary dark:!text-primary font-bold'
                                 : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-medium border-l-[3px] border-l-transparent'"
                         >
-                            <component 
-                                :is="item.icon" 
-                                class="w-[18px] h-[18px] flex-shrink-0" 
+                            <component
+                                :is="item.icon"
+                                class="w-[18px] h-[18px] flex-shrink-0"
                             />
-                            
-                            <span class="text-sm tracking-tight truncate flex-1" v-if="state === 'expanded'">
+
+                            <span v-if="state === 'expanded'" class="text-sm tracking-tight truncate flex-1">
                                 {{ item.title }}
                             </span>
                         </Link>

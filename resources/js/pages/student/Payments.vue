@@ -34,8 +34,8 @@ function openUpload(payment: StudentPayment) {
             <div class="w-full max-w-7xl p-4 md:p-12 space-y-8">
                 <div class="flex items-center justify-between">
                     <div class="space-y-2">
-                        <h1 class="text-3xl md:text-5xl font-serif font-bold italic text-slate-900">Mis <span class="text-primary">Pagos</span></h1>
-                        <p class="text-slate-500 text-sm font-medium">Seguimiento de tus transacciones y comprobantes.</p>
+                        <h1 class="text-3xl md:text-5xl font-serif font-bold italic text-slate-900">Mis <span class="text-primary">Compras</span></h1>
+                        <p class="text-slate-500 text-sm font-medium">Pagos, comprobantes y envío de libros.</p>
                     </div>
                 </div>
 

@@ -21,21 +21,30 @@ class EnrollmentService
                     'payment_id' => $paymentId,
                     'enrolled_at' => now(),
                     'progress' => 0,
+                    'subscription_granted' => false,
                 ]
             );
 
-            if ($paymentId && (int) $enrollment->payment_id !== (int) $paymentId) {
-                $enrollment->update(['payment_id' => $paymentId]);
+            $updates = [];
+
+            if ($paymentId) {
+                $updates['payment_id'] = $paymentId;
+                $updates['subscription_granted'] = false;
+                $updates['subscription_active'] = true;
+            } elseif ($course->retainsAccessAfterSubscriptionEnds() || $course->effectivePrice() <= 0) {
+                $updates['subscription_granted'] = false;
+                $updates['subscription_active'] = true;
             }
 
             if (! $enrollment->enrolled_at) {
-                $enrollment->update(['enrolled_at' => now()]);
+                $updates['enrolled_at'] = now();
             }
 
-            // Potential for Welcome Email or Notification
-            // Mail::to($user->email)->send(new CourseWelcomeMail($course));
+            if ($updates !== []) {
+                $enrollment->update($updates);
+            }
 
-            return $enrollment;
+            return $enrollment->fresh();
         });
     }
 

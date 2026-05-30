@@ -9,7 +9,6 @@ use App\Models\Course;
 use App\Services\CourseDuplicationService;
 use App\Services\CourseService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class CourseController extends Controller
@@ -72,6 +71,10 @@ class CourseController extends Controller
         $categories = Category::orderBy('name')->get();
         $course->load(['modules', 'lessons', 'quizzes.questions.answers', 'certificates.user', 'enrollments.user']);
 
+        $course->setRelation('modules', $course->modules ?? collect());
+        $course->setRelation('lessons', $course->lessons ?? collect());
+        $course->setRelation('quizzes', $course->quizzes ?? collect());
+
         return Inertia::render('admin/CourseEditor', [
             'course' => $course,
             'categories' => $categories,
@@ -104,6 +107,9 @@ class CourseController extends Controller
             $data['instructor_image'] = '/storage/'.$path;
         }
 
+        // Estado solo cambia vía publish/hide, no desde el editor
+        unset($data['status']);
+
         $this->service->update($course, $data);
 
         return redirect()->back()->with('success', 'Curso actualizado.');
@@ -120,13 +126,9 @@ class CourseController extends Controller
     public function publish(Course $course)
     {
         $this->authorize('publish', $course);
-        try {
-            $this->service->publish($course);
+        $this->service->publish($course);
 
-            return redirect()->back()->with('success', 'Curso publicado.');
-        } catch (ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors());
-        }
+        return redirect()->back()->with('success', 'Curso publicado.');
     }
 
     public function hide(Course $course)

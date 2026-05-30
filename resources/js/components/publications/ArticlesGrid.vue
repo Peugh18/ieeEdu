@@ -4,12 +4,6 @@ import { storageUrl } from '@/lib/storageUrl';
 
 defineProps<{
     articles: PublicationArticle[];
-    totalPages: number;
-    currentPage: number;
-}>();
-
-const emit = defineEmits<{
-    (e: 'changePage', page: number): void;
 }>();
 
 function formatDate(date: string) {
@@ -70,11 +64,6 @@ function getArticleDownloadLink(article: PublicationArticle) {
                 </article>
             </div>
 
-            <div v-if="totalPages > 1" class="mt-12 flex justify-center">
-                <div class="flex flex-wrap gap-2">
-                    <button v-for="p in totalPages" :key="p" @click="emit('changePage', p)" class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all border" :class="currentPage === p ? 'bg-primary border-primary text-on-primary shadow-md shadow-primary/10' : 'bg-surface border-outline-variant/20 text-on-surface-variant hover:border-primary/40 hover:text-primary'">{{ p }}</button>
-                </div>
-            </div>
         </div>
     </div>
 </template>

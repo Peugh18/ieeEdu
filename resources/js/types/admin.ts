@@ -24,5 +24,9 @@ export interface PaymentListItem {
         id?: number; 
         title: string; 
     } | null;
+    book: {
+        id?: number;
+        title: string;
+    } | null;
     subscription_type: string | null;
 }

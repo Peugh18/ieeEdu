@@ -22,11 +22,14 @@ import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 
 interface CourseOption { id: number; title: string; price: number; sale_price: number | null; }
 
+interface BookOption { id: number; title: string; price: number | string; }
+
 const props = defineProps<{
     payments: { data: PaymentListItem[]; links: PaginationLink[]; total: number; per_page: number };
-    filters: { status?: string; search?: string; date?: string; per_page?: string };
-    stats: { total: number; pendiente: number; en_revision: number; aprobado: number; rechazado: number };
+    filters: { status?: string; search?: string; date?: string; per_page?: string; type?: string };
+    stats: { total: number; pendiente: number; en_revision: number; aprobado: number; rechazado: number; book_income?: number; book_sales?: number };
     courses: CourseOption[];
+    books: BookOption[];
 }>();
 
 const page = usePage<SharedData>();
@@ -37,6 +40,7 @@ const filterFormObj = useInertiaForm({
     search: props.filters.search || '',
     status: props.filters.status || '',
     date: props.filters.date || '',
+    type: props.filters.type || '',
     per_page: props.filters.per_page || '20',
 });
 
@@ -45,6 +49,7 @@ function applyFilters() {
         search:   filterFormObj.search || undefined,
         status:   filterFormObj.status || undefined,
         date:     filterFormObj.date || undefined,
+        type:     filterFormObj.type || undefined,
         per_page: filterFormObj.per_page !== '20' ? filterFormObj.per_page : undefined,
     }, { preserveState: false, replace: true });
 }
@@ -76,6 +81,11 @@ function reject(p: PaymentListItem) {
     router.patch(route('admin.payments.reject', { payment: p.id }), {}, { preserveScroll: true });
 }
 
+function revert(p: PaymentListItem) {
+    if (!confirm(`¿Revertir aprobación de ${p.user.name}? El estudiante perderá el acceso y el pago volverá a revisión.`)) return;
+    router.patch(route('admin.payments.revert', { payment: p.id }), {}, { preserveScroll: true });
+}
+
 const pgLinks  = usePaginationLinks(props.payments.links);
 </script>
 
@@ -85,12 +95,34 @@ const pgLinks  = usePaginationLinks(props.payments.links);
         <div class="max-w-7xl mx-auto px-4 py-8 space-y-10">
             <!-- ── Header ── -->
             <AdminPageHeader
-                title="Control de "
-                titleAccent="Transacciones"
-                subtitle="Finanzas / Historial de Pagos"
-                actionLabel="Registrar Nuevo Pago"
+                title="Comprobantes de "
+                titleAccent="pago"
+                subtitle="Valida transferencias de cursos, libros y membresías."
+                actionLabel="Registrar pago"
+                compact
                 @action="showCreate = true"
             />
+
+            <!-- Filtro por tipo -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button
+                    v-for="opt in [
+                        { key: '', label: 'Todos' },
+                        { key: 'course', label: 'Cursos' },
+                        { key: 'membership', label: 'Membresías' },
+                        { key: 'books', label: 'Libros' },
+                    ]"
+                    :key="opt.key"
+                    type="button"
+                    class="px-4 py-2 rounded-xl text-xs font-bold transition-all"
+                    :class="filterFormObj.type === opt.key
+                        ? 'bg-slate-900 text-white'
+                        : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-300'"
+                    @click="filterFormObj.type = opt.key; applyFilters()"
+                >
+                    {{ opt.label }}
+                </button>
+            </div>
 
             <!-- ── Stats Grid ── -->
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
@@ -134,6 +166,7 @@ const pgLinks  = usePaginationLinks(props.payments.links);
                 @view="(p) => detailPayment = p"
                 @approve="approve"
                 @reject="reject"
+                @revert="revert"
             />
         </div>
 
@@ -143,12 +176,14 @@ const pgLinks  = usePaginationLinks(props.payments.links);
             @close="detailPayment = null"
             @approve="(p) => { approve(p); detailPayment = null; }"
             @reject="(p) => { reject(p); detailPayment = null; }"
+            @revert="(p) => { revert(p); detailPayment = null; }"
         />
 
         <!-- ───────────────── CREATE MODAL (ESTILO COMPARTIDO) ───────────────── -->
         <PaymentsCreateModal
             :show="showCreate"
             :courses="courses"
+            :books="books"
             :initialSearch="initialSearch"
             @close="showCreate = false"
         />

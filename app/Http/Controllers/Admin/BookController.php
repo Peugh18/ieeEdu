@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Models\BookDownload;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -13,7 +15,22 @@ class BookController extends Controller
     public function index()
     {
         return Inertia::render('admin/Books', [
-            'books' => Book::latest()->paginate(12),
+            'books' => Book::withCount([
+                'downloads',
+                'payments as approved_sales_count' => fn ($q) => $q->where('status', 'aprobado'),
+            ])
+                ->withSum(['payments as total_earned' => fn ($q) => $q->where('status', 'aprobado')], 'amount')
+                ->latest()
+                ->paginate(12),
+            'stats' => [
+                'total' => Book::count(),
+                'available' => Book::where('is_available', true)->count(),
+                'downloads' => BookDownload::count(),
+                'downloads_month' => BookDownload::whereMonth('created_at', now()->month)
+                    ->whereYear('created_at', now()->year)->count(),
+                'book_income' => (float) Payment::where('status', 'aprobado')->whereNotNull('book_id')->sum('amount'),
+                'book_sales' => Payment::where('status', 'aprobado')->whereNotNull('book_id')->count(),
+            ],
         ]);
     }
 
@@ -23,6 +40,7 @@ class BookController extends Controller
             'category' => 'required|in:Libro,Libro en camino,Guía',
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'stock' => 'nullable|integer|min:0',
             'author' => 'nullable|string|max:255',
             'description' => 'required|string',
             'cover_image' => 'required|image|max:2048',
@@ -31,8 +49,16 @@ class BookController extends Controller
             'is_available' => 'required|boolean',
         ]);
 
+        if ((float) $data['price'] > 0) {
+            $request->validate(['stock' => 'required|integer|min:0']);
+            $data['stock'] = (int) $request->input('stock');
+        } else {
+            $data['stock'] = null;
+        }
+
         if ($data['category'] === 'Libro en camino') {
             $data['price'] = 0;
+            $data['stock'] = null;
             $data['author'] = $data['author'] ?? 'IEE';
         }
 
@@ -55,6 +81,7 @@ class BookController extends Controller
             'category' => 'required|in:Libro,Libro en camino,Guía',
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'stock' => 'nullable|integer|min:0',
             'author' => 'nullable|string|max:255',
             'description' => 'required|string',
             'cover_image' => 'nullable|image|max:2048',
@@ -63,8 +90,16 @@ class BookController extends Controller
             'is_available' => 'required|boolean',
         ]);
 
+        if ((float) $data['price'] > 0) {
+            $request->validate(['stock' => 'required|integer|min:0']);
+            $data['stock'] = (int) $request->input('stock');
+        } else {
+            $data['stock'] = null;
+        }
+
         if ($data['category'] === 'Libro en camino') {
             $data['price'] = 0;
+            $data['stock'] = null;
         }
 
         if ($request->hasFile('cover_image')) {

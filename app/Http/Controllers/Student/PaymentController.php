@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Student\StoreStudentPaymentRequest;
 use App\Http\Requests\Student\UpdateStudentPaymentComprobanteRequest;
+use App\Models\Book;
+use App\Models\Course;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +21,11 @@ class PaymentController extends Controller
         $user = Auth::user();
 
         $payments = Payment::where('user_id', $user->id)
-            ->with('course:id,title,slug,image')
+            ->with([
+                'course:id,title,slug,image',
+                'book:id,title,cover_image',
+                'bookOrder',
+            ])
             ->latest()
             ->paginate(10)
             ->withQueryString();
@@ -41,13 +47,29 @@ class PaymentController extends Controller
             $comprobanteUrl = $this->storeComprobanteFile($request->file('comprobante'));
         }
 
-        Payment::create([
-            'user_id' => $user->id,
-            'course_id' => $data['course_id'],
-            'amount' => $data['amount'],
-            'status' => 'pendiente',
-            'comprobante' => $comprobanteUrl,
-        ]);
+        $status = $comprobanteUrl ? 'en_revision' : 'pendiente';
+
+        if (! empty($data['book_id'])) {
+            $book = Book::findOrFail($data['book_id']);
+
+            Payment::create([
+                'user_id' => $user->id,
+                'book_id' => $book->id,
+                'amount' => (float) $book->price,
+                'status' => $status,
+                'comprobante' => $comprobanteUrl,
+            ]);
+        } else {
+            $course = Course::findOrFail($data['course_id']);
+
+            Payment::create([
+                'user_id' => $user->id,
+                'course_id' => $course->id,
+                'amount' => $course->effectivePrice(),
+                'status' => $status,
+                'comprobante' => $comprobanteUrl,
+            ]);
+        }
 
         return redirect()->route('student.payments.index')
             ->with('success', 'Pago registrado. Te notificaremos cuando sea validado.');

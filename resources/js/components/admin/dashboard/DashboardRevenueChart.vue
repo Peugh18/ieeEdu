@@ -16,6 +16,7 @@ interface ChartPoint {
     total: number;
     subs: number;
     courses: number;
+    books: number;
 }
 
 const props = defineProps<{
@@ -57,6 +58,7 @@ function buildChart() {
     const totals = data.map(d => d.total);
     const subs = data.map(d => d.subs);
     const courses = data.map(d => d.courses);
+    const books = data.map(d => d.books);
 
     // Gradiente total
     const gradTotal = ctx.createLinearGradient(0, 0, 0, 350);
@@ -100,7 +102,7 @@ function buildChart() {
                 {
                     label: 'Cursos Individuales',
                     data: courses,
-                    borderColor: '#c9c7b8', // fainter
+                    borderColor: '#c9c7b8',
                     borderWidth: 2,
                     pointBackgroundColor: '#c9c7b8',
                     pointBorderColor: '#fff',
@@ -111,6 +113,20 @@ function buildChart() {
                     fill: false,
                     borderDash: [4, 4],
                     order: 2,
+                },
+                {
+                    label: 'Libros',
+                    data: books,
+                    borderColor: '#3b82f6',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#3b82f6',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 7,
+                    tension: 0.4,
+                    fill: false,
+                    order: 3,
                 },
             ],
         },
@@ -195,7 +211,11 @@ onUnmounted(() => {
             </div>
             <div class="flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full bg-[#c9c7b8] border border-dashed border-[#8b8a7f]"></div>
-                <span class="text-xs font-bold text-on-surface-variant">Cursos Individuales</span>
+                <span class="text-xs font-bold text-on-surface-variant">Cursos</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                <span class="text-xs font-bold text-on-surface-variant">Libros</span>
             </div>
         </div>
     </article>

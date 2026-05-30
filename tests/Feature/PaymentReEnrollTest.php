@@ -6,7 +6,7 @@ use App\Models\User;
 
 it('allows submitting a payment for a course when previous access expired', function () {
     $user = User::factory()->create();
-    $course = Course::factory()->create(['price' => 100]);
+    $course = Course::factory()->create(['price' => 100, 'status' => 'PUBLICADO', 'type' => 'grabado']);
 
     // Usuario tenía enrollment por suscripción, pero ya expiró (subscription_active = false)
     Enrollment::factory()->create([
@@ -19,7 +19,6 @@ it('allows submitting a payment for a course when previous access expired', func
     $this->actingAs($user)
         ->post(route('student.payments.store'), [
             'course_id' => $course->id,
-            'amount' => 100,
         ])
         ->assertSessionHasNoErrors();
 
@@ -30,9 +29,9 @@ it('allows submitting a payment for a course when previous access expired', func
     ]);
 });
 
-it('blocks submitting a payment if user currently has access', function () {
+it('blocks submitting a payment if user has permanent access', function () {
     $user = User::factory()->create();
-    $course = Course::factory()->create(['price' => 100]);
+    $course = Course::factory()->create(['price' => 100, 'status' => 'PUBLICADO', 'type' => 'grabado']);
 
     // Usuario ya compró individualmente
     Enrollment::factory()->create([
@@ -44,7 +43,6 @@ it('blocks submitting a payment if user currently has access', function () {
     $this->actingAs($user)
         ->post(route('student.payments.store'), [
             'course_id' => $course->id,
-            'amount' => 100,
         ])
         ->assertSessionHasErrors(['course_id']);
 });

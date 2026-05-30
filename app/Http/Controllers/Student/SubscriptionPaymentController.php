@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Student\StoreSubscriptionPaymentRequest;
 use App\Models\Payment;
+use App\Support\PlanPricing;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class SubscriptionPaymentController extends Controller
@@ -14,8 +16,7 @@ class SubscriptionPaymentController extends Controller
     {
         $user = Auth::user();
         $plan = $request->input('plan');
-
-        $price = config("iie.planes.{$plan}.price", 0);
+        $price = PlanPricing::price($plan);
 
         $path = $request->file('comprobante')->store('comprobantes', 'public');
 
@@ -25,7 +26,7 @@ class SubscriptionPaymentController extends Controller
             'subscription_type' => $plan,
             'amount' => $price,
             'status' => 'en_revision',
-            'comprobante' => $path,
+            'comprobante' => Storage::url($path),
         ]);
 
         return redirect()->route('student.subscriptions.payment.status')

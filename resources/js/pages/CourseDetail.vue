@@ -22,6 +22,10 @@ interface Props {
     };
     isDashboard?: boolean;
     isEnrolled?: boolean;
+    hasPendingPayment?: boolean;
+    canEnrollFree?: boolean;
+    hasPermanentAccess?: boolean;
+    canPurchasePermanent?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -121,7 +125,15 @@ const breadcrumbs = [
                             <CourseCurriculum :type="course.type" :modules="course.modules" :lessons="course.lessons" :duration="course.duration_weeks" />
                         </div>
                         <div class="lg:col-span-4 lg:sticky lg:top-12 mt-8 lg:mt-0">
-                            <CoursePricingSidebar :course="course" :is-enrolled="isEnrolled" :is-dashboard="isDashboard" @add-to-cart="handleAddToCart" />
+                            <CoursePricingSidebar
+                                :course="course"
+                                :is-enrolled="isEnrolled"
+                                :is-dashboard="isDashboard"
+                                :has-pending-payment="hasPendingPayment"
+                                :can-enroll-free="canEnrollFree"
+                                :can-purchase-permanent="canPurchasePermanent"
+                                @add-to-cart="handleAddToCart"
+                            />
                         </div>
                     </div>
                 </div>

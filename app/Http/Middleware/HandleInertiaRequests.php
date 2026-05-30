@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Payment;
+use App\Services\SiteSettingsService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -52,8 +53,10 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
                 'exam_result' => $request->session()->get('exam_result'),
+                'open_whatsapp' => $request->session()->get('open_whatsapp'),
             ],
-            'whatsapp_sales' => config('iie.whatsapp_sales'),
+            'whatsapp_sales' => SiteSettingsService::whatsappSales(),
+            'site_settings' => SiteSettingsService::sharedForInertia(),
         ];
 
         if ($request->user() && $request->user()->role === 'admin') {

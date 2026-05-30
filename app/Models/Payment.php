@@ -12,6 +12,7 @@ class Payment extends Model
     protected $fillable = [
         'user_id',
         'course_id',
+        'book_id',
         'subscription_type',
         'status',
         'comprobante',
@@ -26,5 +27,15 @@ class Payment extends Model
     public function course()
     {
         return $this->belongsTo(Course::class);
+    }
+
+    public function book()
+    {
+        return $this->belongsTo(Book::class);
+    }
+
+    public function bookOrder()
+    {
+        return $this->hasOne(BookOrder::class);
     }
 }

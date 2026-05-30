@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Artisan;
 
 it('revokes course access when subscription expires', function () {
     $user = User::factory()->create();
-    $course = Course::factory()->create(['price' => 100]);
+    $course = Course::factory()->create(['price' => 100, 'type' => 'grabado', 'status' => 'PUBLICADO']);
 
     // Crear suscripción expirada pero aún con status activo
     $subscription = Subscription::create([

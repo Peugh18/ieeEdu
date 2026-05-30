@@ -4,6 +4,7 @@ import type { SubscriptionUser } from '@/types/subscription';
 
 const props = defineProps<{
     show: boolean;
+    planOptions?: { slug: string; name: string; price: number; months: number }[];
     form: { user_id: string; type: string; months: number; amount: number; comprobante: File | null; errors: Record<string, string>; processing: boolean; reset: () => void; post: (url: string, opts: object) => void };
     usersResults: SubscriptionUser[];
     searchUserQuery: string;
@@ -14,9 +15,16 @@ const emit = defineEmits<{
     (e: 'close'): void;
     (e: 'submit'): void;
     (e: 'search'): void;
+    (e: 'update:searchUserQuery', value: string): void;
     (e: 'selectUser', user: SubscriptionUser): void;
     (e: 'fileChange', event: Event): void;
 }>();
+
+function onSearchInput(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    emit('update:searchUserQuery', value);
+    emit('search');
+}
 
 function initials(name: string) {
     return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
@@ -51,7 +59,7 @@ function createPreviewUrl(file: File) {
                             <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 block">Identificar Estudiante *</label>
                             <div class="relative group">
                                 <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-primary transition-colors" />
-                                <input v-model="searchUserQuery" @input="emit('search')" type="text" placeholder="Escribe para buscar por nombre o correo..."
+                                <input :value="searchUserQuery" type="text" placeholder="Escribe para buscar por nombre o correo..." @input="onSearchInput"
                                     class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-6 text-sm font-bold text-slate-700 focus:border-primary outline-none transition-all shadow-inner" />
                                 <div v-if="usersResults.length" class="absolute z-[999] left-0 right-0 mt-2 bg-white rounded-2xl border border-slate-100 shadow-2xl overflow-hidden max-h-60 overflow-y-auto">
                                     <button v-for="u in usersResults" :key="u.id" type="button" @click="emit('selectUser', u)"
@@ -76,9 +84,7 @@ function createPreviewUrl(file: File) {
                                 <div class="relative">
                                     <Crown class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500" />
                                     <select v-model="form.type" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-10 text-sm font-bold text-slate-700 focus:border-amber-500 appearance-none cursor-pointer outline-none transition-all">
-                                        <option value="trimestral">Trimestral</option>
-                                        <option value="semestral">Semestral</option>
-                                        <option value="anual">Anual</option>
+                                        <option v-for="plan in (planOptions ?? [])" :key="plan.slug" :value="plan.slug">{{ plan.name }}</option>
                                     </select>
                                 </div>
                                 <p v-if="form.errors.type" class="text-[9px] font-bold text-rose-500 uppercase mt-1">{{ form.errors.type }}</p>

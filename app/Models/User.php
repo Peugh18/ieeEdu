@@ -108,28 +108,66 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hasAccess($courseId)
     {
-        // Administradores tienen acceso total
         if ($this->role === 'admin') {
             return true;
         }
 
-        // Si tiene suscripción premium activa, accede a todo
         if ($this->hasSubscriptionActive()) {
             return true;
         }
 
         $course = Course::find($courseId);
-        if ($course) {
-            $price = $course->sale_price > 0 ? $course->sale_price : $course->price;
-            if ($price <= 0) {
-                return true;
-            }
+        if ($course && $course->effectivePrice() <= 0) {
+            return true;
         }
 
-        // Compra individual (persiste aunque expire la suscripción)
+        return $this->hasPermanentCourseAccess($courseId);
+    }
+
+    /**
+     * Acceso que persiste aunque expire Premium (compra, gratis inscrito, masterclass).
+     */
+    public function hasPermanentCourseAccess(int $courseId): bool
+    {
+        if ($this->role === 'admin') {
+            return true;
+        }
+
+        if (Payment::where('user_id', $this->id)
+            ->where('course_id', $courseId)
+            ->where('status', 'aprobado')
+            ->exists()) {
+            return true;
+        }
+
         return $this->enrollments()
             ->where('course_id', $courseId)
             ->where('subscription_granted', false)
+            ->exists();
+    }
+
+    public function hasBookAccess(int $bookId): bool
+    {
+        return $this->hasApprovedBookPayment($bookId);
+    }
+
+    public function hasApprovedBookPayment(int $bookId): bool
+    {
+        if ($this->role === 'admin') {
+            return true;
+        }
+
+        return Payment::where('user_id', $this->id)
+            ->where('book_id', $bookId)
+            ->where('status', 'aprobado')
+            ->exists();
+    }
+
+    public function hasPendingBookPayment(int $bookId): bool
+    {
+        return Payment::where('user_id', $this->id)
+            ->where('book_id', $bookId)
+            ->whereIn('status', ['pendiente', 'en_revision'])
             ->exists();
     }
 }

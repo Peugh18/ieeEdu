@@ -29,6 +29,9 @@ class PaymentApprovedNotification extends Notification implements ShouldQueue
         if ($this->payment->course) {
             $message->line('Ya tienes acceso al curso: '.$this->payment->course->title)
                 ->action('Ir al Aula Virtual', route('student.classroom', $this->payment->course->slug));
+        } elseif ($this->payment->book) {
+            $message->line('Tu pedido del libro "'.$this->payment->book->title.'" fue aprobado. Pronto confirmaremos el envío a tu dirección.')
+                ->action('Ver mis compras', route('student.payments.index'));
         } else {
             $message->line('Ya tienes acceso a los beneficios de tu membresía.')
                 ->action('Ir a mi Dashboard', route('dashboard'));

@@ -114,11 +114,14 @@ class UserController extends Controller
     {
         $request->validate(['course_id' => 'required|exists:courses,id']);
 
-        if ($user->hasAccess($request->course_id)) {
-            return redirect()->back()->with('error', 'El estudiante ya tiene acceso a este curso.');
+        $course = Course::where('id', $request->course_id)
+            ->where('status', 'PUBLICADO')
+            ->firstOrFail();
+
+        if ($user->hasPermanentCourseAccess($course->id)) {
+            return redirect()->back()->with('error', 'El estudiante ya tiene acceso permanente a este curso.');
         }
 
-        $course = Course::findOrFail($request->course_id);
         $this->enrollmentService->enroll($user, $course);
 
         return redirect()->back()->with('success', 'Curso asignado correctamente.');

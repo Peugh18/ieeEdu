@@ -4,22 +4,29 @@ import { useForm as useInertiaForm } from '@inertiajs/vue3';
 import axios from 'axios';
 import { Search, Plus, X, ChevronRight, FileImage } from 'lucide-vue-next';
 
-interface CourseOption { 
-    id: number; 
-    title: string; 
-    price: number; 
-    sale_price: number | null; 
+interface CourseOption {
+    id: number;
+    title: string;
+    price: number;
+    sale_price: number | null;
 }
 
-interface UserResult { 
-    id: number; 
-    name: string; 
-    email: string; 
+interface BookOption {
+    id: number;
+    title: string;
+    price: number | string;
+}
+
+interface UserResult {
+    id: number;
+    name: string;
+    email: string;
 }
 
 const props = defineProps<{
     show: boolean;
     courses: CourseOption[];
+    books: BookOption[];
     initialSearch?: string;
 }>();
 
@@ -27,9 +34,13 @@ const emit = defineEmits<{
     (e: 'close'): void;
 }>();
 
+const productType = ref<'course' | 'book'>('course');
+
 const createForm = useInertiaForm({
     user_id: 0,
+    product_type: 'course' as 'course' | 'book',
     course_id: '' as string | number,
+    book_id: '' as string | number,
     amount: '',
     status: 'en_revision',
     comprobante: null as File | null,
@@ -42,12 +53,12 @@ const showDropdown = ref(false);
 let userTimer: ReturnType<typeof setTimeout> | undefined;
 let isSelecting = false;
 
-function onUserFocus() { 
-    if (userResults.value.length) showDropdown.value = true; 
+function onUserFocus() {
+    if (userResults.value.length) showDropdown.value = true;
 }
 
-function onUserBlur() { 
-    setTimeout(() => { showDropdown.value = false; }, 200); 
+function onUserBlur() {
+    setTimeout(() => { showDropdown.value = false; }, 200);
 }
 
 watch(userQuery, (val) => {
@@ -71,9 +82,23 @@ function selectUser(u: UserResult) {
     showDropdown.value = false;
 }
 
+watch(productType, (type) => {
+    createForm.product_type = type;
+    createForm.course_id = '';
+    createForm.book_id = '';
+    createForm.amount = '';
+});
+
 watch(() => createForm.course_id, (id) => {
+    if (productType.value !== 'course') return;
     const c = props.courses.find(c => String(c.id) === String(id));
     if (c) createForm.amount = String(c.sale_price && c.sale_price < c.price ? c.sale_price : c.price);
+});
+
+watch(() => createForm.book_id, (id) => {
+    if (productType.value !== 'book') return;
+    const b = props.books.find(b => String(b.id) === String(id));
+    if (b) createForm.amount = String(b.price);
 });
 
 function onFileChange(e: Event) {
@@ -82,7 +107,9 @@ function onFileChange(e: Event) {
 }
 
 function resetCreate() {
+    productType.value = 'course';
     createForm.reset();
+    createForm.product_type = 'course';
     createForm.clearErrors();
     userQuery.value = '';
     selectedUser.value = null;
@@ -94,11 +121,11 @@ function submitCreate() {
     if (!createForm.user_id) { createForm.setError('user_id', 'Selecciona un estudiante.'); return; }
     createForm.post(route('admin.payments.store'), {
         forceFormData: true,
-        onSuccess: () => { 
+        onSuccess: () => {
             resetCreate();
-            emit('close'); 
+            emit('close');
         },
-        preserveScroll: true
+        preserveScroll: true,
     });
 }
 
@@ -108,10 +135,8 @@ function handleClose() {
 }
 
 watch(() => props.show, (isOpen) => {
-    if (isOpen) {
-        if (props.initialSearch) {
-            userQuery.value = props.initialSearch;
-        }
+    if (isOpen && props.initialSearch) {
+        userQuery.value = props.initialSearch;
     }
 });
 
@@ -119,6 +144,11 @@ const createPreviewUrl = (file: File) => URL.createObjectURL(file);
 const initials = (n: string) => n.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase();
 const avatarColors = ['bg-indigo-50 text-indigo-700', 'bg-blue-50 text-blue-700', 'bg-emerald-50 text-emerald-700', 'bg-amber-50 text-amber-700', 'bg-rose-50 text-rose-700'];
 const aCls = (id: number) => avatarColors[id % avatarColors.length];
+
+const canSubmit = () => {
+    if (!createForm.user_id || !createForm.amount) return false;
+    return productType.value === 'course' ? !!createForm.course_id : !!createForm.book_id;
+};
 </script>
 
 <template>
@@ -129,12 +159,17 @@ const aCls = (id: number) => avatarColors[id % avatarColors.length];
                     <div class="bg-primary p-8 text-white relative shrink-0">
                         <div class="absolute top-0 right-0 p-8 opacity-10"><Plus class="w-24 h-24" /></div>
                         <h2 class="font-serif text-3xl">Registrar <span class="italic underline decoration-white/20 underline-offset-8">Venta</span></h2>
-                        <p class="mt-2 text-outline-variant text-sm italic">Gestión de Ingreso Manual</p>
+                        <p class="mt-2 text-outline-variant text-sm italic">Curso, libro o membresía</p>
                         <button @click="handleClose" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
                             <X class="h-5 w-5" />
                         </button>
                     </div>
                     <div class="p-8 space-y-6 overflow-y-auto">
+                        <div class="flex gap-2 p-1 bg-slate-100 rounded-2xl">
+                            <button type="button" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all" :class="productType === 'course' ? 'bg-white shadow text-primary' : 'text-slate-500'" @click="productType = 'course'">Curso</button>
+                            <button type="button" class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all" :class="productType === 'book' ? 'bg-white shadow text-primary' : 'text-slate-500'" @click="productType = 'book'">Libro</button>
+                        </div>
+
                         <div class="relative">
                             <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400 mb-2 block">Estudiante *</label>
                             <div class="relative group">
@@ -157,13 +192,22 @@ const aCls = (id: number) => avatarColors[id % avatarColors.length];
                             <p v-if="createForm.errors.user_id" class="mt-2 text-[10px] font-bold text-rose-500 uppercase tracking-widest">{{ createForm.errors.user_id }}</p>
                         </div>
 
-                        <div class="space-y-2">
-                            <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Especialidad Requerida *</label>
+                        <div v-if="productType === 'course'" class="space-y-2">
+                            <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Curso *</label>
                             <select v-model="createForm.course_id" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-primary appearance-none cursor-pointer transition-all">
-                                <option value="">— Selecciona un curso del catálogo —</option>
+                                <option value="">— Selecciona un curso —</option>
                                 <option v-for="c in courses" :key="c.id" :value="c.id">{{ c.title }}</option>
                             </select>
                             <p v-if="createForm.errors.course_id" class="text-xs text-rose-500">{{ createForm.errors.course_id }}</p>
+                        </div>
+
+                        <div v-else class="space-y-2">
+                            <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Libro *</label>
+                            <select v-model="createForm.book_id" class="w-full h-14 bg-slate-50 border border-slate-200 rounded-2xl px-4 text-sm font-bold text-slate-700 outline-none focus:border-primary appearance-none cursor-pointer transition-all">
+                                <option value="">— Selecciona un libro —</option>
+                                <option v-for="b in books" :key="b.id" :value="b.id">{{ b.title }} (S/ {{ b.price }})</option>
+                            </select>
+                            <p v-if="createForm.errors.book_id" class="text-xs text-rose-500">{{ createForm.errors.book_id }}</p>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -200,7 +244,7 @@ const aCls = (id: number) => avatarColors[id % avatarColors.length];
 
                     <div class="flex-shrink-0 flex justify-end gap-3 p-8 border-t border-slate-50 bg-slate-50/50">
                         <button type="button" @click="handleClose" class="h-12 px-6 rounded-2xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all">Cancelar</button>
-                        <button @click="submitCreate" :disabled="createForm.processing || !createForm.user_id || !createForm.course_id || !createForm.amount"
+                        <button @click="submitCreate" :disabled="createForm.processing || !canSubmit()"
                             class="h-12 px-10 rounded-2xl bg-primary text-sm font-black text-white shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-95 disabled:opacity-50 transition-all">
                             {{ createForm.processing ? 'Procesando...' : 'Registrar Pago' }}
                         </button>

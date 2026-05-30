@@ -1,6 +1,12 @@
 import type { CourseEditorCourse } from '@/types/course-editor';
-import { router, useForm } from '@inertiajs/vue3';
+import { router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, watch, type Ref } from 'vue';
+
+function firstError(errors: Record<string, string | string[]>, key: string): string | null {
+    const value = errors[key];
+    if (!value) return null;
+    return Array.isArray(value) ? (value[0] ?? null) : value;
+}
 
 interface CourseFormNotifications {
     notifySuccess: () => void;
@@ -55,6 +61,15 @@ export function useCourseForm(
         }
     });
 
+    watch(
+        () => course.status,
+        (status) => {
+            if (status) {
+                form.status = status;
+            }
+        },
+    );
+
     const isMasterclass = computed(() => form.type === 'masterclass' || form.type === 'evento');
 
     const canPublish = computed(() => {
@@ -82,6 +97,7 @@ export function useCourseForm(
             };
             if (!payload.image_file) delete payload.image_file;
             if (!payload.instructor_image_file) delete payload.instructor_image_file;
+            delete payload.status;
             return payload;
         }).post(route('admin.courses.update', course.id), {
             preserveScroll: true,
@@ -98,9 +114,20 @@ export function useCourseForm(
         }
         router.patch(route('admin.courses.publish', course.id), {}, {
             preserveScroll: true,
-            onSuccess: notifications.notifyPublishSuccess,
-            onError: (errors: Record<string, string>) => {
-                if (errors.course) alert(errors.course);
+            onSuccess: () => {
+                const errors = usePage().props.errors as Record<string, string | string[]>;
+                const courseError = firstError(errors, 'course');
+                if (courseError) {
+                    alert(courseError);
+                    notifications.notifyError();
+                    return;
+                }
+                form.status = 'PUBLICADO';
+                notifications.notifyPublishSuccess();
+            },
+            onError: (errors: Record<string, string | string[]>) => {
+                const courseError = firstError(errors, 'course');
+                if (courseError) alert(courseError);
                 else notifications.notifyError();
             },
         });
@@ -109,7 +136,10 @@ export function useCourseForm(
     function hideCourse() {
         router.patch(route('admin.courses.hide', course.id), {}, {
             preserveScroll: true,
-            onSuccess: notifications.notifySuccess,
+            onSuccess: () => {
+                form.status = 'OCULTO';
+                notifications.notifySuccess();
+            },
         });
     }
 

@@ -2,7 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { 
     Clock, CheckCircle2, XCircle, RefreshCw, 
-    AlertCircle, FileImage, Eye, Activity
+    AlertCircle, FileImage, Eye, Activity, Undo2
 } from 'lucide-vue-next';
 import { PaymentListItem } from '@/types/admin';
 import { PaginationLink } from '@/types/pagination';
@@ -17,6 +17,7 @@ const emit = defineEmits<{
     (e: 'view', payment: PaymentListItem): void;
     (e: 'approve', payment: PaymentListItem): void;
     (e: 'reject', payment: PaymentListItem): void;
+    (e: 'revert', payment: PaymentListItem): void;
 }>();
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -67,6 +68,9 @@ const fMoney = (n: number | string) => 'S/ ' + Number(n).toFixed(2);
                                         <span v-if="p.subscription_type" class="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-widest bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                                             Membresía {{ p.subscription_type }}
                                         </span>
+                                        <span v-else-if="p.book" class="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-widest bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">
+                                            Libro · {{ p.book.title }}
+                                        </span>
                                         <span v-else class="text-[10px] text-slate-400 font-medium uppercase tracking-wider line-clamp-1">{{ p.course?.title ?? 'Pago Directo / Externo' }}</span>
                                     </div>
                                 </div>
@@ -108,6 +112,9 @@ const fMoney = (n: number | string) => 'S/ ' + Number(n).toFixed(2);
                                         <XCircle class="h-4 w-4" />
                                     </button>
                                 </template>
+                                <button v-else @click="emit('revert', p)" class="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:border-amber-500 hover:text-amber-600 hover:bg-amber-50 transition-all" title="Revertir aprobación">
+                                    <Undo2 class="h-4 w-4" />
+                                </button>
                             </div>
                         </td>
                     </tr>

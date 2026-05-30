@@ -82,7 +82,7 @@ const paginationLinks = usePaginationLinks(props.categories.links);
     <Head title="Categorías - Admin IEE" />
     <AppLayout>
         <div class="max-w-7xl mx-auto px-4 py-8 space-y-10">
-            <AdminPageHeader badge="Contenido / Taxonomía" title="Gestión de" title-accent="Categorías" subtitle="Organiza y segmenta tu catálogo académico por áreas temáticas." action-label="Nueva Categoría" action-order="first" @action="openCreate" />
+            <AdminPageHeader title="Categorías" subtitle="Clasificación del catálogo de cursos." action-label="Nueva categoría" action-order="first" compact @action="openCreate" />
 
             <CategoryStats :total="categories.total" :visible="categories.data.length" />
 

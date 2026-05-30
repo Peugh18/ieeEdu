@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Book;
+use App\Models\BookDownload;
 use App\Models\Certificate;
 use App\Models\Course;
 use App\Models\Enrollment;
@@ -33,8 +34,13 @@ class DashboardStatsService
 
             // ─── INGRESOS ─────────────────────────────────────────────────
             $totalIncome = (float) Payment::where('status', 'aprobado')->sum('amount');
-            $subIncome = (float) Payment::where('status', 'aprobado')->whereNull('course_id')->sum('amount');
+            $subIncome = (float) Payment::where('status', 'aprobado')
+                ->whereNull('course_id')
+                ->whereNull('book_id')
+                ->sum('amount');
             $courseIncome = (float) Payment::where('status', 'aprobado')->whereNotNull('course_id')->sum('amount');
+            $bookIncome = (float) Payment::where('status', 'aprobado')->whereNotNull('book_id')->sum('amount');
+            $bookSalesCount = Payment::where('status', 'aprobado')->whereNotNull('book_id')->count();
 
             $pendingPayments = Payment::where('status', 'pendiente')->count();
             $approvedPayments = Payment::where('status', 'aprobado')->count();
@@ -58,6 +64,21 @@ class DashboardStatsService
             // ─── LIBROS ───────────────────────────────────────────────────
             $totalBooks = Book::count();
             $availableBooks = Book::where('is_available', true)->count();
+            $totalBookDownloads = BookDownload::count();
+            $bookDownloadsThisMonth = BookDownload::whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)->count();
+            $bookWhatsappLeads = BookDownload::where('source', 'whatsapp')->count();
+
+            $topBooks = Book::query()
+                ->withCount([
+                    'downloads',
+                    'payments as approved_sales_count' => fn ($q) => $q->where('status', 'aprobado'),
+                ])
+                ->withSum(['payments as total_earned' => fn ($q) => $q->where('status', 'aprobado')], 'amount')
+                ->orderByDesc('total_earned')
+                ->orderByDesc('downloads_count')
+                ->limit(5)
+                ->get(['id', 'title', 'category', 'price', 'author', 'cover_image']);
 
             // ─── LEAR ENGAGEMENT ──────────────────────────────────────────
             $totalEnrollments = Enrollment::count();
@@ -89,8 +110,9 @@ class DashboardStatsService
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->selectRaw('DATE(created_at) as date,
                     SUM(amount) as total,
-                    SUM(CASE WHEN course_id IS NULL THEN amount ELSE 0 END) as subs,
-                    SUM(CASE WHEN course_id IS NOT NULL THEN amount ELSE 0 END) as courses')
+                    SUM(CASE WHEN course_id IS NULL AND book_id IS NULL THEN amount ELSE 0 END) as subs,
+                    SUM(CASE WHEN course_id IS NOT NULL THEN amount ELSE 0 END) as courses,
+                    SUM(CASE WHEN book_id IS NOT NULL THEN amount ELSE 0 END) as books')
                 ->groupBy('date')
                 ->get()
                 ->keyBy('date');
@@ -104,6 +126,7 @@ class DashboardStatsService
                     'total' => (float) ($dailyPayments[$date]->total ?? 0),
                     'subs' => (float) ($dailyPayments[$date]->subs ?? 0),
                     'courses' => (float) ($dailyPayments[$date]->courses ?? 0),
+                    'books' => (float) ($dailyPayments[$date]->books ?? 0),
                 ])->values();
 
             // Monthly (últimas 4 semanas) — precargar rango completo
@@ -114,8 +137,9 @@ class DashboardStatsService
                 ->whereBetween('created_at', [$monthStart, $monthEnd])
                 ->selectRaw('DATE(created_at) as date,
                     SUM(amount) as total,
-                    SUM(CASE WHEN course_id IS NULL THEN amount ELSE 0 END) as subs,
-                    SUM(CASE WHEN course_id IS NOT NULL THEN amount ELSE 0 END) as courses')
+                    SUM(CASE WHEN course_id IS NULL AND book_id IS NULL THEN amount ELSE 0 END) as subs,
+                    SUM(CASE WHEN course_id IS NOT NULL THEN amount ELSE 0 END) as courses,
+                    SUM(CASE WHEN book_id IS NOT NULL THEN amount ELSE 0 END) as books')
                 ->groupBy('date')
                 ->get()
                 ->keyBy('date');
@@ -129,6 +153,7 @@ class DashboardStatsService
                     'total' => (float) $days->sum(fn ($d) => (float) ($monthPayments[$d]->total ?? 0)),
                     'subs' => (float) $days->sum(fn ($d) => (float) ($monthPayments[$d]->subs ?? 0)),
                     'courses' => (float) $days->sum(fn ($d) => (float) ($monthPayments[$d]->courses ?? 0)),
+                    'books' => (float) $days->sum(fn ($d) => (float) ($monthPayments[$d]->books ?? 0)),
                 ];
             })->reverse()->values();
 
@@ -151,8 +176,9 @@ class DashboardStatsService
                 return [
                     'label' => $esShort[$nowPe->copy()->subMonths($i)->month - 1],
                     'total' => (float) $rows->sum('amount'),
-                    'subs' => (float) $rows->whereNull('course_id')->sum('amount'),
+                    'subs' => (float) $rows->filter(fn ($r) => $r->course_id === null && $r->book_id === null)->sum('amount'),
                     'courses' => (float) $rows->whereNotNull('course_id')->sum('amount'),
+                    'books' => (float) $rows->whereNotNull('book_id')->sum('amount'),
                 ];
             })->reverse()->values();
 
@@ -164,8 +190,9 @@ class DashboardStatsService
                 return [
                     'label' => $esShort[$nowPe->copy()->subMonths($i)->month - 1].' '.$nowPe->copy()->subMonths($i)->format('y'),
                     'total' => (float) $rows->sum('amount'),
-                    'subs' => (float) $rows->whereNull('course_id')->sum('amount'),
+                    'subs' => (float) $rows->filter(fn ($r) => $r->course_id === null && $r->book_id === null)->sum('amount'),
                     'courses' => (float) $rows->whereNotNull('course_id')->sum('amount'),
+                    'books' => (float) $rows->whereNotNull('book_id')->sum('amount'),
                 ];
             })->reverse()->values();
 
@@ -174,6 +201,8 @@ class DashboardStatsService
                     'totalIncome' => $totalIncome,
                     'subIncome' => $subIncome,
                     'courseIncome' => $courseIncome,
+                    'bookIncome' => $bookIncome,
+                    'bookSalesCount' => $bookSalesCount,
                     'totalUsers' => $totalUsers,
                     'activeUsers' => $activeUsers,
                     'inactiveUsers' => $inactiveUsers,
@@ -186,6 +215,9 @@ class DashboardStatsService
                     'liveCourses' => $liveCourses,
                     'totalBooks' => $totalBooks,
                     'availableBooks' => $availableBooks,
+                    'totalBookDownloads' => $totalBookDownloads,
+                    'bookDownloadsThisMonth' => $bookDownloadsThisMonth,
+                    'bookWhatsappLeads' => $bookWhatsappLeads,
                     'totalEnrollments' => $totalEnrollments,
                     'completedCourses' => $completedCourses,
                     'approvalRate' => round($approvalRate, 2),
@@ -204,6 +236,7 @@ class DashboardStatsService
                     'annually' => $annuallyChart,
                 ],
                 'courseSales' => $courseSales,
+                'topBooks' => $topBooks,
             ];
         });
     }

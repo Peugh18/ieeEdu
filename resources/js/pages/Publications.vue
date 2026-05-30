@@ -1,17 +1,20 @@
 ﻿<script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import { Head, router } from '@inertiajs/vue3';
 import Navigation from '@/components/landing/Navigation.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import PublicationsHero from '@/components/publications/PublicationsHero.vue';
 import PublicationsTabs from '@/components/publications/PublicationsTabs.vue';
 import BooksGrid from '@/components/publications/BooksGrid.vue';
 import ArticlesGrid from '@/components/publications/ArticlesGrid.vue';
+import CatalogPagination from '@/components/catalog/CatalogPagination.vue';
+import { usePaginationLinks } from '@/composables/usePaginationLinks';
 import type { PublicationBook, PublicationArticle, PublicationBanner } from '@/types/publications';
+import type { PaginatedResponse } from '@/types/pagination';
 
 const props = defineProps<{
-    books: PublicationBook[];
-    articles: PublicationArticle[];
+    books: PaginatedResponse<PublicationBook>;
+    articles: PaginatedResponse<PublicationArticle>;
     isDashboard?: boolean;
     banner?: PublicationBanner | null;
 }>();
@@ -23,40 +26,19 @@ const breadcrumbs = [
 
 const currentTab = ref<'libros' | 'articulos'>('libros');
 const searchQuery = ref('');
-const booksPage = ref(1);
-const articlesPage = ref(1);
-const itemsPerPage = 6;
 
-watch(searchQuery, () => { booksPage.value = 1; articlesPage.value = 1; });
+const booksLinks = usePaginationLinks(props.books.links);
+const articlesLinks = usePaginationLinks(props.articles.links);
 
-function changeBooksPage(p: number) { booksPage.value = p; window.scrollTo({ top: 0, behavior: 'smooth' }); }
-function changeArticlesPage(p: number) { articlesPage.value = p; window.scrollTo({ top: 0, behavior: 'smooth' }); }
-
-const filteredBooks = computed(() => {
-    if (!searchQuery.value.trim()) return props.books;
-    const q = searchQuery.value.toLowerCase().trim();
-    return props.books.filter(b => b.title.toLowerCase().includes(q) || (b.author && b.author.toLowerCase().includes(q)));
-});
-
-const filteredArticles = computed(() => {
-    if (!searchQuery.value.trim()) return props.articles;
-    const q = searchQuery.value.toLowerCase().trim();
-    return props.articles.filter(a => a.title.toLowerCase().includes(q) || a.media.toLowerCase().includes(q));
-});
-
-const paginatedBooks = computed(() => {
-    const start = (booksPage.value - 1) * itemsPerPage;
-    return filteredBooks.value.slice(start, start + itemsPerPage);
-});
-
-const booksTotalPages = computed(() => Math.ceil(filteredBooks.value.length / itemsPerPage));
-
-const paginatedArticles = computed(() => {
-    const start = (articlesPage.value - 1) * itemsPerPage;
-    return filteredArticles.value.slice(start, start + itemsPerPage);
-});
-
-const articlesTotalPages = computed(() => Math.ceil(filteredArticles.value.length / itemsPerPage));
+function handleSearch(q: string) {
+    searchQuery.value = q;
+    const routeName = props.isDashboard ? 'student.explore.publications' : 'publicaciones.index';
+    router.get(
+        route(routeName),
+        { search: q || undefined },
+        { preserveState: true, preserveScroll: true, replace: true }
+    );
+}
 </script>
 
 <template>
@@ -70,10 +52,13 @@ const articlesTotalPages = computed(() => Math.ceil(filteredArticles.value.lengt
                 <PublicationsHero :banner="banner" :is-dashboard="isDashboard" />
 
                 <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-                    <PublicationsTabs v-model:current-tab="currentTab" v-model:search-query="searchQuery" />
+                    <PublicationsTabs v-model:current-tab="currentTab" v-model:search-query="searchQuery" @update:search-query="handleSearch" />
 
-                    <BooksGrid v-if="currentTab === 'libros'" :books="paginatedBooks" :total-pages="booksTotalPages" :current-page="booksPage" @change-page="changeBooksPage" />
-                    <ArticlesGrid v-else :articles="paginatedArticles" :total-pages="articlesTotalPages" :current-page="articlesPage" @change-page="changeArticlesPage" />
+                    <BooksGrid v-if="currentTab === 'libros'" :books="books.data" />
+                    <CatalogPagination v-if="currentTab === 'libros' && booksLinks.length > 0" :links="booksLinks" />
+
+                    <ArticlesGrid v-else :articles="articles.data" />
+                    <CatalogPagination v-if="currentTab === 'articulos' && articlesLinks.length > 0" :links="articlesLinks" />
                 </section>
             </main>
         </div>

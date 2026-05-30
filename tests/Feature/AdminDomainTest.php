@@ -106,7 +106,7 @@ test('rejecting payment does not enroll student', function () {
 test('creating subscription grants access to published courses', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $student = User::factory()->create(['role' => 'usuario']);
-    $courses = Course::factory()->count(2)->create(['status' => 'PUBLICADO']);
+    $courses = Course::factory()->count(2)->create(['status' => 'PUBLICADO', 'type' => 'grabado']);
 
     $this->actingAs($admin)->post(route('admin.subscriptions.store'), [
         'user_id' => $student->id,

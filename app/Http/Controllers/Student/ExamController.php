@@ -91,7 +91,10 @@ class ExamController extends Controller
         $this->authorize('viewClassroom', $quiz->course);
 
         // 2. Verificar progreso (Seguridad adicional)
-        $enrollment = $quiz->course->enrollments()->where('user_id', $user->id)->first();
+        $enrollment = Enrollment::where('user_id', $user->id)
+            ->where('course_id', $quiz->course_id)
+            ->visible()
+            ->first();
         if (! $enrollment || $enrollment->progress < 100) {
             return redirect()->route('student.exams.index')
                 ->with('error', 'Debes completar el 100% del curso para rendir la evaluación final.');

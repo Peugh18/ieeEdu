@@ -42,6 +42,11 @@ class PaymentPolicy
         return $user->role === 'admin';
     }
 
+    public function revert(User $user, Payment $payment): bool
+    {
+        return $user->role === 'admin' && $payment->status === 'aprobado';
+    }
+
     public function uploadComprobante(User $user, Payment $payment): bool
     {
         return $user->id === $payment->user_id

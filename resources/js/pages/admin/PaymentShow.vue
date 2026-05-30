@@ -4,6 +4,8 @@ import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminFlashToast from '@/components/admin/AdminFlashToast.vue';
 import PaymentShowActions from '@/components/admin/payments/PaymentShowActions.vue';
 import PaymentComprobanteCard from '@/components/admin/payments/PaymentComprobanteCard.vue';
+import BookOrderShippingForm from '@/components/admin/book-orders/BookOrderShippingForm.vue';
+import type { BookOrder } from '@/types/book-order';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import type { SharedData } from '@/types';
 import { computed } from 'vue';
@@ -22,8 +24,11 @@ const props = defineProps<{
         updated_at: string;
         user: { id: number; name: string; email: string; telefono: string | null };
         course: { id: number; title: string; type: string } | null;
+        book: { id: number; title: string; price?: number | string } | null;
+        book_order: BookOrder | null;
         subscription_type: string | null;
     };
+    shippingStatuses: Record<string, string>;
 }>();
 
 const page = usePage<SharedData>();
@@ -33,6 +38,11 @@ function approve() { router.patch(route('admin.payments.approve', { payment: pro
 function reject() {
     if (!confirm('¿Rechazar este pago?')) return;
     router.patch(route('admin.payments.reject', { payment: props.payment.id }));
+}
+
+function revert() {
+    if (!confirm('¿Revertir esta aprobación? El estudiante perderá el acceso y el pago volverá a revisión.')) return;
+    router.patch(route('admin.payments.revert', { payment: props.payment.id }));
 }
 
 const statusCfg: Record<string, { label: string; cls: string; bg: string; icon: typeof Clock }> = {
@@ -59,7 +69,7 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
                 :title="`Pago #${props.payment.id}`"
                 :subtitle="`Registrado el ${formatDate(props.payment.created_at)}`"
                 back-link="admin.payments.index"
-                back-label="Volver a pagos"
+                back-label="Volver a comprobantes"
                 compact
             >
                 <template #actions>
@@ -97,38 +107,40 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
                         </div>
                     </div>
 
-                    <!-- Course / Membership card -->
+                    <!-- Producto -->
                     <div class="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest p-6 shadow-sm">
                         <template v-if="props.payment.subscription_type">
                             <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
                                 <Crown class="h-3.5 w-3.5 text-primary" /> Membresía Premium
                             </p>
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-                                    <Crown class="w-6 h-6 text-primary" />
-                                </div>
-                                <div>
-                                    <p class="font-bold text-on-surface capitalize">Plan {{ props.payment.subscription_type }}</p>
-                                    <span class="text-xs text-primary border border-primary/20 rounded-full px-2 py-0.5 mt-1 inline-block bg-primary/5">
-                                        Acceso total a cursos
-                                    </span>
-                                </div>
-                            </div>
+                            <p class="font-bold text-on-surface capitalize">Plan {{ props.payment.subscription_type }}</p>
                         </template>
-                        <template v-else>
+                        <template v-else-if="props.payment.book">
+                            <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                                <BookOpen class="h-3.5 w-3.5" /> Libro físico
+                            </p>
+                            <p class="font-semibold text-on-surface">{{ props.payment.book.title }}</p>
+                            <span class="text-xs text-blue-600 border border-blue-200 rounded-full px-2 py-0.5 mt-2 inline-block bg-blue-50">Envío en Perú</span>
+                        </template>
+                        <template v-else-if="props.payment.course">
                             <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
                                 <BookOpen class="h-3.5 w-3.5" /> Curso
                             </p>
-                            <div v-if="props.payment.course" class="flex items-center justify-between">
-                                <div>
-                                    <p class="font-semibold text-on-surface">{{ props.payment.course.title }}</p>
-                                    <span class="text-xs text-on-surface-variant border border-outline-variant/20 rounded-full px-2 py-0.5 mt-1 inline-block">
-                                        {{ props.payment.course.type }}
-                                    </span>
-                                </div>
-                            </div>
-                            <p v-else class="text-sm text-on-surface-variant">Curso no disponible</p>
+                            <p class="font-semibold text-on-surface">{{ props.payment.course.title }}</p>
+                            <span class="text-xs text-on-surface-variant border border-outline-variant/20 rounded-full px-2 py-0.5 mt-1 inline-block">{{ props.payment.course.type }}</span>
                         </template>
+                    </div>
+
+                    <BookOrderShippingForm
+                        v-if="props.payment.book_order"
+                        :order="props.payment.book_order"
+                        :shipping-statuses="shippingStatuses"
+                    />
+                    <div v-else-if="props.payment.book && props.payment.status === 'aprobado'" class="rounded-2xl border border-dashed border-amber-200 bg-amber-50/50 p-4 text-sm text-amber-800">
+                        Pedido de envío pendiente de crear. Recarga la página o contacta soporte.
+                    </div>
+                    <div v-else-if="props.payment.book && props.payment.status !== 'aprobado'" class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                        Aprueba el pago para habilitar la gestión de envío y dirección.
                     </div>
 
                     <!-- Payment details -->
@@ -159,7 +171,7 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
 
                 <!-- Right: Comprobante + Actions -->
                 <div class="space-y-6">
-                    <PaymentShowActions :status="props.payment.status" @approve="approve" @reject="reject" />
+                    <PaymentShowActions :status="props.payment.status" @approve="approve" @reject="reject" @revert="revert" />
                     <PaymentComprobanteCard :comprobante="props.payment.comprobante" />
                 </div>
             </div>

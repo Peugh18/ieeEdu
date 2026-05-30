@@ -2,7 +2,7 @@
 import { 
     X, Hash, Clock, RefreshCw, CheckCircle2, 
     XCircle, AlertCircle, FileImage, ExternalLink, 
-    Download, Check 
+    Download, Undo2
 } from 'lucide-vue-next';
 import { PaymentListItem } from '@/types/admin';
 
@@ -14,6 +14,7 @@ const emit = defineEmits<{
     (e: 'close'): void;
     (e: 'approve', payment: PaymentListItem): void;
     (e: 'reject', payment: PaymentListItem): void;
+    (e: 'revert', payment: PaymentListItem): void;
 }>();
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -111,9 +112,9 @@ const fMoney = (n: number | string) => 'S/ ' + Number(n).toFixed(2);
                                 <XCircle class="w-5 h-5" /> Rechazar Operación
                             </button>
                         </template>
-                        <div v-else class="h-14 flex items-center justify-center gap-2 rounded-2xl bg-emerald-50 text-emerald-700 font-bold text-sm">
-                            <Check class="h-5 w-5" /> Transacción Finalizada Correctamente
-                        </div>
+                        <button v-else @click="emit('revert', payment)" class="w-full h-14 rounded-2xl bg-amber-500 text-sm font-bold text-white shadow-lg shadow-amber-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2">
+                            <Undo2 class="w-5 h-5" /> Revertir Aprobación
+                        </button>
                     </div>
                 </div>
             </div>
