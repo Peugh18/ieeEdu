@@ -12,7 +12,7 @@ class EnsureAdmin
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(403, 'Access denied. User not authenticated.');
         }
 

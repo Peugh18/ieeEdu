@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Course;
 use App\Models\CertificateTemplate;
+use App\Models\Course;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class CertificateTemplateController extends Controller
@@ -14,7 +14,7 @@ class CertificateTemplateController extends Controller
     public function edit(Course $course)
     {
         $template = $course->certificateTemplate ?? new CertificateTemplate(['course_id' => $course->id]);
-        
+
         return Inertia::render('admin/CertificateTemplate/Edit', [
             'course' => $course,
             'template' => $template,
@@ -23,9 +23,9 @@ class CertificateTemplateController extends Controller
 
     public function update(Request $request, Course $course)
     {
-        \Illuminate\Support\Facades\Log::info('Updating certificate template', [
+        Log::info('Updating certificate template', [
             'course' => $course->id,
-            'data' => $request->all()
+            'data' => $request->all(),
         ]);
 
         $validated = $request->validate([
@@ -60,8 +60,9 @@ class CertificateTemplateController extends Controller
                 $data
             );
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Certificate Template Save Error: ' . $e->getMessage());
-            return redirect()->back()->withErrors(['template' => 'Error al guardar en la base de datos: ' . $e->getMessage()]);
+            Log::error('Certificate Template Save Error: '.$e->getMessage());
+
+            return redirect()->back()->withErrors(['template' => 'Error al guardar en la base de datos: '.$e->getMessage()]);
         }
 
         return redirect()->back()->with('success', 'Plantilla de certificado actualizada correctamente.');

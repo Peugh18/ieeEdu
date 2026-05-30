@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps<{
-    dbSlides?: any[];
+    dbSlides?: Record<string, unknown>[];
 }>();
 
 // Slides por defecto (fallback si no hay datos en BD)

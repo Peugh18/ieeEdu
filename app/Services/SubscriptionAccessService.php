@@ -43,19 +43,19 @@ class SubscriptionAccessService
                     $enrollment->update(['subscription_active' => true]);
                 } else {
                     $enrollment->update([
-                        'subscription_active'  => true,
+                        'subscription_active' => true,
                         'subscription_granted' => true,
                     ]);
                 }
             } else {
                 // Nueva inscripción creada por suscripción
                 Enrollment::create([
-                    'user_id'              => $userId,
-                    'course_id'            => $courseId,
-                    'enrolled_at'          => now(),
-                    'progress'             => 0,
+                    'user_id' => $userId,
+                    'course_id' => $courseId,
+                    'enrolled_at' => now(),
+                    'progress' => 0,
                     'subscription_granted' => true,
-                    'subscription_active'  => true,
+                    'subscription_active' => true,
                 ]);
             }
         }
@@ -84,7 +84,7 @@ class SubscriptionAccessService
             ->whereNotIn('course_id', $individualCourseIds)
             ->update([
                 'subscription_active' => false,
-                'updated_at'          => now(),
+                'updated_at' => now(),
             ]);
     }
 
@@ -95,7 +95,7 @@ class SubscriptionAccessService
     public function sync(int $userId): void
     {
         $hasActiveSub = Subscription::where('user_id', $userId)
-            ->where('status', 'activa')
+            ->where('status', Subscription::STATUS_ACTIVE)
             ->where('end_date', '>=', now())
             ->exists();
 

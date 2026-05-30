@@ -43,7 +43,7 @@ class CreateAdminUser extends Command
 
         $this->info("Usuario administrador listo: {$user->email}");
         $this->warn("Contraseña establecida: {$password}");
-        
+
         return self::SUCCESS;
     }
 }

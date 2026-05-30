@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Book;
 use App\Models\Article;
-use App\Models\Course;
+use App\Models\Book;
 use App\Models\Category;
+use App\Models\Course;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class PublicationsAndMasterclassSeeder extends Seeder
@@ -18,7 +18,7 @@ class PublicationsAndMasterclassSeeder extends Seeder
             'Economía y Finanzas',
             'Gestión Pública',
             'Estrategia Empresarial',
-            'Liderazgo y Habilidades Blandas'
+            'Liderazgo y Habilidades Blandas',
         ];
 
         $categoryModels = [];
@@ -124,7 +124,7 @@ class PublicationsAndMasterclassSeeder extends Seeder
                 'cover_image' => null,
                 'is_available' => true,
                 'download_url' => 'https://example.com/books/guia-plan-negocios.pdf',
-            ]
+            ],
         ];
 
         foreach ($bookTemplates as $bk) {
@@ -202,7 +202,7 @@ class PublicationsAndMasterclassSeeder extends Seeder
                 'published_at' => '2026-05-20',
                 'thumbnail' => null,
                 'download_url' => 'https://example.com',
-            ]
+            ],
         ];
 
         foreach ($articleTemplates as $art) {
@@ -370,12 +370,12 @@ class PublicationsAndMasterclassSeeder extends Seeder
                 'image' => null,
                 'whatsapp_link' => 'https://wa.me/51959166911?text=Hola,%20quiero%20inscribirme%20en%20la%20Masterclass%20de%20OKRs.',
                 'certificate_enabled' => false,
-            ]
+            ],
         ];
 
         foreach ($masterclassTemplates as $mc) {
             $mc['category_id'] = $catIds[array_rand($catIds)];
-            $mc['slug'] = Str::slug($mc['title']) . '-' . rand(100, 999);
+            $mc['slug'] = Str::slug($mc['title']).'-'.rand(100, 999);
             Course::create($mc);
         }
     }

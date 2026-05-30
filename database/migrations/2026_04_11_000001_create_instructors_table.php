@@ -32,8 +32,8 @@ return new class extends Migration
         foreach ($courses as $course) {
             if ($course->instructor_name) {
                 $key = $course->instructor_name;
-                
-                if (!isset($instructorMap[$key])) {
+
+                if (! isset($instructorMap[$key])) {
                     $instructorId = DB::table('instructors')->insertGetId([
                         'name' => $course->instructor_name,
                         'title' => $course->instructor_title,
@@ -46,7 +46,7 @@ return new class extends Migration
                 }
 
                 DB::table('courses')->where('id', $course->id)->update([
-                    'instructor_id' => $instructorMap[$key]
+                    'instructor_id' => $instructorMap[$key],
                 ]);
             }
         }

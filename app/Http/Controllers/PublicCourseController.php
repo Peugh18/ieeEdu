@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
+use App\Models\Banner;
+use App\Models\Book;
 use App\Models\Category;
 use App\Models\Course;
-use App\Models\Book;
-use App\Models\Article;
+use App\Models\Payment;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class PublicCourseController extends Controller
 {
@@ -17,12 +18,12 @@ class PublicCourseController extends Controller
     {
         // Fetch published courses (not masterclasses)
         $query = Course::where('status', 'PUBLICADO')
-            ->whereIn('type', ['grabado', 'en vivo', 'hibrido'])
+            ->whereIn('type', ['grabado', 'en vivo'])
             ->with('category:id,name')
             ->select([
                 'id', 'title', 'slug', 'description', 'price', 'sale_price',
                 'type', 'image', 'start_date', 'start_time', 'duration_weeks',
-                'class_hours', 'category_id', 'instructor_name', 'instructor_image'
+                'class_hours', 'category_id', 'instructor_name', 'instructor_image',
             ]);
 
         // Remover la exclusión de cursos para que el landing siempre muestre la oferta académica completa.
@@ -33,14 +34,14 @@ class PublicCourseController extends Controller
         // Teaser: few items for editorial section
         $teaserBooks = Book::where('is_available', true)->latest()->take(8)->get()->map(function ($book) {
             return [
-                'id'           => $book->id,
-                'title'        => $book->title,
-                'category'     => $book->category,
-                'author'       => $book->author,
-                'description'  => $book->description,
-                'price'        => (float) $book->price,
-                'cover_image'  => $book->cover_image ? Storage::disk('public')->url($book->cover_image) : null,
-                'file_path'    => $book->file_path    ? Storage::disk('public')->url($book->file_path)    : null,
+                'id' => $book->id,
+                'title' => $book->title,
+                'category' => $book->category,
+                'author' => $book->author,
+                'description' => $book->description,
+                'price' => (float) $book->price,
+                'cover_image' => $book->cover_image ? Storage::disk('public')->url($book->cover_image) : null,
+                'file_path' => $book->file_path ? Storage::disk('public')->url($book->file_path) : null,
                 'download_url' => $book->download_url,
                 'is_available' => $book->is_available,
             ];
@@ -49,7 +50,7 @@ class PublicCourseController extends Controller
         $teaserArticles = Article::latest()->take(4)->get();
 
         // Banners del Home desde la BD, ordenados
-        $homeSlides = \App\Models\Banner::where('section', 'home')
+        $homeSlides = Banner::where('section', 'home')
             ->orderBy('order')
             ->get();
 
@@ -61,7 +62,7 @@ class PublicCourseController extends Controller
                     'description' => $course->description,
                     'category' => $course->category ? $course->category->name : 'General',
                     'instructor' => $course->instructor_name ?: ($course->teacher ? $course->teacher->name : 'Instituto IEE'),
-                    'duration' => $course->duration_weeks ? $course->duration_weeks . ' semanas' : 'A tu ritmo',
+                    'duration' => $course->duration_weeks ? $course->duration_weeks.' semanas' : 'A tu ritmo',
                     'rating' => 5.0,
                     'reviews' => 120, // default placeholder
                     'type' => $course->type,
@@ -86,13 +87,13 @@ class PublicCourseController extends Controller
     {
         // 🚫 MANTENER ARQUITECTURA: NO mostrar eventos (masterclasses) en el catálogo de cursos
         $query = Course::where('status', 'PUBLICADO')
-            ->whereIn('type', ['grabado', 'en vivo', 'hibrido'])
+            ->whereIn('type', ['grabado', 'en vivo'])
             ->with('category');
 
         // Remover la exclusión de cursos para que el catálogo siempre muestre la oferta académica.
 
         if ($request->filled('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
+            $query->where('title', 'like', '%'.$request->search.'%');
         }
 
         if ($request->filled('modality') && $request->modality !== 'Todos') {
@@ -101,7 +102,7 @@ class PublicCourseController extends Controller
                 'En vivo' => 'en vivo',
                 'Evento' => 'evento',
             ];
-            
+
             if (isset($mapType[$request->modality])) {
                 $query->where('type', $mapType[$request->modality]);
             }
@@ -117,7 +118,7 @@ class PublicCourseController extends Controller
 
         $categories = Category::has('courses')->orderBy('name')->get();
 
-        $banner = \App\Models\Banner::where('section', 'cursos')->first();
+        $banner = Banner::where('section', 'cursos')->first();
 
         return Inertia::render('Cursos', [
             'courses' => $courses,
@@ -137,10 +138,29 @@ class PublicCourseController extends Controller
         // Calculate some basic stats to display
         $course->loadCount('lessons');
 
+        $hasPendingPayment = false;
+        $isEnrolled = false;
+        $canEnrollFree = false;
+
+        if (auth()->check()) {
+            $user = auth()->user();
+            $isEnrolled = $user->hasAccess($course->id);
+
+            $hasPendingPayment = Payment::where('user_id', $user->id)
+                ->where('course_id', $course->id)
+                ->whereIn('status', ['pendiente', 'en_revision'])
+                ->exists();
+
+            $price = $course->sale_price > 0 ? $course->sale_price : $course->price;
+            $canEnrollFree = ($price <= 0) && ! $isEnrolled;
+        }
+
         return Inertia::render('CourseDetail', [
             'course' => $course,
             'isDashboard' => $request->boolean('dashboard'),
-            'isEnrolled' => auth()->check() ? auth()->user()->hasAccess($course->id) : false,
+            'isEnrolled' => $isEnrolled,
+            'hasPendingPayment' => $hasPendingPayment,
+            'canEnrollFree' => $canEnrollFree,
         ]);
     }
 
@@ -161,11 +181,11 @@ class PublicCourseController extends Controller
 
         $courses = $query->orderBy('created_at', 'desc')->paginate(6)->withQueryString();
 
-        $categories = Category::whereHas('courses', function($q){
+        $categories = Category::whereHas('courses', function ($q) {
             $q->where('type', 'evento');
         })->orderBy('name')->get();
 
-        $banner = \App\Models\Banner::where('section', 'masterclass')->first();
+        $banner = Banner::where('section', 'masterclass')->first();
 
         return Inertia::render('Masterclasses', [
             'courses' => $courses,
@@ -177,6 +197,16 @@ class PublicCourseController extends Controller
 
     public function planes()
     {
-        return Inertia::render('Planes');
+        $user = auth()->user();
+        $subscription = $user ? $user->subscription : null;
+
+        return Inertia::render('Planes', [
+            'planesConfig' => array_values(config('iie.planes', [])),
+            'userSubscription' => $subscription ? [
+                'type' => $subscription->type,
+                'status' => $subscription->status,
+                'end_date' => $subscription->end_date?->format('d/m/Y'),
+            ] : null,
+        ]);
     }
 }

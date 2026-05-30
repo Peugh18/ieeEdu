@@ -3,7 +3,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import { Award, Download, Eye, Lock, FileBadge2, ShieldCheck, Share2, Printer, Search } from 'lucide-vue-next';
+import { Award, Download, Eye, ShieldCheck, Printer, Search } from 'lucide-vue-next';
 
 interface Certificate {
     id: number;

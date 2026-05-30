@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\Course;
-use App\Models\Enrollment;
-use App\Models\Payment;
+use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -89,12 +87,23 @@ class User extends Authenticatable
         return $this->hasMany(Subscription::class);
     }
 
+    /**
+     * Get the user's current active subscription.
+     */
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class)
+            ->where('status', Subscription::STATUS_ACTIVE)
+            ->where('end_date', '>=', now())
+            ->latest();
+    }
+
     public function hasSubscriptionActive()
     {
         return $this->subscriptions()
-                    ->where('status', 'activa')
-                    ->where('end_date', '>=', now())
-                    ->exists();
+            ->where('status', Subscription::STATUS_ACTIVE)
+            ->where('end_date', '>=', now())
+            ->exists();
     }
 
     public function hasAccess($courseId)
@@ -109,20 +118,18 @@ class User extends Authenticatable
             return true;
         }
 
-        // Cursos gratuitos
         $course = Course::find($courseId);
-        if ($course && $course->price <= 0) {
-            return true;
+        if ($course) {
+            $price = $course->sale_price > 0 ? $course->sale_price : $course->price;
+            if ($price <= 0) {
+                return true;
+            }
         }
 
-        // Verificar inscripción (debe ser compra individual o suscripción activa)
+        // Compra individual (persiste aunque expire la suscripción)
         return $this->enrollments()
             ->where('course_id', $courseId)
-            ->where(function ($q) {
-                $q->where('subscription_granted', false)
-                  ->orWhere('subscription_active', true);
-            })
+            ->where('subscription_granted', false)
             ->exists();
     }
 }
-

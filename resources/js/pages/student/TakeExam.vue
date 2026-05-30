@@ -1,121 +1,44 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
+import BottomNav from '@/components/student/BottomNav.vue';
 import { Head, router, usePage, Link as InertiaLink } from '@inertiajs/vue3';
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { Trophy, XCircle, Download, RotateCcw, ArrowRight, Clock, CheckCircle2 } from 'lucide-vue-next';
-
-interface Answer {
-    id: number;
-    answer_text: string;
-}
-
-interface Question {
-    id: number;
-    question: string;
-    answers: Answer[];
-}
-
-interface Quiz {
-    id: number;
-    title: string;
-    course?: { 
-        title: string;
-        slug: string;
-    };
-    time_limit: number;
-    max_attempts: number;
-    questions: Question[];
-}
+import { Quiz } from '@/types/exam';
+import { useExamSession } from '@/composables/student/useExamSession';
+import { SharedData } from '@/types';
 
 const props = defineProps<{
     quiz: Quiz;
     current_attempt: number;
 }>();
 
-const page = usePage() as any;
-const flashResult = computed(() => page.props.flash?.exam_result);
-const localResult = ref<any>(null);
+const page = usePage<SharedData>();
 
-const examResult = computed(() => flashResult.value || localResult.value);
+const {
+    currentQuestionIndex,
+    selectedAnswers,
+    isSubmitting,
+    timeRemaining,
+    examResult,
+    formattedTime,
+    loadState,
+    clearState,
+    startTimer,
+    selectAnswer,
+    nextQuestion,
+    prevQuestion,
+    submitExam
+} = useExamSession(props.quiz);
+
 const showResultModal = computed(() => !!examResult.value);
 
-// Persistence logic
-const storageKey = computed(() => `iie_exam_state_${props.quiz.id}_${page.props.auth?.user?.id}`);
-
-// Reactive State
-const currentQuestionIndex = ref(0);
-const selectedAnswers = ref<Record<number, number>>({});
-const isSubmitting = ref(false);
-const timeRemaining = ref(props.quiz.time_limit * 60);
-const showConfirmModal = ref(false); 
-let timer: any = null;
-
-const saveState = () => {
-    if (examResult.value) return; 
-    const state = {
-        answers: selectedAnswers.value,
-        index: currentQuestionIndex.value,
-        time: timeRemaining.value,
-        timestamp: Date.now()
-    };
-    localStorage.setItem(storageKey.value, JSON.stringify(state));
-};
-
-const loadState = () => {
-    const saved = localStorage.getItem(storageKey.value);
-    if (saved) {
-        try {
-            const state = JSON.parse(saved);
-            if (Date.now() - state.timestamp < 2 * 60 * 60 * 1000) {
-                selectedAnswers.value = state.answers || {};
-                currentQuestionIndex.value = state.index || 0;
-                timeRemaining.value = state.time || props.quiz.time_limit * 60;
-            }
-        } catch (e) { }
-    }
-    const savedResult = localStorage.getItem(`${storageKey.value}_result`);
-    if (savedResult) {
-        try { localResult.value = JSON.parse(savedResult); } catch (e) {}
-    }
-};
-
-const clearState = () => {
-    localStorage.removeItem(storageKey.value);
-    localStorage.removeItem(`${storageKey.value}_result`);
-    localResult.value = null;
-};
-
-// Modal State
+// Modal UI State
 const showModal = ref(false);
 const modalType = ref<'submit' | 'timeup'>('submit');
 const modalTitle = ref('');
 const modalMessage = ref('');
 const onConfirmModal = ref<(() => void) | null>(null);
-
-const formattedTime = computed(() => {
-    const mins = Math.floor(timeRemaining.value / 60);
-    const secs = timeRemaining.value % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-});
-
-onMounted(() => {
-    loadState();
-    if (props.quiz.questions.length > 0 && !examResult.value) {
-        timer = setInterval(() => {
-            if (timeRemaining.value > 0) {
-                timeRemaining.value--;
-                if (timeRemaining.value % 5 === 0) saveState();
-            } else {
-                clearInterval(timer);
-                triggerTimeUp();
-            }
-        }, 1000);
-    }
-});
-
-onUnmounted(() => {
-    if (timer) clearInterval(timer);
-});
 
 const triggerTimeUp = () => {
     modalType.value = 'timeup';
@@ -123,54 +46,9 @@ const triggerTimeUp = () => {
     modalMessage.value = 'El tiempo para realizar esta evaluación ha finalizado. Tus respuestas actuales serán enviadas automáticamente.';
     onConfirmModal.value = () => {
         showModal.value = false;
-        performSubmit();
+        submitExam();
     };
     showModal.value = true;
-};
-
-const performSubmit = () => {
-    isSubmitting.value = true;
-    if (timer) clearInterval(timer);
-    router.post(route('student.exams.submit', { quiz: props.quiz.id }), {
-        answers: selectedAnswers.value
-    }, {
-        onSuccess: () => {
-            isSubmitting.value = false;
-            if (flashResult.value) {
-                localStorage.setItem(`${storageKey.value}_result`, JSON.stringify(flashResult.value));
-            }
-            localStorage.removeItem(storageKey.value);
-        },
-        onError: () => {
-             isSubmitting.value = false;
-        }
-    });
-};
-
-const breadcrumbs = [
-    { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Mis Exámenes', href: '/student/exams' },
-    { title: props.quiz.title, href: '#' },
-];
-
-const selectAnswer = (questionId: number, answerId: number) => {
-    if (examResult.value) return;
-    selectedAnswers.value[questionId] = answerId;
-    saveState();
-};
-
-const nextQuestion = () => {
-    if (currentQuestionIndex.value < props.quiz.questions.length - 1) {
-        currentQuestionIndex.value++;
-        saveState();
-    }
-};
-
-const prevQuestion = () => {
-    if (currentQuestionIndex.value > 0) {
-        currentQuestionIndex.value--;
-        saveState();
-    }
 };
 
 const triggerSubmitConfirm = () => {
@@ -190,7 +68,7 @@ const triggerSubmitConfirm = () => {
     
     onConfirmModal.value = () => {
         showModal.value = false;
-        performSubmit();
+        submitExam();
     };
     showModal.value = true;
 };
@@ -215,6 +93,19 @@ const clearFlashErrorAndRedirect = () => {
         router.visit(route('student.exams.index'));
     }
 };
+
+const breadcrumbs = [
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Mis Exámenes', href: '/student/exams' },
+    { title: props.quiz.title, href: '#' },
+];
+
+onMounted(() => {
+    loadState();
+    if (props.quiz.questions.length > 0 && !examResult.value) {
+        startTimer(() => triggerTimeUp());
+    }
+});
 </script>
 
 <template>
@@ -253,7 +144,7 @@ const clearFlashErrorAndRedirect = () => {
 
                         <div class="space-y-4">
                             <button
-                                v-for="(ans, i) in quiz.questions[currentQuestionIndex].answers"
+                                v-for="ans in quiz.questions[currentQuestionIndex].answers"
                                 :key="ans.id"
                                 @click="selectAnswer(quiz.questions[currentQuestionIndex].id, ans.id)"
                                 class="w-full flex items-center p-6 rounded-3xl border-2 transition-all group text-left shadow-sm"
@@ -407,6 +298,7 @@ const clearFlashErrorAndRedirect = () => {
                 </div>
             </div>
         </div>
+        <BottomNav />
     </AppLayout>
 </template>
 

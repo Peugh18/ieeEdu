@@ -2,9 +2,9 @@
 
 namespace App\Actions\Student;
 
-use App\Models\User;
-use App\Models\LessonProgress;
 use App\Models\Enrollment;
+use App\Models\LessonProgress;
+use App\Models\User;
 use App\Services\ProgressService;
 
 class GetContinueLearningAction
@@ -21,14 +21,14 @@ class GetContinueLearningAction
             ->latest('updated_at')
             ->first();
 
-        if (!$lastLessonProgress || !$lastLessonProgress->lesson) {
+        if (! $lastLessonProgress || ! $lastLessonProgress->lesson) {
             return null;
         }
 
         $lesson = $lastLessonProgress->lesson;
         $course = $lesson->course ?? $lesson->module?->course;
 
-        if (!$course) {
+        if (! $course) {
             return null;
         }
 
@@ -38,17 +38,17 @@ class GetContinueLearningAction
             ->visible()
             ->first();
 
-        if (!$enrollment || $enrollment->completed_at) {
+        if (! $enrollment || $enrollment->completed_at) {
             return null;
         }
 
         return [
             'course_title' => $course->title,
-            'course_slug'  => $course->slug,
+            'course_slug' => $course->slug,
             'lesson_title' => $lesson->title,
-            'lesson_id'    => $lesson->id,
-            'progress'     => $this->progressService->calculateCourseProgress($user, $course),
-            'image'        => $course->image,
+            'lesson_id' => $lesson->id,
+            'progress' => $this->progressService->calculateCourseProgress($user, $course),
+            'image' => $course->image,
         ];
     }
 }

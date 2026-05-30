@@ -14,13 +14,4 @@ class EnrollmentPolicy
     {
         return $user->id === $enrollment->user_id || $user->role === 'admin';
     }
-
-    /**
-     * Determina si el usuario puede descargar el certificado.
-     */
-    public function downloadCertificate(User $user, Enrollment $enrollment): bool
-    {
-        return ($user->id === $enrollment->user_id && $enrollment->completed_at !== null) 
-               || $user->role === 'admin';
-    }
 }

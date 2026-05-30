@@ -19,8 +19,8 @@ class ConsultancyRequestController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('company', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('company', 'like', "%{$search}%");
             });
         }
 
@@ -40,12 +40,12 @@ class ConsultancyRequestController extends Controller
 
         return Inertia::render('admin/ConsultancyRequests', [
             'requests' => $requests,
-            'filters'  => $request->only('search', 'status', 'per_page'),
-            'stats'    => [
-                'total'      => ConsultancyRequest::count(),
-                'pending'    => ConsultancyRequest::where('status', 'pendiente')->count(),
-                'contacted'  => ConsultancyRequest::where('status', 'en_contacto')->count(),
-                'resolved'   => ConsultancyRequest::where('status', 'cerrado')->count(),
+            'filters' => $request->only('search', 'status', 'per_page'),
+            'stats' => [
+                'total' => ConsultancyRequest::count(),
+                'pending' => ConsultancyRequest::where('status', 'pendiente')->count(),
+                'contacted' => ConsultancyRequest::where('status', 'en_contacto')->count(),
+                'resolved' => ConsultancyRequest::where('status', 'cerrado')->count(),
             ],
         ]);
     }

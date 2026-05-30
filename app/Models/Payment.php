@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\Course;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,6 +12,7 @@ class Payment extends Model
     protected $fillable = [
         'user_id',
         'course_id',
+        'subscription_type',
         'status',
         'comprobante',
         'amount',

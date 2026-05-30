@@ -33,7 +33,7 @@ return new class extends Migration
                 'class_hours',
                 'whatsapp_link',
                 'objectives',
-                'requirements'
+                'requirements',
             ]);
         });
     }

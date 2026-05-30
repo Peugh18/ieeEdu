@@ -5,7 +5,7 @@ $content = file_get_contents($filePath);
 
 // 1. Add activeTab
 $content = str_replace(
-    "const isExamView = ref(false);",
+    'const isExamView = ref(false);',
     "const isExamView = ref(false);\nconst activeTab = ref('general');",
     $content
 );
@@ -184,5 +184,3 @@ $content = str_replace($old_end_file, $new_end_file, $content);
 file_put_contents($filePath, $content);
 
 echo "Refactoring PHP script complete.\n";
-
-?>

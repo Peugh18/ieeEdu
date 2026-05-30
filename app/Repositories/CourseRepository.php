@@ -10,18 +10,18 @@ class CourseRepository
     {
         $query = Course::query()->with(['category', 'teacher']);
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $query->where(function ($q) use ($filters) {
                 $q->where('title', 'like', "%{$filters['search']}%")
-                  ->orWhere('description', 'like', "%{$filters['search']}%");
+                    ->orWhere('description', 'like', "%{$filters['search']}%");
             });
         }
 

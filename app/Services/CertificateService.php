@@ -4,10 +4,9 @@ namespace App\Services;
 
 use App\Models\Certificate;
 use App\Models\Course;
-use App\Models\Enrollment;
+use App\Models\CourseExamAttempt;
 use App\Models\LessonProgress;
 use App\Models\User;
-use App\Models\CourseExamAttempt;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -20,22 +19,22 @@ class CertificateService
     public function checkEligibility(User $user, Course $course): bool
     {
         // Check if certificate feature is enabled for this course
-        if (!$course->certificate_enabled) {
+        if (! $course->certificate_enabled) {
             return false;
         }
 
         // 1. Check Course Progress
         $allLessons = $course->modules->flatMap->lessons->concat($course->lessons->whereNull('module_id'));
         $lessonIds = $allLessons->pluck('id');
-        
+
         $completedLessonsCount = LessonProgress::where('user_id', $user->id)
             ->whereIn('course_lesson_id', $lessonIds)
             ->where('is_completed', true)
             ->count();
-            
+
         $progressCompleted = ($allLessons->count() > 0) && ($completedLessonsCount === $allLessons->count());
-        
-        if (!$progressCompleted) {
+
+        if (! $progressCompleted) {
             return false;
         }
 
@@ -47,8 +46,8 @@ class CertificateService
                     ->where('course_quiz_id', $quiz->id)
                     ->where('status', 'aprobado')
                     ->exists();
-                
-                if (!$passed) {
+
+                if (! $passed) {
                     return false;
                 }
             }
@@ -66,17 +65,19 @@ class CertificateService
             ->where('course_id', $course->id)
             ->first();
 
-        if ($existing) return $existing;
+        if ($existing) {
+            return $existing;
+        }
 
-        $code = 'IEE-' . strtoupper(Str::random(8)) . '-' . date('Y');
-        
+        $code = 'IEE-'.strtoupper(Str::random(8)).'-'.date('Y');
+
         return Certificate::create([
             'user_id' => $user->id,
             'course_id' => $course->id,
             'code' => $code,
             'issue_date' => now(),
             // file_path will be null until generated or we can just use a generic path
-            'file_path' => 'certificates/' . $user->id . '_' . $course->id . '.pdf'
+            'file_path' => 'certificates/'.$user->id.'_'.$course->id.'.pdf',
         ]);
     }
 
@@ -95,7 +96,7 @@ class CertificateService
             if ($imageDisk->exists($template->template_image)) {
                 $imageData = $imageDisk->get($template->template_image);
                 $type = strtolower(pathinfo($template->template_image, PATHINFO_EXTENSION));
-                $templateImageBase64 = 'data:image/' . $type . ';base64,' . base64_encode($imageData);
+                $templateImageBase64 = 'data:image/'.$type.';base64,'.base64_encode($imageData);
             }
         }
 
@@ -113,10 +114,10 @@ class CertificateService
             ->setPaper('a4', 'landscape');
 
         if ($action === 'stream') {
-            return $pdf->stream($certificate->code . '.pdf');
+            return $pdf->stream($certificate->code.'.pdf');
         }
-        
-        return $pdf->download($certificate->code . '.pdf');
+
+        return $pdf->download($certificate->code.'.pdf');
     }
 
     /**
@@ -127,6 +128,7 @@ class CertificateService
         if ($this->checkEligibility($user, $course)) {
             return $this->getOrCreateRecord($user, $course);
         }
+
         return null;
     }
 }

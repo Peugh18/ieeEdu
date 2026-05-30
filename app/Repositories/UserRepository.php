@@ -10,16 +10,16 @@ class UserRepository
     {
         $query = User::query();
 
-        if (!empty($filters['role'])) {
+        if (! empty($filters['role'])) {
             $query->where('role', $filters['role']);
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['search'])) {
-            $query->where(fn($q) => $q->where('name', 'like', "%{$filters['search']}%")
+        if (! empty($filters['search'])) {
+            $query->where(fn ($q) => $q->where('name', 'like', "%{$filters['search']}%")
                 ->orWhere('email', 'like', "%{$filters['search']}%"));
         }
 

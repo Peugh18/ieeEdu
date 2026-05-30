@@ -74,14 +74,14 @@ const dateStatus = computed(() => {
             value: `${dayMonth}${timeFormatted}`,
             isPast
         };
-    } catch (e) {
+    } catch {
         return { label: 'Inicia:', value: props.course.start_date, isPast: false };
     }
 });
 
 const categoryName = computed(() => {
     if (typeof props.course.category === 'object' && props.course.category !== null) {
-        return (props.course.category as any).name;
+        return (props.course.category as { name: string }).name;
     }
     return props.course.category || 'Especialización';
 });

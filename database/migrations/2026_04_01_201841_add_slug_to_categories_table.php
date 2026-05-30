@@ -11,7 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Already handled manually or via fix-slugs.php
+        Schema::table('categories', function (Blueprint $table) {
+            if (! Schema::hasColumn('categories', 'slug')) {
+                $table->string('slug')->nullable()->unique()->after('name');
+            }
+        });
     }
 
     /**
@@ -19,6 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Already handled
+        Schema::table('categories', function (Blueprint $table) {
+            if (Schema::hasColumn('categories', 'slug')) {
+                $table->dropColumn('slug');
+            }
+        });
     }
 };

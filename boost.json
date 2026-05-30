@@ -1,0 +1,17 @@
+{
+    "cloud": false,
+    "guidelines": true,
+    "mcp": true,
+    "nightwatch": false,
+    "sail": false,
+    "skills": [
+        "laravel-best-practices",
+        "pest-testing",
+        "inertia-vue-development",
+        "tailwindcss-development",
+        "eloquent-best-practices",
+        "laravel-security",
+        "laravel-specialist",
+        "laravel-verification"
+    ]
+}

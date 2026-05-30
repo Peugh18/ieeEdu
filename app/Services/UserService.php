@@ -8,9 +8,7 @@ use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-    public function __construct(protected UserRepository $repo)
-    {
-    }
+    public function __construct(protected UserRepository $repo) {}
 
     public function list($perPage = 15, $filters = [])
     {
@@ -20,12 +18,14 @@ class UserService
     public function create(array $data): User
     {
         $data['password'] = Hash::make($data['password']);
+        $data['email_verified_at'] = $data['email_verified_at'] ?? now();
+
         return $this->repo->create($data);
     }
 
     public function update(User $user, array $data): User
     {
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);

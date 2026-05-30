@@ -9,13 +9,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'role')) {
+            if (! Schema::hasColumn('users', 'role')) {
                 $table->enum('role', ['admin', 'usuario'])->default('usuario')->after('email');
             }
-            if (!Schema::hasColumn('users', 'status')) {
+            if (! Schema::hasColumn('users', 'status')) {
                 $table->enum('status', ['activo', 'inactivo'])->default('activo')->after('role');
             }
-            if (!Schema::hasColumn('users', 'telefono')) {
+            if (! Schema::hasColumn('users', 'telefono')) {
                 $table->string('telefono')->nullable()->after('name');
             }
         });

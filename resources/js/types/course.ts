@@ -15,7 +15,7 @@ export interface Course {
     description?: string;
     image?: string;
     category?: CourseCategory | string;
-    type: 'en vivo' | 'grabado' | 'evento' | 'masterclass' | 'hibrido';
+    type: 'en vivo' | 'grabado' | 'evento' | 'masterclass';
     price: number;
     sale_price?: number;
     promotion_title?: string;
@@ -233,34 +233,3 @@ export interface Subscription {
     is_active: boolean;
     created_at: string;
 }
-
-export interface User {
-    id: number;
-    name: string;
-    email: string;
-    telefono?: string;
-    role: 'admin' | 'usuario';
-    status: 'activo' | 'inactivo';
-    has_subscription?: boolean;
-}
-
-export interface FlashMessages {
-    success?: string;
-    error?: string;
-    exam_result?: any;
-}
-
-export interface SharedData {
-    auth: {
-        user: User | null;
-    };
-    flash: FlashMessages;
-    appName: string;
-    quote?: string;
-    ziggy: any;
-}
-
-export type BreadcrumbItem = {
-    title: string;
-    href: string;
-};

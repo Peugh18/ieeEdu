@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import { useCart } from '@/composables/useCart';
 
 const { 
@@ -18,14 +18,12 @@ onMounted(() => {
     handlePostLoginAction();
 });
 
-function getCategoryName(category: any) {
-    if (typeof category === 'object' && category !== null) {
-        return category.name;
-    }
-    return category || 'Especialización';
+function getCategoryName(category: string | { name: string } | null) {
+    if (!category) return 'Sin categoría';
+    return typeof category === 'string' ? category : category.name;
 }
 
-function formatDate(dateStr?: string, timeStr?: string) {
+function formatDate(dateStr?: string, _timeStr?: string) {
     if (!dateStr) return 'Pronto';
     try {
         const date = new Date(dateStr.replace(/-/g, '/'));

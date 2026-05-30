@@ -4,14 +4,11 @@ namespace App\Services;
 
 use App\Models\Course;
 use App\Repositories\CourseRepository;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class CourseService
 {
-    public function __construct(protected CourseRepository $repo)
-    {
-    }
+    public function __construct(protected CourseRepository $repo) {}
 
     public function list($perPage = 15, $filters = [])
     {
@@ -28,7 +25,7 @@ class CourseService
 
     public function update(Course $course, array $data): Course
     {
-        if (!empty($data['title']) && empty($data['slug'])) {
+        if (! empty($data['title']) && empty($data['slug'])) {
             $data['slug'] = $this->generateSlug($data['title']);
         }
 
