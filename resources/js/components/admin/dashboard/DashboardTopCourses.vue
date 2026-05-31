@@ -30,7 +30,7 @@ defineProps<{
         <div class="space-y-4">
             <template v-if="courseSales.length">
                 <div v-for="(course, idx) in courseSales" :key="course.id"
-                    class="flex items-center gap-5 p-5 rounded-2xl border border-gray-50 bg-gray-50/30 hover:bg-white hover:shadow-lg transition-all group cursor-pointer">
+                    class="flex items-center gap-5 p-5 rounded-2xl border border-gray-50 dark:border-slate-800/40 bg-gray-50/30 dark:bg-transparent hover:bg-white dark:hover:bg-white/10 hover:shadow-lg dark:hover:shadow-none transition-all group cursor-pointer">
 
                     <!-- Rank -->
                     <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0 transition-colors"

@@ -21,7 +21,7 @@ class BookController extends Controller
             ])
                 ->withSum(['payments as total_earned' => fn ($q) => $q->where('status', 'aprobado')], 'amount')
                 ->latest()
-                ->paginate(12),
+                ->paginate(8),
             'stats' => [
                 'total' => Book::count(),
                 'available' => Book::where('is_available', true)->count(),

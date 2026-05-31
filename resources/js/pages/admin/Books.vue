@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminSearchBar from '@/components/admin/AdminSearchBar.vue';
@@ -64,7 +64,7 @@ function destroy(id: number) {
 
 const searchQuery = ref('');
 const activeFilter = ref('Todos');
-const viewMode = ref<'grid' | 'list'>('grid');
+const viewMode = ref<'grid' | 'list'>('list');
 const filteredBooks = ref<Book[]>(props.books.data);
 
 watch([searchQuery, activeFilter], () => {
@@ -84,49 +84,101 @@ watch(() => props.books.data, (newData) => {
 </script>
 
 <template>
-    <Head title="Admin - Libros" />
+    <Head title="Gestión de Libros - iieEdu Admin" />
     <AppLayout>
-        <AdminPageHeader title="Libros" subtitle="Catálogo de publicaciones físicas y digitales." action-label="Registrar libro" action-order="first" compact @action="openCreate" />
+        <div class="max-w-[1400px] mx-auto px-4 py-8 space-y-8">
+            <!-- PAGE HEADER -->
+            <AdminPageHeader
+                title="Gestión de "
+                titleAccent="Libros"
+                subtitle="Catálogo de publicaciones físicas y digitales."
+                actionLabel="Nuevo Libro"
+                @action="openCreate"
+            />
 
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-            <div class="rounded-2xl bg-white border border-outline-variant/15 p-4 text-center">
-                <BookOpen class="w-5 h-5 text-primary mx-auto mb-2" />
-                <p class="text-2xl font-black tabular-nums">{{ stats.total }}</p>
-                <p class="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/60 mt-1">Libros</p>
-            </div>
-            <div class="rounded-2xl bg-violet-50 border border-violet-100 p-4 text-center">
-                <p class="text-lg font-black tabular-nums text-violet-700">S/ {{ Number(stats.book_income).toLocaleString() }}</p>
-                <p class="text-[9px] font-bold uppercase tracking-widest text-violet-500 mt-1">Recaudado</p>
-            </div>
-            <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4 text-center">
-                <p class="text-2xl font-black tabular-nums">{{ stats.book_sales }}</p>
-                <p class="text-[9px] font-bold uppercase tracking-widest text-slate-500 mt-1">Ventas</p>
-            </div>
-            <div class="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-center">
-                <Download class="w-5 h-5 text-emerald-600 mx-auto mb-2" />
-                <p class="text-2xl font-black tabular-nums text-emerald-700">{{ stats.downloads }}</p>
-                <p class="text-[9px] font-bold uppercase tracking-widest text-emerald-500 mt-1">Descargas</p>
-            </div>
-            <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4 text-center">
-                <p class="text-2xl font-black tabular-nums text-amber-700">{{ stats.downloads_month }}</p>
-                <p class="text-[9px] font-bold uppercase tracking-widest text-amber-500 mt-1">Descargas / mes</p>
-            </div>
-            <div class="rounded-2xl bg-blue-50 border border-blue-100 p-4 text-center">
-                <p class="text-2xl font-black tabular-nums text-blue-700">{{ stats.available }}</p>
-                <p class="text-[9px] font-bold uppercase tracking-widest text-blue-500 mt-1">Disponibles</p>
-            </div>
-        </div>
-        <AdminSearchBar v-model="searchQuery" v-model:view-mode="viewMode" placeholder="Explorar el archivo digital... (Título, Autor, Categoría)" :result-count="filteredBooks.length" result-label="Resultados" sync-label="Catálogo" sync-accent="Sincronizado">
-            <template #filters>
-                <div class="flex items-center gap-2 p-1.5 bg-surface-container rounded-full border border-on-background/5 shadow-inner overflow-x-auto whitespace-nowrap custom-scrollbar">
-                    <button v-for="cat in ['Todos', 'Libro', 'Libro en camino', 'Guía']" :key="cat" @click="activeFilter = cat" class="px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-500" :class="activeFilter === cat ? 'bg-on-background text-primary-fixed shadow-lg scale-105' : 'text-on-background/40 hover:text-on-background'">{{ cat }}</button>
+            <!-- ── Stats Grid ── -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <!-- Total Books -->
+                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-slate-200 transition-all duration-300">
+                    <div class="relative z-10 flex flex-col justify-between h-full space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Total Libros</span>
+                            <BookOpen class="h-4 w-4 text-slate-300" />
+                        </div>
+                        <p class="text-3xl font-black text-slate-900 leading-none">{{ stats.total }}</p>
+                    </div>
                 </div>
-            </template>
-        </AdminSearchBar>
 
-        <BooksTable v-if="filteredBooks.length > 0" :books="filteredBooks" :view-mode="viewMode" @edit="openEdit" @destroy="destroy" />
-        <AdminEmptyState v-else title="Sin hallazgos en la biblioteca" :query="searchQuery" />
-        <AdminPagination v-if="filteredBooks.length > 0" :links="books.links" />
+                <!-- Recaudado -->
+                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-slate-200 transition-all duration-300">
+                    <div class="relative z-10 flex flex-col justify-between h-full space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Recaudado</span>
+                            <BookOpen class="h-4 w-4 text-slate-300" />
+                        </div>
+                        <p class="text-2xl font-black text-violet-700 leading-none">S/ {{ Number(stats.book_income).toLocaleString() }}</p>
+                    </div>
+                </div>
+
+                <!-- Ventas -->
+                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-slate-200 transition-all duration-300">
+                    <div class="relative z-10 flex flex-col justify-between h-full space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Ventas</span>
+                            <BookOpen class="h-4 w-4 text-slate-300" />
+                        </div>
+                        <p class="text-3xl font-black text-slate-900 leading-none">{{ stats.book_sales }}</p>
+                    </div>
+                </div>
+
+                <!-- Descargas -->
+                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-slate-200 transition-all duration-300">
+                    <div class="relative z-10 flex flex-col justify-between h-full space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Descargas</span>
+                            <Download class="h-4 w-4 text-slate-300" />
+                        </div>
+                        <p class="text-3xl font-black text-emerald-600 leading-none">{{ stats.downloads }}</p>
+                    </div>
+                </div>
+
+                <!-- Descargas / mes -->
+                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-slate-200 transition-all duration-300">
+                    <div class="relative z-10 flex flex-col justify-between h-full space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Descargas / Mes</span>
+                            <Download class="h-4 w-4 text-slate-300" />
+                        </div>
+                        <p class="text-3xl font-black text-amber-600 leading-none">{{ stats.downloads_month }}</p>
+                    </div>
+                </div>
+
+                <!-- Disponibles -->
+                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-6 shadow-sm hover:shadow-md hover:border-slate-200 transition-all duration-300">
+                    <div class="relative z-10 flex flex-col justify-between h-full space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Disponibles</span>
+                            <BookOpen class="h-4 w-4 text-slate-300" />
+                        </div>
+                        <p class="text-3xl font-black text-blue-600 leading-none">{{ stats.available }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEARCH AND FILTERS -->
+            <AdminSearchBar v-model="searchQuery" v-model:view-mode="viewMode" placeholder="Explorar el archivo digital... (Título, Autor, Categoría)" :result-count="filteredBooks.length" result-label="Resultados" sync-label="Catálogo" sync-accent="Sincronizado">
+                <template #filters>
+                    <div class="flex items-center gap-2 p-1.5 bg-slate-50 rounded-full border border-slate-200/50 shadow-inner overflow-x-auto whitespace-nowrap custom-scrollbar">
+                        <button v-for="cat in ['Todos', 'Libro', 'Libro en camino', 'Guía']" :key="cat" @click="activeFilter = cat" class="px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all duration-500" :class="activeFilter === cat ? 'bg-slate-900 text-white shadow-lg scale-105' : 'text-slate-400 hover:text-slate-700'">{{ cat }}</button>
+                    </div>
+                </template>
+            </AdminSearchBar>
+
+            <!-- DATA VIEW -->
+            <BooksTable v-if="filteredBooks.length > 0" :books="filteredBooks" :view-mode="viewMode" @edit="openEdit" @destroy="destroy" />
+            <AdminEmptyState v-else title="Sin hallazgos en la biblioteca" :query="searchQuery" />
+            <AdminPagination v-if="filteredBooks.length > 0" :links="books.links" />
+        </div>
 
         <AdminModal :show="showModal" :title="editingBook ? 'Editar' : 'Nueva'" title-accent="Publicación" subtitle="Configuración de catálogo digital" :processing="form.processing" :submit-label="editingBook ? 'Confirmar Cambios' : 'Lanzar al Catálogo'" @close="showModal = false" @submit="submit">
             <BookForm v-model:form="form" v-model:imagePreview="imagePreview" v-model:isFree="isFree" />

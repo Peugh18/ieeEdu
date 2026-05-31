@@ -77,8 +77,8 @@ function isActive(item: NavItem): boolean {
                                 :href="route(item.href)"
                                 class="relative flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300"
                                 :class="isActive(item)
-                                    ? 'bg-primary/10 dark:bg-white/5 border-l-[3px] border-l-primary text-primary dark:!text-primary font-bold'
-                                    : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-medium border-l-[3px] border-l-transparent'"
+                                    ? 'bg-primary/10 dark:bg-[#e7e6ab]/12 border-l-[3px] border-l-primary text-primary dark:!text-primary font-bold'
+                                    : 'text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-white/10 hover:text-on-surface dark:hover:text-white font-medium border-l-[3px] border-l-transparent'"
                             >
                                 <component
                                     :is="item.icon"
@@ -117,8 +117,8 @@ function isActive(item: NavItem): boolean {
                             :href="route(item.href)"
                             class="relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300"
                             :class="isActive(item)
-                                ? 'bg-primary/10 dark:bg-white/5 border-l-[3px] border-l-primary text-primary dark:!text-primary font-bold'
-                                : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-medium border-l-[3px] border-l-transparent'"
+                                ? 'bg-primary/10 dark:bg-[#e7e6ab]/12 border-l-[3px] border-l-primary text-primary dark:!text-primary font-bold'
+                                : 'text-on-surface-variant hover:bg-surface-container-high dark:hover:bg-white/10 hover:text-on-surface dark:hover:text-white font-medium border-l-[3px] border-l-transparent'"
                         >
                             <component
                                 :is="item.icon"

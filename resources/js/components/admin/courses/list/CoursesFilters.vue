@@ -4,6 +4,7 @@ import { Search } from 'lucide-vue-next';
 const search = defineModel<string>('search', { default: '' });
 const status = defineModel<string>('status', { default: '' });
 const type = defineModel<string>('type', { default: '' });
+const perPage = defineModel<string>('perPage', { default: '10' });
 
 const emit = defineEmits<{
     (e: 'filter'): void;
@@ -11,31 +12,55 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <!-- Filtros compactos -->
-    <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center bg-white/80 rounded-2xl border border-outline-variant/10 px-3 py-2 shadow-sm">
-        <div class="relative flex-1 min-w-0">
-            <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/40" />
+    <!-- Smart Filtering -->
+    <div class="bg-white/80 backdrop-blur-md rounded-[2rem] border border-slate-100 p-6 flex flex-col lg:flex-row items-center gap-4 shadow-sm">
+        <div class="relative w-full lg:w-96 group">
+            <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
             <input
                 v-model="search"
-                placeholder="Buscar curso..."
-                class="w-full rounded-xl bg-surface-container-highest pl-9 pr-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 border-0"
+                placeholder="Buscar curso por título..."
+                class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all"
                 @keydown.enter.prevent="emit('filter')"
             />
         </div>
-        <select v-model="status" class="rounded-xl bg-surface-container-highest px-3 py-2 text-xs font-bold text-primary border-0 outline-none sm:w-36">
-            <option value="">Estado</option>
-            <option value="BORRADOR">Borrador</option>
-            <option value="PUBLICADO">Publicado</option>
-            <option value="OCULTO">Oculto</option>
-        </select>
-        <select v-model="type" class="rounded-xl bg-surface-container-highest px-3 py-2 text-xs font-bold text-primary border-0 outline-none sm:w-40">
-            <option value="">Tipo</option>
-            <option value="grabado">Grabado</option>
-            <option value="en vivo">En vivo</option>
-            <option value="evento">Masterclass</option>
-        </select>
-        <button type="button" class="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white shrink-0" @click="emit('filter')">
-            Filtrar
-        </button>
+        
+        <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            <div class="flex items-center gap-2 bg-slate-50 px-2 rounded-2xl border border-slate-200">
+                <span class="text-[10px] font-bold uppercase text-slate-400 pl-2">Estado</span>
+                <select v-model="status" class="h-10 bg-transparent text-sm font-semibold text-slate-700 pr-8 outline-none cursor-pointer">
+                    <option value="">Cualquier Estado</option>
+                    <option value="BORRADOR">Borrador</option>
+                    <option value="PUBLICADO">Publicado</option>
+                    <option value="OCULTO">Oculto</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-2 bg-slate-50 px-2 rounded-2xl border border-slate-200">
+                <span class="text-[10px] font-bold uppercase text-slate-400 pl-2">Tipo</span>
+                <select v-model="type" class="h-10 bg-transparent text-sm font-semibold text-slate-700 pr-8 outline-none cursor-pointer">
+                    <option value="">Cualquier Tipo</option>
+                    <option value="grabado">Grabado</option>
+                    <option value="en vivo">En vivo</option>
+                    <option value="evento">Masterclass</option>
+                </select>
+            </div>
+
+            <div class="flex items-center gap-2 bg-slate-50 px-2 rounded-2xl border border-slate-200">
+                <select v-model="perPage" class="h-10 bg-transparent text-sm font-semibold text-slate-700 px-2 outline-none cursor-pointer">
+                    <option value="10">10 por hoja</option>
+                    <option value="20">20 por hoja</option>
+                    <option value="50">50 por hoja</option>
+                </select>
+            </div>
+        </div>
     </div>
 </template>
+
+<style scoped>
+select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1rem;
+}
+</style>

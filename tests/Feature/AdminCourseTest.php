@@ -86,3 +86,18 @@ test('admin can create lesson material with upload file', function () {
         'kind' => 'pdf',
     ]);
 });
+
+test('admins can paginate courses list using per_page parameter', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    // Create 15 courses
+    Course::factory()->count(15)->create();
+
+    $response = $this->actingAs($admin)->get(route('admin.courses.index', ['per_page' => 5]));
+    $response->assertSuccessful();
+
+    // Verify pagination size in Inertia props
+    $inertiaCourses = $response->original->getData()['page']['props']['courses'];
+    expect($inertiaCourses['data'])->toHaveCount(5);
+    expect($inertiaCourses['total'])->toBe(15);
+});
