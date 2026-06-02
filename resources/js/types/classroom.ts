@@ -25,6 +25,25 @@ export interface Module {
     lessons: Lesson[];
 }
 
+export interface CertificateTemplate {
+    id?: number;
+    student_name_X?: number;
+    student_name_Y?: number;
+    student_name_font_size?: number;
+    course_title_X?: number;
+    course_title_Y?: number;
+    course_title_font_size?: number;
+    issue_date_X?: number;
+    issue_date_Y?: number;
+    issue_date_font_size?: number;
+    certificate_code_X?: number;
+    certificate_code_Y?: number;
+    certificate_code_font_size?: number;
+    font_color?: string;
+    font_family?: string;
+    template_image?: string;
+}
+
 import type { Quiz } from './exam';
 
 export interface Course {
@@ -36,6 +55,10 @@ export interface Course {
     lessons: Lesson[];
     quizzes: Quiz[];
     whatsapp_link?: string;
+    instructor_name?: string;
+    instructor_title?: string;
+    instructor_image?: string;
+    certificate_template?: CertificateTemplate;
 }
 
 export interface QuizStats {
@@ -44,4 +67,6 @@ export interface QuizStats {
     attempts_left: number;
     max_attempts: number;
     certificate_url: string | null;
+    certificate_code?: string;
+    certificate_date?: string;
 }

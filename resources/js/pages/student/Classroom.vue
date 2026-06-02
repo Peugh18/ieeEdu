@@ -43,12 +43,16 @@ const breadcrumbs = computed(() => [
 const activeSidebarTab = ref<'curriculum' | 'chat' | 'comments'>('curriculum');
 const mobileSidebarOpen = ref(false);
 const viewingExam = ref(false);
-const activeTab = ref<'content' | 'resources'>('content');
+const activeTab = ref<'description' | 'resources' | 'notes' | 'questions'>('description');
 const showLocalError = ref(false);
 const localErrorMessage = ref('');
 
 function handleOpenExam() {
-    if (!progress.localAllCompleted.value) { alert('Debes completar todas las lecciones del curso para poder rendir la evaluación final.'); return; }
+    if (!progress.localAllCompleted.value) { 
+        localErrorMessage.value = 'Debes completar todas las lecciones del curso para poder rendir la evaluación final.'; 
+        showLocalError.value = true; 
+        return; 
+    }
     viewingExam.value = true; mobileSidebarOpen.value = false;
 }
 
@@ -63,7 +67,10 @@ function handleMaterialClick(mat: Material) {
     } catch (e) { console.error('[iieEdu] Error downloading material:', e); }
 }
 
-function toggleMobileSidebar(tab: 'curriculum' | 'chat') { activeSidebarTab.value = tab; mobileSidebarOpen.value = true; }
+function toggleMobileSidebar(tab: 'curriculum' | 'chat') { 
+    activeSidebarTab.value = tab; 
+    mobileSidebarOpen.value = true; 
+}
 
 watch(() => page.props.flash?.error, (newVal) => { if (newVal) { localErrorMessage.value = newVal; showLocalError.value = true; } }, { immediate: true });
 </script>
@@ -74,9 +81,18 @@ watch(() => page.props.flash?.error, (newVal) => { if (newVal) { localErrorMessa
         <div class="h-[calc(100svh-4rem)] bg-background text-on-background selection:bg-primary/20 selection:text-primary flex flex-col overflow-hidden">
             <ClassroomHeader :course="course" :current-lesson="currentLesson" :current-lesson-index="currentLessonIndex" :all-lessons-count="allLessonsCount" :prev-lesson-id="prevLessonId" :next-lesson-id="nextLessonId" :comments-count="comments.length" :active-sidebar-tab="activeSidebarTab" @update:active-sidebar-tab="activeSidebarTab = $event" @toggle-mobile-sidebar="toggleMobileSidebar" />
             <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-background relative">
-                <div class="flex-1 overflow-y-auto custom-scrollbar bg-white relative border-r border-outline-variant/10 shadow-sm">
+                <div class="flex-1 overflow-y-auto custom-scrollbar bg-white relative border-r border-outline-variant/10 shadow-sm p-4 md:p-8">
                     <ClassroomExamSection v-if="viewingExam" :course="course" :quiz-stats="quizStats" :local-all-completed="progress.localAllCompleted.value" :local-completed-length="progress.localCompleted.value.length" :all-lessons-count="allLessonsCount" />
-                    <ClassroomContent v-else v-model:active-tab="activeTab" :current-lesson="currentLesson" :lesson-state="live.getLessonState(currentLesson)" :video-id="player.getYoutubeId(currentLesson?.video_url)" :countdown="live.countdown.value" @complete-lesson="progress.completeLesson(currentLesson?.id ?? 0)" @enter-forum="toggleMobileSidebar('chat')">
+                    <ClassroomContent 
+                        v-else 
+                        :course="course"
+                        v-model:active-tab="activeTab" 
+                        :current-lesson="currentLesson" 
+                        :lesson-state="live.getLessonState(currentLesson)" 
+                        :video-id="player.getYoutubeId(currentLesson?.video_url)" 
+                        :countdown="live.countdown.value" 
+                        @complete-lesson="progress.completeLesson(currentLesson?.id ?? 0)" 
+                    >
                         <template #resources><ClassroomResources :materials="currentLesson?.materials" @download="handleMaterialClick" /></template>
                     </ClassroomContent>
                     <div class="h-20 lg:h-32"></div>
