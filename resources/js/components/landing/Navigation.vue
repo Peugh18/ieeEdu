@@ -6,11 +6,22 @@ import { Link } from '@inertiajs/vue3';
 import { useCart } from '@/composables/useCart';
 import CartDrawer from '@/components/CartDrawer.vue';
 import BrandLogo from '@/components/BrandLogo.vue';
+import UserMenuContent from '@/components/UserMenuContent.vue';
+import { DropdownMenu, DropdownMenuContent } from '@/components/ui/dropdown-menu';
+import { DropdownMenuTrigger } from 'radix-vue';
+import { ChevronsUpDown } from 'lucide-vue-next';
 
 const { itemCount, toggleCart } = useCart();
 
 const page = usePage();
 const isAuthenticated = computed(() => (page.props as any).auth?.user);
+const user = computed(() => (page.props as any).auth?.user);
+const isAdmin = computed(() => user.value?.role === 'admin');
+const avatarUrl = computed(() =>
+    user.value?.avatar
+        ? '/storage/' + user.value.avatar
+        : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.value?.name ?? '')}&background=57572A&color=e7e6ab&bold=true&size=128`
+);
 const mobileMenuOpen = ref(false);
 const scrolled = ref(false);
 
@@ -90,19 +101,67 @@ const menuItems = [
 
                 <!-- Auth Buttons Desktop -->
                 <div class="hidden sm:flex items-center gap-3">
-                    <Link 
-                        v-if="!isAuthenticated" 
-                        :href="route('login')"
-                        class="border-2 border-primary/40 text-primary px-5 py-2 rounded-lg text-xs font-bold tracking-widest uppercase hover:border-primary hover:bg-primary/5 transition-all duration-300"
-                    >
-                        Ingresar
-                    </Link>
-                    <Link 
-                        :href="isAuthenticated ? route('dashboard') : route('register')"
-                        class="bg-primary text-on-primary px-5 py-2 rounded-lg text-sm font-bold shadow-lg hover:shadow-xl hover:opacity-90 transition-all duration-300 transform hover:-translate-y-0.5"
-                    >
-                        {{ isAuthenticated ? 'Dashboard' : 'Registrarse' }}
-                    </Link>
+                    <template v-if="!isAuthenticated">
+                        <Link 
+                            :href="route('login')"
+                            class="border-2 border-primary/40 text-primary px-5 py-2 rounded-lg text-xs font-bold tracking-widest uppercase hover:border-primary hover:bg-primary/5 transition-all duration-300"
+                        >
+                            Ingresar
+                        </Link>
+                        <Link 
+                            :href="route('register')"
+                            class="bg-primary text-on-primary px-5 py-2 rounded-lg text-sm font-bold shadow-lg hover:shadow-xl hover:opacity-90 transition-all duration-300 transform hover:-translate-y-0.5"
+                        >
+                            Registrarse
+                        </Link>
+                    </template>
+
+                    <!-- User Menu Dropdown (Authed User Widget like Sidebar Card) -->
+                    <template v-else>
+                        <Link 
+                            :href="route('dashboard')"
+                            class="bg-primary text-on-primary px-5 py-2 rounded-lg text-sm font-bold shadow-lg hover:shadow-xl hover:opacity-90 transition-all duration-300 transform hover:-translate-y-0.5"
+                        >
+                            Dashboard
+                        </Link>
+
+                        <div class="relative">
+                            <DropdownMenu>
+                                <DropdownMenuTrigger as-child>
+                                    <button
+                                        type="button"
+                                        class="group px-2 py-1.5 rounded-xl flex items-center gap-2 !bg-transparent hover:!bg-on-surface-variant/5 dark:hover:!bg-white/5 transition-all duration-300 text-left outline-none !border-0 !shadow-none"
+                                        aria-label="Abrir menú de cuenta"
+                                    >
+                                        <div class="relative flex-shrink-0">
+                                            <img :src="avatarUrl" :alt="user.name" class="w-8 h-8 rounded-full object-cover border border-outline-variant/10 dark:border-slate-700/30 shadow-sm transition-transform duration-300 group-hover:scale-105" />
+                                            <div class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-[1.5px] border-surface"></div>
+                                        </div>
+
+                                        <div class="flex flex-col justify-center overflow-hidden max-w-[120px] sm:max-w-[150px]">
+                                            <span class="text-xs font-bold tracking-wide text-on-surface truncate leading-tight">
+                                                {{ user.name }}
+                                            </span>
+                                            <span class="text-[10px] font-medium text-on-surface-variant/65 group-hover:text-primary dark:text-slate-400 dark:group-hover:text-primary transition-colors truncate">
+                                                {{ isAdmin ? 'Admin · Mi cuenta' : 'Estudiante' }}
+                                            </span>
+                                        </div>
+
+                                        <ChevronsUpDown class="w-3.5 h-3.5 shrink-0 text-on-surface-variant/40 group-hover:text-on-surface-variant transition-colors" />
+                                    </button>
+                                </DropdownMenuTrigger>
+
+                                <DropdownMenuContent
+                                    class="w-56 rounded-xl border border-outline-variant/15 bg-surface-container-lowest shadow-xl p-1 z-[100]"
+                                    side="bottom"
+                                    align="end"
+                                    :side-offset="6"
+                                >
+                                    <UserMenuContent :user="user" :is-admin="isAdmin" />
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    </template>
                 </div>
 
                 <!-- Mobile Menu Button -->

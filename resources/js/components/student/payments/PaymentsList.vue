@@ -22,7 +22,7 @@ function formatMoney(n: number) {
 }
 
 function productLabel(p: StudentPayment) {
-    if (p.subscription_type) return null;
+    if (p.subscription_type) return 'Membresía ' + p.subscription_type.charAt(0).toUpperCase() + p.subscription_type.slice(1);
     if (p.book) return p.book.title;
     if (p.course) return p.course.title;
     return 'Pago Directo';

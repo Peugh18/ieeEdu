@@ -20,13 +20,14 @@ class CourseController extends Controller
 
     public function index(Request $request)
     {
-        $courses = $this->service->list(10, $request->only('status', 'type', 'search'));
+        $perPage = (int) $request->get('per_page', 10);
+        $courses = $this->service->list($perPage, $request->only('status', 'type', 'search'));
         $categories = Category::orderBy('name')->get();
 
         return Inertia::render('admin/Courses', [
             'courses' => $courses,
             'categories' => ['data' => $categories],
-            'filters' => $request->only('status', 'type', 'search'),
+            'filters' => $request->only('status', 'type', 'search', 'per_page'),
             'selected_course' => $request->query('selected_course'),
         ]);
     }

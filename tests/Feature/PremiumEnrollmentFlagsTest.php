@@ -7,7 +7,7 @@ use App\Models\User;
 
 test('premium classroom visit creates subscription_granted enrollment not permanent', function () {
     $user = User::factory()->create(['role' => 'usuario']);
-    $course = Course::factory()->create(['status' => 'PUBLICADO', 'price' => 200]);
+    $course = Course::factory()->create(['status' => 'PUBLICADO', 'price' => 200, 'type' => 'grabado']);
 
     Subscription::create([
         'user_id' => $user->id,
@@ -30,7 +30,7 @@ test('premium classroom visit creates subscription_granted enrollment not perman
 
 test('after premium expires subscription_granted enrollment no longer grants access', function () {
     $user = User::factory()->create(['role' => 'usuario']);
-    $course = Course::factory()->create(['status' => 'PUBLICADO', 'price' => 200]);
+    $course = Course::factory()->create(['status' => 'PUBLICADO', 'price' => 200, 'type' => 'grabado']);
 
     Subscription::create([
         'user_id' => $user->id,

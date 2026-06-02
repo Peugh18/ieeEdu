@@ -32,7 +32,7 @@ defineProps<{
             <div
                 v-for="(book, idx) in topBooks"
                 :key="book.id"
-                class="flex items-center gap-4 p-4 rounded-2xl border border-gray-50 bg-gray-50/40 hover:bg-white hover:shadow-md transition-all"
+                class="flex items-center gap-4 p-4 rounded-2xl border border-gray-50 dark:border-slate-800/40 bg-gray-50/40 dark:bg-transparent hover:bg-white dark:hover:bg-white/10 hover:shadow-md dark:hover:shadow-none transition-all"
             >
                 <div
                     class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs shrink-0"

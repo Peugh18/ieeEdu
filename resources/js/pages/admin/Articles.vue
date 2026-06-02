@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminSearchBar from '@/components/admin/AdminSearchBar.vue';
@@ -57,7 +57,7 @@ function destroy(id: number) {
 }
 
 const searchQuery = ref('');
-const viewMode = ref<'grid' | 'list'>('grid');
+const viewMode = ref<'grid' | 'list'>('list');
 const filteredArticles = ref<Article[]>(props.articles.data);
 
 watch([searchQuery], () => {
@@ -76,14 +76,26 @@ watch(() => props.articles.data, (newData) => {
 </script>
 
 <template>
-    <Head title="Admin - Artículos" />
+    <Head title="Gestión de Artículos - iieEdu Admin" />
     <AppLayout>
-        <AdminPageHeader title="Artículos" subtitle="Difusión académica y prensa institucional." action-label="Nuevo artículo" action-order="first" compact @action="openCreate" />
-        <AdminSearchBar v-model="searchQuery" v-model:view-mode="viewMode" placeholder="Filtrar colección de artículos... (Título, Medio, Editorial)" :result-count="filteredArticles.length" result-label="Resultados" sync-label="Archive" sync-accent="Sync" />
+        <div class="max-w-[1400px] mx-auto px-4 py-8 space-y-8">
+            <!-- PAGE HEADER -->
+            <AdminPageHeader
+                title="Gestión de "
+                titleAccent="Artículos"
+                subtitle="Difusión académica y prensa institucional."
+                actionLabel="Nuevo Artículo"
+                @action="openCreate"
+            />
 
-        <ArticlesTable v-if="filteredArticles.length > 0" :articles="filteredArticles" :view-mode="viewMode" @edit="openEdit" @destroy="destroy" />
-        <AdminEmptyState v-else title="Sin registros en el archivo" :query="searchQuery" />
-        <AdminPagination v-if="filteredArticles.length > 0" :links="articles.links" />
+            <!-- SEARCH AND FILTERS -->
+            <AdminSearchBar v-model="searchQuery" v-model:view-mode="viewMode" placeholder="Filtrar colección de artículos... (Título, Medio, Editorial)" :result-count="filteredArticles.length" result-label="Resultados" sync-label="Archive" sync-accent="Sync" />
+
+            <!-- DATA VIEW -->
+            <ArticlesTable v-if="filteredArticles.length > 0" :articles="filteredArticles" :view-mode="viewMode" @edit="openEdit" @destroy="destroy" />
+            <AdminEmptyState v-else title="Sin registros en el archivo" :query="searchQuery" />
+            <AdminPagination v-if="filteredArticles.length > 0" :links="articles.links" />
+        </div>
 
         <AdminModal :show="showModal" :title="editingArticle ? 'Editar' : 'Nuevo'" title-accent="Artículo" subtitle="Difusión y Prensa Institucional" :processing="form.processing" :submit-label="editingArticle ? 'Confirmar Cambios' : 'Lanzar al Archivo'" @close="showModal = false" @submit="submit">
             <ArticleForm v-model:form="form" v-model:imagePreview="imagePreview" v-model:sourceType="sourceType" />

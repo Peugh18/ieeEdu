@@ -43,7 +43,7 @@ class ClassroomController extends Controller
         $this->ensureEnrollmentForTracking($user, $course);
 
         // Cargar módulos y lecciones
-        $course->load(['modules.lessons.materials', 'quizzes']);
+        $course->load(['modules.lessons.materials', 'quizzes', 'certificateTemplate']);
 
         // Si no se especifica lección, tomar la primera
         if (! $lesson) {
@@ -132,6 +132,8 @@ class ClassroomController extends Controller
                 'attempts_left' => $attemptsLeft,
                 'max_attempts' => $quiz->max_attempts,
                 'certificate_url' => $certificate ? route('student.certificates.download', ['certificate' => $certificate->id]).'?action=stream' : null,
+                'certificate_code' => $certificate?->code,
+                'certificate_date' => $certificate?->issue_date?->format('d/m/Y'),
             ];
         }
 

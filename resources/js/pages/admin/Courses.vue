@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, useForm, Link, router } from '@inertiajs/vue3';
-import { computed, ref, onMounted, watch } from 'vue';
-import { Plus } from 'lucide-vue-next';
+import { Head, useForm, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import CreateCourseModal from '@/components/admin/courses/CreateCourseModal.vue';
 import CoursesFilters from '@/components/admin/courses/list/CoursesFilters.vue';
 import CoursesTable, { type CourseItem } from '@/components/admin/courses/list/CoursesTable.vue';
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
-import type { PaginationLink } from '@/types/pagination';
+import type { PaginationLink, PaginatedResponse } from '@/types/pagination';
+import { useDebouncedInertiaFilters } from '@/composables/useDebouncedInertiaFilters';
+import { usePaginationLinks } from '@/composables/usePaginationLinks';
 
 const props = defineProps<{
-    courses: { data: CourseItem[]; links: PaginationLink[] };
+    courses: PaginatedResponse<CourseItem>;
     categories: { data: { id: number; name: string }[] };
-    filters: { status?: string; type?: string; search?: string };
+    filters: { status?: string; type?: string; search?: string; per_page?: string };
     selected_course?: number;
 }>();
 
@@ -24,33 +25,24 @@ const filtersForm = useForm({
     search: props.filters.search || '',
     status: props.filters.status || '',
     type: props.filters.type || '',
+    per_page: props.filters.per_page || '10',
 });
 
 function applyFilters() {
-    filtersForm.get(route('admin.courses.index'), { preserveScroll: true, replace: true, preserveState: false });
+    router.get(route('admin.courses.index'), {
+        search: filtersForm.search || undefined,
+        status: filtersForm.status || undefined,
+        type: filtersForm.type || undefined,
+        per_page: filtersForm.per_page !== '10' ? filtersForm.per_page : undefined,
+    }, { preserveState: false, replace: true });
 }
 
-let searchTimeout: ReturnType<typeof setTimeout>;
-const skipFilterWatch = ref(true);
-watch(
-    () => [filtersForm.search, filtersForm.status, filtersForm.type],
-    () => {
-        if (skipFilterWatch.value) return;
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => applyFilters(), 400);
-    },
-);
-
-onMounted(() => {
-    skipFilterWatch.value = false;
-});
+useDebouncedInertiaFilters(filtersForm, applyFilters);
 
 function openCreateModal(course: CourseItem | null = null) {
     courseToDuplicate.value = course;
     showCreateModal.value = true;
 }
-
-const courseLinks = computed(() => props.courses.links.filter((link: PaginationLink) => link.url));
 
 function destroy(course: CourseItem) {
     if (!confirm('Eliminar curso?')) return;
@@ -84,29 +76,41 @@ function duplicateCourse(course: CourseItem) {
         preserveState: false
     });
 }
+
+const paginationLinks = usePaginationLinks(props.courses.links);
 </script>
 
 <template>
-    <Head title="Admin Cursos" />
+    <Head title="Gestión de Cursos - iieEdu Admin" />
     <AppLayout>
-        
-        <div class="mb-10 flex flex-col gap-8">
+        <div class="max-w-[1400px] mx-auto px-4 py-8 space-y-8">
             <!-- PAGE HEADER -->
             <AdminPageHeader
-                title="Catálogo de "
-                titleAccent="cursos"
+                title="Gestión de "
+                titleAccent="Cursos"
                 subtitle="Publica, edita y organiza el contenido académico."
-                actionLabel="Crear nuevo curso"
-                compact
+                actionLabel="Nuevo Curso"
                 @action="openCreateModal(null)"
             />
 
-            <!-- Filtros compactos -->
+            <!-- Smart Filtering -->
             <CoursesFilters
                 v-model:search="filtersForm.search"
                 v-model:status="filtersForm.status"
                 v-model:type="filtersForm.type"
+                v-model:perPage="filtersForm.per_page"
                 @filter="applyFilters"
+            />
+
+            <!-- LIST TABLE SECTION -->
+            <CoursesTable
+                :courses="courses.data"
+                :total="courses.total"
+                :paginationLinks="paginationLinks"
+                @duplicate="duplicateCourse"
+                @publish="publish"
+                @hide="hide"
+                @destroy="destroy"
             />
         </div>
 
@@ -117,29 +121,5 @@ function duplicateCourse(course: CourseItem) {
             @close="showCreateModal = false; courseToDuplicate = null"
             @categoryCreated="(c) => categoriesList.push(c)"
         />
-
-        <!-- LIST TABLE SECTION -->
-        <CoursesTable
-            :courses="courses.data"
-            @duplicate="duplicateCourse"
-            @publish="publish"
-            @hide="hide"
-            @destroy="destroy"
-        />
-
-        <!-- PAGINACIÓN MODERNA -->
-        <div v-if="courseLinks.length > 1" class="mt-10 flex justify-center pb-12">
-            <div class="inline-flex items-center bg-white rounded-full border border-outline-variant/10 shadow-sm p-1.5 gap-1">
-                <template v-for="(link, i) in courseLinks" :key="i">
-                    <Link 
-                        :href="link.url || '#'" 
-                        class="px-5 py-2.5 text-[13px] font-bold rounded-full transition-all flex items-center justify-center min-w-[40px]"
-                        :class="link.active 
-                                ? 'bg-primary text-white shadow-md cursor-default' 
-                                : 'text-on-surface hover:bg-surface-container-low cursor-pointer'"
-                        ><span v-html="link.label"></span></Link>
-                </template>
-            </div>
-        </div>
     </AppLayout>
 </template>
