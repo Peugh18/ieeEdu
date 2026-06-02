@@ -165,28 +165,28 @@ const handleAddToCart = (e: Event) => {
             </div>
 
             <!-- Pricing + Actions -->
-            <div class="flex items-center justify-between pt-4 border-t border-outline-variant/10 mt-4">
-                <div>
-                    <div v-if="hasDiscount" class="flex items-center gap-2 mb-0.5">
-                        <span class="text-xs text-on-surface-variant/40 line-through">S/ {{ course.price }}</span>
-                        <span class="px-1.5 py-0.5 rounded bg-red-500/10 text-[9px] text-red-500 font-bold uppercase">-S/ {{ savings }}</span>
-                    </div>
+            <div class="pt-4 border-t border-outline-variant/10 mt-4 space-y-4">
+                <div class="flex items-baseline justify-between flex-wrap gap-2">
                     <span class="text-3xl font-serif font-bold text-on-surface tracking-tight">
                         <span class="text-base text-on-surface-variant/50 mr-0.5">S/</span>{{ hasDiscount ? course.sale_price : course.price }}
                     </span>
+                    <div v-if="hasDiscount" class="flex items-center gap-2">
+                        <span class="text-xs text-on-surface-variant/40 line-through">S/ {{ course.price }}</span>
+                        <span class="px-1.5 py-0.5 rounded bg-red-500/10 text-[9px] text-red-500 font-bold uppercase">-S/ {{ savings }}</span>
+                    </div>
                 </div>
                 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 w-full">
                     <button 
                         @click="handleAddToCart"
-                        class="w-10 h-10 rounded-xl bg-surface border border-outline-variant/15 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all"
+                        class="w-11 h-11 rounded-xl bg-surface border border-outline-variant/15 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary/30 hover:bg-primary/5 transition-all flex-shrink-0"
                         title="Agregar al carrito"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
                     </button>
                     <Link 
                         :href="courseRoute" 
-                        class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold hover:shadow-md hover:-translate-y-0.5 transition-all"
+                        class="flex-1 inline-flex items-center justify-center gap-1.5 px-5 py-2.5 h-11 rounded-xl bg-primary text-on-primary text-xs font-bold hover:shadow-md hover:-translate-y-0.5 transition-all text-center"
                     >
                         Ver curso
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
