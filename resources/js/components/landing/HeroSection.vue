@@ -109,7 +109,7 @@ onUnmounted(() => { if (timer) clearInterval(timer); });
         <div class="hero-scrim absolute inset-0 z-[1]"></div>
 
         <!-- ── Main layout ── -->
-        <div class="relative z-10 flex items-end md:items-center min-h-[92vh] md:min-h-screen">
+        <div class="relative z-10 flex items-center min-h-[92vh] md:min-h-screen">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full pt-24 pb-28 md:pt-36 md:pb-36">
 
                 <!-- Glassmorphism content card -->

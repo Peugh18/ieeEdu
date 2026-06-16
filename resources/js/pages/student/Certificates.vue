@@ -150,55 +150,97 @@ const filteredCertificates = computed(() => {
                             </article>
                         </div>
 
-                        <!-- List View -->
-                        <div v-else class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-outline-variant/20 dark:border-slate-800 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <div class="overflow-x-auto custom-scrollbar">
-                                <table class="w-full text-left border-collapse min-w-[700px]">
-                                    <thead class="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-100 dark:border-slate-800">
-                                        <tr>
-                                            <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Certificación</th>
-                                            <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-center">Código</th>
-                                            <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-center">Fecha de Emisión</th>
-                                            <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-right">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50">
-                                        <tr v-for="cert in filteredCertificates" :key="cert.id" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-all duration-300">
-                                            <td class="px-8 py-5 relative">
-                                                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-12 bg-primary transition-all duration-500 rounded-r-full"></div>
-                                                <div class="flex items-center gap-4">
-                                                    <div class="w-12 h-8 bg-slate-50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative">
-                                                        <img :src="cert.image" class="w-full h-full object-cover">
+                        <!-- List View (Responsive) -->
+                        <div v-else class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <!-- Mobile List (Stacked Cards) -->
+                            <div class="md:hidden space-y-4">
+                                <div 
+                                    v-for="cert in filteredCertificates" 
+                                    :key="cert.id"
+                                    class="bg-white dark:bg-slate-900 rounded-2xl border border-outline-variant/15 dark:border-slate-800/80 p-5 shadow-sm space-y-4"
+                                >
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-16 h-10 bg-slate-50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-lg overflow-hidden flex-shrink-0 relative">
+                                            <img :src="cert.image" :alt="cert.course_title" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex flex-col min-w-0">
+                                            <span class="text-[9px] font-bold uppercase tracking-widest text-[#D4AF37] mb-0.5">Programa de Postgrado</span>
+                                            <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight line-clamp-1" :title="cert.course_title">{{ cert.course_title }}</h4>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60 text-xs text-on-surface-variant/70 font-medium">
+                                        <div class="flex flex-col">
+                                            <span class="text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Código</span>
+                                            <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ cert.code }}</span>
+                                        </div>
+                                        <div class="flex flex-col text-right">
+                                            <span class="text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Emisión</span>
+                                            <span class="font-semibold text-slate-800 dark:text-slate-200">{{ cert.issue_date }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-2 pt-2">
+                                        <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" v-if="cert.download_url" target="_blank" class="flex-1 py-3 rounded-xl bg-background dark:bg-slate-800 border border-outline-variant/30 dark:border-slate-700 text-on-surface-variant text-[10px] font-black uppercase tracking-[0.15em] hover:bg-white hover:text-primary transition-all flex items-center justify-center gap-1.5 active:scale-95">
+                                            <Printer class="w-4 h-4" /> Ver
+                                        </a>
+                                        <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" v-if="cert.download_url" download class="flex-1 py-3 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-[0.15em] hover:opacity-90 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-primary/15 active:scale-95">
+                                            <Download class="w-4 h-4" /> Descargar
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Desktop List (Table Layout) -->
+                            <div class="hidden md:block bg-white dark:bg-slate-900 rounded-[2.5rem] border border-outline-variant/20 dark:border-slate-800 shadow-sm overflow-hidden">
+                                <div class="overflow-x-auto custom-scrollbar">
+                                    <table class="w-full text-left border-collapse min-w-[700px]">
+                                        <thead class="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-100 dark:border-slate-800">
+                                            <tr>
+                                                <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Certificación</th>
+                                                <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-center">Código</th>
+                                                <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-center">Fecha de Emisión</th>
+                                                <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-right">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50">
+                                            <tr v-for="cert in filteredCertificates" :key="cert.id" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-all duration-300">
+                                                <td class="px-8 py-5 relative">
+                                                    <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-12 bg-primary transition-all duration-500 rounded-r-full"></div>
+                                                    <div class="flex items-center gap-4">
+                                                        <div class="w-12 h-8 bg-slate-50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative">
+                                                            <img :src="cert.image" class="w-full h-full object-cover">
+                                                        </div>
+                                                        <div class="flex flex-col min-w-0">
+                                                            <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight group-hover:text-primary transition-colors line-clamp-1" :title="cert.course_title">{{ cert.course_title }}</h4>
+                                                            <span class="text-[9px] font-bold uppercase tracking-widest text-[#9ca3af] dark:text-slate-500 mt-1">Programa de Postgrado</span>
+                                                        </div>
                                                     </div>
-                                                    <div class="flex flex-col min-w-0">
-                                                        <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight group-hover:text-primary transition-colors line-clamp-1" :title="cert.course_title">{{ cert.course_title }}</h4>
-                                                        <span class="text-[9px] font-bold uppercase tracking-widest text-[#9ca3af] dark:text-slate-500 mt-1">Programa de Postgrado</span>
+                                                </td>
+                                                <td class="px-6 py-5 text-center">
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700 text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400">
+                                                        {{ cert.code }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-5 text-center">
+                                                    <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                                        {{ cert.issue_date }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-8 py-5">
+                                                    <div class="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                        <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" target="_blank" v-if="cert.download_url" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:border-primary hover:text-primary hover:bg-white dark:hover:bg-slate-900 transition-all duration-300" title="Visualizar">
+                                                            <Printer class="h-4 w-4" />
+                                                        </a>
+                                                        <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" download v-if="cert.download_url" class="w-10 h-10 rounded-xl bg-primary border border-transparent flex items-center justify-center text-white hover:opacity-90 transition-all duration-300" title="Descargar">
+                                                            <Download class="h-4 w-4" />
+                                                        </a>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-5 text-center">
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700 text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400">
-                                                    {{ cert.code }}
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-5 text-center">
-                                                <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                                                    {{ cert.issue_date }}
-                                                </span>
-                                            </td>
-                                            <td class="px-8 py-5">
-                                                <div class="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                                                    <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" target="_blank" v-if="cert.download_url" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:border-primary hover:text-primary hover:bg-white dark:hover:bg-slate-900 transition-all duration-300" title="Visualizar">
-                                                        <Printer class="h-4 w-4" />
-                                                    </a>
-                                                    <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" download v-if="cert.download_url" class="w-10 h-10 rounded-xl bg-primary border border-transparent flex items-center justify-center text-white hover:opacity-90 transition-all duration-300" title="Descargar">
-                                                        <Download class="h-4 w-4" />
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </template>

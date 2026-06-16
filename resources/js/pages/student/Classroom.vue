@@ -78,10 +78,10 @@ watch(() => page.props.flash?.error, (newVal) => { if (newVal) { localErrorMessa
 <template>
     <Head :title="`${currentLesson?.title || 'Aula Virtual'} - ${course.title}`" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="h-[calc(100svh-4rem)] bg-background text-on-background selection:bg-primary/20 selection:text-primary flex flex-col overflow-hidden">
+        <div class="h-[calc(100svh-4rem)] w-full max-w-full bg-background text-on-background selection:bg-primary/20 selection:text-primary flex flex-col overflow-hidden">
             <ClassroomHeader :course="course" :current-lesson="currentLesson" :current-lesson-index="currentLessonIndex" :all-lessons-count="allLessonsCount" :prev-lesson-id="prevLessonId" :next-lesson-id="nextLessonId" :comments-count="comments.length" :active-sidebar-tab="activeSidebarTab" @update:active-sidebar-tab="activeSidebarTab = $event" @toggle-mobile-sidebar="toggleMobileSidebar" />
-            <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-background relative">
-                <div class="flex-1 overflow-y-auto custom-scrollbar bg-white relative border-r border-outline-variant/10 shadow-sm p-4 md:p-8">
+            <main class="flex-1 flex flex-col lg:flex-row overflow-hidden bg-background relative w-full max-w-full">
+                <div class="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar bg-white relative border-r border-outline-variant/10 shadow-sm p-4 md:p-8">
                     <ClassroomExamSection v-if="viewingExam" :course="course" :quiz-stats="quizStats" :local-all-completed="progress.localAllCompleted.value" :local-completed-length="progress.localCompleted.value.length" :all-lessons-count="allLessonsCount" />
                     <ClassroomContent 
                         v-else 
@@ -97,7 +97,7 @@ watch(() => page.props.flash?.error, (newVal) => { if (newVal) { localErrorMessa
                     </ClassroomContent>
                     <div class="h-20 lg:h-32"></div>
                     <div class="h-24 lg:hidden"></div>
-                    <button @click="toggleMobileSidebar('chat')" class="lg:hidden fixed bottom-20 right-4 z-30 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl active:scale-95 transition-all">
+                    <button @click="toggleMobileSidebar('chat')" class="lg:hidden fixed bottom-20 right-6 z-30 w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-2xl active:scale-95 transition-all">
                         <MessageSquare class="w-6 h-6" />
                         <span v-if="comments.length > 0" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center">{{ comments.length }}</span>
                     </button>

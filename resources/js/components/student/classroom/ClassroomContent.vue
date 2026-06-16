@@ -210,92 +210,95 @@ function handleShare() {
         </div>
     </div>
 
-    <!-- Premium Tabs Navigation -->
-    <div class="border-b border-outline-variant/10 mb-8 flex items-center gap-8 overflow-x-auto scrollbar-none">
-        <button 
-            v-for="tab in ['description', 'resources', 'notes', 'questions']" 
-            :key="tab"
-            @click="emit('update:activeTab', tab as any)"
-            class="pb-4 text-[11px] md:text-[12px] font-black uppercase tracking-wider transition-all relative shrink-0 group"
-            :class="activeTab === tab ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'"
-        >
-            <template v-if="tab === 'description'">Descripción</template>
-            <template v-else-if="tab === 'resources'">Recursos</template>
-            <template v-else-if="tab === 'notes'">Mis Notas</template>
-            <template v-else-if="tab === 'questions'">Preguntas Frecuentes</template>
+    <!-- Tabs Container -->
+    <div class="flex flex-col">
+        <!-- Premium Tabs Navigation -->
+        <div class="flex items-center gap-8 overflow-x-auto scrollbar-none order-1 border-b border-outline-variant/10 pb-4 mb-8 bg-transparent w-full max-w-full">
+            <button 
+                v-for="tab in ['description', 'resources', 'notes', 'questions']" 
+                :key="tab"
+                @click="emit('update:activeTab', tab as any)"
+                class="pb-4 text-[11px] md:text-[12px] font-black uppercase tracking-wider transition-all relative shrink-0 group"
+                :class="activeTab === tab ? 'text-primary' : 'text-on-surface-variant/40 hover:text-on-surface-variant'"
+            >
+                <template v-if="tab === 'description'">Descripción</template>
+                <template v-else-if="tab === 'resources'">Recursos</template>
+                <template v-else-if="tab === 'notes'">Mis Notas</template>
+                <template v-else-if="tab === 'questions'">Preguntas Frecuentes</template>
 
-            <span class="absolute bottom-0 left-0 w-full h-[3px] scale-x-0 group-hover:scale-x-50 transition-transform bg-primary/10"></span>
-            <span v-if="activeTab === tab" class="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-full animate-in zoom-in duration-300"></span>
-        </button>
-    </div>
-
-    <!-- Tabs Content -->
-    <div class="min-h-[250px]">
-        <!-- 1. Description Tab -->
-        <div v-show="activeTab === 'description'" class="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
-            <div class="prose max-w-none text-on-surface-variant/90 leading-relaxed font-sans text-sm md:text-base">
-                <p v-if="currentLesson?.description" class="whitespace-pre-line leading-relaxed">{{ currentLesson.description }}</p>
-                <p v-else class="text-on-surface-variant/40 italic text-base">Descripción en revisión académica.</p>
-            </div>
+                <span class="absolute bottom-0 left-0 w-full h-[3px] scale-x-0 group-hover:scale-x-50 transition-transform bg-primary/10"></span>
+                <span v-if="activeTab === tab" class="absolute bottom-0 left-0 w-full h-[3px] bg-primary rounded-full animate-in zoom-in duration-300"></span>
+            </button>
         </div>
 
-        <!-- 2. Resources Tab -->
-        <div v-show="activeTab === 'resources'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <slot name="resources"></slot>
-        </div>
-
-
-        <!-- 4. Personal Notes Tab -->
-        <div v-show="activeTab === 'notes'" class="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-sm font-bold text-on-background flex items-center gap-2">
-                        <FileText class="w-4.5 h-4.5 text-primary" />
-                        Notas Académicas Personales
-                    </h3>
-                    <p class="text-[10px] text-on-surface-variant/60">Tus notas son personales y se guardan automáticamente en este navegador.</p>
-                </div>
-                <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider" :class="isSaved ? 'text-emerald-600' : 'text-amber-600'">
-                    <span class="w-1.5 h-1.5 rounded-full" :class="isSaved ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'"></span>
-                    {{ isSaved ? 'Guardado' : 'Guardando...' }}
+        <!-- Tabs Content -->
+        <div class="min-h-[250px] order-2">
+            <!-- 1. Description Tab -->
+            <div v-show="activeTab === 'description'" class="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                <div class="prose max-w-none text-on-surface-variant/90 leading-relaxed font-sans text-sm md:text-base">
+                    <p v-if="currentLesson?.description" class="whitespace-pre-line leading-relaxed">{{ currentLesson.description }}</p>
+                    <p v-else class="text-on-surface-variant/40 italic text-base">Descripción en revisión académica.</p>
                 </div>
             </div>
-            
-            <textarea 
-                v-model="personalNotes"
-                @input="handleNotesInput"
-                placeholder="Escribe aquí tus ideas, apuntes y notas clave de la clase actual para repasarlas más tarde..."
-                class="w-full min-h-[250px] p-6 bg-white border border-outline-variant/20 focus:border-primary/40 rounded-2xl shadow-inner text-sm leading-relaxed text-on-surface focus:ring-1 focus:ring-primary/20 resize-y font-sans font-medium"
-            ></textarea>
-        </div>
 
-        <!-- 5. Questions (FAQ) Tab -->
-        <div v-show="activeTab === 'questions'" class="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4 pb-12">
-            <h3 class="text-sm font-bold text-on-background flex items-center gap-2 mb-2">
-                <HelpCircle class="w-4.5 h-4.5 text-primary" />
-                Preguntas Frecuentes
-            </h3>
-            
-            <div class="space-y-3">
-                <div 
-                    v-for="(faq, index) in faqs" 
-                    :key="index"
-                    class="border border-outline-variant/10 rounded-2xl bg-white shadow-sm overflow-hidden transition-all duration-300"
-                >
-                    <button 
-                        @click="toggleFaq(index)"
-                        class="w-full px-6 py-4 flex items-center justify-between text-left font-bold text-xs md:text-sm text-on-background hover:text-primary transition-colors focus:outline-none"
-                    >
-                        <span>{{ faq.q }}</span>
-                        <ChevronUp v-if="faq.open" class="w-4 h-4 text-primary shrink-0" />
-                        <ChevronDown v-else class="w-4 h-4 text-on-surface-variant/40 shrink-0" />
-                    </button>
-                    
+            <!-- 2. Resources Tab -->
+            <div v-show="activeTab === 'resources'" class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <slot name="resources"></slot>
+            </div>
+
+
+            <!-- 4. Personal Notes Tab -->
+            <div v-show="activeTab === 'notes'" class="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold text-on-background flex items-center gap-2">
+                            <FileText class="w-4.5 h-4.5 text-primary" />
+                            Notas Académicas Personales
+                        </h3>
+                        <p class="text-[10px] text-on-surface-variant/60">Tus notas son personales y se guardan automáticamente en este navegador.</p>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider" :class="isSaved ? 'text-emerald-600' : 'text-amber-600'">
+                        <span class="w-1.5 h-1.5 rounded-full" :class="isSaved ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'"></span>
+                        {{ isSaved ? 'Guardado' : 'Guardando...' }}
+                    </div>
+                </div>
+                
+                <textarea 
+                    v-model="personalNotes"
+                    @input="handleNotesInput"
+                    placeholder="Escribe aquí tus ideas, apuntes y notas clave de la clase actual para repasarlas más tarde..."
+                    class="w-full min-h-[250px] p-6 bg-white border border-outline-variant/20 focus:border-primary/40 rounded-2xl shadow-inner text-sm leading-relaxed text-on-surface focus:ring-1 focus:ring-primary/20 resize-y font-sans font-medium"
+                ></textarea>
+            </div>
+
+            <!-- 5. Questions (FAQ) Tab -->
+            <div v-show="activeTab === 'questions'" class="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4 pb-12">
+                <h3 class="text-sm font-bold text-on-background flex items-center gap-2 mb-2">
+                    <HelpCircle class="w-4.5 h-4.5 text-primary" />
+                    Preguntas Frecuentes
+                </h3>
+                
+                <div class="space-y-3">
                     <div 
-                        v-show="faq.open"
-                        class="px-6 pb-5 pt-1 text-xs md:text-sm text-on-surface-variant/80 border-t border-outline-variant/5 bg-surface-container-low/30 leading-relaxed font-medium animate-in slide-in-from-top-1 duration-200"
+                        v-for="(faq, index) in faqs" 
+                        :key="index"
+                        class="border border-outline-variant/10 rounded-2xl bg-white shadow-sm overflow-hidden transition-all duration-300"
                     >
-                        {{ faq.a }}
+                        <button 
+                            @click="toggleFaq(index)"
+                            class="w-full px-6 py-4 flex items-center justify-between text-left font-bold text-xs md:text-sm text-on-background hover:text-primary transition-colors focus:outline-none"
+                        >
+                            <span>{{ faq.q }}</span>
+                            <ChevronUp v-if="faq.open" class="w-4 h-4 text-primary shrink-0" />
+                            <ChevronDown v-else class="w-4 h-4 text-on-surface-variant/40 shrink-0" />
+                        </button>
+                        
+                        <div 
+                            v-show="faq.open"
+                            class="px-6 pb-5 pt-1 text-xs md:text-sm text-on-surface-variant/80 border-t border-outline-variant/5 bg-surface-container-low/30 leading-relaxed font-medium animate-in slide-in-from-top-1 duration-200"
+                        >
+                            {{ faq.a }}
+                        </div>
                     </div>
                 </div>
             </div>
