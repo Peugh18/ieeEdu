@@ -27,10 +27,10 @@ const emit = defineEmits<{
                 <ChevronLeft class="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
             </Link>
             <div class="flex flex-col min-w-0">
-                <p class="text-[9px] md:text-[10px] font-bold text-primary/70 dark:text-primary-fixed-dim/80 uppercase tracking-[0.2em] leading-none mb-1.5 truncate max-w-[250px] sm:max-w-md">
+                <p class="text-[9px] md:text-[10px] font-bold text-primary/70 dark:text-primary-fixed-dim/80 uppercase tracking-[0.2em] leading-none mb-1.5 truncate max-w-[130px] sm:max-w-md">
                     Módulo {{ currentLessonIndex }} de {{ allLessonsCount }} • {{ course.title }}
                 </p>
-                <h1 class="text-sm md:text-base font-bold text-on-background dark:text-on-surface truncate max-w-[180px] sm:max-w-xs md:max-w-md">
+                <h1 class="text-sm md:text-base font-bold text-on-background dark:text-on-surface truncate max-w-[130px] sm:max-w-xs md:max-w-md">
                     {{ currentLesson?.title }}
                 </h1>
             </div>
