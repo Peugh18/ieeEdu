@@ -1,21 +1,20 @@
+import type { NavGroup } from '@/types/navigation';
 import {
-    LayoutGrid,
-    BookOpen,
-    Users,
-    CreditCard,
-    FileText,
-    FolderTree,
     Award,
-    Crown,
-    Package,
     BookMarked,
-    Newspaper,
-    Image,
+    BookOpen,
     Briefcase,
     Building2,
+    CreditCard,
+    Crown,
+    FolderTree,
+    Image,
+    LayoutGrid,
+    Newspaper,
+    Package,
     Sparkles,
+    Users,
 } from 'lucide-vue-next';
-import type { NavGroup } from '@/types/navigation';
 
 /** Navegación admin: un enlace por pantalla. Sin hubs ni pestañas duplicadas. */
 export const adminNavItems: NavGroup[] = [

@@ -20,17 +20,12 @@ export function useClassroomPlayer(_completeLessonCallback: () => void) {
         const setupPlayer = () => {
             const players = document.querySelectorAll('.js-plyr');
             players.forEach((p) => {
-                const PlyrCtor = (window as unknown as Record<string, unknown>).Plyr as new (element: Element, options: Record<string, unknown>) => { on: (event: string, cb: (e: { detail: { plyr: { currentTime: number; duration: number } } }) => void) => void };
+                const PlyrCtor = (window as unknown as Record<string, unknown>).Plyr as new (
+                    element: Element,
+                    options: Record<string, unknown>,
+                ) => { on: (event: string, cb: (e: { detail: { plyr: { currentTime: number; duration: number } } }) => void) => void };
                 const player = new PlyrCtor(p, {
-                    controls: [
-                        'play-large',
-                        'play',
-                        'progress',
-                        'current-time',
-                        'mute',
-                        'volume',
-                        'fullscreen',
-                    ],
+                    controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
                     tooltips: { controls: true, seek: true },
                     youtube: {
                         noCookie: false,

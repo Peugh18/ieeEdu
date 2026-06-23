@@ -59,13 +59,21 @@ const closeModal = () => {
                         <DialogHeader class="space-y-3">
                             <DialogTitle>¿Estás seguro de que deseas eliminar tu cuenta?</DialogTitle>
                             <DialogDescription>
-                                Una vez que tu cuenta sea eliminada, todos sus recursos y datos serán borrados permanentemente. Por favor ingresa tu contraseña para confirmar.
+                                Una vez que tu cuenta sea eliminada, todos sus recursos y datos serán borrados permanentemente. Por favor ingresa tu
+                                contraseña para confirmar.
                             </DialogDescription>
                         </DialogHeader>
 
                         <div class="grid gap-2">
                             <Label for="password" class="sr-only">Contraseña</Label>
-                            <Input id="password" type="password" name="password" ref="passwordInput" v-model="form.password" placeholder="Contraseña" />
+                            <Input
+                                id="password"
+                                type="password"
+                                name="password"
+                                ref="passwordInput"
+                                v-model="form.password"
+                                placeholder="Contraseña"
+                            />
                             <InputError :message="form.errors.password" />
                         </div>
 

@@ -75,7 +75,16 @@ export function useCourseQuizzes(courseId: number, initialQuizzes: CourseEditorQ
         };
     }
 
-    function startEditQuestion(quizId: number, q: { id: number; question: string; type: 'multiple_choice' | 'true_false'; points: number; answers: Array<{ id?: number; answer_text: string; is_correct: boolean }> }) {
+    function startEditQuestion(
+        quizId: number,
+        q: {
+            id: number;
+            question: string;
+            type: 'multiple_choice' | 'true_false';
+            points: number;
+            answers: Array<{ id?: number; answer_text: string; is_correct: boolean }>;
+        },
+    ) {
         addingQuestionFor.value = quizId;
         editingQuestionId.value = q.id;
         newQuestion.value = {

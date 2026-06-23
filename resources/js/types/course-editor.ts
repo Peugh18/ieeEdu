@@ -1,13 +1,6 @@
 import type { CourseLesson, CourseMaterial, CourseModule, Question, Quiz } from '@/types/course';
 
-export type CourseEditorTab =
-    | 'general'
-    | 'pricing'
-    | 'details'
-    | 'instructor'
-    | 'curriculum'
-    | 'exams'
-    | 'students';
+export type CourseEditorTab = 'general' | 'pricing' | 'details' | 'instructor' | 'curriculum' | 'exams' | 'students';
 
 export type CourseStatus = 'BORRADOR' | 'PUBLICADO' | 'OCULTO';
 
@@ -16,9 +9,20 @@ export interface CourseEditorCategory {
     name: string;
 }
 
+export interface CourseEditorQuizAttempt {
+    id: number;
+    user?: {
+        name?: string;
+        email?: string;
+    };
+    completed_at?: string | null;
+    status: string;
+    score: number | null;
+}
+
 export interface CourseEditorQuiz extends Quiz {
     questions: Question[];
-    attempts?: Array<Record<string, unknown>>;
+    attempts?: CourseEditorQuizAttempt[];
 }
 
 export interface CourseEditorCourse {

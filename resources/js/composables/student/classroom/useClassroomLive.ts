@@ -1,5 +1,5 @@
-import { ref, onUnmounted } from 'vue';
 import type { Lesson } from '@/types/classroom';
+import { onUnmounted, ref } from 'vue';
 
 export function useClassroomLive() {
     const now = ref(new Date());
@@ -9,11 +9,7 @@ export function useClassroomLive() {
 
     const parseSafeDate = (dateStr?: string) => {
         if (!dateStr) return null;
-        const normalized = dateStr
-            .replace('Z', '')
-            .replace('z', '')
-            .replace('T', ' ')
-            .substring(0, 19);
+        const normalized = dateStr.replace('Z', '').replace('z', '').replace('T', ' ').substring(0, 19);
         const d = new Date(normalized);
         return isNaN(d.getTime()) ? null : d;
     };

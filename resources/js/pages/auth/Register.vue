@@ -31,7 +31,16 @@ const submit = () => {
             <div class="grid gap-6">
                 <div class="grid gap-2">
                     <Label for="name">Nombre completo</Label>
-                    <Input id="name" type="text" required autofocus tabindex="1" autocomplete="name" v-model="form.name" placeholder="Tu nombre completo" />
+                    <Input
+                        id="name"
+                        type="text"
+                        required
+                        autofocus
+                        tabindex="1"
+                        autocomplete="name"
+                        v-model="form.name"
+                        placeholder="Tu nombre completo"
+                    />
                     <InputError :message="form.errors.name" />
                 </div>
 
@@ -81,7 +90,7 @@ const submit = () => {
                 </Button>
             </div>
 
-            <div class="text-center text-sm text-muted-foreground">
+            <div class="text-muted-foreground text-center text-sm">
                 ¿Ya tienes cuenta?
                 <TextLink :href="route('login')" class="underline underline-offset-4" tabindex="7">Inicia sesión</TextLink>
             </div>

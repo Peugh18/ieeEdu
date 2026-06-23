@@ -1,26 +1,23 @@
 ﻿<script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
-import AppLayout from '@/layouts/AppLayout.vue';
 import BottomNav from '@/components/student/BottomNav.vue';
-import StudentDashboardLiveBanner from '@/components/student/dashboard/StudentDashboardLiveBanner.vue';
-import StudentDashboardStats from '@/components/student/dashboard/StudentDashboardStats.vue';
-import StudentDashboardContinueLearning from '@/components/student/dashboard/StudentDashboardContinueLearning.vue';
-import StudentDashboardQuickLinks from '@/components/student/dashboard/StudentDashboardQuickLinks.vue';
-import StudentDashboardCertificates from '@/components/student/dashboard/StudentDashboardCertificates.vue';
-import StudentDashboardRecommendations from '@/components/student/dashboard/StudentDashboardRecommendations.vue';
 import StudentDashboardAcademicPerformance from '@/components/student/dashboard/StudentDashboardAcademicPerformance.vue';
-import StudentDashboardSubscription from '@/components/student/dashboard/StudentDashboardSubscription.vue';
+import StudentDashboardCertificates from '@/components/student/dashboard/StudentDashboardCertificates.vue';
+import StudentDashboardContinueLearning from '@/components/student/dashboard/StudentDashboardContinueLearning.vue';
+import StudentDashboardLiveBanner from '@/components/student/dashboard/StudentDashboardLiveBanner.vue';
 import StudentDashboardLiveModal from '@/components/student/dashboard/StudentDashboardLiveModal.vue';
+import StudentDashboardQuickLinks from '@/components/student/dashboard/StudentDashboardQuickLinks.vue';
+import StudentDashboardRecommendations from '@/components/student/dashboard/StudentDashboardRecommendations.vue';
+import StudentDashboardStats from '@/components/student/dashboard/StudentDashboardStats.vue';
+import StudentDashboardSubscription from '@/components/student/dashboard/StudentDashboardSubscription.vue';
 import EmailVerificationBanner from '@/components/student/EmailVerificationBanner.vue';
 import { useAnimatedStats } from '@/composables/useAnimatedStats';
-import { type BreadcrumbItem } from '@/types';
-import { type SharedData, type User } from '@/types';
-import type { SummaryStats, ContinueLearning, Recommendation, Certificate, NextLiveClass } from '@/types/student-dashboard';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { type BreadcrumbItem, type SharedData, type User } from '@/types';
+import type { Certificate, ContinueLearning, NextLiveClass, Recommendation, SummaryStats } from '@/types/student-dashboard';
+import { Head, usePage } from '@inertiajs/vue3';
+import { onMounted, onUnmounted, ref } from 'vue';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Mi Aula Virtual', href: '/dashboard' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Mi Aula Virtual', href: '/dashboard' }];
 
 const page = usePage<SharedData>();
 const user = page.props.auth.user as User & { has_subscription?: boolean };
@@ -76,8 +73,10 @@ onUnmounted(() => {
     <Head title="Aula Virtual - IEE" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30 dark:from-[#141410] dark:via-on-background dark:to-on-background pb-24">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <div
+            class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30 pb-24 dark:from-[#141410] dark:via-on-background dark:to-on-background"
+        >
+            <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
                 <EmailVerificationBanner :email-verified-at="user?.email_verified_at" />
 
                 <StudentDashboardLiveBanner
@@ -89,22 +88,16 @@ onUnmounted(() => {
 
                 <StudentDashboardStats :stats="animatedStats" />
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 space-y-6">
-                        <StudentDashboardContinueLearning
-                            :continue-learning="continueLearning"
-                            :stats="stats"
-                        />
+                <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    <div class="space-y-6 lg:col-span-2">
+                        <StudentDashboardContinueLearning :continue-learning="continueLearning" :stats="stats" />
                         <StudentDashboardQuickLinks :stats="stats" />
                         <StudentDashboardCertificates :certificates="certificates" />
                         <StudentDashboardRecommendations :recommendations="recommendations" />
                     </div>
 
                     <aside class="space-y-5">
-                        <StudentDashboardAcademicPerformance
-                            :stats="stats"
-                            :animated-stats="animatedStats"
-                        />
+                        <StudentDashboardAcademicPerformance :stats="stats" :animated-stats="animatedStats" />
                         <StudentDashboardSubscription :user="user" />
                     </aside>
                 </div>

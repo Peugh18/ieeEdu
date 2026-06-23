@@ -1,18 +1,15 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminFlashToast from '@/components/admin/AdminFlashToast.vue';
-import PaymentShowActions from '@/components/admin/payments/PaymentShowActions.vue';
-import PaymentComprobanteCard from '@/components/admin/payments/PaymentComprobanteCard.vue';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import BookOrderShippingForm from '@/components/admin/book-orders/BookOrderShippingForm.vue';
+import PaymentComprobanteCard from '@/components/admin/payments/PaymentComprobanteCard.vue';
+import PaymentShowActions from '@/components/admin/payments/PaymentShowActions.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
+import type { SharedData } from '@/types';
 import type { BookOrder } from '@/types/book-order';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import type { SharedData } from '@/types';
+import { BookOpen, CheckCircle2, Clock, Crown, DollarSign, RefreshCw, User2, XCircle } from 'lucide-vue-next';
 import { computed } from 'vue';
-import {
-    CheckCircle2, XCircle, Clock, RefreshCw,
-    User2, BookOpen, DollarSign, Crown,
-} from 'lucide-vue-next';
 
 const props = defineProps<{
     payment: {
@@ -34,7 +31,9 @@ const props = defineProps<{
 const page = usePage<SharedData>();
 const flash = computed(() => page.props.flash ?? {});
 
-function approve() { router.patch(route('admin.payments.approve', { payment: props.payment.id })); }
+function approve() {
+    router.patch(route('admin.payments.approve', { payment: props.payment.id }));
+}
 function reject() {
     if (!confirm('¿Rechazar este pago?')) return;
     router.patch(route('admin.payments.reject', { payment: props.payment.id }));
@@ -46,25 +45,29 @@ function revert() {
 }
 
 const statusCfg: Record<string, { label: string; cls: string; bg: string; icon: typeof Clock }> = {
-    pendiente:   { label: 'Pendiente',   cls: 'text-slate-600',    bg: 'bg-slate-100',    icon: Clock },
-    en_revision: { label: 'En revisión', cls: 'text-amber-700',    bg: 'bg-amber-50',     icon: RefreshCw },
-    aprobado:    { label: 'Aprobado',    cls: 'text-emerald-700',  bg: 'bg-emerald-50',   icon: CheckCircle2 },
-    rechazado:   { label: 'Rechazado',   cls: 'text-red-600',      bg: 'bg-red-50',       icon: XCircle },
+    pendiente: { label: 'Pendiente', cls: 'text-slate-600', bg: 'bg-slate-100', icon: Clock },
+    en_revision: { label: 'En revisión', cls: 'text-amber-700', bg: 'bg-amber-50', icon: RefreshCw },
+    aprobado: { label: 'Aprobado', cls: 'text-emerald-700', bg: 'bg-emerald-50', icon: CheckCircle2 },
+    rechazado: { label: 'Rechazado', cls: 'text-red-600', bg: 'bg-red-50', icon: XCircle },
 };
 
-const cfg = computed(() => statusCfg[props.payment.status] ?? { label: props.payment.status, cls: 'text-slate-600', bg: 'bg-slate-100', icon: Clock });
+const cfg = computed(
+    () => statusCfg[props.payment.status] ?? { label: props.payment.status, cls: 'text-slate-600', bg: 'bg-slate-100', icon: Clock },
+);
 
 function formatDate(d: string) {
     return new Date(d).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
-function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
+function formatMoney(n: number) {
+    return 'S/ ' + Number(n).toFixed(2);
+}
 </script>
 
 <template>
     <Head :title="`Pago #${props.payment.id} - Admin IEE`" />
 
     <AppLayout>
-        <div class="px-4 py-8 max-w-7xl mx-auto min-h-screen">
+        <div class="mx-auto min-h-screen max-w-7xl px-4 py-8">
             <AdminPageHeader
                 :title="`Pago #${props.payment.id}`"
                 :subtitle="`Registrado el ${formatDate(props.payment.created_at)}`"
@@ -73,10 +76,7 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
                 compact
             >
                 <template #actions>
-                    <div
-                        class="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold"
-                        :class="[cfg.bg, cfg.cls]"
-                    >
+                    <div class="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-bold" :class="[cfg.bg, cfg.cls]">
                         <component :is="cfg.icon" class="h-5 w-5" />
                         {{ cfg.label }}
                     </div>
@@ -86,7 +86,6 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
             <div class="grid gap-6 lg:grid-cols-3">
                 <!-- Left: Details -->
                 <div class="space-y-6 lg:col-span-2">
-
                     <!-- User card -->
                     <div class="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest p-6 shadow-sm">
                         <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
@@ -94,14 +93,24 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
                         </p>
                         <div class="flex items-center gap-4">
                             <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-sm font-bold text-blue-700">
-                                {{ props.payment.user.name.split(' ').slice(0,2).map((w: string) => w[0]).join('').toUpperCase() }}
+                                {{
+                                    props.payment.user.name
+                                        .split(' ')
+                                        .slice(0, 2)
+                                        .map((w: string) => w[0])
+                                        .join('')
+                                        .toUpperCase()
+                                }}
                             </div>
                             <div>
                                 <p class="font-bold text-on-surface">{{ props.payment.user.name }}</p>
                                 <p class="text-sm text-on-surface-variant">{{ props.payment.user.email }}</p>
                                 <p v-if="props.payment.user.telefono" class="text-xs text-on-surface-variant/70">{{ props.payment.user.telefono }}</p>
                             </div>
-                            <Link :href="route('admin.users.show', { user: props.payment.user.id })" class="ml-auto text-xs font-bold text-primary hover:underline">
+                            <Link
+                                :href="route('admin.users.show', { user: props.payment.user.id })"
+                                class="ml-auto text-xs font-bold text-primary hover:underline"
+                            >
                                 Ver perfil →
                             </Link>
                         </div>
@@ -113,33 +122,40 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
                             <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
                                 <Crown class="h-3.5 w-3.5 text-primary" /> Membresía Premium
                             </p>
-                            <p class="font-bold text-on-surface capitalize">Plan {{ props.payment.subscription_type }}</p>
+                            <p class="font-bold capitalize text-on-surface">Plan {{ props.payment.subscription_type }}</p>
                         </template>
                         <template v-else-if="props.payment.book">
                             <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
                                 <BookOpen class="h-3.5 w-3.5" /> Libro físico
                             </p>
                             <p class="font-semibold text-on-surface">{{ props.payment.book.title }}</p>
-                            <span class="text-xs text-blue-600 border border-blue-200 rounded-full px-2 py-0.5 mt-2 inline-block bg-blue-50">Envío en Perú</span>
+                            <span class="mt-2 inline-block rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs text-blue-600"
+                                >Envío en Perú</span
+                            >
                         </template>
                         <template v-else-if="props.payment.course">
                             <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
                                 <BookOpen class="h-3.5 w-3.5" /> Curso
                             </p>
                             <p class="font-semibold text-on-surface">{{ props.payment.course.title }}</p>
-                            <span class="text-xs text-on-surface-variant border border-outline-variant/20 rounded-full px-2 py-0.5 mt-1 inline-block">{{ props.payment.course.type }}</span>
+                            <span
+                                class="mt-1 inline-block rounded-full border border-outline-variant/20 px-2 py-0.5 text-xs text-on-surface-variant"
+                                >{{ props.payment.course.type }}</span
+                            >
                         </template>
                     </div>
 
-                    <BookOrderShippingForm
-                        v-if="props.payment.book_order"
-                        :order="props.payment.book_order"
-                        :shipping-statuses="shippingStatuses"
-                    />
-                    <div v-else-if="props.payment.book && props.payment.status === 'aprobado'" class="rounded-2xl border border-dashed border-amber-200 bg-amber-50/50 p-4 text-sm text-amber-800">
+                    <BookOrderShippingForm v-if="props.payment.book_order" :order="props.payment.book_order" :shipping-statuses="shippingStatuses" />
+                    <div
+                        v-else-if="props.payment.book && props.payment.status === 'aprobado'"
+                        class="rounded-2xl border border-dashed border-amber-200 bg-amber-50/50 p-4 text-sm text-amber-800"
+                    >
                         Pedido de envío pendiente de crear. Recarga la página o contacta soporte.
                     </div>
-                    <div v-else-if="props.payment.book && props.payment.status !== 'aprobado'" class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                    <div
+                        v-else-if="props.payment.book && props.payment.status !== 'aprobado'"
+                        class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-600"
+                    >
                         Aprueba el pago para habilitar la gestión de envío y dirección.
                     </div>
 
@@ -177,10 +193,6 @@ function formatMoney(n: number) { return 'S/ ' + Number(n).toFixed(2); }
             </div>
         </div>
 
-        <AdminFlashToast
-            :show="!!flash.success"
-            variant="success"
-            :message="flash.success ?? ''"
-        />
+        <AdminFlashToast :show="!!flash.success" variant="success" :message="flash.success ?? ''" />
     </AppLayout>
 </template>

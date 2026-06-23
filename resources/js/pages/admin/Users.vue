@@ -1,23 +1,20 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router, useForm, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
-import {
-    UserPlus, Users as UsersIcon, ShieldCheck, GraduationCap, Activity,
-    Check, Download
-} from 'lucide-vue-next';
-import { UserListItem } from '@/types/admin';
-import type { SharedData } from '@/types';
-import { PaginationLink } from '@/types/pagination';
 import { useDebouncedInertiaFilters } from '@/composables/useDebouncedInertiaFilters';
 import { usePaginationLinks } from '@/composables/usePaginationLinks';
+import AppLayout from '@/layouts/AppLayout.vue';
+import type { SharedData } from '@/types';
+import { UserListItem } from '@/types/admin';
+import { PaginationLink } from '@/types/pagination';
+import { Head, router, useForm, usePage } from '@inertiajs/vue3';
+import { Activity, Check, Download, GraduationCap, ShieldCheck, Users as UsersIcon } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 // Components
-import UsersFilters from '@/components/admin/users/UsersFilters.vue';
-import UsersTable from '@/components/admin/users/UsersTable.vue';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import UsersCreateModal from '@/components/admin/users/UsersCreateModal.vue';
 import UsersEditModal from '@/components/admin/users/UsersEditModal.vue';
-import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
+import UsersFilters from '@/components/admin/users/UsersFilters.vue';
+import UsersTable from '@/components/admin/users/UsersTable.vue';
 
 const props = defineProps<{
     users: { data: UserListItem[]; links: PaginationLink[]; total: number };
@@ -37,12 +34,16 @@ const filterForm = useForm({
 });
 
 function applyFilters() {
-    router.get(route('admin.users.index'), {
-        search: filterForm.search || undefined,
-        role: filterForm.role || undefined,
-        status: filterForm.status || undefined,
-        per_page: filterForm.per_page !== '20' ? filterForm.per_page : undefined,
-    }, { preserveState: false, replace: true });
+    router.get(
+        route('admin.users.index'),
+        {
+            search: filterForm.search || undefined,
+            role: filterForm.role || undefined,
+            status: filterForm.status || undefined,
+            per_page: filterForm.per_page !== '20' ? filterForm.per_page : undefined,
+        },
+        { preserveState: false, replace: true },
+    );
 }
 
 useDebouncedInertiaFilters(filterForm, applyFilters);
@@ -84,8 +85,7 @@ const paginationLinks = usePaginationLinks(props.users.links);
     <Head title="Gestión de Usuarios - iieEdu Admin" />
 
     <AppLayout>
-        <div class="max-w-[1400px] mx-auto px-4 py-8 space-y-8">
-            
+        <div class="mx-auto max-w-[1400px] space-y-8 px-4 py-8">
             <!-- ── Superior Header ─────────────────────────────────────────── -->
             <AdminPageHeader
                 title="Gestión de "
@@ -95,87 +95,106 @@ const paginationLinks = usePaginationLinks(props.users.links);
                 @action="showCreate = true"
             >
                 <template #actions>
-                    <a :href="exportUrl" class="group h-12 inline-flex items-center gap-2.5 rounded-2xl bg-surface-container-low border border-outline-variant/30 px-6 text-sm font-bold text-on-surface-variant hover:bg-surface hover:border-primary hover:text-primary transition-all duration-300">
-                        <Download class="h-4 w-4 group-hover:-translate-y-0.5 transition-transform" />
+                    <a
+                        :href="exportUrl"
+                        class="group inline-flex h-12 items-center gap-2.5 rounded-2xl border border-outline-variant/30 bg-surface-container-low px-6 text-sm font-bold text-on-surface-variant transition-all duration-300 hover:border-primary hover:bg-surface hover:text-primary"
+                    >
+                        <Download class="h-4 w-4 transition-transform group-hover:-translate-y-0.5" />
                         Exportar Listado
                     </a>
                 </template>
             </AdminPageHeader>
 
             <!-- ── Global Statistics ──────────────────────────────────────────── -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Total Users -->
-                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-7 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-500">
-                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                        <UsersIcon class="w-20 h-20 text-slate-900" />
+                <div
+                    class="group relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white p-7 shadow-sm transition-all duration-500 hover:shadow-xl hover:shadow-slate-200/50"
+                >
+                    <div class="absolute right-0 top-0 p-4 opacity-5 transition-transform group-hover:scale-110">
+                        <UsersIcon class="h-20 w-20 text-slate-900" />
                     </div>
-                    <div class="relative z-10 flex flex-col justify-between h-full">
+                    <div class="relative z-10 flex h-full flex-col justify-between">
                         <div class="flex items-center justify-between">
-                            <span class="px-3 py-1 rounded-full bg-slate-100 text-[10px] font-bold uppercase tracking-widest text-slate-500">Población Total</span>
-                            <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400">
-                                <UsersIcon class="w-5 h-5" />
+                            <span class="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-slate-500"
+                                >Población Total</span
+                            >
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-400">
+                                <UsersIcon class="h-5 w-5" />
                             </div>
                         </div>
                         <div class="mt-6">
-                            <h3 class="text-4xl font-extrabold text-slate-900 tracking-tight">{{ stats.total }}</h3>
-                            <p class="text-xs font-medium text-slate-400 mt-1 italic">Cuentas registradas</p>
+                            <h3 class="text-4xl font-extrabold tracking-tight text-slate-900">{{ stats.total }}</h3>
+                            <p class="mt-1 text-xs font-medium italic text-slate-400">Cuentas registradas</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Active Users -->
-                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-7 shadow-sm hover:shadow-xl hover:shadow-emerald-200/30 transition-all duration-500">
-                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform text-emerald-600">
-                        <Activity class="w-20 h-20" />
+                <div
+                    class="group relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white p-7 shadow-sm transition-all duration-500 hover:shadow-xl hover:shadow-emerald-200/30"
+                >
+                    <div class="absolute right-0 top-0 p-4 text-emerald-600 opacity-5 transition-transform group-hover:scale-110">
+                        <Activity class="h-20 w-20" />
                     </div>
-                    <div class="relative z-10 flex flex-col justify-between h-full">
+                    <div class="relative z-10 flex h-full flex-col justify-between">
                         <div class="flex items-center justify-between">
-                            <span class="px-3 py-1 rounded-full bg-emerald-50 text-[10px] font-bold uppercase tracking-widest text-emerald-600">Acceso Vigente</span>
-                            <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500">
-                                <Activity class="w-5 h-5" />
+                            <span class="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-600"
+                                >Acceso Vigente</span
+                            >
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-500">
+                                <Activity class="h-5 w-5" />
                             </div>
                         </div>
                         <div class="mt-6">
-                            <h3 class="text-4xl font-extrabold text-emerald-600 tracking-tight">{{ stats.active }}</h3>
-                            <p class="text-xs font-medium text-emerald-600/60 mt-1 italic">Usuarios activos hoy</p>
+                            <h3 class="text-4xl font-extrabold tracking-tight text-emerald-600">{{ stats.active }}</h3>
+                            <p class="mt-1 text-xs font-medium italic text-emerald-600/60">Usuarios activos hoy</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Admin Users -->
-                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-7 shadow-sm hover:shadow-xl hover:shadow-indigo-200/30 transition-all duration-500">
-                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform text-indigo-600">
-                        <ShieldCheck class="w-20 h-20" />
+                <div
+                    class="group relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white p-7 shadow-sm transition-all duration-500 hover:shadow-xl hover:shadow-indigo-200/30"
+                >
+                    <div class="absolute right-0 top-0 p-4 text-indigo-600 opacity-5 transition-transform group-hover:scale-110">
+                        <ShieldCheck class="h-20 w-20" />
                     </div>
-                    <div class="relative z-10 flex flex-col justify-between h-full">
+                    <div class="relative z-10 flex h-full flex-col justify-between">
                         <div class="flex items-center justify-between">
-                            <span class="px-3 py-1 rounded-full bg-indigo-50 text-[10px] font-bold uppercase tracking-widest text-indigo-600">Cuerpo Admin</span>
-                            <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-500">
-                                <ShieldCheck class="w-5 h-5" />
+                            <span class="rounded-full bg-indigo-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-indigo-600"
+                                >Cuerpo Admin</span
+                            >
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-500">
+                                <ShieldCheck class="h-5 w-5" />
                             </div>
                         </div>
                         <div class="mt-6">
-                            <h3 class="text-4xl font-extrabold text-indigo-700 tracking-tight">{{ stats.admins }}</h3>
-                            <p class="text-xs font-medium text-indigo-600/60 mt-1 italic">Personal de gestión</p>
+                            <h3 class="text-4xl font-extrabold tracking-tight text-indigo-700">{{ stats.admins }}</h3>
+                            <p class="mt-1 text-xs font-medium italic text-indigo-600/60">Personal de gestión</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Students -->
-                <div class="group relative overflow-hidden rounded-[2rem] bg-white border border-slate-100 p-7 shadow-sm hover:shadow-xl hover:shadow-blue-200/30 transition-all duration-500">
-                    <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform text-blue-600">
-                        <GraduationCap class="w-20 h-20" />
+                <div
+                    class="group relative overflow-hidden rounded-[2rem] border border-slate-100 bg-white p-7 shadow-sm transition-all duration-500 hover:shadow-xl hover:shadow-blue-200/30"
+                >
+                    <div class="absolute right-0 top-0 p-4 text-blue-600 opacity-5 transition-transform group-hover:scale-110">
+                        <GraduationCap class="h-20 w-20" />
                     </div>
-                    <div class="relative z-10 flex flex-col justify-between h-full">
+                    <div class="relative z-10 flex h-full flex-col justify-between">
                         <div class="flex items-center justify-between">
-                            <span class="px-3 py-1 rounded-full bg-blue-50 text-[10px] font-bold uppercase tracking-widest text-blue-600">Discentes</span>
-                            <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-500">
-                                <GraduationCap class="w-5 h-5" />
+                            <span class="rounded-full bg-blue-50 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-600"
+                                >Discentes</span
+                            >
+                            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-500">
+                                <GraduationCap class="h-5 w-5" />
                             </div>
                         </div>
                         <div class="mt-6">
-                            <h3 class="text-4xl font-extrabold text-blue-700 tracking-tight">{{ stats.students }}</h3>
-                            <p class="text-xs font-medium text-blue-600/60 mt-1 italic">Alumnos en formación</p>
+                            <h3 class="text-4xl font-extrabold tracking-tight text-blue-700">{{ stats.students }}</h3>
+                            <p class="mt-1 text-xs font-medium italic text-blue-600/60">Alumnos en formación</p>
                         </div>
                     </div>
                 </div>
@@ -202,29 +221,35 @@ const paginationLinks = usePaginationLinks(props.users.links);
         </div>
 
         <!-- ───────────────────────── SYSTEM NOTIFICATIONS ──────────────────── -->
-        <Transition enter-active-class="transition duration-500" enter-from-class="translate-x-full opacity-0" enter-to-class="translate-x-0 opacity-100">
-            <div v-if="flash.success" class="fixed bottom-10 right-10 z-[100] flex items-center gap-4 rounded-[2rem] bg-slate-900 p-2 pr-6 text-white shadow-2xl">
-                <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
+        <Transition
+            enter-active-class="transition duration-500"
+            enter-from-class="translate-x-full opacity-0"
+            enter-to-class="translate-x-0 opacity-100"
+        >
+            <div
+                v-if="flash.success"
+                class="fixed bottom-10 right-10 z-[100] flex items-center gap-4 rounded-[2rem] bg-slate-900 p-2 pr-6 text-white shadow-2xl"
+            >
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500">
                     <Check class="h-6 w-6" />
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-[10px] uppercase font-bold tracking-widest text-emerald-500">Operación Exitosa</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Operación Exitosa</span>
                     <span class="text-sm font-medium">{{ flash.success }}</span>
                 </div>
             </div>
         </Transition>
 
         <!-- ───────────────────────── MODALS ───────────────────────── -->
-        <UsersCreateModal
-            :show="showCreate"
-            @close="showCreate = false"
-        />
+        <UsersCreateModal :show="showCreate" @close="showCreate = false" />
 
         <UsersEditModal
             :show="showEdit"
             :editTarget="editTarget"
-            @close="showEdit = false; editTarget = null"
+            @close="
+                showEdit = false;
+                editTarget = null;
+            "
         />
-
     </AppLayout>
 </template>

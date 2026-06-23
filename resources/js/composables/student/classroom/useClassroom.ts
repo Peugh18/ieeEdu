@@ -1,9 +1,9 @@
+import type { Course, Lesson } from '@/types/classroom';
 import { onMounted, watch } from 'vue';
-import { useClassroomProgress } from './useClassroomProgress';
-import { useClassroomPlayer } from './useClassroomPlayer';
 import { useClassroomComments } from './useClassroomComments';
 import { useClassroomLive } from './useClassroomLive';
-import type { Course, Lesson } from '@/types/classroom';
+import { useClassroomPlayer } from './useClassroomPlayer';
+import { useClassroomProgress } from './useClassroomProgress';
 
 export function useClassroom(
     course: Course,
@@ -11,15 +11,9 @@ export function useClassroom(
     currentLesson: Lesson | null,
     completedLessonsServer: number[],
     allLessonsCompletedServer: boolean,
-    allLessonsCount: number
+    allLessonsCount: number,
 ) {
-    const progress = useClassroomProgress(
-        course.id,
-        userId,
-        completedLessonsServer,
-        allLessonsCompletedServer,
-        allLessonsCount
-    );
+    const progress = useClassroomProgress(course.id, userId, completedLessonsServer, allLessonsCompletedServer, allLessonsCount);
 
     const player = useClassroomPlayer(() => {
         if (currentLesson) {
@@ -35,7 +29,7 @@ export function useClassroom(
         () => {
             live.startCountdown(currentLesson);
         },
-        { immediate: true }
+        { immediate: true },
     );
 
     onMounted(() => {

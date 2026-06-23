@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { storageUrl } from '@/lib/storageUrl';
 import { Download, FileImage } from 'lucide-vue-next';
 import { computed } from 'vue';
-import { storageUrl } from '@/lib/storageUrl';
 
 const props = defineProps<{ comprobante: string | null }>();
 
@@ -23,14 +23,10 @@ const comprobanteUrl = computed(() => {
                 <img
                     :src="comprobanteUrl"
                     alt="Comprobante de pago"
-                    class="w-full rounded-2xl border border-outline-variant/10 object-contain max-h-64 hover:opacity-90 transition-opacity cursor-zoom-in"
+                    class="max-h-64 w-full cursor-zoom-in rounded-2xl border border-outline-variant/10 object-contain transition-opacity hover:opacity-90"
                 />
             </a>
-            <a
-                :href="comprobanteUrl"
-                download
-                class="mt-3 inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline"
-            >
+            <a :href="comprobanteUrl" download class="mt-3 inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline">
                 <Download class="h-3.5 w-3.5" />
                 Descargar imagen
             </a>

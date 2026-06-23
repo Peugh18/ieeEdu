@@ -1,10 +1,6 @@
-import { ref, watch, onMounted } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
-export function useDebouncedInertiaFilters(
-    form: { data(): Record<string, unknown> },
-    applyFiltersCallback: () => void,
-    debounceMs: number = 400
-) {
+export function useDebouncedInertiaFilters(form: { data(): Record<string, unknown> }, applyFiltersCallback: () => void, debounceMs: number = 400) {
     const skipFilterWatch = ref(true);
     let searchTimeout: ReturnType<typeof setTimeout>;
 
@@ -17,7 +13,7 @@ export function useDebouncedInertiaFilters(
                 applyFiltersCallback();
             }, debounceMs);
         },
-        { deep: true }
+        { deep: true },
     );
 
     onMounted(() => {
@@ -25,6 +21,6 @@ export function useDebouncedInertiaFilters(
     });
 
     return {
-        skipFilterWatch
+        skipFilterWatch,
     };
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
 import type { BookOrder } from '@/types/book-order';
+import { useForm } from '@inertiajs/vue3';
 
 const props = defineProps<{
     order: BookOrder;
@@ -30,16 +30,27 @@ function submit() {
 </script>
 
 <template>
-    <form @submit.prevent="submit" class="rounded-3xl border border-blue-100 bg-blue-50/30 p-6 space-y-5">
+    <form @submit.prevent="submit" class="space-y-5 rounded-3xl border border-blue-100 bg-blue-50/30 p-6">
         <div class="flex items-center justify-between gap-4">
             <p class="text-[10px] font-black uppercase tracking-widest text-blue-700">Gestión de envío — Perú</p>
-            <button type="submit" :disabled="form.processing" class="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold disabled:opacity-50">Guardar envío</button>
+            <button
+                type="submit"
+                :disabled="form.processing"
+                class="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
+            >
+                Guardar envío
+            </button>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
-            <div class="sm:col-span-2 space-y-1">
+            <div class="space-y-1 sm:col-span-2">
                 <label class="text-[10px] font-bold uppercase text-slate-500">Dirección completa</label>
-                <textarea v-model="form.shipping_address" rows="2" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Calle, N°, urbanización, referencia..." />
+                <textarea
+                    v-model="form.shipping_address"
+                    rows="2"
+                    class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    placeholder="Calle, N°, urbanización, referencia..."
+                />
             </div>
             <div class="space-y-1">
                 <label class="text-[10px] font-bold uppercase text-slate-500">Distrito</label>
@@ -75,19 +86,34 @@ function submit() {
                 <label class="text-[10px] font-bold uppercase text-slate-500">Courier</label>
                 <input v-model="form.carrier" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Olva, Shalom, etc." />
             </div>
-            <div class="sm:col-span-2 space-y-1">
+            <div class="space-y-1 sm:col-span-2">
                 <label class="text-[10px] font-bold uppercase text-slate-500">Link seguimiento courier</label>
-                <input v-model="form.tracking_url" type="url" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="https://..." />
+                <input
+                    v-model="form.tracking_url"
+                    type="url"
+                    class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    placeholder="https://..."
+                />
             </div>
-            <div v-if="form.delivery_mode === 'pickup'" class="sm:col-span-2 space-y-1">
+            <div v-if="form.delivery_mode === 'pickup'" class="space-y-1 sm:col-span-2">
                 <label class="text-[10px] font-bold uppercase text-slate-500">Punto de recojo</label>
-                <textarea v-model="form.pickup_location" rows="2" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Dirección agencia, horario..." />
+                <textarea
+                    v-model="form.pickup_location"
+                    rows="2"
+                    class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    placeholder="Dirección agencia, horario..."
+                />
             </div>
-            <div class="sm:col-span-2 space-y-1">
+            <div class="space-y-1 sm:col-span-2">
                 <label class="text-[10px] font-bold uppercase text-slate-500">Nota visible al alumno</label>
-                <textarea v-model="form.student_note" rows="2" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="Ej: Llegará en 3-5 días hábiles" />
+                <textarea
+                    v-model="form.student_note"
+                    rows="2"
+                    class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    placeholder="Ej: Llegará en 3-5 días hábiles"
+                />
             </div>
-            <div class="sm:col-span-2 space-y-1">
+            <div class="space-y-1 sm:col-span-2">
                 <label class="text-[10px] font-bold uppercase text-slate-500">Notas internas (admin)</label>
                 <textarea v-model="form.admin_notes" rows="2" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
             </div>

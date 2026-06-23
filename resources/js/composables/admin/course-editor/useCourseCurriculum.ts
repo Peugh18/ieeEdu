@@ -43,9 +43,7 @@ export function useCourseCurriculum(
     });
     const materialsByLesson = ref<MaterialsByLesson>({});
 
-    const displayModules = computed(() =>
-        isMasterclass.value ? [{ id: -1, title: 'Masterclass', sort_order: 0 }] : modules.value,
-    );
+    const displayModules = computed(() => (isMasterclass.value ? [{ id: -1, title: 'Masterclass', sort_order: 0 }] : modules.value));
 
     function resetNewLesson(moduleId: number | null = null) {
         newLesson.value = emptyLesson(moduleId);
@@ -111,10 +109,7 @@ export function useCourseCurriculum(
             resetNewLesson(isMasterclass.value ? null : newLesson.value.module_id);
         } catch (e: unknown) {
             const err = e as { response?: { data?: { message?: string; errors?: { title?: string[] } } } };
-            const msg =
-                err?.response?.data?.message ??
-                err?.response?.data?.errors?.title?.[0] ??
-                'No se pudo crear la clase.';
+            const msg = err?.response?.data?.message ?? err?.response?.data?.errors?.title?.[0] ?? 'No se pudo crear la clase.';
             alert(msg);
         }
     }
@@ -205,9 +200,7 @@ export function useCourseCurriculum(
         } catch (e: unknown) {
             const err = e as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
             const errors = err?.response?.data?.errors;
-            const msg = errors
-                ? Object.values(errors).flat().join('\n')
-                : (err?.response?.data?.message ?? 'No se pudo guardar el recurso.');
+            const msg = errors ? Object.values(errors).flat().join('\n') : (err?.response?.data?.message ?? 'No se pudo guardar el recurso.');
             alert(msg);
         }
     }

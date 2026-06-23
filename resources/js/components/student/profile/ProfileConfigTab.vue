@@ -12,31 +12,52 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <section class="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <section class="space-y-10 duration-500 animate-in fade-in slide-in-from-bottom-4">
         <div>
-            <h2 class="text-3xl font-serif font-bold text-on-surface mb-2">Seguridad de la Cuenta</h2>
-            <p class="text-on-surface-variant text-sm">Actualiza tu contraseña para mantener tu cuenta protegida.</p>
+            <h2 class="mb-2 font-serif text-3xl font-bold text-on-surface">Seguridad de la Cuenta</h2>
+            <p class="text-sm text-on-surface-variant">Actualiza tu contraseña para mantener tu cuenta protegida.</p>
         </div>
-        <form @submit.prevent="emit('submit')" class="space-y-6 max-w-xl bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-8">
+        <form
+            @submit.prevent="emit('submit')"
+            class="max-w-xl space-y-6 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-8"
+        >
             <div class="space-y-2">
-                <label class="text-sm font-bold text-on-surface-variant uppercase tracking-widest">Nueva Contraseña</label>
-                <input :value="passwordForm.password" @input="emit('update:password', 'password', ($event.target as HTMLInputElement).value)" type="password" placeholder="Mínimo 8 caracteres" class="w-full bg-surface border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" />
-                <p v-if="passwordForm.errors.password" class="text-red-500 text-xs mt-1">{{ passwordForm.errors.password }}</p>
+                <label class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Nueva Contraseña</label>
+                <input
+                    :value="passwordForm.password"
+                    @input="emit('update:password', 'password', ($event.target as HTMLInputElement).value)"
+                    type="password"
+                    placeholder="Mínimo 8 caracteres"
+                    class="w-full rounded-xl border border-outline-variant/30 bg-surface px-4 py-3 text-sm transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <p v-if="passwordForm.errors.password" class="mt-1 text-xs text-red-500">{{ passwordForm.errors.password }}</p>
             </div>
             <div class="space-y-2">
-                <label class="text-sm font-bold text-on-surface-variant uppercase tracking-widest">Confirmar Contraseña</label>
-                <input :value="passwordForm.password_confirmation" @input="emit('update:password', 'password_confirmation', ($event.target as HTMLInputElement).value)" type="password" placeholder="Repite tu nueva contraseña" class="w-full bg-surface border border-outline-variant/30 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" />
+                <label class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Confirmar Contraseña</label>
+                <input
+                    :value="passwordForm.password_confirmation"
+                    @input="emit('update:password', 'password_confirmation', ($event.target as HTMLInputElement).value)"
+                    type="password"
+                    placeholder="Repite tu nueva contraseña"
+                    class="w-full rounded-xl border border-outline-variant/30 bg-surface px-4 py-3 text-sm transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary"
+                />
             </div>
             <div class="pt-4">
-                <button type="submit" :disabled="passwordForm.processing" class="inline-flex bg-primary text-white font-bold text-xs uppercase tracking-widest px-8 py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50">{{ passwordForm.processing ? 'Actualizando...' : 'Actualizar Contraseña' }}</button>
+                <button
+                    type="submit"
+                    :disabled="passwordForm.processing"
+                    class="inline-flex rounded-xl bg-primary px-8 py-3 text-xs font-bold uppercase tracking-widest text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                >
+                    {{ passwordForm.processing ? 'Actualizando...' : 'Actualizar Contraseña' }}
+                </button>
             </div>
         </form>
         <div class="mt-8">
-            <h3 class="text-xl font-serif font-bold text-on-surface mb-6">Apariencia Visual</h3>
-            <div class="bg-surface-container-lowest border border-outline-variant/30 rounded-3xl p-8 max-w-xl flex items-center justify-between">
+            <h3 class="mb-6 font-serif text-xl font-bold text-on-surface">Apariencia Visual</h3>
+            <div class="flex max-w-xl items-center justify-between rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-8">
                 <div>
-                    <p class="text-sm font-bold text-on-surface-variant uppercase tracking-widest">Tema de la Interfaz</p>
-                    <p class="text-xs text-on-surface-variant/80 mt-1">Escoge tu modo preferido.</p>
+                    <p class="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Tema de la Interfaz</p>
+                    <p class="mt-1 text-xs text-on-surface-variant/80">Escoge tu modo preferido.</p>
                 </div>
                 <AppearanceTabs />
             </div>

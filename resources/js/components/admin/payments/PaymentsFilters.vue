@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search, Filter, Calendar } from 'lucide-vue-next';
+import { Calendar, Filter, Search } from 'lucide-vue-next';
 
 const search = defineModel<string>('search', { default: '' });
 const status = defineModel<string>('status', { default: '' });
@@ -12,22 +12,22 @@ const emit = defineEmits<{
 
 <template>
     <!-- Filter Bar -->
-    <div class="bg-slate-50 rounded-[2.5rem] p-4 border border-slate-100 flex flex-col lg:flex-row items-center gap-4">
-        <div class="relative flex-1 w-full lg:w-auto">
-            <Search class="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <input 
-                v-model="search" 
-                placeholder="Buscar por estudiante, curso o ID..." 
-                class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-6 text-sm font-medium outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all"
+    <div class="flex flex-col items-center gap-4 rounded-[2.5rem] border border-slate-100 bg-slate-50 p-4 lg:flex-row">
+        <div class="relative w-full flex-1 lg:w-auto">
+            <Search class="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+                v-model="search"
+                placeholder="Buscar por estudiante, curso o ID..."
+                class="h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-6 text-sm font-medium outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5"
                 @keydown.enter.prevent="emit('filter')"
             />
         </div>
-        <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <div class="relative flex-1 lg:flex-none min-w-[160px]">
-                <Filter class="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-                <select 
-                    v-model="status" 
-                    class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-10 pr-10 text-xs font-bold text-slate-600 appearance-none outline-none cursor-pointer"
+        <div class="flex w-full flex-wrap items-center gap-3 lg:w-auto">
+            <div class="relative min-w-[160px] flex-1 lg:flex-none">
+                <Filter class="absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                <select
+                    v-model="status"
+                    class="h-14 w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-white pl-10 pr-10 text-xs font-bold text-slate-600 outline-none"
                 >
                     <option value="">Todos los Estados</option>
                     <option value="pendiente">Pendiente</option>
@@ -36,12 +36,12 @@ const emit = defineEmits<{
                     <option value="rechazado">Rechazado</option>
                 </select>
             </div>
-            <div class="relative flex-1 lg:flex-none min-w-[160px]">
-                <Calendar class="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-                <input 
-                    v-model="date" 
-                    type="date" 
-                    class="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-10 pr-4 text-xs font-bold text-slate-600 outline-none appearance-none" 
+            <div class="relative min-w-[160px] flex-1 lg:flex-none">
+                <Calendar class="absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+                <input
+                    v-model="date"
+                    type="date"
+                    class="h-14 w-full appearance-none rounded-2xl border border-slate-200 bg-white pl-10 pr-4 text-xs font-bold text-slate-600 outline-none"
                 />
             </div>
         </div>

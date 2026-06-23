@@ -1,12 +1,12 @@
 ﻿<script setup lang="ts">
-import { ref, watch } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Save } from 'lucide-vue-next';
-import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminFlashToast from '@/components/admin/AdminFlashToast.vue';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import CertificateTemplateControls from '@/components/admin/certificates/CertificateTemplateControls.vue';
 import CertificateTemplatePreview from '@/components/admin/certificates/CertificateTemplatePreview.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import { Save } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
 
 interface Template {
     id?: number;
@@ -60,7 +60,12 @@ const toast = ref<{ show: boolean; variant: 'success' | 'error'; message: string
 
 function showToast(variant: 'success' | 'error', message: string, subtitle?: string) {
     toast.value = { show: true, variant, message, subtitle };
-    setTimeout(() => { toast.value.show = false; }, variant === 'success' ? 4000 : 5000);
+    setTimeout(
+        () => {
+            toast.value.show = false;
+        },
+        variant === 'success' ? 4000 : 5000,
+    );
 }
 
 function submit() {
@@ -71,17 +76,20 @@ function submit() {
     });
 }
 
-watch(() => form.errors, (errors) => {
-    if (Object.keys(errors).length > 0) {
-        showToast('error', 'Error de validación', Object.values(errors)[0] as string);
-    }
-});
+watch(
+    () => form.errors,
+    (errors) => {
+        if (Object.keys(errors).length > 0) {
+            showToast('error', 'Error de validación', Object.values(errors)[0] as string);
+        }
+    },
+);
 </script>
 
 <template>
     <Head title="Diseñador de Diplomados" />
     <AppLayout>
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
+        <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
             <AdminPageHeader
                 badge="Académico / Certificados"
                 title="Configuración de"
@@ -94,19 +102,23 @@ watch(() => form.errors, (errors) => {
                 <button
                     type="button"
                     :disabled="form.processing"
-                    class="inline-flex items-center gap-2 h-12 rounded-2xl px-6 text-sm font-bold bg-primary text-white shadow-lg hover:bg-primary/90 disabled:opacity-60 transition-all"
+                    class="inline-flex h-12 items-center gap-2 rounded-2xl bg-primary px-6 text-sm font-bold text-white shadow-lg transition-all hover:bg-primary/90 disabled:opacity-60"
                     @click="submit"
                 >
                     <svg v-if="form.processing" class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        <path
+                            class="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
                     </svg>
-                    <Save v-else class="w-4 h-4" />
+                    <Save v-else class="h-4 w-4" />
                     {{ form.processing ? 'Guardando…' : 'Guardar cambios' }}
                 </button>
             </AdminPageHeader>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
                 <div class="lg:max-h-[calc(100vh-12rem)] lg:overflow-y-auto lg:pr-1">
                     <CertificateTemplateControls v-model:form="form" v-model:image-preview="imagePreview" />
                 </div>

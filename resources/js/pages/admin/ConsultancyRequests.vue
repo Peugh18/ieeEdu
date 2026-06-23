@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminPagination from '@/components/admin/AdminPagination.vue';
-import ConsultancyStats from '@/components/admin/consultancies/ConsultancyStats.vue';
 import ConsultancyFiltersComponent from '@/components/admin/consultancies/ConsultancyFilters.vue';
 import ConsultancyRequestsList from '@/components/admin/consultancies/ConsultancyRequestsList.vue';
+import ConsultancyStats from '@/components/admin/consultancies/ConsultancyStats.vue';
+import { useDebouncedInertiaFilters } from '@/composables/useDebouncedInertiaFilters';
+import AppLayout from '@/layouts/AppLayout.vue';
+import type { ConsultancyFilters, ConsultancyRequest, ConsultancyStats as Stats } from '@/types/consultancy-request';
+import type { PaginatedResponse } from '@/types/pagination';
 import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { useDebouncedInertiaFilters } from '@/composables/useDebouncedInertiaFilters';
-import type { ConsultancyRequest, ConsultancyStats as Stats, ConsultancyFilters } from '@/types/consultancy-request';
-import type { PaginatedResponse } from '@/types/pagination';
 
 const props = defineProps<{
     requests: PaginatedResponse<ConsultancyRequest>;
@@ -36,13 +36,8 @@ function updateStatus(id: number, status: string) {
 <template>
     <Head title="Solicitudes de Consultoría | Admin" />
     <AppLayout>
-        <div class="px-4 py-8 max-w-7xl mx-auto min-h-screen">
-            <AdminPageHeader
-                title="Solicitudes de "
-                title-accent="consultoría"
-                subtitle="Leads y contactos del formulario web."
-                compact
-            />
+        <div class="mx-auto min-h-screen max-w-7xl px-4 py-8">
+            <AdminPageHeader title="Solicitudes de " title-accent="consultoría" subtitle="Leads y contactos del formulario web." compact />
 
             <ConsultancyStats :stats="stats" />
 

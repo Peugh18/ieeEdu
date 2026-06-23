@@ -8,22 +8,25 @@
  *   'danger'   → texto rojo, hover bg-red                (delete)
  *   'ghost'    → text-slate-400 hover color configurable (Courses table)
  */
-withDefaults(defineProps<{
-    as?: 'button' | 'a';
-    href?: string;
-    target?: string;
-    variant?: 'default' | 'outline' | 'danger' | 'ghost';
-    size?: 'sm' | 'md'; // sm=w-8 h-8, md=w-10 h-10
-    hoverColor?: string; // para ghost: 'blue' | 'rose' | 'emerald' | 'amber' | 'brand'
-    disabled?: boolean;
-    title?: string;
-}>(), {
-    as: 'button',
-    variant: 'default',
-    size: 'sm',
-    hoverColor: 'brand',
-    disabled: false,
-});
+withDefaults(
+    defineProps<{
+        as?: 'button' | 'a';
+        href?: string;
+        target?: string;
+        variant?: 'default' | 'outline' | 'danger' | 'ghost';
+        size?: 'sm' | 'md'; // sm=w-8 h-8, md=w-10 h-10
+        hoverColor?: string; // para ghost: 'blue' | 'rose' | 'emerald' | 'amber' | 'brand'
+        disabled?: boolean;
+        title?: string;
+    }>(),
+    {
+        as: 'button',
+        variant: 'default',
+        size: 'sm',
+        hoverColor: 'brand',
+        disabled: false,
+    },
+);
 
 const emit = defineEmits<{ click: [] }>();
 
@@ -38,8 +41,10 @@ const iconSizeMap = {
 };
 
 const variantMap = {
-    default: 'bg-surface-container text-on-background hover:bg-on-background hover:text-primary-fixed dark:bg-[#2a2a1a] dark:text-primary-fixed dark:hover:bg-primary-fixed dark:hover:text-on-background',
-    outline: 'bg-white border border-on-background/5 text-[#9ca3af] hover:bg-on-background hover:text-primary-fixed shadow-sm hover:shadow-md dark:bg-[#2a2a1a] dark:border-primary-fixed/10 dark:text-primary-fixed/40 dark:hover:bg-primary-fixed dark:hover:text-on-background',
+    default:
+        'bg-surface-container text-on-background hover:bg-on-background hover:text-primary-fixed dark:bg-[#2a2a1a] dark:text-primary-fixed dark:hover:bg-primary-fixed dark:hover:text-on-background',
+    outline:
+        'bg-white border border-on-background/5 text-[#9ca3af] hover:bg-on-background hover:text-primary-fixed shadow-sm hover:shadow-md dark:bg-[#2a2a1a] dark:border-primary-fixed/10 dark:text-primary-fixed/40 dark:hover:bg-primary-fixed dark:hover:text-on-background',
     danger: 'bg-surface-container text-red-400 hover:bg-red-500 hover:text-white dark:bg-[#2a2a1a] dark:text-red-400',
     ghost: '',
 };
@@ -61,11 +66,11 @@ const ghostHoverMap: Record<string, string> = {
         :disabled="as === 'button' ? disabled : undefined"
         :title="title"
         @click="as === 'button' ? emit('click') : undefined"
-        class="rounded-full flex items-center justify-center transition-all duration-300 shadow-sm flex-shrink-0"
+        class="flex flex-shrink-0 items-center justify-center rounded-full shadow-sm transition-all duration-300"
         :class="[
             sizeMap[size],
-            variant !== 'ghost' ? variantMap[variant] : `p-2 rounded-xl text-slate-400 transition-all hover:scale-110 ${ghostHoverMap[hoverColor]}`,
-            disabled ? 'opacity-20 pointer-events-none' : ''
+            variant !== 'ghost' ? variantMap[variant] : `rounded-xl p-2 text-slate-400 transition-all hover:scale-110 ${ghostHoverMap[hoverColor]}`,
+            disabled ? 'pointer-events-none opacity-20' : '',
         ]"
     >
         <slot :iconClass="iconSizeMap[size]" />

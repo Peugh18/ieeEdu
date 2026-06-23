@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import BottomNav from '@/components/student/BottomNav.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
-import { Award, Download, Eye, ShieldCheck, Printer, Search, LayoutGrid, List } from 'lucide-vue-next';
+import { Award, Download, Eye, LayoutGrid, List, Printer, Search, ShieldCheck } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface Certificate {
     id: number;
@@ -31,9 +31,8 @@ const viewMode = ref<'grid' | 'list'>('grid');
 const filteredCertificates = computed(() => {
     if (!searchQuery.value) return props.certificates;
     const query = searchQuery.value.toLowerCase().trim();
-    return props.certificates.filter(cert => 
-        (cert.title && cert.title.toLowerCase().includes(query)) || 
-        (cert.course_title && cert.course_title.toLowerCase().includes(query))
+    return props.certificates.filter(
+        (cert) => (cert.title && cert.title.toLowerCase().includes(query)) || (cert.course_title && cert.course_title.toLowerCase().includes(query)),
     );
 });
 </script>
@@ -42,49 +41,56 @@ const filteredCertificates = computed(() => {
     <Head title="Mis Certificados - IEE" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="min-h-screen bg-background text-on-background flex justify-center overflow-x-hidden">
-            
-            <div class="w-full max-w-7xl p-4 md:p-12 space-y-8 md:space-y-12">
+        <div class="flex min-h-screen justify-center overflow-x-hidden bg-background text-on-background">
+            <div class="w-full max-w-7xl space-y-8 p-4 md:space-y-12 md:p-12">
                 <!-- Academic Header -->
-                <header class="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-10">
+                <header class="flex flex-col justify-between gap-4 md:flex-row md:items-end md:gap-10">
                     <div class="space-y-2 md:space-y-4">
-                        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/5 border border-primary/10 rounded-full">
-                            <div class="w-2 h-2 rounded-full bg-[#D4AF37]"></div>
-                            <span class="text-[10px] font-black text-primary uppercase tracking-[0.25em]">Credenciales Institucionales</span>
+                        <div class="inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/5 px-4 py-1.5">
+                            <div class="h-2 w-2 rounded-full bg-[#D4AF37]"></div>
+                            <span class="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Credenciales Institucionales</span>
                         </div>
-                        <h1 class="text-2xl md:text-5xl font-serif font-bold italic tracking-tight text-on-background">Honores y Certificaciones</h1>
-                        <p class="hidden md:block text-on-surface-variant font-serif italic text-lg max-w-2xl leading-relaxed">Su trayectoria de excelencia académica debidamente acreditada y validada por nuestra institución.</p>
+                        <h1 class="font-serif text-2xl font-bold italic tracking-tight text-on-background md:text-5xl">Honores y Certificaciones</h1>
+                        <p class="hidden max-w-2xl font-serif text-lg italic leading-relaxed text-on-surface-variant md:block">
+                            Su trayectoria de excelencia académica debidamente acreditada y validada por nuestra institución.
+                        </p>
                     </div>
-                    
+
                     <!-- Search Input and View Toggle -->
-                    <div v-if="certificates.length > 0" class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full md:w-auto">
+                    <div v-if="certificates.length > 0" class="flex w-full shrink-0 flex-col items-center gap-4 sm:flex-row md:w-auto">
                         <div class="relative w-full md:w-80">
-                            <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-on-surface-variant/40 focus-within:text-primary transition-colors">
-                                <Search class="w-4 h-4" />
+                            <div
+                                class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-on-surface-variant/40 transition-colors focus-within:text-primary"
+                            >
+                                <Search class="h-4 w-4" />
                             </div>
-                            <input 
+                            <input
                                 v-model="searchQuery"
-                                type="text" 
+                                type="text"
                                 placeholder="Buscar certificación..."
-                                class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl text-xs font-medium text-on-background placeholder-on-surface-variant/40 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 shadow-sm transition-all"
+                                class="w-full rounded-2xl border border-outline-variant/30 bg-white py-3 pl-11 pr-4 text-xs font-medium text-on-background placeholder-on-surface-variant/40 shadow-sm transition-all focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20 dark:border-slate-800 dark:bg-slate-900"
                             />
                         </div>
 
                         <!-- Grid/List Toggle -->
-                        <div class="flex items-center bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl border border-slate-200/20">
-                            <button 
-                                @click="viewMode = 'grid'" 
-                                class="p-2 rounded-lg transition-all"
-                                :class="viewMode === 'grid' ? 'bg-white dark:bg-slate-900 text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'"
+                        <div class="flex items-center rounded-xl border border-slate-200/20 bg-slate-100 p-1 dark:bg-slate-800/50">
+                            <button
+                                @click="viewMode = 'grid'"
+                                class="rounded-lg p-2 transition-all"
+                                :class="
+                                    viewMode === 'grid' ? 'bg-white text-primary shadow-sm dark:bg-slate-900' : 'text-slate-400 hover:text-slate-600'
+                                "
                             >
-                                <LayoutGrid class="w-4 h-4" />
+                                <LayoutGrid class="h-4 w-4" />
                             </button>
-                            <button 
-                                @click="viewMode = 'list'" 
-                                class="p-2 rounded-lg transition-all"
-                                :class="viewMode === 'list' ? 'bg-white dark:bg-slate-900 text-primary shadow-sm' : 'text-slate-400 hover:text-slate-600'"
+                            <button
+                                @click="viewMode = 'list'"
+                                class="rounded-lg p-2 transition-all"
+                                :class="
+                                    viewMode === 'list' ? 'bg-white text-primary shadow-sm dark:bg-slate-900' : 'text-slate-400 hover:text-slate-600'
+                                "
                             >
-                                <List class="w-4 h-4" />
+                                <List class="h-4 w-4" />
                             </button>
                         </div>
                     </div>
@@ -94,55 +100,100 @@ const filteredCertificates = computed(() => {
                     <template v-if="filteredCertificates.length > 0">
                         <!-- Grid View -->
                         <div v-if="viewMode === 'grid'" class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                            <article v-for="cert in filteredCertificates" :key="cert.id" 
-                                class="group bg-white dark:bg-slate-900 rounded-[2.5rem] border border-outline-variant/20 dark:border-slate-800/80 shadow-sm hover:shadow-2xl hover:shadow-primary/10 dark:hover:shadow-primary/5 transition-all duration-700 overflow-hidden flex flex-col relative hover:-translate-y-2"
+                            <article
+                                v-for="cert in filteredCertificates"
+                                :key="cert.id"
+                                class="group relative flex flex-col overflow-hidden rounded-[2.5rem] border border-outline-variant/20 bg-white shadow-sm transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 dark:border-slate-800/80 dark:bg-slate-900 dark:hover:shadow-primary/5"
                             >
                                 <!-- Premium framing -->
-                                <div class="relative aspect-[16/11] bg-background p-2 overflow-hidden flex items-center justify-center border-b border-outline-variant/10 dark:border-slate-800/50">
+                                <div
+                                    class="relative flex aspect-[16/11] items-center justify-center overflow-hidden border-b border-outline-variant/10 bg-background p-2 dark:border-slate-800/50"
+                                >
                                     <!-- Verification Overlay (desktop hover only) -->
-                                    <div class="hidden md:flex absolute inset-0 bg-primary/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-700 items-center justify-center gap-6 z-30">
-                                        <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" target="_blank" v-if="cert.download_url" class="w-14 h-14 bg-white text-primary rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"><Eye class="w-6 h-6 shrink-0" /></a>
-                                        <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" download v-if="cert.download_url" class="w-14 h-14 bg-[#D4AF37] text-white rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"><Download class="w-6 h-6 shrink-0" /></a>
+                                    <div
+                                        class="absolute inset-0 z-30 hidden items-center justify-center gap-6 bg-primary/80 opacity-0 backdrop-blur-sm transition-all duration-700 group-hover:opacity-100 md:flex"
+                                    >
+                                        <a
+                                            :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'"
+                                            target="_blank"
+                                            v-if="cert.download_url"
+                                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-primary shadow-2xl transition-all hover:scale-110 active:scale-95"
+                                            ><Eye class="h-6 w-6 shrink-0"
+                                        /></a>
+                                        <a
+                                            :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'"
+                                            download
+                                            v-if="cert.download_url"
+                                            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#D4AF37] text-white shadow-2xl transition-all hover:scale-110 active:scale-95"
+                                            ><Download class="h-6 w-6 shrink-0"
+                                        /></a>
                                     </div>
 
-                                    <div class="w-full h-full relative z-10 group-hover:scale-105 group-hover:rotate-1 transition-transform duration-1000 p-4">
-                                        <img :src="cert.image" :alt="cert.title" class="w-full h-full object-contain rounded-xl shadow-2xl border border-outline-variant/10 dark:border-slate-800/50" />
+                                    <div
+                                        class="relative z-10 h-full w-full p-4 transition-transform duration-1000 group-hover:rotate-1 group-hover:scale-105"
+                                    >
+                                        <img
+                                            :src="cert.image"
+                                            :alt="cert.title"
+                                            class="h-full w-full rounded-xl border border-outline-variant/10 object-contain shadow-2xl dark:border-slate-800/50"
+                                        />
                                     </div>
 
                                     <!-- Decorative institutional seal watermark -->
-                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] group-hover:scale-150 transition-transform duration-[transition-duration:3s]">
-                                        <Award class="w-64 h-64 text-primary" />
+                                    <div
+                                        class="duration-[transition-duration:3s] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] transition-transform group-hover:scale-150"
+                                    >
+                                        <Award class="h-64 w-64 text-primary" />
                                     </div>
 
-                                    <div class="absolute top-6 right-6 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl p-2.5 rounded-2xl border border-white/20 dark:border-slate-700/50 shadow-xl z-20">
-                                       <ShieldCheck class="w-5 h-5 text-[#D4AF37]" />
+                                    <div
+                                        class="absolute right-6 top-6 z-20 rounded-2xl border border-white/20 bg-white/90 p-2.5 shadow-xl backdrop-blur-xl dark:border-slate-700/50 dark:bg-slate-800/90"
+                                    >
+                                        <ShieldCheck class="h-5 w-5 text-[#D4AF37]" />
                                     </div>
                                 </div>
 
-                                <div class="p-6 flex flex-col gap-4 flex-1 bg-white dark:bg-slate-900">
+                                <div class="flex flex-1 flex-col gap-4 bg-white p-6 dark:bg-slate-900">
                                     <div class="space-y-2">
                                         <div class="flex items-center gap-2">
-                                            <div class="w-1.5 h-1.5 rounded-full bg-[#D4AF37]"></div>
-                                            <span class="text-[9px] font-black text-outline-variant uppercase tracking-[0.3em] font-serif italic">Programa de Postgrado</span>
+                                            <div class="h-1.5 w-1.5 rounded-full bg-[#D4AF37]"></div>
+                                            <span class="font-serif text-[9px] font-black uppercase italic tracking-[0.3em] text-outline-variant"
+                                                >Programa de Postgrado</span
+                                            >
                                         </div>
-                                        <h3 class="font-serif font-bold text-lg text-on-background italic leading-snug group-hover:text-primary transition-colors line-clamp-2" :title="cert.course_title">{{ cert.course_title }}</h3>
+                                        <h3
+                                            class="line-clamp-2 font-serif text-lg font-bold italic leading-snug text-on-background transition-colors group-hover:text-primary"
+                                            :title="cert.course_title"
+                                        >
+                                            {{ cert.course_title }}
+                                        </h3>
                                     </div>
 
-                                    <div class="mt-auto pt-4 border-t border-outline-variant/10 flex flex-col gap-4">
+                                    <div class="mt-auto flex flex-col gap-4 border-t border-outline-variant/10 pt-4">
                                         <div class="flex items-center justify-between text-xs">
                                             <div class="flex items-center gap-2">
-                                                <Award class="w-4 h-4 text-primary" />
-                                                <span class="font-bold text-on-surface-variant italic">Acreditado</span>
+                                                <Award class="h-4 w-4 text-primary" />
+                                                <span class="font-bold italic text-on-surface-variant">Acreditado</span>
                                             </div>
                                             <span class="text-[10px] font-bold text-slate-400">Código: {{ cert.code }}</span>
                                         </div>
-                                        
+
                                         <div class="flex gap-2">
-                                            <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" v-if="cert.download_url" target="_blank" class="flex-1 py-3 rounded-xl bg-background dark:bg-slate-800 border border-outline-variant/30 dark:border-slate-700 text-on-surface-variant text-[9px] font-black uppercase tracking-[0.2em] hover:bg-white dark:hover:bg-slate-750 hover:text-primary hover:border-primary/30 transition-all flex items-center justify-center gap-1.5 italic active:scale-95">
-                                                <Printer class="w-4 h-4" /> Ver
+                                            <a
+                                                :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'"
+                                                v-if="cert.download_url"
+                                                target="_blank"
+                                                class="dark:hover:bg-slate-750 flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-outline-variant/30 bg-background py-3 text-[9px] font-black uppercase italic tracking-[0.2em] text-on-surface-variant transition-all hover:border-primary/30 hover:bg-white hover:text-primary active:scale-95 dark:border-slate-700 dark:bg-slate-800"
+                                            >
+                                                <Printer class="h-4 w-4" /> Ver
                                             </a>
-                                            <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" v-if="cert.download_url" download class="flex-1 py-3 rounded-xl bg-primary text-white text-[9px] font-black uppercase tracking-[0.2em] hover:opacity-90 transition-all flex items-center justify-center gap-1.5 italic shadow-md shadow-primary/15 active:scale-95">
-                                                <Download class="w-4 h-4" /> Descargar
+                                            <a
+                                                :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'"
+                                                v-if="cert.download_url"
+                                                download
+                                                class="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary py-3 text-[9px] font-black uppercase italic tracking-[0.2em] text-white shadow-md shadow-primary/15 transition-all hover:opacity-90 active:scale-95"
+                                            >
+                                                <Download class="h-4 w-4" /> Descargar
                                             </a>
                                         </div>
                                     </div>
@@ -151,74 +202,131 @@ const filteredCertificates = computed(() => {
                         </div>
 
                         <!-- List View (Responsive) -->
-                        <div v-else class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div v-else class="duration-500 animate-in fade-in slide-in-from-bottom-4">
                             <!-- Mobile List (Stacked Cards) -->
-                            <div class="md:hidden space-y-4">
-                                <div 
-                                    v-for="cert in filteredCertificates" 
+                            <div class="space-y-4 md:hidden">
+                                <div
+                                    v-for="cert in filteredCertificates"
                                     :key="cert.id"
-                                    class="bg-white dark:bg-slate-900 rounded-2xl border border-outline-variant/15 dark:border-slate-800/80 p-5 shadow-sm space-y-4"
+                                    class="space-y-4 rounded-2xl border border-outline-variant/15 bg-white p-5 shadow-sm dark:border-slate-800/80 dark:bg-slate-900"
                                 >
                                     <div class="flex items-center gap-3">
-                                        <div class="w-16 h-10 bg-slate-50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-lg overflow-hidden flex-shrink-0 relative">
-                                            <img :src="cert.image" :alt="cert.course_title" class="w-full h-full object-cover">
+                                        <div
+                                            class="relative h-10 w-16 flex-shrink-0 overflow-hidden rounded-lg border border-slate-200/50 bg-slate-50 dark:border-slate-700/50 dark:bg-slate-800"
+                                        >
+                                            <img :src="cert.image" :alt="cert.course_title" class="h-full w-full object-cover" />
                                         </div>
-                                        <div class="flex flex-col min-w-0">
-                                            <span class="text-[9px] font-bold uppercase tracking-widest text-[#D4AF37] mb-0.5">Programa de Postgrado</span>
-                                            <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight line-clamp-1" :title="cert.course_title">{{ cert.course_title }}</h4>
+                                        <div class="flex min-w-0 flex-col">
+                                            <span class="mb-0.5 text-[9px] font-bold uppercase tracking-widest text-[#D4AF37]"
+                                                >Programa de Postgrado</span
+                                            >
+                                            <h4
+                                                class="line-clamp-1 text-sm font-bold leading-tight text-slate-900 dark:text-slate-100"
+                                                :title="cert.course_title"
+                                            >
+                                                {{ cert.course_title }}
+                                            </h4>
                                         </div>
                                     </div>
-                                    
-                                    <div class="flex items-center justify-between gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60 text-xs text-on-surface-variant/70 font-medium">
+
+                                    <div
+                                        class="flex items-center justify-between gap-4 border-t border-slate-100 pt-3 text-xs font-medium text-on-surface-variant/70 dark:border-slate-800/60"
+                                    >
                                         <div class="flex flex-col">
-                                            <span class="text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Código</span>
+                                            <span class="text-[9px] uppercase tracking-wider text-slate-400 dark:text-slate-500">Código</span>
                                             <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ cert.code }}</span>
                                         </div>
                                         <div class="flex flex-col text-right">
-                                            <span class="text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Emisión</span>
+                                            <span class="text-[9px] uppercase tracking-wider text-slate-400 dark:text-slate-500">Emisión</span>
                                             <span class="font-semibold text-slate-800 dark:text-slate-200">{{ cert.issue_date }}</span>
                                         </div>
                                     </div>
 
                                     <div class="flex gap-2 pt-2">
-                                        <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" v-if="cert.download_url" target="_blank" class="flex-1 py-3 rounded-xl bg-background dark:bg-slate-800 border border-outline-variant/30 dark:border-slate-700 text-on-surface-variant text-[10px] font-black uppercase tracking-[0.15em] hover:bg-white hover:text-primary transition-all flex items-center justify-center gap-1.5 active:scale-95">
-                                            <Printer class="w-4 h-4" /> Ver
+                                        <a
+                                            :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'"
+                                            v-if="cert.download_url"
+                                            target="_blank"
+                                            class="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-outline-variant/30 bg-background py-3 text-[10px] font-black uppercase tracking-[0.15em] text-on-surface-variant transition-all hover:bg-white hover:text-primary active:scale-95 dark:border-slate-700 dark:bg-slate-800"
+                                        >
+                                            <Printer class="h-4 w-4" /> Ver
                                         </a>
-                                        <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" v-if="cert.download_url" download class="flex-1 py-3 rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-[0.15em] hover:opacity-90 transition-all flex items-center justify-center gap-1.5 shadow-md shadow-primary/15 active:scale-95">
-                                            <Download class="w-4 h-4" /> Descargar
+                                        <a
+                                            :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'"
+                                            v-if="cert.download_url"
+                                            download
+                                            class="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary py-3 text-[10px] font-black uppercase tracking-[0.15em] text-white shadow-md shadow-primary/15 transition-all hover:opacity-90 active:scale-95"
+                                        >
+                                            <Download class="h-4 w-4" /> Descargar
                                         </a>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Desktop List (Table Layout) -->
-                            <div class="hidden md:block bg-white dark:bg-slate-900 rounded-[2.5rem] border border-outline-variant/20 dark:border-slate-800 shadow-sm overflow-hidden">
-                                <div class="overflow-x-auto custom-scrollbar">
-                                    <table class="w-full text-left border-collapse min-w-[700px]">
-                                        <thead class="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-100 dark:border-slate-800">
+                            <div
+                                class="hidden overflow-hidden rounded-[2.5rem] border border-outline-variant/20 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900 md:block"
+                            >
+                                <div class="custom-scrollbar overflow-x-auto">
+                                    <table class="w-full min-w-[700px] border-collapse text-left">
+                                        <thead class="border-b border-slate-100 bg-slate-50/80 dark:border-slate-800 dark:bg-slate-800/80">
                                             <tr>
-                                                <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Certificación</th>
-                                                <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-center">Código</th>
-                                                <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-center">Fecha de Emisión</th>
-                                                <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 text-right">Acciones</th>
+                                                <th
+                                                    class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500"
+                                                >
+                                                    Certificación
+                                                </th>
+                                                <th
+                                                    class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500"
+                                                >
+                                                    Código
+                                                </th>
+                                                <th
+                                                    class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500"
+                                                >
+                                                    Fecha de Emisión
+                                                </th>
+                                                <th
+                                                    class="px-8 py-5 text-right text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500"
+                                                >
+                                                    Acciones
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50">
-                                            <tr v-for="cert in filteredCertificates" :key="cert.id" class="group hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-all duration-300">
-                                                <td class="px-8 py-5 relative">
-                                                    <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-0 group-hover:h-12 bg-primary transition-all duration-500 rounded-r-full"></div>
+                                            <tr
+                                                v-for="cert in filteredCertificates"
+                                                :key="cert.id"
+                                                class="group transition-all duration-300 hover:bg-slate-50/50 dark:hover:bg-slate-800/50"
+                                            >
+                                                <td class="relative px-8 py-5">
+                                                    <div
+                                                        class="absolute left-0 top-1/2 h-0 w-1 -translate-y-1/2 rounded-r-full bg-primary transition-all duration-500 group-hover:h-12"
+                                                    ></div>
                                                     <div class="flex items-center gap-4">
-                                                        <div class="w-12 h-8 bg-slate-50 dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 rounded-lg overflow-hidden shadow-inner flex-shrink-0 relative">
-                                                            <img :src="cert.image" class="w-full h-full object-cover">
+                                                        <div
+                                                            class="relative h-8 w-12 flex-shrink-0 overflow-hidden rounded-lg border border-slate-200/50 bg-slate-50 shadow-inner dark:border-slate-700/50 dark:bg-slate-800"
+                                                        >
+                                                            <img :src="cert.image" class="h-full w-full object-cover" />
                                                         </div>
-                                                        <div class="flex flex-col min-w-0">
-                                                            <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight group-hover:text-primary transition-colors line-clamp-1" :title="cert.course_title">{{ cert.course_title }}</h4>
-                                                            <span class="text-[9px] font-bold uppercase tracking-widest text-[#9ca3af] dark:text-slate-500 mt-1">Programa de Postgrado</span>
+                                                        <div class="flex min-w-0 flex-col">
+                                                            <h4
+                                                                class="line-clamp-1 text-sm font-bold leading-tight text-slate-900 transition-colors group-hover:text-primary dark:text-slate-100"
+                                                                :title="cert.course_title"
+                                                            >
+                                                                {{ cert.course_title }}
+                                                            </h4>
+                                                            <span
+                                                                class="mt-1 text-[9px] font-bold uppercase tracking-widest text-[#9ca3af] dark:text-slate-500"
+                                                                >Programa de Postgrado</span
+                                                            >
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td class="px-6 py-5 text-center">
-                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700 text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400">
+                                                    <span
+                                                        class="inline-flex items-center rounded-md border border-slate-200/60 bg-slate-50 px-2.5 py-1 font-mono text-[10px] font-bold text-slate-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400"
+                                                    >
                                                         {{ cert.code }}
                                                     </span>
                                                 </td>
@@ -228,11 +336,29 @@ const filteredCertificates = computed(() => {
                                                     </span>
                                                 </td>
                                                 <td class="px-8 py-5">
-                                                    <div class="flex items-center justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                                                        <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'" target="_blank" v-if="cert.download_url" class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:border-primary hover:text-primary hover:bg-white dark:hover:bg-slate-900 transition-all duration-300" title="Visualizar">
+                                                    <div
+                                                        class="flex items-center justify-end gap-1.5 opacity-80 transition-opacity group-hover:opacity-100"
+                                                    >
+                                                        <a
+                                                            :href="
+                                                                cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=stream'
+                                                            "
+                                                            target="_blank"
+                                                            v-if="cert.download_url"
+                                                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-400 transition-all duration-300 hover:border-primary hover:bg-white hover:text-primary dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500 dark:hover:bg-slate-900"
+                                                            title="Visualizar"
+                                                        >
                                                             <Printer class="h-4 w-4" />
                                                         </a>
-                                                        <a :href="cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'" download v-if="cert.download_url" class="w-10 h-10 rounded-xl bg-primary border border-transparent flex items-center justify-center text-white hover:opacity-90 transition-all duration-300" title="Descargar">
+                                                        <a
+                                                            :href="
+                                                                cert.download_url + (cert.download_url.includes('?') ? '&' : '?') + 'action=download'
+                                                            "
+                                                            download
+                                                            v-if="cert.download_url"
+                                                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-transparent bg-primary text-white transition-all duration-300 hover:opacity-90"
+                                                            title="Descargar"
+                                                        >
                                                             <Download class="h-4 w-4" />
                                                         </a>
                                                     </div>
@@ -246,23 +372,41 @@ const filteredCertificates = computed(() => {
                     </template>
 
                     <!-- Search Empty State -->
-                    <div v-else class="py-20 flex flex-col items-center text-center bg-white dark:bg-slate-900 rounded-[4rem] border border-dashed border-outline-variant/30 dark:border-slate-800 shadow-inner group">
-                         <div class="w-16 h-16 bg-background dark:bg-slate-800 rounded-2xl border border-outline-variant/20 dark:border-slate-700/50 flex items-center justify-center mb-6">
-                            <Search class="w-6 h-6 text-outline-variant dark:text-slate-500" />
-                         </div>
-                         <h3 class="text-xl font-serif font-bold italic text-on-background mb-2">Sin coincidencias</h3>
-                         <p class="text-on-surface-variant font-serif italic text-xs leading-relaxed max-w-xs">No encontramos certificaciones que coincidan con "{{ searchQuery }}".</p>
+                    <div
+                        v-else
+                        class="group flex flex-col items-center rounded-[4rem] border border-dashed border-outline-variant/30 bg-white py-20 text-center shadow-inner dark:border-slate-800 dark:bg-slate-900"
+                    >
+                        <div
+                            class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-outline-variant/20 bg-background dark:border-slate-700/50 dark:bg-slate-800"
+                        >
+                            <Search class="h-6 w-6 text-outline-variant dark:text-slate-500" />
+                        </div>
+                        <h3 class="mb-2 font-serif text-xl font-bold italic text-on-background">Sin coincidencias</h3>
+                        <p class="max-w-xs font-serif text-xs italic leading-relaxed text-on-surface-variant">
+                            No encontramos certificaciones que coincidan con "{{ searchQuery }}".
+                        </p>
                     </div>
                 </div>
 
                 <!-- Cinematic Empty State -->
-                <div v-else class="py-32 flex flex-col items-center text-center bg-white dark:bg-slate-900 rounded-[4rem] border border-dashed border-outline-variant/30 dark:border-slate-800 shadow-inner group">
-                     <div class="w-24 h-24 bg-background dark:bg-slate-800 rounded-[2rem] border border-outline-variant/20 dark:border-slate-700/50 flex items-center justify-center mb-10 group-hover:bg-primary/5 transition-colors">
-                        <Award class="w-10 h-10 text-outline-variant dark:text-slate-500" />
-                     </div>
-                     <h2 class="text-3xl font-serif font-bold italic text-on-background mb-4">Expediente en formación</h2>
-                     <p class="text-on-surface-variant font-serif italic text-base leading-relaxed max-w-sm mb-12">Continúe con sus cátedras magistrales y evaluaciones para formalizar sus competencias académicas.</p>
-                     <Link :href="route('student.courses.index')" class="px-10 py-5 bg-primary text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl hover:bg-on-background transition-all shadow-2xl shadow-primary/20 active:scale-95 italic">Proseguir estudios</Link>
+                <div
+                    v-else
+                    class="group flex flex-col items-center rounded-[4rem] border border-dashed border-outline-variant/30 bg-white py-32 text-center shadow-inner dark:border-slate-800 dark:bg-slate-900"
+                >
+                    <div
+                        class="mb-10 flex h-24 w-24 items-center justify-center rounded-[2rem] border border-outline-variant/20 bg-background transition-colors group-hover:bg-primary/5 dark:border-slate-700/50 dark:bg-slate-800"
+                    >
+                        <Award class="h-10 w-10 text-outline-variant dark:text-slate-500" />
+                    </div>
+                    <h2 class="mb-4 font-serif text-3xl font-bold italic text-on-background">Expediente en formación</h2>
+                    <p class="mb-12 max-w-sm font-serif text-base italic leading-relaxed text-on-surface-variant">
+                        Continúe con sus cátedras magistrales y evaluaciones para formalizar sus competencias académicas.
+                    </p>
+                    <Link
+                        :href="route('student.courses.index')"
+                        class="rounded-2xl bg-primary px-10 py-5 text-[10px] font-black uppercase italic tracking-[0.3em] text-white shadow-2xl shadow-primary/20 transition-all hover:bg-on-background active:scale-95"
+                        >Proseguir estudios</Link
+                    >
                 </div>
             </div>
         </div>
@@ -298,8 +442,14 @@ article {
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .group:hover .group-hover\:rotate-1 {

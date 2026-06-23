@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-const props = withDefaults(defineProps<{
-    modelValue: number;
-    label: string;
-    min?: number;
-    max?: number;
-    step?: number;
-}>(), {
-    min: 0,
-    max: 100,
-    step: 0.5,
-});
+const props = withDefaults(
+    defineProps<{
+        modelValue: number;
+        label: string;
+        min?: number;
+        max?: number;
+        step?: number;
+    }>(),
+    {
+        min: 0,
+        max: 100,
+        step: 0.5,
+    },
+);
 
 const emit = defineEmits<{ 'update:modelValue': [value: number] }>();
 
@@ -41,12 +44,9 @@ function onNumberInput(e: Event) {
         </div>
 
         <div class="flex items-center gap-4">
-            <div class="relative flex-1 h-8 flex items-center">
-                <div class="absolute inset-x-0 h-2 rounded-full bg-surface-container-highest overflow-hidden">
-                    <div
-                        class="h-full rounded-full bg-primary/30 transition-all duration-150"
-                        :style="{ width: `${fillPercent}%` }"
-                    />
+            <div class="relative flex h-8 flex-1 items-center">
+                <div class="absolute inset-x-0 h-2 overflow-hidden rounded-full bg-surface-container-highest">
+                    <div class="h-full rounded-full bg-primary/30 transition-all duration-150" :style="{ width: `${fillPercent}%` }" />
                 </div>
                 <input
                     type="range"
@@ -54,7 +54,7 @@ function onNumberInput(e: Event) {
                     :min="min"
                     :max="max"
                     :step="step"
-                    class="certificate-slider relative z-10 w-full h-8 appearance-none bg-transparent cursor-pointer"
+                    class="certificate-slider relative z-10 h-8 w-full cursor-pointer appearance-none bg-transparent"
                     @input="onInput"
                 />
             </div>
@@ -65,7 +65,7 @@ function onNumberInput(e: Event) {
                 :min="min"
                 :max="max"
                 :step="step"
-                class="w-16 text-sm bg-surface-container-high border border-outline-variant/30 rounded-xl py-2 text-center font-bold text-on-surface focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                class="w-16 rounded-xl border border-outline-variant/30 bg-surface-container-high py-2 text-center text-sm font-bold text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/30"
                 @input="onNumberInput"
             />
         </div>

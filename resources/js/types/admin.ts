@@ -15,14 +15,14 @@ export interface PaymentListItem {
     amount: number;
     comprobante: string | null;
     created_at: string;
-    user: { 
-        id?: number; 
-        name: string; 
-        email: string; 
+    user: {
+        id?: number;
+        name: string;
+        email: string;
     };
-    course: { 
-        id?: number; 
-        title: string; 
+    course: {
+        id?: number;
+        title: string;
     } | null;
     book: {
         id?: number;

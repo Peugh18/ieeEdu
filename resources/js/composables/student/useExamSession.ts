@@ -1,7 +1,7 @@
-import { ref, computed, onUnmounted } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
-import { Quiz, ExamResult } from '@/types/exam';
 import { SharedData } from '@/types';
+import { ExamResult, Quiz } from '@/types/exam';
+import { router, usePage } from '@inertiajs/vue3';
+import { computed, onUnmounted, ref } from 'vue';
 
 export function useExamSession(quiz: Quiz) {
     const page = usePage<SharedData>();
@@ -27,7 +27,7 @@ export function useExamSession(quiz: Quiz) {
             answers: selectedAnswers.value,
             index: currentQuestionIndex.value,
             time: timeRemaining.value,
-            timestamp: Date.now()
+            timestamp: Date.now(),
         };
         localStorage.setItem(storageKey.value, JSON.stringify(state));
     };
@@ -41,7 +41,7 @@ export function useExamSession(quiz: Quiz) {
                 if (elapsedMs < 2 * 60 * 60 * 1000) {
                     selectedAnswers.value = state.answers || {};
                     currentQuestionIndex.value = state.index || 0;
-                    const savedTime = state.time ?? (quiz.time_limit * 60);
+                    const savedTime = state.time ?? quiz.time_limit * 60;
                     const elapsedSecs = Math.floor(elapsedMs / 1000);
                     timeRemaining.value = Math.max(0, savedTime - elapsedSecs);
                 }
@@ -119,26 +119,30 @@ export function useExamSession(quiz: Quiz) {
         isSubmitting.value = true;
         stopTimer();
 
-        router.post(route('student.exams.submit', { quiz: quiz.id }), {
-            answers: selectedAnswers.value
-        }, {
-            onSuccess: () => {
-                isSubmitting.value = false;
-                if (flashResult.value) {
-                    localStorage.setItem(`${storageKey.value}_result`, JSON.stringify(flashResult.value));
-                }
-                localStorage.removeItem(storageKey.value);
-                if (options?.onSuccess) {
-                    options.onSuccess(flashResult.value);
-                }
+        router.post(
+            route('student.exams.submit', { quiz: quiz.id }),
+            {
+                answers: selectedAnswers.value,
             },
-            onError: () => {
-                isSubmitting.value = false;
-                if (options?.onError) {
-                    options.onError();
-                }
-            }
-        });
+            {
+                onSuccess: () => {
+                    isSubmitting.value = false;
+                    if (flashResult.value) {
+                        localStorage.setItem(`${storageKey.value}_result`, JSON.stringify(flashResult.value));
+                    }
+                    localStorage.removeItem(storageKey.value);
+                    if (options?.onSuccess) {
+                        options.onSuccess(flashResult.value);
+                    }
+                },
+                onError: () => {
+                    isSubmitting.value = false;
+                    if (options?.onError) {
+                        options.onError();
+                    }
+                },
+            },
+        );
     };
 
     onUnmounted(() => {
@@ -160,6 +164,6 @@ export function useExamSession(quiz: Quiz) {
         selectAnswer,
         nextQuestion,
         prevQuestion,
-        submitExam
+        submitExam,
     };
 }

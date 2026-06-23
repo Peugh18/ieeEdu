@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { X } from 'lucide-vue-next';
 import axios from '@/lib/axios';
+import { X } from 'lucide-vue-next';
+import { ref, watch } from 'vue';
 
 const props = defineProps<{
     open: boolean;
@@ -36,11 +36,7 @@ async function submit() {
     loading.value = true;
     error.value = null;
     try {
-        const res = await axios.post(
-            route('admin.categories.store'),
-            { name: value },
-            { headers: { Accept: 'application/json' } },
-        );
+        const res = await axios.post(route('admin.categories.store'), { name: value }, { headers: { Accept: 'application/json' } });
         emit('created', res.data);
         emit('close');
     } catch (e: unknown) {
@@ -61,15 +57,15 @@ async function submit() {
                         <p class="mt-1 text-xs text-on-surface-variant">Se agregará al select automáticamente.</p>
                     </div>
                     <button class="rounded-lg p-2 hover:bg-surface-container-low" @click="$emit('close')" aria-label="Cerrar">
-                        <X class="w-5 h-5 text-on-surface-variant" />
+                        <X class="h-5 w-5 text-on-surface-variant" />
                     </button>
                 </div>
 
                 <div class="mt-4">
-                    <label class="block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant mb-2">Nombre</label>
+                    <label class="mb-2 block text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Nombre</label>
                     <input
                         v-model="name"
-                        class="w-full rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-4 py-3 text-sm focus:border-primary focus:ring-2 focus:ring-primary/15 outline-none transition"
+                        class="w-full rounded-xl border border-outline-variant/30 bg-surface-container-lowest px-4 py-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                         placeholder="Ej. Finanzas, Liderazgo, Data"
                         @keydown.enter.prevent="submit"
                     />
@@ -77,7 +73,10 @@ async function submit() {
                 </div>
 
                 <div class="mt-5 flex justify-end gap-2">
-                    <button class="rounded-xl border border-outline-variant/30 px-4 py-2 text-sm font-semibold hover:bg-surface-container-low" @click="$emit('close')">
+                    <button
+                        class="rounded-xl border border-outline-variant/30 px-4 py-2 text-sm font-semibold hover:bg-surface-container-low"
+                        @click="$emit('close')"
+                    >
                         Cancelar
                     </button>
                     <button
@@ -92,4 +91,3 @@ async function submit() {
         </div>
     </transition>
 </template>
-

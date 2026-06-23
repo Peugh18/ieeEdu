@@ -1,8 +1,8 @@
-import { ref, computed } from 'vue';
-import { useStorage } from '@vueuse/core';
-import { usePage, router } from '@inertiajs/vue3';
-import axios from 'axios';
 import type { SharedData } from '@/types';
+import { router, usePage } from '@inertiajs/vue3';
+import { useStorage } from '@vueuse/core';
+import axios from 'axios';
+import { computed, ref } from 'vue';
 
 interface Course {
     id: number | string;
@@ -26,7 +26,7 @@ export function useCart() {
     const isAuthenticated = computed(() => !!user.value);
 
     const itemCount = computed(() => cartItems.value.length);
-    
+
     const subtotal = computed(() => {
         return cartItems.value.reduce((acc, item) => {
             return acc + (item.sale_price && item.sale_price > 0 ? item.sale_price : item.price);
@@ -36,18 +36,18 @@ export function useCart() {
     const total = computed(() => subtotal.value);
 
     function addItem(course: Course) {
-        const exists = cartItems.value.find(item => item.id === course.id);
+        const exists = cartItems.value.find((item) => item.id === course.id);
         if (exists) {
             return { success: false, message: 'Este curso ya está en tu carrito' };
         }
-        
+
         cartItems.value.push(course);
         isCartOpen.value = true;
         return { success: true, message: 'Curso agregado ✅' };
     }
 
     function removeItem(id: number | string) {
-        cartItems.value = cartItems.value.filter(item => item.id !== id);
+        cartItems.value = cartItems.value.filter((item) => item.id !== id);
     }
 
     function toggleCart() {
@@ -60,7 +60,7 @@ export function useCart() {
             const date = new Date(dateStr.replace(/-/g, '/'));
             const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' };
             const dayMonth = new Intl.DateTimeFormat('es-ES', options).format(date);
-            
+
             let timeFormatted = '';
             if (timeStr) {
                 const [hours, minutes] = timeStr.split(':');
@@ -89,8 +89,8 @@ export function useCart() {
         // Registrar en el backend
         try {
             await axios.post('/api/leads/whatsapp', {
-                courses: cartItems.value.map(c => c.id),
-                total: total.value
+                courses: cartItems.value.map((c) => c.id),
+                total: total.value,
             });
         } catch (_e) {
             console.error('Tracking error:', _e);
@@ -99,23 +99,23 @@ export function useCart() {
         // Generar mensaje
         const userName = user.value?.name || 'Estudiante';
         const baseUrl = window.location.origin;
-        
+
         // Obtener URL de la imagen (absoluta)
         const firstCourse = cartItems.value[0];
-        const imageUrl = firstCourse?.image?.startsWith('http') 
-            ? firstCourse.image 
+        const imageUrl = firstCourse?.image?.startsWith('http')
+            ? firstCourse.image
             : `${baseUrl}${firstCourse?.image?.startsWith('/') ? '' : '/'}${firstCourse?.image || 'images/empresa/LogoLight.png'}`;
 
-        const wav = "\u{1F44B}"; // 👋
-        const bx = "\u{1F4DA}"; // 📚
-        const cal = "\u{1F4C5}"; // 📅
-        const mon = "\u{1F4B0}"; // 💰
-        const csh = "\u{1F4B5}"; // 💵
+        const wav = '\u{1F44B}'; // 👋
+        const bx = '\u{1F4DA}'; // 📚
+        const cal = '\u{1F4C5}'; // 📅
+        const mon = '\u{1F4B0}'; // 💰
+        const csh = '\u{1F4B5}'; // 💵
 
         let message = `${imageUrl}\n\n`;
         message += `Hola ${wav}, soy *${userName}* y estoy interesado en los siguientes cursos:\n\n`;
         message += `${bx} *Cursos seleccionados:*\n\n`;
-        
+
         cartItems.value.forEach((item, index) => {
             const price = item.sale_price && item.sale_price > 0 ? item.sale_price : item.price;
             message += `${index + 1}. *${item.title}*\n`;
@@ -125,11 +125,11 @@ export function useCart() {
 
         message += `${csh} *Total a pagar: S/ ${total.value}*\n\n`;
         message += `Quedo atento para continuar con la matrícula.`;
-        
+
         const pageProps = page.props as Record<string, unknown>;
         const whatsappNumber = (pageProps.whatsapp_sales as string) || '51959166911';
         const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-        
+
         window.open(url, '_blank');
     }
 
@@ -160,6 +160,6 @@ export function useCart() {
         removeItem,
         toggleCart,
         sendToWhatsApp,
-        handlePostLoginAction
+        handlePostLoginAction,
     };
 }

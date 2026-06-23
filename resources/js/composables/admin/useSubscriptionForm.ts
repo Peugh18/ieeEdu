@@ -1,7 +1,7 @@
-import { ref, watch } from 'vue';
+import type { SubscriptionUser } from '@/types/subscription';
 import { useForm } from '@inertiajs/vue3';
 import axios from 'axios';
-import type { SubscriptionUser } from '@/types/subscription';
+import { ref, watch } from 'vue';
 
 export interface PlanOption {
     slug: string;
@@ -27,13 +27,16 @@ export function useSubscriptionForm(planOptions: PlanOption[] = []) {
         comprobante: null as File | null,
     });
 
-    watch(() => form.type, (newType) => {
-        const plan = planOptions.find((item) => item.slug === newType);
-        if (plan) {
-            form.months = plan.months;
-            form.amount = plan.price;
-        }
-    });
+    watch(
+        () => form.type,
+        (newType) => {
+            const plan = planOptions.find((item) => item.slug === newType);
+            if (plan) {
+                form.months = plan.months;
+                form.amount = plan.price;
+            }
+        },
+    );
 
     function onFileChange(e: Event) {
         const el = e.target as HTMLInputElement;
@@ -45,13 +48,21 @@ export function useSubscriptionForm(planOptions: PlanOption[] = []) {
     }
 
     async function searchUsers() {
-        if (searchUserQuery.value.length < 2) { usersResults.value = []; showUserDropdown.value = false; return; }
+        if (searchUserQuery.value.length < 2) {
+            usersResults.value = [];
+            showUserDropdown.value = false;
+            return;
+        }
         isSearchingUser.value = true;
         try {
             const res = await axios.get(route('admin.users.search'), { params: { q: searchUserQuery.value } });
             usersResults.value = res.data;
             showUserDropdown.value = true;
-        } catch (e) { console.error(e); } finally { isSearchingUser.value = false; }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            isSearchingUser.value = false;
+        }
     }
 
     function selectUser(user: SubscriptionUser) {
