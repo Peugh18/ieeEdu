@@ -5,7 +5,6 @@ use App\Models\Payment;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Support\PlanPricing;
-use Illuminate\Http\UploadedFile;
 
 test('plan pricing returns configured or default price', function () {
     expect(PlanPricing::price('trimestral'))->toBe(350.0);

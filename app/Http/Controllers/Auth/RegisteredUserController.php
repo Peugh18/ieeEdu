@@ -36,6 +36,9 @@ class RegisteredUserController extends Controller
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'telefono' => 'nullable|string|max:30',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'terms' => 'accepted',
+        ], [
+            'terms.accepted' => 'Debe aceptar los términos y condiciones y la política de privacidad para continuar.',
         ]);
 
         $user = User::create([

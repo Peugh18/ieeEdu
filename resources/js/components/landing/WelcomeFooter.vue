@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BrandLogo from '@/components/BrandLogo.vue';
 import type { SharedData } from '@/types';
-import { usePage } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const page = usePage<SharedData>();
@@ -284,8 +284,8 @@ const contactAddress = computed(() => site.value.contact_address || 'Trujillo, P
                     © {{ new Date().getFullYear() }} Instituto de Economía y Empresa. Todos los derechos reservados.
                 </p>
                 <div class="mt-3 flex justify-center gap-4 text-xs text-on-surface-variant/50">
-                    <a href="#" class="transition-colors hover:text-primary">Privacidad</a>
-                    <a href="#" class="transition-colors hover:text-primary">Términos</a>
+                    <Link :href="route('privacy')" class="transition-colors hover:text-primary">Privacidad</Link>
+                    <Link :href="route('terms')" class="transition-colors hover:text-primary">Términos</Link>
                     <a href="#" class="transition-colors hover:text-primary">Cookies</a>
                 </div>
             </div>

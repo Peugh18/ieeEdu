@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Book;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
@@ -60,7 +61,7 @@ class StorePaymentRequest extends FormRequest
             }
 
             $bookId = $this->input('book_id');
-            $book = \App\Models\Book::find($bookId);
+            $book = Book::find($bookId);
 
             if ($book && ! $book->canAcceptNewPurchase()) {
                 $user = User::find($userId);

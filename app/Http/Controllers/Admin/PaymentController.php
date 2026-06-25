@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePaymentRequest;
 use App\Models\Book;
+use App\Models\BookOrder;
 use App\Models\Course;
-use App\Models\Enrollment;
 use App\Models\Payment;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
@@ -123,7 +123,7 @@ class PaymentController extends Controller
 
         return Inertia::render('admin/PaymentShow', [
             'payment' => $payment,
-            'shippingStatuses' => \App\Models\BookOrder::statusLabels(),
+            'shippingStatuses' => BookOrder::statusLabels(),
         ]);
     }
 

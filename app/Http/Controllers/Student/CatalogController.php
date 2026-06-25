@@ -46,7 +46,7 @@ class CatalogController extends Controller
             ->get()
             ->keyBy('book_id');
 
-        $books->getCollection()->transform(function ($b) use ($user, $bookPayments) {
+        $books->getCollection()->transform(function ($b) use ($bookPayments) {
             $isPaid = (float) $b->price > 0;
             $payment = $bookPayments->get($b->id);
             $order = $payment?->bookOrder;

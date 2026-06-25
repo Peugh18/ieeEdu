@@ -23,3 +23,11 @@ Route::post('/consultoria/solicitud', [ConsultancyController::class, 'store'])
 Route::post('/api/leads/whatsapp', [WhatsappLeadController::class, 'trackWhatsApp'])
     ->middleware('throttle:10,1')
     ->name('api.leads.whatsapp');
+
+Route::get('/terminos-y-condiciones', function () {
+    return Inertia\Inertia::render('Terms');
+})->name('terms');
+
+Route::get('/politica-de-privacidad', function () {
+    return Inertia\Inertia::render('Privacy');
+})->name('privacy');
