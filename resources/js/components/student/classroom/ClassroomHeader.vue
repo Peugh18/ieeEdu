@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import type { Course, Lesson } from '@/types/classroom';
 import { Link } from '@inertiajs/vue3';
 import { ChevronLeft, ChevronRight, ListVideo, MessageSquare } from 'lucide-vue-next';
-import type { Course, Lesson } from '@/types/classroom';
 
 defineProps<{
     course: Course;
@@ -21,65 +21,78 @@ const emit = defineEmits<{
 </script>
 
 <template>
-    <header class="h-14 md:h-20 shrink-0 bg-white dark:bg-surface border-b border-outline-variant/10 flex items-center px-4 md:px-10 justify-between relative z-40 shadow-sm transition-all duration-300">
+    <header
+        class="relative z-40 flex h-14 shrink-0 items-center justify-between border-b border-outline-variant/10 bg-white px-4 shadow-sm transition-all duration-300 dark:bg-surface md:h-20 md:px-10"
+    >
         <div class="flex items-center gap-4 md:gap-6">
-            <Link :href="route('student.courses.index')" class="p-2.5 md:p-3 bg-surface-container-low dark:bg-surface-2 hover:bg-surface-container-highest dark:hover:bg-surface-3 rounded-xl border border-outline-variant/10 transition-all text-primary dark:text-primary-fixed group shadow-sm flex items-center justify-center">
-                <ChevronLeft class="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <Link
+                :href="route('student.courses.index')"
+                class="dark:bg-surface-2 dark:hover:bg-surface-3 group flex items-center justify-center rounded-xl border border-outline-variant/10 bg-surface-container-low p-2.5 text-primary shadow-sm transition-all hover:bg-surface-container-highest dark:text-primary-fixed md:p-3"
+            >
+                <ChevronLeft class="h-5 w-5 transition-transform group-hover:-translate-x-1" />
             </Link>
-            <div class="flex flex-col min-w-0">
-                <p class="text-[9px] md:text-[10px] font-bold text-primary/70 dark:text-primary-fixed-dim/80 uppercase tracking-[0.2em] leading-none mb-1.5 truncate max-w-[130px] sm:max-w-md">
+            <div class="flex min-w-0 flex-col">
+                <p
+                    class="mb-1.5 max-w-[130px] truncate text-[9px] font-bold uppercase leading-none tracking-[0.2em] text-primary/70 dark:text-primary-fixed-dim/80 sm:max-w-md md:text-[10px]"
+                >
                     Módulo {{ currentLessonIndex }} de {{ allLessonsCount }} • {{ course.title }}
                 </p>
-                <h1 class="text-sm md:text-base font-bold text-on-background dark:text-on-surface truncate max-w-[130px] sm:max-w-xs md:max-w-md">
+                <h1 class="max-w-[130px] truncate text-sm font-bold text-on-background dark:text-on-surface sm:max-w-xs md:max-w-md md:text-base">
                     {{ currentLesson?.title }}
                 </h1>
             </div>
         </div>
 
         <div class="flex items-center gap-4">
-            <div class="hidden sm:flex items-center bg-surface-container-low dark:bg-surface-2 p-1 rounded-xl border border-outline-variant/10 shadow-inner">
-                <Link 
+            <div
+                class="dark:bg-surface-2 hidden items-center rounded-xl border border-outline-variant/10 bg-surface-container-low p-1 shadow-inner sm:flex"
+            >
+                <Link
                     v-if="prevLessonId"
                     :href="route('student.classroom', { course: course.slug, lesson: prevLessonId })"
-                    class="px-4 py-2 hover:bg-white dark:hover:bg-surface-3 hover:shadow-sm rounded-lg transition-all flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-wider text-on-surface-variant dark:text-on-surface hover:text-primary dark:hover:text-primary-fixed"
+                    class="dark:hover:bg-surface-3 flex items-center gap-2 rounded-lg px-4 py-2 text-[10px] font-extrabold uppercase tracking-wider text-on-surface-variant transition-all hover:bg-white hover:text-primary hover:shadow-sm dark:text-on-surface dark:hover:text-primary-fixed"
                 >
-                    <ChevronLeft class="w-4 h-4" /> <span class="hidden lg:inline">Anterior</span>
+                    <ChevronLeft class="h-4 w-4" /> <span class="hidden lg:inline">Anterior</span>
                 </Link>
-                
-                <button 
+
+                <button
                     @click="emit('update:activeSidebarTab', activeSidebarTab === 'curriculum' ? 'chat' : 'curriculum')"
-                    class="px-5 py-2 bg-primary/5 dark:bg-primary/20 hover:bg-primary/10 dark:hover:bg-primary/30 text-primary dark:text-primary-fixed-dim rounded-lg transition-all flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-wider border border-primary/10 dark:border-primary/30 mx-1"
+                    class="mx-1 flex items-center gap-2 rounded-lg border border-primary/10 bg-primary/5 px-5 py-2 text-[10px] font-extrabold uppercase tracking-wider text-primary transition-all hover:bg-primary/10 dark:border-primary/30 dark:bg-primary/20 dark:text-primary-fixed-dim dark:hover:bg-primary/30"
                 >
-                    <ListVideo v-if="activeSidebarTab === 'chat' || activeSidebarTab === 'comments'" class="w-4 h-4" />
-                    <MessageSquare v-else class="w-4 h-4" />
+                    <ListVideo v-if="activeSidebarTab === 'chat' || activeSidebarTab === 'comments'" class="h-4 w-4" />
+                    <MessageSquare v-else class="h-4 w-4" />
                     <span class="hidden lg:inline">{{ activeSidebarTab === 'curriculum' ? 'Foro / Chat' : 'Contenido' }}</span>
                 </button>
 
-                <Link 
+                <Link
                     v-if="nextLessonId"
                     :href="route('student.classroom', { course: course.slug, lesson: nextLessonId })"
-                    class="px-5 py-2 bg-primary dark:bg-primary-fixed dark:text-on-primary-fixed rounded-lg hover:bg-on-background dark:hover:bg-white dark:hover:text-on-background-fixed transition-all flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-wider shadow-md hover:shadow-lg shadow-primary/10 dark:shadow-none"
+                    class="dark:hover:text-on-background-fixed flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-[10px] font-extrabold uppercase tracking-wider shadow-md shadow-primary/10 transition-all hover:bg-on-background hover:shadow-lg dark:bg-primary-fixed dark:text-on-primary-fixed dark:shadow-none dark:hover:bg-white"
                 >
-                    <span class="hidden lg:inline">Siguiente</span> <ChevronRight class="w-4 h-4" />
+                    <span class="hidden lg:inline">Siguiente</span> <ChevronRight class="h-4 w-4" />
                 </Link>
             </div>
-            
+
             <!-- Mobile Navigation Drawer Toggles -->
-            <div class="sm:hidden flex items-center gap-2">
-                <button 
-                    @click="emit('toggleMobileSidebar', 'curriculum')" 
-                    class="p-2.5 bg-surface-container-low dark:bg-surface-2 border border-outline-variant/10 rounded-xl shadow-sm active:scale-95 transition-all"
+            <div class="flex items-center gap-2 sm:hidden">
+                <button
+                    @click="emit('toggleMobileSidebar', 'curriculum')"
+                    class="dark:bg-surface-2 rounded-xl border border-outline-variant/10 bg-surface-container-low p-2.5 shadow-sm transition-all active:scale-95"
                     title="Ver módulos"
                 >
-                    <ListVideo class="w-4 h-4 text-on-surface-variant dark:text-on-surface" />
+                    <ListVideo class="h-4 w-4 text-on-surface-variant dark:text-on-surface" />
                 </button>
-                <button 
-                    @click="emit('toggleMobileSidebar', 'chat')" 
-                    class="p-2.5 bg-primary dark:bg-primary-fixed dark:text-on-primary-fixed rounded-xl shadow-md active:scale-95 transition-all relative"
+                <button
+                    @click="emit('toggleMobileSidebar', 'chat')"
+                    class="relative rounded-xl bg-primary p-2.5 shadow-md transition-all active:scale-95 dark:bg-primary-fixed dark:text-on-primary-fixed"
                     title="Abrir foro"
                 >
-                    <MessageSquare class="w-4 h-4" />
-                    <span v-if="commentsCount > 0" class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center">{{ commentsCount }}</span>
+                    <MessageSquare class="h-4 w-4" />
+                    <span
+                        v-if="commentsCount > 0"
+                        class="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[8px] font-black text-white"
+                        >{{ commentsCount }}</span
+                    >
                 </button>
             </div>
         </div>

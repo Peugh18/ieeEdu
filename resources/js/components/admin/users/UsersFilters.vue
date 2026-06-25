@@ -13,38 +13,38 @@ const emit = defineEmits<{
 
 <template>
     <!-- Smart Filtering -->
-    <div class="bg-white/80 backdrop-blur-md rounded-[2rem] border border-slate-100 p-6 flex flex-col lg:flex-row items-center gap-4 shadow-sm">
-        <div class="relative w-full lg:w-96 group">
-            <Search class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+    <div class="flex flex-col items-center gap-4 rounded-[2rem] border border-slate-100 bg-white/80 p-6 shadow-sm backdrop-blur-md lg:flex-row">
+        <div class="group relative w-full lg:w-96">
+            <Search class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-primary" />
             <input
                 v-model="search"
                 placeholder="Filtrar por nombre, DNI o email..."
-                class="w-full h-12 bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 text-sm font-medium outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary transition-all"
+                class="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm font-medium outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5"
                 @keydown.enter.prevent="emit('filter')"
             />
         </div>
-        
-        <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <div class="flex items-center gap-2 bg-slate-50 px-2 rounded-2xl border border-slate-200">
-                <span class="text-[10px] font-bold uppercase text-slate-400 pl-2">Rol</span>
-                <select v-model="role" class="h-10 bg-transparent text-sm font-semibold text-slate-700 pr-8 outline-none cursor-pointer">
+
+        <div class="flex w-full flex-wrap items-center gap-3 lg:w-auto">
+            <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-2">
+                <span class="pl-2 text-[10px] font-bold uppercase text-slate-400">Rol</span>
+                <select v-model="role" class="h-10 cursor-pointer bg-transparent pr-8 text-sm font-semibold text-slate-700 outline-none">
                     <option value="">Cualquier Rol</option>
                     <option value="admin">Administrador</option>
                     <option value="usuario">Estudiante</option>
                 </select>
             </div>
 
-            <div class="flex items-center gap-2 bg-slate-50 px-2 rounded-2xl border border-slate-200">
-                <span class="text-[10px] font-bold uppercase text-slate-400 pl-2">Estado</span>
-                <select v-model="status" class="h-10 bg-transparent text-sm font-semibold text-slate-700 pr-8 outline-none cursor-pointer">
+            <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-2">
+                <span class="pl-2 text-[10px] font-bold uppercase text-slate-400">Estado</span>
+                <select v-model="status" class="h-10 cursor-pointer bg-transparent pr-8 text-sm font-semibold text-slate-700 outline-none">
                     <option value="">Cualquier Estado</option>
                     <option value="activo">Activo</option>
                     <option value="inactivo">Baja</option>
                 </select>
             </div>
 
-            <div class="flex items-center gap-2 bg-slate-50 px-2 rounded-2xl border border-slate-200">
-                <select v-model="perPage" class="h-10 bg-transparent text-sm font-semibold text-slate-700 px-2 outline-none cursor-pointer">
+            <div class="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-2">
+                <select v-model="perPage" class="h-10 cursor-pointer bg-transparent px-2 text-sm font-semibold text-slate-700 outline-none">
                     <option value="10">10 por hoja</option>
                     <option value="20">20 por hoja</option>
                     <option value="50">50 por hoja</option>

@@ -7,7 +7,7 @@ defineProps<{
 <template>
     <div
         v-show="show"
-        class="rounded-[2.5rem] bg-surface-container-lowest p-8 md:p-14 shadow-2xl shadow-surface-tint/5 border border-outline-variant/10 animate-in fade-in slide-in-from-bottom-4 duration-500 relative overflow-hidden"
+        class="relative overflow-hidden rounded-[2.5rem] border border-outline-variant/10 bg-surface-container-lowest p-8 shadow-2xl shadow-surface-tint/5 duration-500 animate-in fade-in slide-in-from-bottom-4 md:p-14"
     >
         <slot />
     </div>

@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { Head } from '@inertiajs/vue3';
-import { Download } from 'lucide-vue-next';
-import AppLayout from '@/layouts/AppLayout.vue';
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
-import DashboardStatsGrid from '@/components/admin/dashboard/DashboardStatsGrid.vue';
-import DashboardKpisGrid from '@/components/admin/dashboard/DashboardKpisGrid.vue';
-import DashboardRevenueChart from '@/components/admin/dashboard/DashboardRevenueChart.vue';
+import DashboardAcademicMetrics from '@/components/admin/dashboard/DashboardAcademicMetrics.vue';
 import DashboardComposition from '@/components/admin/dashboard/DashboardComposition.vue';
 import DashboardInsight from '@/components/admin/dashboard/DashboardInsight.vue';
-import DashboardTopCourses from '@/components/admin/dashboard/DashboardTopCourses.vue';
-import DashboardTopBooks from '@/components/admin/dashboard/DashboardTopBooks.vue';
 import DashboardInventory from '@/components/admin/dashboard/DashboardInventory.vue';
-import DashboardAcademicMetrics from '@/components/admin/dashboard/DashboardAcademicMetrics.vue';
+import DashboardKpisGrid from '@/components/admin/dashboard/DashboardKpisGrid.vue';
+import DashboardRevenueChart from '@/components/admin/dashboard/DashboardRevenueChart.vue';
+import DashboardStatsGrid from '@/components/admin/dashboard/DashboardStatsGrid.vue';
+import DashboardTopBooks from '@/components/admin/dashboard/DashboardTopBooks.vue';
+import DashboardTopCourses from '@/components/admin/dashboard/DashboardTopCourses.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
+import { Head } from '@inertiajs/vue3';
+import { Download } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 interface ChartPoint {
     label: string;
@@ -93,7 +93,7 @@ const formattedDate = computed(() => {
     return new Date().toLocaleDateString('es-PE', {
         day: '2-digit',
         month: 'long',
-        year: 'numeric'
+        year: 'numeric',
     });
 });
 
@@ -139,9 +139,8 @@ function downloadPDF() {
     <Head title="Admin Dashboard · iieEdu" />
 
     <AppLayout>
-        <div class="min-h-screen bg-background dark:bg-[#141410] font-sans">
-            <div class="max-w-[1700px] mx-auto px-4 sm:px-6 lg:px-14 py-6 md:py-12 space-y-8 md:space-y-14">
-                
+        <div class="min-h-screen bg-background font-sans dark:bg-[#141410]">
+            <div class="mx-auto max-w-[1700px] space-y-8 px-4 py-6 sm:px-6 md:space-y-14 md:py-12 lg:px-14">
                 <AdminPageHeader
                     badge="Panel de Control"
                     title="Dashboard"
@@ -149,35 +148,34 @@ function downloadPDF() {
                     subtitle="Métricas de ingresos, usuarios y actividad académica."
                 >
                     <template #actions>
-                        <div class="px-6 py-3.5 bg-surface rounded-2xl border border-outline-variant/15 shadow-sm flex items-center gap-3">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">{{ formattedDate }}</span>
+                        <div class="flex items-center gap-3 rounded-2xl border border-outline-variant/15 bg-surface px-6 py-3.5 shadow-sm">
+                            <span class="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>
+                            <span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">{{ formattedDate }}</span>
                         </div>
-                        <button @click="downloadPDF" class="px-8 py-3.5 bg-on-background text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 group">
-                            <Download class="w-4 h-4 opacity-50 group-hover:opacity-100 transition" />
+                        <button
+                            @click="downloadPDF"
+                            class="group flex items-center gap-3 rounded-2xl bg-on-background px-8 py-3.5 text-xs font-black uppercase tracking-widest text-white shadow-xl transition-all hover:scale-105 active:scale-95"
+                        >
+                            <Download class="h-4 w-4 opacity-50 transition group-hover:opacity-100" />
                             Reporte PDF
                         </button>
                     </template>
                 </AdminPageHeader>
 
-                <DashboardStatsGrid 
+                <DashboardStatsGrid
                     :stats="stats"
                     :sub-income-share="subIncomeShare"
                     :course-income-share="courseIncomeShare"
                     :book-income-share="bookIncomeShare"
                 />
 
-                <DashboardKpisGrid 
-                    :stats="stats"
-                />
+                <DashboardKpisGrid :stats="stats" />
 
                 <section class="grid gap-8 xl:grid-cols-3">
-                    <DashboardRevenueChart 
-                        :charts="charts"
-                    />
+                    <DashboardRevenueChart :charts="charts" />
 
                     <div class="flex flex-col gap-6">
-                        <DashboardComposition 
+                        <DashboardComposition
                             :sub-income="stats.subIncome"
                             :course-income="stats.courseIncome"
                             :book-income="stats.bookIncome"
@@ -188,30 +186,19 @@ function downloadPDF() {
                             :expired-subs="stats.expiredSubs"
                         />
 
-                        <DashboardInsight 
-                            :insight="insight"
-                        />
+                        <DashboardInsight :insight="insight" />
                     </div>
                 </section>
 
                 <section class="grid gap-8 xl:grid-cols-4">
-                    <DashboardTopCourses 
-                        class="xl:col-span-2"
-                        :course-sales="courseSales"
-                    />
+                    <DashboardTopCourses class="xl:col-span-2" :course-sales="courseSales" />
 
                     <DashboardTopBooks :top-books="topBooks" />
 
-                    <DashboardInventory 
-                        :stats="stats"
-                    />
+                    <DashboardInventory :stats="stats" />
                 </section>
 
-                <DashboardAcademicMetrics 
-                    :stats="stats"
-                    :completion-rate="completionRate"
-                />
-
+                <DashboardAcademicMetrics :stats="stats" :completion-rate="completionRate" />
             </div>
         </div>
     </AppLayout>
@@ -219,7 +206,9 @@ function downloadPDF() {
 
 <style scoped>
 /* Transition smoothness */
-main, aside, section {
+main,
+aside,
+section {
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 </style>

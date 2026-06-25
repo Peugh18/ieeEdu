@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { XCircle, CreditCard, Plus } from 'lucide-vue-next';
 import type { Subscription } from '@/types/subscription';
+import { CreditCard, Plus, XCircle } from 'lucide-vue-next';
 
 const props = defineProps<{
     subscription: Subscription | null;
@@ -18,34 +18,50 @@ function formatMoney(n: number) {
 <template>
     <Teleport to="body">
         <Transition name="fade">
-            <div v-if="subscription" class="fixed inset-0 z-[100] bg-slate-900/95 backdrop-blur-xl flex items-center justify-center p-8" @click="emit('close')">
-                <button class="absolute top-10 right-10 text-white/50 hover:text-white transition-colors" @click="emit('close')">
-                    <XCircle class="w-10 h-10" />
+            <div
+                v-if="subscription"
+                class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/95 p-8 backdrop-blur-xl"
+                @click="emit('close')"
+            >
+                <button class="absolute right-10 top-10 text-white/50 transition-colors hover:text-white" @click="emit('close')">
+                    <XCircle class="h-10 w-10" />
                 </button>
-                <div class="relative max-w-4xl w-full h-full flex flex-col items-center justify-center gap-6" @click.stop>
+                <div class="relative flex h-full w-full max-w-4xl flex-col items-center justify-center gap-6" @click.stop>
                     <template v-if="subscription.payment_capture?.includes('/')">
-                        <img :src="subscription.payment_capture" class="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl border border-white/10" />
-                        <a :href="subscription.payment_capture" download class="px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex items-center gap-2">
-                            <Plus class="w-4 h-4" /> Descargar Evidencia Permanente
+                        <img
+                            :src="subscription.payment_capture"
+                            class="max-h-[80vh] max-w-full rounded-2xl border border-white/10 object-contain shadow-2xl"
+                        />
+                        <a
+                            :href="subscription.payment_capture"
+                            download
+                            class="flex items-center gap-2 rounded-2xl bg-white px-8 py-4 text-xs font-black uppercase tracking-widest text-slate-900 shadow-xl transition-all hover:scale-105"
+                        >
+                            <Plus class="h-4 w-4" /> Descargar Evidencia Permanente
                         </a>
                     </template>
                     <template v-else>
-                        <div class="bg-white p-12 rounded-[3rem] max-w-md w-full text-center space-y-6 shadow-2xl">
-                            <div class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto">
-                                <CreditCard class="w-10 h-10 text-amber-500" />
+                        <div class="w-full max-w-md space-y-6 rounded-[3rem] bg-white p-12 text-center shadow-2xl">
+                            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-amber-50">
+                                <CreditCard class="h-10 w-10 text-amber-500" />
                             </div>
                             <div>
                                 <h3 class="font-serif text-2xl text-slate-900">Nota de Pago</h3>
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Activación Administrativa</p>
+                                <p class="mt-1 text-xs font-bold uppercase tracking-widest text-slate-400">Activación Administrativa</p>
                             </div>
-                            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
+                            <div class="space-y-3 rounded-2xl border border-slate-100 bg-slate-50 p-6">
                                 <div class="flex items-center justify-between border-b border-slate-200/60 pb-3">
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Monto Registrado</span>
-                                    <span class="text-lg font-black text-primary italic">{{ formatMoney(subscription.payment_amount || 0) }}</span>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Monto Registrado</span>
+                                    <span class="text-lg font-black italic text-primary">{{ formatMoney(subscription.payment_amount || 0) }}</span>
                                 </div>
-                                <p class="italic text-slate-600 text-sm">"{{ subscription.payment_capture }}"</p>
+                                <p class="text-sm italic text-slate-600">"{{ subscription.payment_capture }}"</p>
                             </div>
-                            <button @click="emit('close')" class="w-full h-14 bg-[#1a1a1a] text-white rounded-2xl font-black text-xs uppercase tracking-widest">Cerrar Detalle</button>
+                            <button
+                                @click="emit('close')"
+                                class="h-14 w-full rounded-2xl bg-[#1a1a1a] text-xs font-black uppercase tracking-widest text-white"
+                            >
+                                Cerrar Detalle
+                            </button>
                         </div>
                     </template>
                 </div>
@@ -55,6 +71,12 @@ function formatMoney(n: number) {
 </template>
 
 <style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
 </style>

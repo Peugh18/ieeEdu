@@ -22,19 +22,25 @@ const tabs: { id: CourseEditorTab; label: string }[] = [
 </script>
 
 <template>
-    <div class="flex overflow-x-auto gap-2 bg-surface-container-lowest p-2 rounded-3xl border border-outline-variant/20 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] mb-6 scrollbar-none">
+    <div
+        class="scrollbar-none mb-6 flex gap-2 overflow-x-auto rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-2 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
+    >
         <button
             v-for="tab in tabs"
             :key="tab.id"
             type="button"
-            class="px-6 py-3 rounded-2xl font-bold text-[11px] uppercase tracking-widest transition-all whitespace-nowrap duration-200 border"
-            :class="activeTab === tab.id
-                ? 'bg-white text-primary shadow-md border-outline-variant/10'
-                : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low border-transparent'"
+            class="whitespace-nowrap rounded-2xl border px-6 py-3 text-[11px] font-bold uppercase tracking-widest transition-all duration-200"
+            :class="
+                activeTab === tab.id
+                    ? 'border-outline-variant/10 bg-white text-primary shadow-md'
+                    : 'border-transparent text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
+            "
             @click="emit('change', tab.id)"
         >
             {{ tab.label }}
-            <span v-if="tab.id === 'curriculum'" class="ml-2 bg-primary/10 text-primary px-2.5 py-0.5 rounded-lg border border-primary/20">{{ lessonCount }}</span>
+            <span v-if="tab.id === 'curriculum'" class="ml-2 rounded-lg border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-primary">{{
+                lessonCount
+            }}</span>
         </button>
     </div>
 </template>

@@ -1,5 +1,4 @@
 ﻿<script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
 import CourseEditorHeader from '@/components/admin/courses/editor/CourseEditorHeader.vue';
 import CourseEditorNotifications from '@/components/admin/courses/editor/CourseEditorNotifications.vue';
 import CourseEditorTabNav from '@/components/admin/courses/editor/CourseEditorTabNav.vue';
@@ -11,6 +10,7 @@ import CourseEditorInstructorTab from '@/components/admin/courses/editor/tabs/Co
 import CourseEditorPricingTab from '@/components/admin/courses/editor/tabs/CourseEditorPricingTab.vue';
 import CourseEditorStudentsTab from '@/components/admin/courses/editor/tabs/CourseEditorStudentsTab.vue';
 import { useCourseEditor } from '@/composables/admin/course-editor/useCourseEditor';
+import AppLayout from '@/layouts/AppLayout.vue';
 import type { CourseEditorCategory, CourseEditorCourse } from '@/types/course-editor';
 import { Head } from '@inertiajs/vue3';
 import { computed } from 'vue';
@@ -23,11 +23,7 @@ const props = defineProps<{
 const editor = useCourseEditor(props.course, props.categories);
 
 const {
-    notifications: {
-        showSuccess: showSuccessNotification,
-        showError: showErrorNotification,
-        showPublishSuccess: showPublishSuccessNotification,
-    },
+    notifications: { showSuccess: showSuccessNotification, showError: showErrorNotification, showPublishSuccess: showPublishSuccessNotification },
     form,
     activeTab,
     isMasterclass,
@@ -57,7 +53,7 @@ const categories = props.categories;
             :show-error="showErrorNotification"
         />
 
-        <div class="space-y-6 max-w-7xl mx-auto bg-surface p-4 sm:p-8 rounded-[2.5rem]">
+        <div class="mx-auto max-w-7xl space-y-6 rounded-[2.5rem] bg-surface p-4 sm:p-8">
             <CourseEditorHeader
                 :status="form.status"
                 :module-count="curriculum.modules.length"
@@ -69,13 +65,9 @@ const categories = props.categories;
                 @publish="publishCourse"
             />
 
-            <CourseEditorTabNav
-                :active-tab="activeTab"
-                :lesson-count="curriculum.lessons.length"
-                @change="activeTab = $event"
-            />
+            <CourseEditorTabNav :active-tab="activeTab" :lesson-count="curriculum.lessons.length" @change="activeTab = $event" />
 
-            <div class="grid grid-cols-1 gap-8 w-full mt-4">
+            <div class="mt-4 grid w-full grid-cols-1 gap-8">
                 <CourseEditorGeneralTab :show="activeTab === 'general'" :form="form" />
 
                 <CourseEditorPricingTab
@@ -106,11 +98,7 @@ const categories = props.categories;
 
                 <CourseEditorExamsTab :show="activeTab === 'exams'" :quizzes="quizzes" />
 
-                <CourseEditorStudentsTab
-                    v-model:filter="studentFilter"
-                    :show="activeTab === 'students'"
-                    :filtered-students="studentsList"
-                />
+                <CourseEditorStudentsTab v-model:filter="studentFilter" :show="activeTab === 'students'" :filtered-students="studentsList" />
             </div>
         </div>
     </AppLayout>

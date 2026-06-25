@@ -16,13 +16,7 @@ export function useCourseEditor(course: CourseEditorCourse, categories: CourseEd
 
     // reactive() desenvuelve los Ref internos para que los templates accedan arrays/objetos directamente
     const curriculum = reactive(
-        useCourseCurriculum(
-            course.id,
-            course.modules ?? [],
-            course.lessons ?? [],
-            formApi.isMasterclass,
-            notifications.notifySuccess,
-        ),
+        useCourseCurriculum(course.id, course.modules ?? [], course.lessons ?? [], formApi.isMasterclass, notifications.notifySuccess),
     );
 
     watch(

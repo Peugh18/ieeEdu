@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps<{
     dbSlides?: Record<string, unknown>[];
@@ -35,9 +35,9 @@ const defaultSlides = [
 
 // Slides activos: si vienen de la BD (y tienen heading), los usamos; si no, usamos fallback
 const slides = computed(() => {
-    if (props.dbSlides && props.dbSlides.length > 0 && props.dbSlides.some(s => s.heading)) {
+    if (props.dbSlides && props.dbSlides.length > 0 && props.dbSlides.some((s) => s.heading)) {
         return props.dbSlides
-            .filter(s => s.heading) // Solo slides con contenido real
+            .filter((s) => s.heading) // Solo slides con contenido real
             .sort((a, b) => a.order - b.order)
             .map((s) => ({
                 image: s.image_path || defaultSlides[s.order - 1]?.image || defaultSlides[0].image,
@@ -52,7 +52,7 @@ const slides = computed(() => {
 });
 
 const current = ref(0);
-const textReady = ref(true);  // Empezamos en true para que no haya flash en blanco
+const textReady = ref(true); // Empezamos en true para que no haya flash en blanco
 const isPaused = ref(false);
 const counters = ref({ pros: 0, years: 0, programs: 0 });
 let timer: ReturnType<typeof setInterval> | null = null;
@@ -72,83 +72,140 @@ function goTo(i: number) {
     textReady.value = false;
     setTimeout(() => {
         current.value = i;
-        requestAnimationFrame(() => requestAnimationFrame(() => { textReady.value = true; }));
+        requestAnimationFrame(() =>
+            requestAnimationFrame(() => {
+                textReady.value = true;
+            }),
+        );
     }, 280);
     restartTimer();
 }
 
-function next() { goTo((current.value + 1) % slides.value.length); }
-function prev() { goTo((current.value - 1 + slides.value.length) % slides.value.length); }
+function next() {
+    goTo((current.value + 1) % slides.value.length);
+}
+function prev() {
+    goTo((current.value - 1 + slides.value.length) % slides.value.length);
+}
 
 function restartTimer() {
     if (timer) clearInterval(timer);
-    timer = setInterval(() => { if (!isPaused.value) next(); }, 6000);
+    timer = setInterval(() => {
+        if (!isPaused.value) next();
+    }, 6000);
 }
 
 onMounted(() => {
-    requestAnimationFrame(() => { textReady.value = true; });
+    requestAnimationFrame(() => {
+        textReady.value = true;
+    });
     restartTimer();
-    setTimeout(() => { countUp(500, 'pros', 2200); countUp(15, 'years', 1600); countUp(25, 'programs', 1800); }, 800);
+    setTimeout(() => {
+        countUp(500, 'pros', 2200);
+        countUp(15, 'years', 1600);
+        countUp(25, 'programs', 1800);
+    }, 800);
 });
-onUnmounted(() => { if (timer) clearInterval(timer); });
+onUnmounted(() => {
+    if (timer) clearInterval(timer);
+});
 </script>
 
 <template>
-    <section class="relative min-h-[92vh] md:min-h-screen overflow-hidden bg-surface"
-             @mouseenter="isPaused = true" @mouseleave="isPaused = false">
-
+    <section class="relative min-h-[92vh] overflow-hidden bg-surface md:min-h-screen" @mouseenter="isPaused = true" @mouseleave="isPaused = false">
         <!-- ── Background slides (crossfade + subtle Ken Burns) ── -->
-        <div v-for="(slide, i) in slides" :key="i"
-             :class="['absolute inset-0 transition-opacity duration-[transition-duration:1200ms] ease-in-out', i === current ? 'opacity-100' : 'opacity-0']">
-            <img :src="slide.image" :alt="slide.tag"
-                 :class="['w-full h-full object-cover transition-transform duration-[transition-duration:6000ms] ease-linear', i === current ? 'scale-110' : 'scale-100']"
-                 loading="lazy" />
+        <div
+            v-for="(slide, i) in slides"
+            :key="i"
+            :class="[
+                'duration-[transition-duration:1200ms] absolute inset-0 transition-opacity ease-in-out',
+                i === current ? 'opacity-100' : 'opacity-0',
+            ]"
+        >
+            <img
+                :src="slide.image"
+                :alt="slide.tag"
+                :class="[
+                    'duration-[transition-duration:6000ms] h-full w-full object-cover transition-transform ease-linear',
+                    i === current ? 'scale-110' : 'scale-100',
+                ]"
+                loading="lazy"
+            />
         </div>
 
         <!-- ── Light scrim (lets photo breathe, just enough contrast) ── -->
         <div class="hero-scrim absolute inset-0 z-[1]"></div>
 
         <!-- ── Main layout ── -->
-        <div class="relative z-10 flex items-center min-h-[92vh] md:min-h-screen">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full pt-24 pb-28 md:pt-36 md:pb-36">
-
+        <div class="relative z-10 flex min-h-[92vh] items-center md:min-h-screen">
+            <div class="mx-auto w-full max-w-7xl px-4 pb-28 pt-24 sm:px-6 md:px-8 md:pb-36 md:pt-36">
                 <!-- Glassmorphism content card -->
-                <div class="hero-card relative max-w-xl rounded-[1.75rem] p-7 sm:p-9 md:p-10 overflow-hidden">
+                <div class="hero-card relative max-w-xl overflow-hidden rounded-[1.75rem] p-7 sm:p-9 md:p-10">
                     <!-- Card accent line -->
-                    <div class="absolute top-0 left-8 right-8 h-[2px] rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+                    <div
+                        class="absolute left-8 right-8 top-0 h-[2px] rounded-full bg-gradient-to-r from-transparent via-primary/50 to-transparent"
+                    ></div>
 
                     <!-- Tag -->
-                    <div :class="['mb-5 transition-all duration-500', textReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3']">
-                        <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] sm:text-[11px] font-bold tracking-[0.2em] uppercase">
-                            <span class="flex h-1.5 w-1.5 relative">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary"></span>
+                    <div :class="['mb-5 transition-all duration-500', textReady ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0']">
+                        <span
+                            class="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-primary sm:text-[11px]"
+                        >
+                            <span class="relative flex h-1.5 w-1.5">
+                                <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
+                                <span class="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary"></span>
                             </span>
                             {{ slides[current].tag }}
                         </span>
                     </div>
 
                     <!-- Headline -->
-                    <h1 class="font-serif font-bold mb-4">
-                        <span :class="['block text-on-surface text-[2rem] sm:text-4xl md:text-5xl lg:text-[3.5rem] leading-[1.1] transition-all duration-500', textReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5']">
+                    <h1 class="mb-4 font-serif font-bold">
+                        <span
+                            :class="[
+                                'block text-[2rem] leading-[1.1] text-on-surface transition-all duration-500 sm:text-4xl md:text-5xl lg:text-[3.5rem]',
+                                textReady ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0',
+                            ]"
+                        >
                             {{ slides[current].heading }}
                         </span>
                     </h1>
 
                     <!-- Body -->
-                    <p :class="['text-on-surface-variant text-sm md:text-base leading-relaxed max-w-md mb-7 transition-all duration-500 delay-150', textReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3']">
+                    <p
+                        :class="[
+                            'mb-7 max-w-md text-sm leading-relaxed text-on-surface-variant transition-all delay-150 duration-500 md:text-base',
+                            textReady ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
+                        ]"
+                    >
                         {{ slides[current].body }}
                     </p>
 
                     <!-- CTAs -->
-                    <div :class="['flex flex-col sm:flex-row gap-3 transition-all duration-500 delay-200', textReady ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3']">
-                        <a :href="slides[current].cta1.href"
-                           class="hero-shimmer group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary text-on-primary rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 relative overflow-hidden">
+                    <div
+                        :class="[
+                            'flex flex-col gap-3 transition-all delay-200 duration-500 sm:flex-row',
+                            textReady ? 'translate-y-0 opacity-100' : 'translate-y-3 opacity-0',
+                        ]"
+                    >
+                        <a
+                            :href="slides[current].cta1.href"
+                            class="hero-shimmer group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-primary px-7 py-3.5 text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+                        >
                             <span class="relative z-10">{{ slides[current].cta1.text }}</span>
-                            <svg class="w-3.5 h-3.5 relative z-10 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            <svg
+                                class="relative z-10 h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
                         </a>
-                        <a :href="slides[current].cta2.href"
-                           class="hero-cta2 group inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm text-on-surface transition-all duration-300 hover:-translate-y-0.5">
+                        <a
+                            :href="slides[current].cta2.href"
+                            class="hero-cta2 group inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-bold text-on-surface transition-all duration-300 hover:-translate-y-0.5"
+                        >
                             {{ slides[current].cta2.text }}
                         </a>
                     </div>
@@ -157,43 +214,63 @@ onUnmounted(() => { if (timer) clearInterval(timer); });
         </div>
 
         <!-- ── Nav arrows (left / right) ── -->
-        <button @click="prev" class="hero-nav-btn absolute left-3 sm:left-5 md:left-8 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-12 h-12 rounded-full items-center justify-center transition-all hover:scale-110">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        <button
+            @click="prev"
+            class="hero-nav-btn absolute left-3 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full transition-all hover:scale-110 sm:left-5 md:left-8 md:flex"
+        >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
         </button>
-        <button @click="next" class="hero-nav-btn absolute right-3 sm:right-5 md:right-8 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-12 h-12 rounded-full items-center justify-center transition-all hover:scale-110">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <button
+            @click="next"
+            class="hero-nav-btn absolute right-3 top-1/2 z-20 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full transition-all hover:scale-110 sm:right-5 md:right-8 md:flex"
+        >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
         </button>
 
         <!-- ── Floating bottom bar ── -->
-        <div class="absolute bottom-5 left-4 right-4 sm:left-6 sm:right-6 md:left-8 md:right-8 z-20">
-            <div class="hero-bottom-pill max-w-7xl mx-auto rounded-2xl px-5 sm:px-6 py-3.5 flex items-center justify-between gap-4">
+        <div class="absolute bottom-5 left-4 right-4 z-20 sm:left-6 sm:right-6 md:left-8 md:right-8">
+            <div class="hero-bottom-pill mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-2xl px-5 py-3.5 sm:px-6">
                 <!-- Left: dots + slide counter + progress -->
                 <div class="flex items-center gap-3">
                     <div class="flex items-center gap-1.5">
-                        <button v-for="(_, i) in slides" :key="i" @click="goTo(i)"
-                                :class="['rounded-full transition-all duration-300 focus:outline-none', i === current ? 'w-7 h-1.5 bg-primary' : 'w-1.5 h-1.5 bg-on-surface-variant/25 hover:bg-on-surface-variant/50']" />
+                        <button
+                            v-for="(_, i) in slides"
+                            :key="i"
+                            @click="goTo(i)"
+                            :class="[
+                                'rounded-full transition-all duration-300 focus:outline-none',
+                                i === current ? 'h-1.5 w-7 bg-primary' : 'h-1.5 w-1.5 bg-on-surface-variant/25 hover:bg-on-surface-variant/50',
+                            ]"
+                        />
                     </div>
-                    <span class="text-on-surface-variant/50 text-[11px] font-mono">{{ String(current + 1).padStart(2, '0') }}<span class="mx-0.5 text-outline-variant/30">/</span>{{ String(slides.length).padStart(2, '0') }}</span>
+                    <span class="font-mono text-[11px] text-on-surface-variant/50"
+                        >{{ String(current + 1).padStart(2, '0') }}<span class="mx-0.5 text-outline-variant/30">/</span
+                        >{{ String(slides.length).padStart(2, '0') }}</span
+                    >
                     <!-- Mini progress -->
-                    <div class="hidden sm:block w-16 h-[2px] bg-outline-variant/10 rounded-full overflow-hidden">
-                        <div :key="current" :class="['h-full bg-primary/60 rounded-full hero-progress', isPaused ? 'paused' : '']"></div>
+                    <div class="hidden h-[2px] w-16 overflow-hidden rounded-full bg-outline-variant/10 sm:block">
+                        <div :key="current" :class="['hero-progress h-full rounded-full bg-primary/60', isPaused ? 'paused' : '']"></div>
                     </div>
                 </div>
                 <!-- Right: stats -->
-                <div class="hidden md:flex items-center gap-5 text-[11px]">
+                <div class="hidden items-center gap-5 text-[11px] md:flex">
                     <div class="flex items-center gap-1.5">
-                        <span class="text-on-surface font-bold font-serif text-sm tabular-nums">{{ counters.pros }}+</span>
-                        <span class="text-on-surface-variant/50 uppercase tracking-wider">Capacitados</span>
+                        <span class="font-serif text-sm font-bold tabular-nums text-on-surface">{{ counters.pros }}+</span>
+                        <span class="uppercase tracking-wider text-on-surface-variant/50">Capacitados</span>
                     </div>
-                    <div class="w-px h-3.5 bg-outline-variant/15"></div>
+                    <div class="h-3.5 w-px bg-outline-variant/15"></div>
                     <div class="flex items-center gap-1.5">
-                        <span class="text-on-surface font-bold font-serif text-sm tabular-nums">{{ counters.years }}+</span>
-                        <span class="text-on-surface-variant/50 uppercase tracking-wider">Años</span>
+                        <span class="font-serif text-sm font-bold tabular-nums text-on-surface">{{ counters.years }}+</span>
+                        <span class="uppercase tracking-wider text-on-surface-variant/50">Años</span>
                     </div>
-                    <div class="w-px h-3.5 bg-outline-variant/15"></div>
+                    <div class="h-3.5 w-px bg-outline-variant/15"></div>
                     <div class="flex items-center gap-1.5">
-                        <span class="text-on-surface font-bold font-serif text-sm tabular-nums">{{ counters.programs }}+</span>
-                        <span class="text-on-surface-variant/50 uppercase tracking-wider">Programas</span>
+                        <span class="font-serif text-sm font-bold tabular-nums text-on-surface">{{ counters.programs }}+</span>
+                        <span class="uppercase tracking-wider text-on-surface-variant/50">Programas</span>
                     </div>
                 </div>
             </div>
@@ -205,7 +282,12 @@ onUnmounted(() => { if (timer) clearInterval(timer); });
 /* ── Scrim: very light veil so photo stays vivid ── */
 .hero-scrim {
     background:
-        linear-gradient(180deg, color-mix(in srgb, var(--elite-bg) 35%, transparent) 0%, transparent 45%, color-mix(in srgb, var(--elite-bg) 50%, transparent) 100%),
+        linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--elite-bg) 35%, transparent) 0%,
+            transparent 45%,
+            color-mix(in srgb, var(--elite-bg) 50%, transparent) 100%
+        ),
         color-mix(in srgb, var(--elite-bg) 15%, transparent);
 }
 
@@ -257,13 +339,24 @@ onUnmounted(() => { if (timer) clearInterval(timer); });
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0.12) 55%, transparent 60%);
+    background: linear-gradient(
+        105deg,
+        transparent 40%,
+        rgba(255, 255, 255, 0.12) 45%,
+        rgba(255, 255, 255, 0.22) 50%,
+        rgba(255, 255, 255, 0.12) 55%,
+        transparent 60%
+    );
     background-size: 250% 100%;
     animation: shimmer 3.5s ease-in-out infinite;
 }
 @keyframes shimmer {
-    0% { background-position: 200% center; }
-    100% { background-position: -200% center; }
+    0% {
+        background-position: 200% center;
+    }
+    100% {
+        background-position: -200% center;
+    }
 }
 
 /* ── Progress bar ── */
@@ -274,7 +367,11 @@ onUnmounted(() => { if (timer) clearInterval(timer); });
     animation-play-state: paused;
 }
 @keyframes progress-fill {
-    from { width: 0; }
-    to { width: 100%; }
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
 }
 </style>

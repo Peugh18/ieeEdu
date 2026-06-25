@@ -1,5 +1,5 @@
-import { ref, computed, watch } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
 
 export type CourseType = 'grabado' | 'en vivo' | 'masterclass';
 
@@ -30,7 +30,7 @@ export function useCreateCourse(
     emit: {
         (e: 'close'): void;
         (e: 'categoryCreated', category: { id: number; name: string }): void;
-    }
+    },
 ) {
     const showCategoryModal = ref(false);
     const imagePreview = ref<string | null>(null);
@@ -86,8 +86,8 @@ export function useCreateCourse(
             form.discount_enabled = Boolean(duplicateData.discount_enabled);
             form.discount = duplicateData.discount || 0;
             form.sale_price = duplicateData.sale_price || 0;
-            form.type = duplicateData.type === 'evento' ? 'masterclass' : (duplicateData.type || 'grabado');
-            form.category_id = duplicateData.category_id || (duplicateData.category?.id || '');
+            form.type = duplicateData.type === 'evento' ? 'masterclass' : duplicateData.type || 'grabado';
+            form.category_id = duplicateData.category_id || duplicateData.category?.id || '';
             form.instructor_name = duplicateData.instructor_name || '';
             form.instructor_title = duplicateData.instructor_title || '';
             form.instructor_bio = duplicateData.instructor_bio || '';
@@ -113,42 +113,29 @@ export function useCreateCourse(
         }
     }
 
-    watch(
-        [() => form.price, () => form.discount],
-        ([newPrice, newDiscount]) => {
-            if (form.discount_enabled && (newDiscount as number) > 0) {
-                form.sale_price = Number(
-                    ((newPrice as number) - (newPrice as number) * ((newDiscount as number) / 100)).toFixed(2)
-                );
-            } else {
-                form.sale_price = 0;
-            }
+    watch([() => form.price, () => form.discount], ([newPrice, newDiscount]) => {
+        if (form.discount_enabled && (newDiscount as number) > 0) {
+            form.sale_price = Number(((newPrice as number) - (newPrice as number) * ((newDiscount as number) / 100)).toFixed(2));
+        } else {
+            form.sale_price = 0;
         }
-    );
+    });
 
     watch(
         () => form.discount_enabled,
         (enabled: boolean) => {
             if (enabled && form.discount > 0) {
-                form.sale_price = Number(
-                    (form.price - form.price * (form.discount / 100)).toFixed(2)
-                );
+                form.sale_price = Number((form.price - form.price * (form.discount / 100)).toFixed(2));
             } else {
                 form.sale_price = 0;
             }
-        }
+        },
     );
 
     const canSubmit = computed(() => {
         const isFree = form.type === 'masterclass';
         const hasValidPrice = isFree || Number(form.price) >= 0;
-        return (
-            !!form.title.trim() &&
-            !!form.description.trim() &&
-            hasValidPrice &&
-            !!form.category_id &&
-            !!form.image_file
-        );
+        return !!form.title.trim() && !!form.description.trim() && hasValidPrice && !!form.category_id && !!form.image_file;
     });
 
     function onPickImage(file: File | null) {

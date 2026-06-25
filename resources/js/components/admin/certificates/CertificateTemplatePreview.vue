@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { Award, Layout, Crosshair } from 'lucide-vue-next';
+import { Award, Crosshair, Layout } from 'lucide-vue-next';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps<{
     courseTitle: string;
@@ -62,14 +62,20 @@ function textStyle(x: number, y: number, size: number) {
 <template>
     <div class="sticky top-10 space-y-6">
         <header class="flex items-center justify-between text-xs font-bold uppercase tracking-widest text-on-surface-variant/40">
-            <span class="flex items-center gap-2"><Layout class="w-4 h-4" /> Previsualización a Escala</span>
-            <span class="bg-surface-container-high px-3 py-1 rounded-full italic font-serif">Modo: Desarrollo Académico</span>
+            <span class="flex items-center gap-2"><Layout class="h-4 w-4" /> Previsualización a Escala</span>
+            <span class="rounded-full bg-surface-container-high px-3 py-1 font-serif italic">Modo: Desarrollo Académico</span>
         </header>
 
-        <div ref="previewContainer" class="relative bg-surface-container-high rounded-[3rem] border border-outline-variant/40 shadow-2xl overflow-hidden aspect-[1.414]">
-            <img v-if="imagePreview" :src="imagePreview" class="w-full h-full object-cover" />
-            <div v-else class="w-full h-full flex flex-col items-center justify-center bg-surface-container-low text-on-surface-variant/20 italic font-serif gap-4">
-                <Award class="w-20 h-20 opacity-10" />
+        <div
+            ref="previewContainer"
+            class="relative aspect-[1.414] overflow-hidden rounded-[3rem] border border-outline-variant/40 bg-surface-container-high shadow-2xl"
+        >
+            <img v-if="imagePreview" :src="imagePreview" class="h-full w-full object-cover" />
+            <div
+                v-else
+                class="flex h-full w-full flex-col items-center justify-center gap-4 bg-surface-container-low font-serif italic text-on-surface-variant/20"
+            >
+                <Award class="h-20 w-20 opacity-10" />
                 <p>Carga una plantilla para comenzar a diseñar</p>
             </div>
 
@@ -79,13 +85,12 @@ function textStyle(x: number, y: number, size: number) {
             <div :style="textStyle(certificateCodeX, certificateCodeY, certificateCodeFontSize)" class="opacity-70">ID: IEE-SAMPLE-VERIF-2026</div>
         </div>
 
-        <footer class="p-6 bg-primary/5 rounded-3xl border border-primary/10 flex items-start gap-4">
-            <Crosshair class="w-5 h-5 text-primary mt-1" />
-            <p class="text-xs text-on-surface-variant/70 leading-relaxed italic font-serif">
-                <strong class="text-primary uppercase tracking-widest font-sans inline-block mb-1">Nota Académica:</strong><br>
-                Ajuste los controles laterales para posicionar los textos sobre su plantilla.
-                Los valores se calculan en base a una hoja A4 en horizontal (297mm x 210mm).
-                Use colores de contraste que respeten la autoridad institucional de su diseño.
+        <footer class="flex items-start gap-4 rounded-3xl border border-primary/10 bg-primary/5 p-6">
+            <Crosshair class="mt-1 h-5 w-5 text-primary" />
+            <p class="font-serif text-xs italic leading-relaxed text-on-surface-variant/70">
+                <strong class="mb-1 inline-block font-sans uppercase tracking-widest text-primary">Nota Académica:</strong><br />
+                Ajuste los controles laterales para posicionar los textos sobre su plantilla. Los valores se calculan en base a una hoja A4 en
+                horizontal (297mm x 210mm). Use colores de contraste que respeten la autoridad institucional de su diseño.
             </p>
         </footer>
     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Book;
 use App\Models\Enrollment;
 use App\Models\Payment;
 use App\Models\Subscription;
@@ -42,7 +43,7 @@ class PaymentService
             $this->enrollmentService->enroll($payment->user, $payment->course, $payment->id);
         } elseif ($payment->book_id) {
             DB::transaction(function () use ($payment) {
-                $book = \App\Models\Book::query()->lockForUpdate()->find($payment->book_id);
+                $book = Book::query()->lockForUpdate()->find($payment->book_id);
 
                 if (! $book) {
                     throw ValidationException::withMessages([
@@ -136,7 +137,7 @@ class PaymentService
         } elseif ($payment->book_id) {
             app(BookOrderService::class)->cancelForPayment($payment);
 
-            $book = \App\Models\Book::find($payment->book_id);
+            $book = Book::find($payment->book_id);
             if ($book && $book->isPaid() && ! $book->hasUnlimitedStock()) {
                 $book->increment('stock');
             }

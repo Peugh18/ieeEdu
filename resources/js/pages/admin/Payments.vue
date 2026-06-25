@@ -1,28 +1,33 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, router, usePage } from '@inertiajs/vue3';
-import { useForm as useInertiaForm } from '@inertiajs/vue3';
-import type { SharedData } from '@/types';
-import { 
-    Clock, CheckCircle2, XCircle, Wallet, RefreshCw, 
-    Check, Plus
-} from 'lucide-vue-next';
-import { computed, ref, onMounted } from 'vue';
 import { useDebouncedInertiaFilters } from '@/composables/useDebouncedInertiaFilters';
 import { usePaginationLinks } from '@/composables/usePaginationLinks';
+import AppLayout from '@/layouts/AppLayout.vue';
+import type { SharedData } from '@/types';
 import { PaymentListItem } from '@/types/admin';
 import { PaginationLink } from '@/types/pagination';
+import { Head, router, useForm as useInertiaForm, usePage } from '@inertiajs/vue3';
+import { Check, CheckCircle2, Clock, RefreshCw, Wallet, XCircle } from 'lucide-vue-next';
+import { computed, onMounted, ref } from 'vue';
 
 // Components
-import PaymentsFilters from '@/components/admin/payments/PaymentsFilters.vue';
-import PaymentsTable from '@/components/admin/payments/PaymentsTable.vue';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import PaymentDetailDrawer from '@/components/admin/payments/PaymentDetailDrawer.vue';
 import PaymentsCreateModal from '@/components/admin/payments/PaymentsCreateModal.vue';
-import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
+import PaymentsFilters from '@/components/admin/payments/PaymentsFilters.vue';
+import PaymentsTable from '@/components/admin/payments/PaymentsTable.vue';
 
-interface CourseOption { id: number; title: string; price: number; sale_price: number | null; }
+interface CourseOption {
+    id: number;
+    title: string;
+    price: number;
+    sale_price: number | null;
+}
 
-interface BookOption { id: number; title: string; price: number | string; }
+interface BookOption {
+    id: number;
+    title: string;
+    price: number | string;
+}
 
 const props = defineProps<{
     payments: { data: PaymentListItem[]; links: PaginationLink[]; total: number; per_page: number };
@@ -45,19 +50,23 @@ const filterFormObj = useInertiaForm({
 });
 
 function applyFilters() {
-    router.get(route('admin.payments.index'), {
-        search:   filterFormObj.search || undefined,
-        status:   filterFormObj.status || undefined,
-        date:     filterFormObj.date || undefined,
-        type:     filterFormObj.type || undefined,
-        per_page: filterFormObj.per_page !== '20' ? filterFormObj.per_page : undefined,
-    }, { preserveState: false, replace: true });
+    router.get(
+        route('admin.payments.index'),
+        {
+            search: filterFormObj.search || undefined,
+            status: filterFormObj.status || undefined,
+            date: filterFormObj.date || undefined,
+            type: filterFormObj.type || undefined,
+            per_page: filterFormObj.per_page !== '20' ? filterFormObj.per_page : undefined,
+        },
+        { preserveState: false, replace: true },
+    );
 }
 
 useDebouncedInertiaFilters(filterFormObj, applyFilters);
 
 // ─── Create Payment Modal ────────────────────────────────────────
-const showCreate  = ref(false);
+const showCreate = ref(false);
 const initialSearch = ref('');
 
 onMounted(() => {
@@ -72,8 +81,8 @@ onMounted(() => {
 const detailPayment = ref<PaymentListItem | null>(null);
 
 // ─── Actions ────────────────────────────────────────────────
-function approve(p: PaymentListItem) { 
-    router.patch(route('admin.payments.approve', { payment: p.id }), {}, { preserveScroll: true }); 
+function approve(p: PaymentListItem) {
+    router.patch(route('admin.payments.approve', { payment: p.id }), {}, { preserveScroll: true });
 }
 
 function reject(p: PaymentListItem) {
@@ -86,13 +95,13 @@ function revert(p: PaymentListItem) {
     router.patch(route('admin.payments.revert', { payment: p.id }), {}, { preserveScroll: true });
 }
 
-const pgLinks  = usePaginationLinks(props.payments.links);
+const pgLinks = usePaginationLinks(props.payments.links);
 </script>
 
 <template>
     <Head title="Gestión de Pagos - iieEdu Admin" />
     <AppLayout>
-        <div class="max-w-7xl mx-auto px-4 py-8 space-y-10">
+        <div class="mx-auto max-w-7xl space-y-10 px-4 py-8">
             <!-- ── Header ── -->
             <AdminPageHeader
                 title="Comprobantes de "
@@ -114,38 +123,48 @@ const pgLinks  = usePaginationLinks(props.payments.links);
                     ]"
                     :key="opt.key"
                     type="button"
-                    class="px-4 py-2 rounded-xl text-xs font-bold transition-all"
-                    :class="filterFormObj.type === opt.key
-                        ? 'bg-slate-900 text-white'
-                        : 'bg-white border border-slate-200 text-slate-500 hover:border-slate-300'"
-                    @click="filterFormObj.type = opt.key; applyFilters()"
+                    class="rounded-xl px-4 py-2 text-xs font-bold transition-all"
+                    :class="
+                        filterFormObj.type === opt.key
+                            ? 'bg-slate-900 text-white'
+                            : 'border border-slate-200 bg-white text-slate-500 hover:border-slate-300'
+                    "
+                    @click="
+                        filterFormObj.type = opt.key;
+                        applyFilters();
+                    "
                 >
                     {{ opt.label }}
                 </button>
             </div>
 
             <!-- ── Stats Grid ── -->
-            <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                <div v-for="s in [
-                    { key:'',            label:'Total Global',  val:stats.total,       icon:Wallet,      cls:'text-slate-900' },
-                    { key:'pendiente',   label:'Pendientes',    val:stats.pendiente,   icon:Clock,       cls:'text-blue-600' },
-                    { key:'en_revision', label:'Por Validar',   val:stats.en_revision, icon:RefreshCw,   cls:'text-amber-600' },
-                    { key:'aprobado',    label:'Aprobados',     val:stats.aprobado,    icon:CheckCircle2, cls:'text-emerald-600' },
-                    { key:'rechazado',   label:'Rechazados',    val:stats.rechazado,   icon:XCircle,     cls:'text-rose-600' },
-                ]" :key="s.key"
+            <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
+                <div
+                    v-for="s in [
+                        { key: '', label: 'Total Global', val: stats.total, icon: Wallet, cls: 'text-slate-900' },
+                        { key: 'pendiente', label: 'Pendientes', val: stats.pendiente, icon: Clock, cls: 'text-blue-600' },
+                        { key: 'en_revision', label: 'Por Validar', val: stats.en_revision, icon: RefreshCw, cls: 'text-amber-600' },
+                        { key: 'aprobado', label: 'Aprobados', val: stats.aprobado, icon: CheckCircle2, cls: 'text-emerald-600' },
+                        { key: 'rechazado', label: 'Rechazados', val: stats.rechazado, icon: XCircle, cls: 'text-rose-600' },
+                    ]"
+                    :key="s.key"
                     @click="filterFormObj.status = s.key"
-                    class="group relative cursor-pointer overflow-hidden rounded-[2rem] bg-white p-6 border border-slate-100 shadow-sm transition-all duration-300"
-                    :class="filterFormObj.status === s.key ? 'ring-2 ring-primary border-transparent' : 'hover:shadow-md hover:border-slate-200'"
+                    class="group relative cursor-pointer overflow-hidden rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm transition-all duration-300"
+                    :class="filterFormObj.status === s.key ? 'border-transparent ring-2 ring-primary' : 'hover:border-slate-200 hover:shadow-md'"
                 >
-                    <div class="relative z-10 flex flex-col justify-between h-full space-y-4">
+                    <div class="relative z-10 flex h-full flex-col justify-between space-y-4">
                         <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 group-hover:text-slate-600 transition-colors">{{ s.label }}</span>
-                            <component :is="s.icon" class="h-4 w-4 text-slate-300 group-hover:text-slate-500 transition-colors" />
+                            <span
+                                class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 transition-colors group-hover:text-slate-600"
+                                >{{ s.label }}</span
+                            >
+                            <component :is="s.icon" class="h-4 w-4 text-slate-300 transition-colors group-hover:text-slate-500" />
                         </div>
                         <p class="text-4xl font-black tracking-tight" :class="s.cls">{{ s.val }}</p>
                     </div>
-                    <div class="absolute -bottom-4 -right-4 w-20 h-20 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
-                        <component :is="s.icon" class="w-full h-full" />
+                    <div class="absolute -bottom-4 -right-4 h-20 w-20 opacity-[0.03] transition-opacity group-hover:opacity-[0.08]">
+                        <component :is="s.icon" class="h-full w-full" />
                     </div>
                 </div>
             </div>
@@ -163,7 +182,7 @@ const pgLinks  = usePaginationLinks(props.payments.links);
                 :payments="payments.data"
                 :total="stats.total"
                 :paginationLinks="pgLinks"
-                @view="(p) => detailPayment = p"
+                @view="(p) => (detailPayment = p)"
                 @approve="approve"
                 @reject="reject"
                 @revert="revert"
@@ -174,28 +193,44 @@ const pgLinks  = usePaginationLinks(props.payments.links);
         <PaymentDetailDrawer
             :payment="detailPayment"
             @close="detailPayment = null"
-            @approve="(p) => { approve(p); detailPayment = null; }"
-            @reject="(p) => { reject(p); detailPayment = null; }"
-            @revert="(p) => { revert(p); detailPayment = null; }"
+            @approve="
+                (p) => {
+                    approve(p);
+                    detailPayment = null;
+                }
+            "
+            @reject="
+                (p) => {
+                    reject(p);
+                    detailPayment = null;
+                }
+            "
+            @revert="
+                (p) => {
+                    revert(p);
+                    detailPayment = null;
+                }
+            "
         />
 
         <!-- ───────────────── CREATE MODAL (ESTILO COMPARTIDO) ───────────────── -->
-        <PaymentsCreateModal
-            :show="showCreate"
-            :courses="courses"
-            :books="books"
-            :initialSearch="initialSearch"
-            @close="showCreate = false"
-        />
+        <PaymentsCreateModal :show="showCreate" :courses="courses" :books="books" :initialSearch="initialSearch" @close="showCreate = false" />
 
         <!-- Flash -->
-        <Transition enter-active-class="transition duration-500" enter-from-class="translate-y-full opacity-0" enter-to-class="translate-y-0 opacity-100">
-            <div v-if="flash.success" class="fixed bottom-10 right-10 z-[100] flex items-center gap-4 rounded-3xl bg-slate-900 p-2 pr-6 text-white shadow-2xl">
-                <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
+        <Transition
+            enter-active-class="transition duration-500"
+            enter-from-class="translate-y-full opacity-0"
+            enter-to-class="translate-y-0 opacity-100"
+        >
+            <div
+                v-if="flash.success"
+                class="fixed bottom-10 right-10 z-[100] flex items-center gap-4 rounded-3xl bg-slate-900 p-2 pr-6 text-white shadow-2xl"
+            >
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500">
                     <Check class="h-6 w-6" />
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-[10px] uppercase font-bold tracking-widest text-emerald-500">Operación Exitosa</span>
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Operación Exitosa</span>
                     <span class="text-sm font-medium">{{ flash.success }}</span>
                 </div>
             </div>

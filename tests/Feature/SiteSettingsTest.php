@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Services\SiteSettingsService;
 use App\Support\PlanPricing;
@@ -12,6 +13,10 @@ test('admin can update company whatsapp and social settings', function () {
         'whatsapp_support' => '51911223344',
         'social_facebook' => 'https://facebook.com/iee.edu.pe',
         'social_linkedin' => 'https://linkedin.com/company/iee',
+        'social_instagram' => 'https://instagram.com/iee.edu.pe',
+        'social_youtube' => 'https://youtube.com/c/iee',
+        'social_tiktok' => 'https://tiktok.com/@iee.edu.pe',
+        'social_twitter' => 'https://x.com/iee',
         'contact_email' => 'ventas@iee.edu.pe',
         'contact_address' => 'Trujillo, Perú',
     ]);
@@ -21,12 +26,16 @@ test('admin can update company whatsapp and social settings', function () {
 
     expect(SiteSettingsService::whatsappSales())->toBe('51999888777');
     expect(SiteSettingsService::get('social_facebook'))->toBe('https://facebook.com/iee.edu.pe');
+    expect(SiteSettingsService::get('social_instagram'))->toBe('https://instagram.com/iee.edu.pe');
+    expect(SiteSettingsService::get('social_youtube'))->toBe('https://youtube.com/c/iee');
+    expect(SiteSettingsService::get('social_tiktok'))->toBe('https://tiktok.com/@iee.edu.pe');
+    expect(SiteSettingsService::get('social_twitter'))->toBe('https://x.com/iee');
 });
 
 test('admin can update subscription plan price and months', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 
-    $plan = \App\Models\SubscriptionPlan::where('slug', 'trimestral')->first();
+    $plan = SubscriptionPlan::where('slug', 'trimestral')->first();
     expect($plan)->not->toBeNull();
 
     $this->actingAs($admin)->patch(route('admin.settings.plans.update', $plan), [
@@ -50,7 +59,7 @@ test('admin can update subscription plan price and months', function () {
 });
 
 test('planes page uses active plans from database', function () {
-    $plan = \App\Models\SubscriptionPlan::where('slug', 'anual')->first();
+    $plan = SubscriptionPlan::where('slug', 'anual')->first();
     $plan->update(['price' => 1200, 'period_label' => '12 meses']);
     PlanPricing::clearCache();
 

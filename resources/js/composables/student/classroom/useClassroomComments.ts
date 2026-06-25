@@ -1,5 +1,5 @@
-import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 export function useClassroomComments() {
     const newComment = ref('');
@@ -20,7 +20,7 @@ export function useClassroomComments() {
                     newComment.value = '';
                     replyingTo.value = null;
                 },
-            }
+            },
         );
     }
 
@@ -30,7 +30,7 @@ export function useClassroomComments() {
             {},
             {
                 preserveScroll: true,
-            }
+            },
         );
     }
 
@@ -53,7 +53,7 @@ export function useClassroomComments() {
                 onSuccess: () => {
                     editingComment.value = null;
                 },
-            }
+            },
         );
     }
 

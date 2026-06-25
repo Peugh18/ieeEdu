@@ -2,6 +2,7 @@
 import InputError from '@/components/InputError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
@@ -14,6 +15,7 @@ const form = useForm({
     telefono: '',
     password: '',
     password_confirmation: '',
+    terms: false,
 });
 
 const submit = () => {
@@ -31,7 +33,16 @@ const submit = () => {
             <div class="grid gap-6">
                 <div class="grid gap-2">
                     <Label for="name">Nombre completo</Label>
-                    <Input id="name" type="text" required autofocus tabindex="1" autocomplete="name" v-model="form.name" placeholder="Tu nombre completo" />
+                    <Input
+                        id="name"
+                        type="text"
+                        required
+                        autofocus
+                        tabindex="1"
+                        autocomplete="name"
+                        v-model="form.name"
+                        placeholder="Tu nombre completo"
+                    />
                     <InputError :message="form.errors.name" />
                 </div>
 
@@ -75,15 +86,25 @@ const submit = () => {
                     <InputError :message="form.errors.password_confirmation" />
                 </div>
 
-                <Button type="submit" class="mt-2 w-full" tabindex="6" :disabled="form.processing">
+                <div class="grid gap-2">
+                    <div class="flex items-start space-x-3">
+                        <Checkbox id="terms" v-model:checked="form.terms" tabindex="6" />
+                        <Label for="terms" class="text-sm font-normal leading-tight text-on-surface-variant cursor-pointer select-none">
+                            Acepto los <a :href="route('terms')" target="_blank" class="text-primary font-semibold hover:underline">Términos y Condiciones</a> y la <a :href="route('privacy')" target="_blank" class="text-primary font-semibold hover:underline">Política de Privacidad</a>
+                        </Label>
+                    </div>
+                    <InputError :message="form.errors.terms" />
+                </div>
+
+                <Button type="submit" class="mt-2 w-full" tabindex="7" :disabled="form.processing">
                     <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
                     Crear cuenta
                 </Button>
             </div>
 
-            <div class="text-center text-sm text-muted-foreground">
+            <div class="text-muted-foreground text-center text-sm">
                 ¿Ya tienes cuenta?
-                <TextLink :href="route('login')" class="underline underline-offset-4" tabindex="7">Inicia sesión</TextLink>
+                <TextLink :href="route('login')" class="underline underline-offset-4" tabindex="8">Inicia sesión</TextLink>
             </div>
         </form>
     </AuthBase>

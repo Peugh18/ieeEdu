@@ -2,7 +2,7 @@
 import { CheckCircle2, Undo2 } from 'lucide-vue-next';
 
 defineProps<{ status: string }>();
-const emit = defineEmits<{ (e: 'approve'): void; (e: 'reject'): void; (e: 'revert'): void; }>();
+const emit = defineEmits<{ (e: 'approve'): void; (e: 'reject'): void; (e: 'revert'): void }>();
 </script>
 
 <template>
@@ -24,13 +24,16 @@ const emit = defineEmits<{ (e: 'approve'): void; (e: 'reject'): void; (e: 'rever
         </div>
 
         <div v-else class="space-y-3">
-            <button @click="emit('approve')" class="w-full rounded-2xl bg-emerald-600 py-3 text-sm font-bold text-white shadow hover:opacity-90 transition-opacity">
+            <button
+                @click="emit('approve')"
+                class="w-full rounded-2xl bg-emerald-600 py-3 text-sm font-bold text-white shadow transition-opacity hover:opacity-90"
+            >
                 ✓ Aprobar y desbloquear curso
             </button>
             <button
                 v-if="status !== 'rechazado'"
                 @click="emit('reject')"
-                class="w-full rounded-2xl border border-red-200 bg-red-50 py-3 text-sm font-bold text-red-600 hover:bg-red-100 transition-colors"
+                class="w-full rounded-2xl border border-red-200 bg-red-50 py-3 text-sm font-bold text-red-600 transition-colors hover:bg-red-100"
             >
                 ✕ Rechazar pago
             </button>

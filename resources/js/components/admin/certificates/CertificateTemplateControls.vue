@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Image as ImageIcon, Type } from 'lucide-vue-next';
 import CertificateFieldEditor from '@/components/admin/certificates/CertificateFieldEditor.vue';
+import { Image as ImageIcon, Type } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 export interface CertificateTemplateForm {
     student_name_X: number;
@@ -44,38 +44,49 @@ function handleImageChange(e: Event) {
     if (!file) return;
     form.value.template_image = file;
     const reader = new FileReader();
-    reader.onload = (event) => { imagePreview.value = event.target?.result as string; };
+    reader.onload = (event) => {
+        imagePreview.value = event.target?.result as string;
+    };
     reader.readAsDataURL(file);
 }
 </script>
 
 <template>
-    <div class="bg-surface-container-lowest rounded-[2rem] border border-outline-variant/30 p-6 md:p-8 shadow-sm space-y-8">
+    <div class="space-y-8 rounded-[2rem] border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-sm md:p-8">
         <div class="space-y-3">
             <label class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
-                <ImageIcon class="w-4 h-4" />
+                <ImageIcon class="h-4 w-4" />
                 Imagen base (PNG/JPG)
             </label>
-            <div class="relative group cursor-pointer border-2 border-dashed border-outline-variant/50 rounded-2xl p-6 hover:border-primary/50 transition-all text-center">
-                <input type="file" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" @change="handleImageChange" />
-                <ImageIcon class="w-8 h-8 text-on-surface-variant/40 mx-auto mb-2" />
+            <div
+                class="group relative cursor-pointer rounded-2xl border-2 border-dashed border-outline-variant/50 p-6 text-center transition-all hover:border-primary/50"
+            >
+                <input type="file" accept="image/*" class="absolute inset-0 cursor-pointer opacity-0" @change="handleImageChange" />
+                <ImageIcon class="mx-auto mb-2 h-8 w-8 text-on-surface-variant/40" />
                 <p class="text-sm text-on-surface-variant">Carga la plantilla sin textos para superponerlos dinámicamente.</p>
             </div>
         </div>
 
         <div class="space-y-4">
             <label class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary">
-                <Type class="w-4 h-4" />
+                <Type class="h-4 w-4" />
                 Estética global
             </label>
             <div class="grid grid-cols-2 gap-4">
                 <div class="space-y-2">
                     <span class="text-sm font-semibold text-on-surface-variant">Color de fuente</span>
-                    <input v-model="form.font_color" type="color" class="w-full h-11 rounded-xl p-1 bg-surface-container-high border border-outline-variant/20 cursor-pointer" />
+                    <input
+                        v-model="form.font_color"
+                        type="color"
+                        class="h-11 w-full cursor-pointer rounded-xl border border-outline-variant/20 bg-surface-container-high p-1"
+                    />
                 </div>
                 <div class="space-y-2">
                     <span class="text-sm font-semibold text-on-surface-variant">Tipografía</span>
-                    <select v-model="form.font_family" class="w-full h-11 rounded-xl bg-surface-container-high border border-outline-variant/20 text-sm font-medium px-3 focus:ring-2 focus:ring-primary/30">
+                    <select
+                        v-model="form.font_family"
+                        class="h-11 w-full rounded-xl border border-outline-variant/20 bg-surface-container-high px-3 text-sm font-medium focus:ring-2 focus:ring-primary/30"
+                    >
                         <option value="serif">Serif (clásico)</option>
                         <option value="sans-serif">Sans-serif (moderno)</option>
                         <option value="cursive">Cursive (elegante)</option>
@@ -84,7 +95,7 @@ function handleImageChange(e: Event) {
             </div>
         </div>
 
-        <div class="space-y-3 pt-2 border-t border-outline-variant/30">
+        <div class="space-y-3 border-t border-outline-variant/30 pt-2">
             <p class="text-xs font-bold uppercase tracking-widest text-primary">Posicionamiento de campos</p>
             <CertificateFieldEditor
                 v-for="field in fields"

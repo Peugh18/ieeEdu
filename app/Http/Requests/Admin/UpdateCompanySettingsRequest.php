@@ -19,6 +19,10 @@ class UpdateCompanySettingsRequest extends FormRequest
             'whatsapp_support' => ['nullable', 'string', 'regex:/^[0-9]{9,15}$/'],
             'social_facebook' => ['nullable', 'url', 'max:500'],
             'social_linkedin' => ['nullable', 'url', 'max:500'],
+            'social_instagram' => ['nullable', 'url', 'max:500'],
+            'social_youtube' => ['nullable', 'url', 'max:500'],
+            'social_tiktok' => ['nullable', 'url', 'max:500'],
+            'social_twitter' => ['nullable', 'url', 'max:500'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_address' => ['nullable', 'string', 'max:255'],
         ];
@@ -32,6 +36,10 @@ class UpdateCompanySettingsRequest extends FormRequest
             'whatsapp_support.regex' => 'Ingresa el número con código de país, solo dígitos.',
             'social_facebook.url' => 'Ingresa una URL válida para Facebook.',
             'social_linkedin.url' => 'Ingresa una URL válida para LinkedIn.',
+            'social_instagram.url' => 'Ingresa una URL válida para Instagram.',
+            'social_youtube.url' => 'Ingresa una URL válida para YouTube.',
+            'social_tiktok.url' => 'Ingresa una URL válida para TikTok.',
+            'social_twitter.url' => 'Ingresa una URL válida para Twitter/X.',
         ];
     }
 

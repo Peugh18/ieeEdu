@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import AppLayout from '@/layouts/AppLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import CreateCourseModal from '@/components/admin/courses/CreateCourseModal.vue';
 import CoursesFilters from '@/components/admin/courses/list/CoursesFilters.vue';
 import CoursesTable, { type CourseItem } from '@/components/admin/courses/list/CoursesTable.vue';
-import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
-import type { PaginationLink, PaginatedResponse } from '@/types/pagination';
 import { useDebouncedInertiaFilters } from '@/composables/useDebouncedInertiaFilters';
 import { usePaginationLinks } from '@/composables/usePaginationLinks';
+import AppLayout from '@/layouts/AppLayout.vue';
+import type { PaginatedResponse } from '@/types/pagination';
+import { Head, router, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps<{
     courses: PaginatedResponse<CourseItem>;
@@ -29,12 +29,16 @@ const filtersForm = useForm({
 });
 
 function applyFilters() {
-    router.get(route('admin.courses.index'), {
-        search: filtersForm.search || undefined,
-        status: filtersForm.status || undefined,
-        type: filtersForm.type || undefined,
-        per_page: filtersForm.per_page !== '10' ? filtersForm.per_page : undefined,
-    }, { preserveState: false, replace: true });
+    router.get(
+        route('admin.courses.index'),
+        {
+            search: filtersForm.search || undefined,
+            status: filtersForm.status || undefined,
+            type: filtersForm.type || undefined,
+            per_page: filtersForm.per_page !== '10' ? filtersForm.per_page : undefined,
+        },
+        { preserveState: false, replace: true },
+    );
 }
 
 useDebouncedInertiaFilters(filtersForm, applyFilters);
@@ -46,35 +50,47 @@ function openCreateModal(course: CourseItem | null = null) {
 
 function destroy(course: CourseItem) {
     if (!confirm('Eliminar curso?')) return;
-    router.delete(route('admin.courses.destroy', { course: course.id }), { 
+    router.delete(route('admin.courses.destroy', { course: course.id }), {
         preserveState: false,
-        preserveScroll: true
+        preserveScroll: true,
     });
 }
 
 function publish(course: CourseItem) {
-    router.patch(route('admin.courses.publish', { course: course.id }), {}, { 
-        preserveState: false,
-        preserveScroll: true,
-        onError: (errors: Record<string, string>) => {
-            if (errors.course) alert(errors.course);
-        }
-    });
+    router.patch(
+        route('admin.courses.publish', { course: course.id }),
+        {},
+        {
+            preserveState: false,
+            preserveScroll: true,
+            onError: (errors: Record<string, string>) => {
+                if (errors.course) alert(errors.course);
+            },
+        },
+    );
 }
 
 function hide(course: CourseItem) {
-    router.patch(route('admin.courses.hide', { course: course.id }), {}, { 
-        preserveState: false,
-        preserveScroll: true
-    });
+    router.patch(
+        route('admin.courses.hide', { course: course.id }),
+        {},
+        {
+            preserveState: false,
+            preserveScroll: true,
+        },
+    );
 }
 
 function duplicateCourse(course: CourseItem) {
     if (!confirm(`¿Deseas clonar el curso "${course.title}"? Se creará una copia con un nuevo ID.`)) return;
-    router.post(route('admin.courses.duplicate', { course: course.id }), {}, { 
-        preserveScroll: true,
-        preserveState: false
-    });
+    router.post(
+        route('admin.courses.duplicate', { course: course.id }),
+        {},
+        {
+            preserveScroll: true,
+            preserveState: false,
+        },
+    );
 }
 
 const paginationLinks = usePaginationLinks(props.courses.links);
@@ -83,7 +99,7 @@ const paginationLinks = usePaginationLinks(props.courses.links);
 <template>
     <Head title="Gestión de Cursos - iieEdu Admin" />
     <AppLayout>
-        <div class="max-w-[1400px] mx-auto px-4 py-8 space-y-8">
+        <div class="mx-auto max-w-[1400px] space-y-8 px-4 py-8">
             <!-- PAGE HEADER -->
             <AdminPageHeader
                 title="Gestión de "
@@ -118,7 +134,10 @@ const paginationLinks = usePaginationLinks(props.courses.links);
             :open="showCreateModal"
             :categories="categoriesList"
             :duplicate-data="courseToDuplicate"
-            @close="showCreateModal = false; courseToDuplicate = null"
+            @close="
+                showCreateModal = false;
+                courseToDuplicate = null;
+            "
             @categoryCreated="(c) => categoriesList.push(c)"
         />
     </AppLayout>

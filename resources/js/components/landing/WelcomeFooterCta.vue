@@ -1,37 +1,51 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <section class="relative overflow-hidden bg-surface-container-low reveal">
-    <div class="absolute inset-0 pointer-events-none overflow-hidden">
-      <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/[0.07] rounded-full blur-[120px] -translate-y-1/2"></div>
-      <div class="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-tertiary-container/[0.08] rounded-full blur-[100px] translate-y-1/2"></div>
-    </div>
+    <section class="reveal relative overflow-hidden bg-surface-container-low">
+        <div class="pointer-events-none absolute inset-0 overflow-hidden">
+            <div class="absolute left-1/4 top-0 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-primary/[0.07] blur-[120px]"></div>
+            <div class="absolute bottom-0 right-1/4 h-[400px] w-[400px] translate-y-1/2 rounded-full bg-tertiary-container/[0.08] blur-[100px]"></div>
+        </div>
 
-    <div class="relative z-10 max-w-4xl mx-auto px-6 md:px-8 py-20 md:py-28 text-center">
-      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/30 mb-8 animate-pulse">
-        <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-        <span class="text-sm font-bold text-green-600 tracking-wide">TU PRIMERA CLASE ES GRATIS</span>
-      </div>
+        <div class="relative z-10 mx-auto max-w-4xl px-6 py-20 text-center md:px-8 md:py-28">
+            <div class="mb-8 inline-flex animate-pulse items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-4 py-2">
+                <svg class="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                    />
+                </svg>
+                <span class="text-sm font-bold tracking-wide text-green-600">TU PRIMERA CLASE ES GRATIS</span>
+            </div>
 
-      <h2 class="font-serif text-3xl md:text-5xl text-on-surface mb-4 leading-tight font-bold">
-        ¿Listo para seguir <br class="hidden md:block"/>
-        <span class="italic text-primary">aprendiendo?</span>
-      </h2>
+            <h2 class="mb-4 font-serif text-3xl font-bold leading-tight text-on-surface md:text-5xl">
+                ¿Listo para seguir <br class="hidden md:block" />
+                <span class="italic text-primary">aprendiendo?</span>
+            </h2>
 
-      <p class="text-on-surface-variant text-base md:text-lg leading-relaxed mb-8 max-w-lg mx-auto">
-        Empieza hoy mismo — miles de profesionales del Perú ya confían en nosotros.
-      </p>
+            <p class="mx-auto mb-8 max-w-lg text-base leading-relaxed text-on-surface-variant md:text-lg">
+                Empieza hoy mismo — miles de profesionales del Perú ya confían en nosotros.
+            </p>
 
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="/cursos" class="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-on-primary rounded-xl font-bold text-base shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300">
-          Empezar ahora
-          <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-        </a>
-        <a href="/cursos" class="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-surface-container border border-outline-variant/30 text-on-surface rounded-xl font-bold text-base hover:border-primary/30 hover:text-primary hover:bg-primary/5 transition-all duration-300">
-          Ver cursos
-        </a>
-      </div>
-    </div>
-  </section>
+            <div class="flex flex-col justify-center gap-4 sm:flex-row">
+                <a
+                    href="/cursos"
+                    class="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-4 text-base font-bold text-on-primary shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+                >
+                    Empezar ahora
+                    <svg class="h-5 w-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </a>
+                <a
+                    href="/cursos"
+                    class="group inline-flex items-center justify-center gap-2 rounded-xl border border-outline-variant/30 bg-surface-container px-8 py-4 text-base font-bold text-on-surface transition-all duration-300 hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+                >
+                    Ver cursos
+                </a>
+            </div>
+        </div>
+    </section>
 </template>

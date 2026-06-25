@@ -12,7 +12,7 @@ export interface Question {
 export interface Quiz {
     id: number;
     title: string;
-    course?: { 
+    course?: {
         title: string;
         slug: string;
     };

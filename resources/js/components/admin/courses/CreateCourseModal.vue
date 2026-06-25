@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { useCreateCourse } from '@/composables/admin/courses/useCreateCourse';
+import { ArrowRight, ChevronLeft, Loader2, X } from 'lucide-vue-next';
 import { watch } from 'vue';
-import { X, ChevronLeft, Loader2, ArrowRight } from 'lucide-vue-next';
 import CreateCategoryMiniModal from './CreateCategoryMiniModal.vue';
 import CreateCourseStepBasic from './CreateCourseStepBasic.vue';
-import CreateCourseStepPricing from './CreateCourseStepPricing.vue';
 import CreateCourseStepInstructor from './CreateCourseStepInstructor.vue';
-import { useCreateCourse } from '@/composables/admin/courses/useCreateCourse';
+import CreateCourseStepPricing from './CreateCourseStepPricing.vue';
 
 const props = defineProps<{
     open: boolean;
@@ -43,43 +43,60 @@ watch(
     (isOpen) => {
         initForm(isOpen, props.duplicateData);
     },
-    { immediate: true }
+    { immediate: true },
 );
 </script>
 
 <template>
     <transition name="fade">
-        <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-surface-tint/60 backdrop-blur-md">
+        <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-surface-tint/60 p-4 backdrop-blur-md sm:p-6">
             <!-- WIZARD CONTAINER -->
-            <div class="w-full max-w-4xl max-h-[95vh] flex flex-col rounded-[2.5rem] bg-white shadow-2xl shadow-surface-tint/10 border border-outline-variant/10 overflow-hidden relative">
-                
+            <div
+                class="relative flex max-h-[95vh] w-full max-w-4xl flex-col overflow-hidden rounded-[2.5rem] border border-outline-variant/10 bg-white shadow-2xl shadow-surface-tint/10"
+            >
                 <!-- BACKGROUND BLUR -->
-                <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl -mt-20 -mr-20 pointer-events-none"></div>
+                <div
+                    class="pointer-events-none absolute right-0 top-0 -mr-20 -mt-20 h-64 w-64 rounded-full bg-gradient-to-br from-primary/10 to-transparent blur-3xl"
+                ></div>
 
                 <!-- HEADER VISUAL AND STEPPER -->
-                <div class="px-8 sm:px-10 pt-8 pb-6 border-b border-outline-variant/10 flex flex-col gap-6 shrink-0 bg-white/70 backdrop-blur-md relative z-10">
+                <div
+                    class="relative z-10 flex shrink-0 flex-col gap-6 border-b border-outline-variant/10 bg-white/70 px-8 pb-6 pt-8 backdrop-blur-md sm:px-10"
+                >
                     <div class="flex items-start justify-between">
                         <div>
-                            <h2 class="font-serif text-3xl text-on-surface font-bold tracking-tight mb-2">Crear <span class="italic font-light">Programa</span></h2>
-                            <p class="text-[14px] text-on-surface-variant font-medium">Define los datos principales para abrir un nuevo espacio en el campus.</p>
+                            <h2 class="mb-2 font-serif text-3xl font-bold tracking-tight text-on-surface">
+                                Crear <span class="font-light italic">Programa</span>
+                            </h2>
+                            <p class="text-[14px] font-medium text-on-surface-variant">
+                                Define los datos principales para abrir un nuevo espacio en el campus.
+                            </p>
                         </div>
-                        <button class="rounded-full p-2.5 bg-surface-container-lowest border border-outline-variant/10 shadow-sm hover:bg-surface-container-low transition-colors" @click="emit('close')" aria-label="Cerrar">
-                            <X class="w-5 h-5 text-on-surface-variant" />
+                        <button
+                            class="rounded-full border border-outline-variant/10 bg-surface-container-lowest p-2.5 shadow-sm transition-colors hover:bg-surface-container-low"
+                            @click="emit('close')"
+                            aria-label="Cerrar"
+                        >
+                            <X class="h-5 w-5 text-on-surface-variant" />
                         </button>
                     </div>
 
                     <!-- STEP INDICATOR -->
                     <div class="flex items-center gap-3">
-                        <div class="h-2 flex-1 rounded-full overflow-hidden bg-surface-container">
-                            <div class="h-full bg-primary rounded-full transition-all duration-500 ease-out" :style="{ width: `${(step / totalSteps) * 100}%` }"></div>
+                        <div class="h-2 flex-1 overflow-hidden rounded-full bg-surface-container">
+                            <div
+                                class="h-full rounded-full bg-primary transition-all duration-500 ease-out"
+                                :style="{ width: `${(step / totalSteps) * 100}%` }"
+                            ></div>
                         </div>
-                        <span class="text-[12px] font-bold text-primary uppercase tracking-widest whitespace-nowrap">Paso {{ step }} de {{ totalSteps }}</span>
+                        <span class="whitespace-nowrap text-[12px] font-bold uppercase tracking-widest text-primary"
+                            >Paso {{ step }} de {{ totalSteps }}</span
+                        >
                     </div>
                 </div>
 
                 <!-- SCROLLABLE CONTENT -->
-                <div class="p-8 sm:p-10 overflow-x-hidden overflow-y-auto flex-1 custom-scrollbar relative z-10 bg-white">
-                    
+                <div class="custom-scrollbar relative z-10 flex-1 overflow-y-auto overflow-x-hidden bg-white p-8 sm:p-10">
                     <!-- ========================= -->
                     <!-- STEP 1: MODALIDAD & DATOS COMERCIALES -->
                     <!-- ========================= -->
@@ -93,9 +110,7 @@ watch(
                                 :on-pick-image="onPickImage"
                                 @open-category-modal="showCategoryModal = true"
                             />
-                            <CreateCourseStepPricing
-                                :form="form"
-                            />
+                            <CreateCourseStepPricing :form="form" />
                         </div>
                     </transition>
 
@@ -118,25 +133,45 @@ watch(
                     <transition name="slide">
                         <div v-show="step === 3" class="space-y-12">
                             <section class="pb-8">
-                                <h3 class="flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-on-surface-variant mb-6">
+                                <h3 class="mb-6 flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-on-surface-variant">
                                     4. Detalles Académicos
                                 </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 bg-surface-container-highest p-8 sm:p-10 rounded-[2.5rem] border border-transparent">
-                                    
-                                    <div class="md:col-span-2 space-y-3">
-                                        <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Sinopsis</label>
-                                        <textarea v-model="form.description" rows="3" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[14px] focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent leading-relaxed placeholder:text-outline-variant" placeholder="Descripción atractiva..."></textarea>
-                                        <p v-if="form.errors.description" class="ml-1 mt-1 text-[13px] font-bold text-red-600">{{ form.errors.description }}</p>
+                                <div
+                                    class="grid grid-cols-1 gap-8 rounded-[2.5rem] border border-transparent bg-surface-container-highest p-8 sm:p-10 md:grid-cols-2"
+                                >
+                                    <div class="space-y-3 md:col-span-2">
+                                        <label class="ml-1 block font-sans text-[14px] font-bold text-on-surface">Sinopsis</label>
+                                        <textarea
+                                            v-model="form.description"
+                                            rows="3"
+                                            class="w-full rounded-[1.5rem] border-transparent bg-white px-6 py-5 text-[14px] leading-relaxed outline-none transition-all placeholder:text-outline-variant focus:ring-2 focus:ring-primary/20"
+                                            placeholder="Descripción atractiva..."
+                                        ></textarea>
+                                        <p v-if="form.errors.description" class="ml-1 mt-1 text-[13px] font-bold text-red-600">
+                                            {{ form.errors.description }}
+                                        </p>
                                     </div>
 
                                     <div class="space-y-3">
-                                        <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Metas (Un objetivo por línea)</label>
-                                        <textarea v-model="form.objectives" rows="5" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[14px] focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent leading-relaxed placeholder:text-outline-variant" placeholder="Identificar riesgos financieros..."></textarea>
+                                        <label class="ml-1 block font-sans text-[14px] font-bold text-on-surface"
+                                            >Metas (Un objetivo por línea)</label
+                                        >
+                                        <textarea
+                                            v-model="form.objectives"
+                                            rows="5"
+                                            class="w-full rounded-[1.5rem] border-transparent bg-white px-6 py-5 text-[14px] leading-relaxed outline-none transition-all placeholder:text-outline-variant focus:ring-2 focus:ring-primary/20"
+                                            placeholder="Identificar riesgos financieros..."
+                                        ></textarea>
                                     </div>
 
                                     <div class="space-y-3">
-                                        <label class="block text-[14px] font-bold text-on-surface font-sans ml-1">Requisitos Previos</label>
-                                        <textarea v-model="form.requirements" rows="5" class="w-full rounded-[1.5rem] bg-white px-6 py-5 text-[14px] focus:ring-2 focus:ring-primary/20 transition-all outline-none border-transparent leading-relaxed placeholder:text-outline-variant" placeholder="Conocimientos de Excel..."></textarea>
+                                        <label class="ml-1 block font-sans text-[14px] font-bold text-on-surface">Requisitos Previos</label>
+                                        <textarea
+                                            v-model="form.requirements"
+                                            rows="5"
+                                            class="w-full rounded-[1.5rem] border-transparent bg-white px-6 py-5 text-[14px] leading-relaxed outline-none transition-all placeholder:text-outline-variant focus:ring-2 focus:ring-primary/20"
+                                            placeholder="Conocimientos de Excel..."
+                                        ></textarea>
                                     </div>
                                 </div>
                             </section>
@@ -145,43 +180,51 @@ watch(
                 </div>
 
                 <!-- FOOTER ACTIONS -->
-                <div class="bg-surface-container-lowest px-8 sm:px-10 py-6 flex flex-col md:flex-row items-center justify-between shrink-0 gap-6 border-t border-outline-variant/10 z-20">
-                    <div class="hidden md:flex flex-col">
-                        <span class="text-[14px] font-bold text-on-surface mb-0.5">
+                <div
+                    class="z-20 flex shrink-0 flex-col items-center justify-between gap-6 border-t border-outline-variant/10 bg-surface-container-lowest px-8 py-6 sm:px-10 md:flex-row"
+                >
+                    <div class="hidden flex-col md:flex">
+                        <span class="mb-0.5 text-[14px] font-bold text-on-surface">
                             {{ step === 1 ? 'Configuración Comercial' : step === 2 ? 'Perfil Docente' : 'Rigores Académicos' }}
                         </span>
-                        <span class="text-[11px] text-on-surface-variant font-medium tracking-wide">
-                            {{ step === 1 ? 'Paso inicial para crear tu espacio.' : step === 2 ? 'Humaniza tu propuesta educativa.' : 'Listos para crear el borrador seguro.' }}
+                        <span class="text-[11px] font-medium tracking-wide text-on-surface-variant">
+                            {{
+                                step === 1
+                                    ? 'Paso inicial para crear tu espacio.'
+                                    : step === 2
+                                      ? 'Humaniza tu propuesta educativa.'
+                                      : 'Listos para crear el borrador seguro.'
+                            }}
                         </span>
                     </div>
-                    
-                    <div class="flex gap-4 w-full md:w-auto">
+
+                    <div class="flex w-full gap-4 md:w-auto">
                         <!-- CANCEL BUTTON (Only Step 1) -->
-                        <button 
+                        <button
                             v-if="step === 1"
                             type="button"
-                            class="flex-1 md:flex-none rounded-full border border-outline-variant/10 bg-surface-container-lowest px-8 py-3.5 text-[13px] font-bold text-on-surface hover:bg-surface-container-low shadow-sm transition-all" 
+                            class="flex-1 rounded-full border border-outline-variant/10 bg-surface-container-lowest px-8 py-3.5 text-[13px] font-bold text-on-surface shadow-sm transition-all hover:bg-surface-container-low md:flex-none"
                             @click="emit('close')"
                         >
                             Cancelar
                         </button>
-                        
+
                         <!-- BACK BUTTON (Steps 2, 3) -->
-                        <button 
+                        <button
                             v-if="step > 1"
                             type="button"
-                            class="flex-1 md:flex-none flex items-center justify-center gap-2 rounded-full border border-outline-variant/10 bg-surface-container-lowest px-8 py-3.5 text-[13px] font-bold text-on-surface hover:bg-surface-container-low shadow-sm transition-all" 
+                            class="flex flex-1 items-center justify-center gap-2 rounded-full border border-outline-variant/10 bg-surface-container-lowest px-8 py-3.5 text-[13px] font-bold text-on-surface shadow-sm transition-all hover:bg-surface-container-low md:flex-none"
                             @click="prevStep"
                         >
-                            <ChevronLeft class="w-4 h-4" />
+                            <ChevronLeft class="h-4 w-4" />
                             Atrás
                         </button>
-                        
+
                         <!-- NEXT BUTTON (Steps 1, 2) -->
                         <button
                             v-if="step < totalSteps"
                             type="button"
-                            class="flex-1 md:flex-none rounded-full bg-primary hover:bg-[#4b4b22] px-10 py-3.5 text-[13px] font-bold text-white shadow-xl shadow-primary/20 transition-all font-sans"
+                            class="flex-1 rounded-full bg-primary px-10 py-3.5 font-sans text-[13px] font-bold text-white shadow-xl shadow-primary/20 transition-all hover:bg-[#4b4b22] md:flex-none"
                             @click="nextStep"
                         >
                             Continuar
@@ -191,13 +234,13 @@ watch(
                         <button
                             v-if="step === totalSteps"
                             type="submit"
-                            class="flex-1 md:flex-none rounded-full bg-gradient-to-br from-primary to-[#6d6d35] hover:from-[#4b4b22] hover:to-[#5c5c2a] px-10 py-3.5 text-[13px] font-bold text-white shadow-xl shadow-primary/20 disabled:opacity-60 disabled:shadow-none transition-all flex items-center justify-center gap-3 transform scale-100 hover:scale-[1.01] active:scale-[0.98] font-sans"
+                            class="flex flex-1 scale-100 transform items-center justify-center gap-3 rounded-full bg-gradient-to-br from-primary to-[#6d6d35] px-10 py-3.5 font-sans text-[13px] font-bold text-white shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] hover:from-[#4b4b22] hover:to-[#5c5c2a] active:scale-[0.98] disabled:opacity-60 disabled:shadow-none md:flex-none"
                             :disabled="!canSubmit || form.processing"
                             @click="submit"
                         >
-                            <Loader2 v-if="form.processing" class="w-5 h-5 animate-spin" />
+                            <Loader2 v-if="form.processing" class="h-5 w-5 animate-spin" />
                             <span>{{ form.processing ? 'Procesando...' : 'Crear Espacio Académico' }}</span>
-                            <ArrowRight v-if="!form.processing" class="w-5 h-5" />
+                            <ArrowRight v-if="!form.processing" class="h-5 w-5" />
                         </button>
                     </div>
                 </div>
@@ -205,11 +248,7 @@ watch(
         </div>
     </transition>
 
-    <CreateCategoryMiniModal
-        :open="showCategoryModal"
-        @close="showCategoryModal = false"
-        @created="onCategoryCreated"
-    />
+    <CreateCategoryMiniModal :open="showCategoryModal" @close="showCategoryModal = false" @created="onCategoryCreated" />
 </template>
 
 <style scoped>
@@ -221,11 +260,11 @@ watch(
     margin-block: 8px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: var(--md-sys-color-outline-variant, #C9C7B8);
+    background-color: var(--md-sys-color-outline-variant, #c9c7b8);
     border-radius: 10px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: var(--md-sys-color-outline, #57572A);
+    background-color: var(--md-sys-color-outline, #57572a);
 }
 
 .fade-enter-active,

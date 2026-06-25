@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Video, BookOpen } from 'lucide-vue-next';
+import { BookOpen, Video } from 'lucide-vue-next';
 
 interface InventoryStats {
     publishedCourses: number;
@@ -23,68 +23,68 @@ defineProps<{
 <template>
     <div class="flex flex-col gap-6">
         <!-- Cursos -->
-        <article class="bg-primary-fixed/30 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-9 border border-primary/10 space-y-6">
+        <article class="space-y-6 rounded-[2rem] border border-primary/10 bg-primary-fixed/30 p-6 md:rounded-[2.5rem] md:p-9">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-fixed">
-                    <Video class="w-5 h-5" />
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-fixed">
+                    <Video class="h-5 w-5" />
                 </div>
                 <h3 class="font-serif font-bold text-gray-900">Inventario de Cursos</h3>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white rounded-2xl p-4 text-center border border-gray-100">
-                    <p class="text-2xl font-serif font-black text-gray-900 tabular-nums">{{ stats.publishedCourses }}</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Publicados</p>
+                <div class="rounded-2xl border border-gray-100 bg-white p-4 text-center">
+                    <p class="font-serif text-2xl font-black tabular-nums text-gray-900">{{ stats.publishedCourses }}</p>
+                    <p class="mt-1 text-[9px] font-black uppercase tracking-widest text-gray-400">Publicados</p>
                 </div>
-                <div class="bg-white rounded-2xl p-4 text-center border border-gray-100">
-                    <p class="text-2xl font-serif font-black text-gray-500 tabular-nums">{{ stats.draftCourses }}</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Borradores</p>
+                <div class="rounded-2xl border border-gray-100 bg-white p-4 text-center">
+                    <p class="font-serif text-2xl font-black tabular-nums text-gray-500">{{ stats.draftCourses }}</p>
+                    <p class="mt-1 text-[9px] font-black uppercase tracking-widest text-gray-400">Borradores</p>
                 </div>
-                <div class="bg-white rounded-2xl p-4 text-center border border-gray-100">
-                    <p class="text-2xl font-serif font-black text-amber-600 tabular-nums">{{ stats.recordedCourses }}</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Grabados</p>
+                <div class="rounded-2xl border border-gray-100 bg-white p-4 text-center">
+                    <p class="font-serif text-2xl font-black tabular-nums text-amber-600">{{ stats.recordedCourses }}</p>
+                    <p class="mt-1 text-[9px] font-black uppercase tracking-widest text-gray-400">Grabados</p>
                 </div>
-                <div class="bg-white rounded-2xl p-4 text-center border border-gray-100">
-                    <p class="text-2xl font-serif font-black text-primary tabular-nums">{{ stats.liveCourses }}</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">En Vivo</p>
+                <div class="rounded-2xl border border-gray-100 bg-white p-4 text-center">
+                    <p class="font-serif text-2xl font-black tabular-nums text-primary">{{ stats.liveCourses }}</p>
+                    <p class="mt-1 text-[9px] font-black uppercase tracking-widest text-gray-400">En Vivo</p>
                 </div>
             </div>
         </article>
 
         <!-- Libros -->
-        <article class="bg-white rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-9 border border-gray-100 shadow-sm space-y-6">
+        <article class="space-y-6 rounded-[2rem] border border-gray-100 bg-white p-6 shadow-sm md:rounded-[2.5rem] md:p-9">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-                    <BookOpen class="w-5 h-5" />
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <BookOpen class="h-5 w-5" />
                 </div>
                 <h3 class="font-serif font-bold text-gray-900">Publicaciones</h3>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="bg-blue-50 rounded-2xl p-4 text-center border border-blue-100">
-                    <p class="text-2xl font-serif font-black text-blue-600 tabular-nums">{{ stats.totalBooks }}</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-blue-400 mt-1">Total Libros</p>
+            <div class="grid grid-cols-2 gap-4 md:grid-cols-3">
+                <div class="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-center">
+                    <p class="font-serif text-2xl font-black tabular-nums text-blue-600">{{ stats.totalBooks }}</p>
+                    <p class="mt-1 text-[9px] font-black uppercase tracking-widest text-blue-400">Total Libros</p>
                 </div>
-                <div class="bg-violet-50 rounded-2xl p-4 text-center border border-violet-100">
-                    <p class="text-xl font-serif font-black text-violet-700 tabular-nums">S/ {{ Number(stats.bookIncome || 0).toLocaleString() }}</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-violet-500 mt-1">Recaudado</p>
+                <div class="rounded-2xl border border-violet-100 bg-violet-50 p-4 text-center">
+                    <p class="font-serif text-xl font-black tabular-nums text-violet-700">S/ {{ Number(stats.bookIncome || 0).toLocaleString() }}</p>
+                    <p class="mt-1 text-[9px] font-black uppercase tracking-widest text-violet-500">Recaudado</p>
                 </div>
-                <div class="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100">
-                    <p class="text-2xl font-serif font-black text-slate-800 tabular-nums">{{ stats.bookSalesCount ?? 0 }}</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-slate-400 mt-1">Ventas</p>
+                <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center">
+                    <p class="font-serif text-2xl font-black tabular-nums text-slate-800">{{ stats.bookSalesCount ?? 0 }}</p>
+                    <p class="mt-1 text-[9px] font-black uppercase tracking-widest text-slate-400">Ventas</p>
                 </div>
-                <div class="bg-emerald-50 rounded-2xl p-4 text-center border border-emerald-100">
-                    <p class="text-2xl font-serif font-black text-emerald-600 tabular-nums">{{ stats.totalBookDownloads }}</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-emerald-400 mt-1">Descargas</p>
+                <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-center">
+                    <p class="font-serif text-2xl font-black tabular-nums text-emerald-600">{{ stats.totalBookDownloads }}</p>
+                    <p class="mt-1 text-[9px] font-black uppercase tracking-widest text-emerald-400">Descargas</p>
                 </div>
-                <div class="bg-amber-50 rounded-2xl p-4 text-center border border-amber-100">
-                    <p class="text-2xl font-serif font-black text-amber-600 tabular-nums">{{ stats.bookDownloadsThisMonth }}</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-amber-500 mt-1">Descargas / mes</p>
+                <div class="rounded-2xl border border-amber-100 bg-amber-50 p-4 text-center">
+                    <p class="font-serif text-2xl font-black tabular-nums text-amber-600">{{ stats.bookDownloadsThisMonth }}</p>
+                    <p class="mt-1 text-[9px] font-black uppercase tracking-widest text-amber-500">Descargas / mes</p>
                 </div>
-                <div class="bg-gray-50 rounded-2xl p-4 text-center border border-gray-100">
-                    <p class="text-2xl font-serif font-black text-gray-900 tabular-nums">{{ stats.availableBooks }}</p>
-                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-400 mt-1">Disponibles</p>
+                <div class="rounded-2xl border border-gray-100 bg-gray-50 p-4 text-center">
+                    <p class="font-serif text-2xl font-black tabular-nums text-gray-900">{{ stats.availableBooks }}</p>
+                    <p class="mt-1 text-[9px] font-black uppercase tracking-widest text-gray-400">Disponibles</p>
                 </div>
             </div>
-            <p v-if="stats.bookWhatsappLeads > 0" class="text-[10px] text-center text-gray-400 font-medium">
+            <p v-if="stats.bookWhatsappLeads > 0" class="text-center text-[10px] font-medium text-gray-400">
                 {{ stats.bookWhatsappLeads }} consultas de compra vía WhatsApp
             </p>
         </article>

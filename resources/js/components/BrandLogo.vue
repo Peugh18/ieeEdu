@@ -1,17 +1,17 @@
 <template>
     <div :class="['relative flex items-center', containerClass]">
         <!-- Logo Light para modo claro -->
-        <img 
+        <img
             v-if="forceTheme !== 'dark'"
-            src="/images/empresa/LogoLight.png" 
-            alt="Instituto de Economía y Empresa" 
+            src="/images/empresa/LogoLight.png"
+            alt="Instituto de Economía y Empresa"
             :class="[imageClass, forceTheme === 'light' ? 'block' : 'block dark:hidden']"
         />
         <!-- Logo Dark para modo oscuro -->
-        <img 
+        <img
             v-if="forceTheme !== 'light'"
-            src="/images/empresa/LogoDark.png" 
-            alt="Instituto de Economía y Empresa" 
+            src="/images/empresa/LogoDark.png"
+            alt="Instituto de Economía y Empresa"
             :class="[imageClass, forceTheme === 'dark' ? 'block' : 'hidden dark:block']"
         />
     </div>

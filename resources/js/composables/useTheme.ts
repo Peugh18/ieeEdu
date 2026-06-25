@@ -1,4 +1,4 @@
-import { ref, onMounted, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 type Theme = 'light' | 'dark';
 
@@ -52,6 +52,6 @@ export function useTheme() {
         currentTheme,
         toggleTheme,
         initTheme,
-        isDark: () => currentTheme.value === 'dark'
+        isDark: () => currentTheme.value === 'dark',
     };
 }

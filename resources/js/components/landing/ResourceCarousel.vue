@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useWindowSize } from '@vueuse/core';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 interface Resource {
     id: number;
@@ -52,7 +52,7 @@ const goToSlide = (index: number) => {
     startAutoplay();
 };
 
-const itemsPerView = computed(() => width.value < 768 ? 1 : 2);
+const itemsPerView = computed(() => (width.value < 768 ? 1 : 2));
 
 const visibleResources = computed(() => {
     const resources = [];
@@ -76,44 +76,51 @@ onUnmounted(() => {
         <!-- Carousel Container -->
         <div class="relative h-full">
             <!-- Items -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                <Transition
-                    name="slide"
-                    mode="out-in"
-                >
-                    <div 
-                        :key="`slide-${currentIndex}`"
-                        class="col-span-full md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6"
-                    >
-                        <a 
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+                <Transition name="slide" mode="out-in">
+                    <div :key="`slide-${currentIndex}`" class="col-span-full grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2 md:gap-6">
+                        <a
                             v-for="(resource, idx) in visibleResources"
                             :key="`${currentIndex}-${idx}`"
                             :href="resource.href"
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="group relative overflow-hidden rounded-xl md:rounded-2xl p-5 md:p-8 transition-all duration-300 hover:shadow-2xl cursor-pointer transform hover:-translate-y-1 flex items-start justify-between min-h-32 md:min-h-40"
+                            class="group relative flex min-h-32 transform cursor-pointer items-start justify-between overflow-hidden rounded-xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl md:min-h-40 md:rounded-2xl md:p-8"
                             :style="{ backgroundColor: resource.color }"
                         >
                             <!-- Gradient Overlay -->
-                            <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-10 group-hover:opacity-20 transition-opacity"></div>
-                            
+                            <div
+                                class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-10 transition-opacity group-hover:opacity-20"
+                            ></div>
+
                             <!-- Content -->
-                            <div class="relative z-10 flex flex-col justify-between h-full w-full">
+                            <div class="relative z-10 flex h-full w-full flex-col justify-between">
                                 <div>
-                                    <div class="flex items-center gap-2 mb-2 md:mb-3">
-                                        <span class="material-symbols-outlined text-white text-xl md:text-2xl" translate="no">{{ resource.icon }}</span>
-                                        <span class="text-[10px] md:text-xs font-semibold opacity-90 uppercase tracking-widest text-white/90">{{ resource.category }}</span>
+                                    <div class="mb-2 flex items-center gap-2 md:mb-3">
+                                        <span class="material-symbols-outlined text-xl text-white md:text-2xl" translate="no">{{
+                                            resource.icon
+                                        }}</span>
+                                        <span class="text-[10px] font-semibold uppercase tracking-widest text-white/90 opacity-90 md:text-xs">{{
+                                            resource.category
+                                        }}</span>
                                     </div>
-                                    <h3 class="font-serif text-base md:text-lg font-bold leading-tight text-white">{{ resource.title }}</h3>
+                                    <h3 class="font-serif text-base font-bold leading-tight text-white md:text-lg">{{ resource.title }}</h3>
                                 </div>
-                                <p class="text-[11px] md:text-xs opacity-80 font-medium text-white/90">{{ resource.size }}</p>
+                                <p class="text-[11px] font-medium text-white/90 opacity-80 md:text-xs">{{ resource.size }}</p>
                             </div>
 
                             <!-- Download Icon -->
-                            <div class="relative z-10 flex-shrink-0 ml-3 md:ml-4">
-                                <div class="w-9 h-9 md:w-12 md:h-12 rounded-full bg-white/25 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/40 transition-all">
-                                    <svg class="w-4 h-4 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            <div class="relative z-10 ml-3 flex-shrink-0 md:ml-4">
+                                <div
+                                    class="flex h-9 w-9 items-center justify-center rounded-full bg-white/25 backdrop-blur-sm transition-all group-hover:bg-white/40 md:h-12 md:w-12"
+                                >
+                                    <svg class="h-4 w-4 text-white md:h-6 md:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                        />
                                     </svg>
                                 </div>
                             </div>
@@ -123,36 +130,36 @@ onUnmounted(() => {
             </div>
 
             <!-- Navigation Buttons -->
-            <div class="flex justify-center md:justify-start gap-2 md:gap-3 mt-5 md:mt-8">
+            <div class="mt-5 flex justify-center gap-2 md:mt-8 md:justify-start md:gap-3">
                 <button
                     @click="prevSlide"
-                    class="p-2 md:p-3 rounded-full bg-white/20 hover:bg-white/35 backdrop-blur-sm transition-all text-white focus:outline-none focus:ring-2 focus:ring-white/50"
+                    class="rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-all hover:bg-white/35 focus:outline-none focus:ring-2 focus:ring-white/50 md:p-3"
                     aria-label="Previous slide"
                 >
-                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
                 <button
                     @click="nextSlide"
-                    class="p-2 md:p-3 rounded-full bg-white/20 hover:bg-white/35 backdrop-blur-sm transition-all text-white focus:outline-none focus:ring-2 focus:ring-white/50"
+                    class="rounded-full bg-white/20 p-2 text-white backdrop-blur-sm transition-all hover:bg-white/35 focus:outline-none focus:ring-2 focus:ring-white/50 md:p-3"
                     aria-label="Next slide"
                 >
-                    <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </button>
             </div>
 
             <!-- Dots Indicator -->
-            <div class="flex justify-center md:justify-start gap-2 mt-3 md:mt-4">
+            <div class="mt-3 flex justify-center gap-2 md:mt-4 md:justify-start">
                 <button
                     v-for="(_, index) in resources"
                     :key="index"
                     @click="goToSlide(index)"
                     :class="[
-                        'h-1.5 md:h-2 rounded-full transition-all duration-300',
-                        currentIndex === index ? 'w-6 md:w-8 bg-white' : 'w-1.5 md:w-2 bg-white/40 hover:bg-white/60'
+                        'h-1.5 rounded-full transition-all duration-300 md:h-2',
+                        currentIndex === index ? 'w-6 bg-white md:w-8' : 'w-1.5 bg-white/40 hover:bg-white/60 md:w-2',
                     ]"
                     aria-label="Go to slide"
                 />

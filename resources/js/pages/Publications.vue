@@ -1,16 +1,16 @@
 ﻿<script setup lang="ts">
-import { ref } from 'vue';
-import { Head, router } from '@inertiajs/vue3';
+import CatalogPagination from '@/components/catalog/CatalogPagination.vue';
 import Navigation from '@/components/landing/Navigation.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
+import ArticlesGrid from '@/components/publications/ArticlesGrid.vue';
+import BooksGrid from '@/components/publications/BooksGrid.vue';
 import PublicationsHero from '@/components/publications/PublicationsHero.vue';
 import PublicationsTabs from '@/components/publications/PublicationsTabs.vue';
-import BooksGrid from '@/components/publications/BooksGrid.vue';
-import ArticlesGrid from '@/components/publications/ArticlesGrid.vue';
-import CatalogPagination from '@/components/catalog/CatalogPagination.vue';
 import { usePaginationLinks } from '@/composables/usePaginationLinks';
-import type { PublicationBook, PublicationArticle, PublicationBanner } from '@/types/publications';
+import AppLayout from '@/layouts/AppLayout.vue';
 import type { PaginatedResponse } from '@/types/pagination';
+import type { PublicationArticle, PublicationBanner, PublicationBook } from '@/types/publications';
+import { Head, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps<{
     books: PaginatedResponse<PublicationBook>;
@@ -33,11 +33,7 @@ const articlesLinks = usePaginationLinks(props.articles.links);
 function handleSearch(q: string) {
     searchQuery.value = q;
     const routeName = props.isDashboard ? 'student.explore.publications' : 'publicaciones.index';
-    router.get(
-        route(routeName),
-        { search: q || undefined },
-        { preserveState: true, preserveScroll: true, replace: true }
-    );
+    router.get(route(routeName), { search: q || undefined }, { preserveState: true, preserveScroll: true, replace: true });
 }
 </script>
 
@@ -51,7 +47,7 @@ function handleSearch(q: string) {
             <main :class="['flex-1 pb-20', !isDashboard ? 'pt-28' : 'pt-0']">
                 <PublicationsHero :banner="banner" :is-dashboard="isDashboard" />
 
-                <section class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+                <section class="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
                     <PublicationsTabs v-model:current-tab="currentTab" v-model:search-query="searchQuery" @update:search-query="handleSearch" />
 
                     <BooksGrid v-if="currentTab === 'libros'" :books="books.data" />
@@ -66,5 +62,10 @@ function handleSearch(q: string) {
 </template>
 
 <style scoped>
-.limit-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px; }
+.limit-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 130px;
+}
 </style>

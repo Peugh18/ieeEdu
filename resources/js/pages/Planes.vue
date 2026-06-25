@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
 import Navigation from '@/components/landing/Navigation.vue';
 import SubscriptionPaymentModal from '@/components/student/SubscriptionPaymentModal.vue';
 import type { SharedData } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { Crown } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 interface PlanConfig {
     id: string;
@@ -60,85 +60,102 @@ function requestPlan(plan: PlanConfig) {
     <div class="min-h-screen bg-surface font-sans">
         <Navigation />
 
-        <main class="pt-32 pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-            <div class="text-center max-w-3xl mx-auto mb-20">
-                <span class="inline-flex rounded-full bg-primary/10 text-primary px-4 py-1.5 text-xs font-bold uppercase tracking-[0.1em] mb-6">
+        <main class="mx-auto max-w-7xl px-4 pb-24 pt-32 sm:px-6 lg:px-8">
+            <div class="mx-auto mb-20 max-w-3xl text-center">
+                <span class="mb-6 inline-flex rounded-full bg-primary/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.1em] text-primary">
                     Suscripciones IEE
                 </span>
-                <h1 class="text-4xl sm:text-5xl lg:text-[56px] font-serif font-bold text-on-background leading-[1.1] tracking-tight mb-8">
-                    Desbloquea tu <span class="text-primary italic">potencial ilimitado</span>
+                <h1 class="mb-8 font-serif text-4xl font-bold leading-[1.1] tracking-tight text-on-background sm:text-5xl lg:text-[56px]">
+                    Desbloquea tu <span class="italic text-primary">potencial ilimitado</span>
                 </h1>
-                <p class="text-lg text-on-surface-variant max-w-2xl mx-auto">
-                    Invierte en tu futuro y obtén acceso total a nuestro catálogo de especialización. Elige el plan que mejor se adapte a tu ritmo de aprendizaje.
+                <p class="mx-auto max-w-2xl text-lg text-on-surface-variant">
+                    Invierte en tu futuro y obtén acceso total a nuestro catálogo de especialización. Elige el plan que mejor se adapte a tu ritmo de
+                    aprendizaje.
                 </p>
             </div>
 
-            <div v-if="hasPendingSubscriptionPayment" class="mb-12 bg-amber-50 border border-amber-200 rounded-3xl p-6 flex items-center gap-4 max-w-2xl mx-auto">
-                <div class="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center shrink-0">
-                    <Crown class="w-6 h-6 text-amber-600" />
+            <div
+                v-if="hasPendingSubscriptionPayment"
+                class="mx-auto mb-12 flex max-w-2xl items-center gap-4 rounded-3xl border border-amber-200 bg-amber-50 p-6"
+            >
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-100">
+                    <Crown class="h-6 w-6 text-amber-600" />
                 </div>
                 <div class="flex-1">
                     <p class="font-bold text-on-background">Solicitud de membresía en curso</p>
-                    <p class="text-sm text-on-surface-variant">Coordina tu pago por WhatsApp y sube el comprobante en Mis Pagos cuando te lo indiquen.</p>
-                    <Link :href="route('student.payments.index')" class="inline-flex mt-3 text-xs font-bold uppercase tracking-wider text-amber-700 hover:text-amber-900">
+                    <p class="text-sm text-on-surface-variant">
+                        Coordina tu pago por WhatsApp y sube el comprobante en Mis Pagos cuando te lo indiquen.
+                    </p>
+                    <Link
+                        :href="route('student.payments.index')"
+                        class="mt-3 inline-flex text-xs font-bold uppercase tracking-wider text-amber-700 hover:text-amber-900"
+                    >
                         Ir a Mis Pagos →
                     </Link>
                 </div>
             </div>
 
-            <div v-else-if="userSubscription" class="mb-12 bg-primary/5 border border-primary/20 rounded-3xl p-6 flex items-center gap-4 max-w-2xl mx-auto">
-                <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <Crown class="w-6 h-6 text-primary" />
+            <div
+                v-else-if="userSubscription"
+                class="mx-auto mb-12 flex max-w-2xl items-center gap-4 rounded-3xl border border-primary/20 bg-primary/5 p-6"
+            >
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10">
+                    <Crown class="h-6 w-6 text-primary" />
                 </div>
                 <div>
                     <p class="font-bold text-on-background">¡Tienes una membresía activa!</p>
                     <p class="text-sm text-on-surface-variant">
-                        Plan <span class="capitalize font-semibold text-primary">{{ userSubscription.type }}</span> —
-                        Vence el {{ userSubscription.end_date }}
+                        Plan <span class="font-semibold capitalize text-primary">{{ userSubscription.type }}</span> — Vence el
+                        {{ userSubscription.end_date }}
                     </p>
                 </div>
             </div>
 
-            <div v-if="!plans.length" class="text-center py-24">
-                <h3 class="text-xl font-bold text-on-background mb-2">Planes no disponibles</h3>
+            <div v-if="!plans.length" class="py-24 text-center">
+                <h3 class="mb-2 text-xl font-bold text-on-background">Planes no disponibles</h3>
                 <p class="text-on-surface-variant">No hay planes configurados en este momento. Contáctanos directamente.</p>
             </div>
 
-            <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 relative z-10">
+            <div v-else class="relative z-10 grid grid-cols-1 gap-8 md:grid-cols-3 lg:gap-12">
                 <div
                     v-for="plan in plans"
                     :key="plan.id"
-                    class="bg-surface-container rounded-3xl relative overflow-hidden flex flex-col shadow-sm border border-outline-variant/15 hover:-translate-y-2 hover:shadow-xl hover:border-primary/20 transition-all duration-500"
+                    class="relative flex flex-col overflow-hidden rounded-3xl border border-outline-variant/15 bg-surface-container shadow-sm transition-all duration-500 hover:-translate-y-2 hover:border-primary/20 hover:shadow-xl"
                 >
-                    <div v-if="plan.badge" class="absolute top-0 right-8 bg-[#D32F2F] text-white text-[10px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-b-lg z-10">
+                    <div
+                        v-if="plan.badge"
+                        class="absolute right-8 top-0 z-10 rounded-b-lg bg-[#D32F2F] px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white"
+                    >
                         {{ plan.badge }}
                     </div>
 
                     <div class="h-1 w-full bg-primary"></div>
 
-                    <div class="p-8 lg:p-10 flex flex-col flex-1">
-                        <h3 class="text-2xl font-serif font-bold text-on-background mb-2">{{ plan.name }}</h3>
-                        <p class="text-sm text-on-surface-variant mb-6 min-h-[40px]">{{ plan.description }}</p>
+                    <div class="flex flex-1 flex-col p-8 lg:p-10">
+                        <h3 class="mb-2 font-serif text-2xl font-bold text-on-background">{{ plan.name }}</h3>
+                        <p class="mb-6 min-h-[40px] text-sm text-on-surface-variant">{{ plan.description }}</p>
 
                         <div class="mb-8 flex items-end gap-2">
-                            <span class="text-4xl lg:text-5xl font-bold tracking-tight text-on-background">S/ {{ plan.price }}</span>
-                            <span class="text-sm font-bold text-on-surface-variant uppercase tracking-widest pb-1">/ {{ plan.period }}</span>
+                            <span class="text-4xl font-bold tracking-tight text-on-background lg:text-5xl">S/ {{ plan.price }}</span>
+                            <span class="pb-1 text-sm font-bold uppercase tracking-widest text-on-surface-variant">/ {{ plan.period }}</span>
                         </div>
 
                         <button
                             @click="requestPlan(plan)"
-                            class="w-full rounded-xl bg-primary text-white py-4 font-bold text-xs uppercase tracking-widest hover:shadow-lg transition-all mb-10"
+                            class="mb-10 w-full rounded-xl bg-primary py-4 text-xs font-bold uppercase tracking-widest text-white transition-all hover:shadow-lg"
                         >
                             {{ user ? 'Solicitar plan' : 'Iniciar sesión para comprar' }}
                         </button>
 
-                        <div class="space-y-4 flex-1">
-                            <h4 class="text-xs font-bold text-on-background uppercase tracking-widest mb-6 border-b border-outline-variant/20 pb-4">¿Qué incluye?</h4>
+                        <div class="flex-1 space-y-4">
+                            <h4 class="mb-6 border-b border-outline-variant/20 pb-4 text-xs font-bold uppercase tracking-widest text-on-background">
+                                ¿Qué incluye?
+                            </h4>
                             <ul class="space-y-3">
                                 <li
                                     v-for="(feature, idx) in plan.features"
                                     :key="idx"
-                                    class="text-sm text-on-surface-variant leading-relaxed pl-4 border-l-2 border-primary/30"
+                                    class="border-l-2 border-primary/30 pl-4 text-sm leading-relaxed text-on-surface-variant"
                                 >
                                     {{ feature }}
                                 </li>
@@ -148,17 +165,13 @@ function requestPlan(plan: PlanConfig) {
                 </div>
             </div>
 
-            <div class="mt-24 text-center max-w-2xl mx-auto border-t border-outline-variant/20 pt-12">
-                <p class="text-sm text-on-surface-variant italic font-serif">
+            <div class="mx-auto mt-24 max-w-2xl border-t border-outline-variant/20 pt-12 text-center">
+                <p class="font-serif text-sm italic text-on-surface-variant">
                     Todos nuestros planes incluyen garantía de calidad del Instituto de Especialización Educativa (IEE). Transacción 100% segura.
                 </p>
             </div>
         </main>
     </div>
 
-    <SubscriptionPaymentModal
-        :show="showModal"
-        :plan="selectedPlan"
-        @close="showModal = false"
-    />
+    <SubscriptionPaymentModal :show="showModal" :plan="selectedPlan" @close="showModal = false" />
 </template>

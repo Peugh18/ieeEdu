@@ -16,6 +16,10 @@ class SiteSettingsService
         'whatsapp_support' => '51934057867',
         'social_facebook' => '',
         'social_linkedin' => '',
+        'social_instagram' => '',
+        'social_youtube' => '',
+        'social_tiktok' => '',
+        'social_twitter' => '',
         'contact_email' => 'info@iee.edu.pe',
         'contact_address' => 'Trujillo, La Libertad — Perú',
     ];
@@ -58,6 +62,10 @@ class SiteSettingsService
             'whatsapp_support' => preg_replace('/\D+/', '', (string) ($settings['whatsapp_support'] ?? '')) ?: null,
             'social_facebook' => $settings['social_facebook'] ?? '',
             'social_linkedin' => $settings['social_linkedin'] ?? '',
+            'social_instagram' => $settings['social_instagram'] ?? '',
+            'social_youtube' => $settings['social_youtube'] ?? '',
+            'social_tiktok' => $settings['social_tiktok'] ?? '',
+            'social_twitter' => $settings['social_twitter'] ?? '',
             'contact_email' => $settings['contact_email'] ?? self::$defaults['contact_email'],
             'contact_address' => $settings['contact_address'] ?? self::$defaults['contact_address'],
         ];

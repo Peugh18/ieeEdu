@@ -11,14 +11,17 @@
  *
  * Detectado en Articles.vue, Books.vue (≥90% idéntico).
  */
-withDefaults(defineProps<{
-    label: string;
-    error?: string;
-    hint?: string;
-}>(), {
-    error: '',
-    hint: '',
-});
+withDefaults(
+    defineProps<{
+        label: string;
+        error?: string;
+        hint?: string;
+    }>(),
+    {
+        error: '',
+        hint: '',
+    },
+);
 </script>
 
 <template>
@@ -30,10 +33,10 @@ withDefaults(defineProps<{
         <!-- The actual input / select / textarea comes via slot -->
         <slot />
 
-        <p v-if="error" class="text-[8px] font-bold text-red-500 uppercase tracking-widest mt-1">
+        <p v-if="error" class="mt-1 text-[8px] font-bold uppercase tracking-widest text-red-500">
             {{ error }}
         </p>
-        <p v-else-if="hint" class="text-[9px] text-[#9ca3af] italic font-medium mt-1 dark:text-[#6b7280]">
+        <p v-else-if="hint" class="mt-1 text-[9px] font-medium italic text-[#9ca3af] dark:text-[#6b7280]">
             {{ hint }}
         </p>
     </div>

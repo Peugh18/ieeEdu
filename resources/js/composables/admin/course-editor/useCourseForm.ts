@@ -14,11 +14,7 @@ interface CourseFormNotifications {
     notifyPublishSuccess: () => void;
 }
 
-export function useCourseForm(
-    course: CourseEditorCourse,
-    notifications: CourseFormNotifications,
-    lessonsCount: Ref<number>,
-) {
+export function useCourseForm(course: CourseEditorCourse, notifications: CourseFormNotifications, lessonsCount: Ref<number>) {
     const form = useForm({
         title: course.title ?? '',
         description: course.description ?? '',
@@ -45,21 +41,22 @@ export function useCourseForm(
 
     watch([() => form.price, () => form.discount], ([newPrice, newDiscount]) => {
         if (form.discount_enabled && (newDiscount as number) > 0) {
-            form.sale_price = Number(
-                ((newPrice as number) - (newPrice as number) * ((newDiscount as number) / 100)).toFixed(2),
-            );
+            form.sale_price = Number(((newPrice as number) - (newPrice as number) * ((newDiscount as number) / 100)).toFixed(2));
         } else {
             form.sale_price = 0;
         }
     });
 
-    watch(() => form.discount_enabled, (enabled: boolean) => {
-        if (enabled && form.discount > 0) {
-            form.sale_price = Number((form.price - form.price * (form.discount / 100)).toFixed(2));
-        } else {
-            form.sale_price = 0;
-        }
-    });
+    watch(
+        () => form.discount_enabled,
+        (enabled: boolean) => {
+            if (enabled && form.discount > 0) {
+                form.sale_price = Number((form.price - form.price * (form.discount / 100)).toFixed(2));
+            } else {
+                form.sale_price = 0;
+            }
+        },
+    );
 
     watch(
         () => course.status,
@@ -78,13 +75,9 @@ export function useCourseForm(
         return true;
     });
 
-    const instructorPreviewUrl = computed(() =>
-        form.instructor_image_file ? URL.createObjectURL(form.instructor_image_file) : null,
-    );
+    const instructorPreviewUrl = computed(() => (form.instructor_image_file ? URL.createObjectURL(form.instructor_image_file) : null));
 
-    const courseImagePreviewUrl = computed(() =>
-        form.image_file ? URL.createObjectURL(form.image_file) : null,
-    );
+    const courseImagePreviewUrl = computed(() => (form.image_file ? URL.createObjectURL(form.image_file) : null));
 
     function saveCourse() {
         form.transform((data) => {
@@ -112,35 +105,43 @@ export function useCourseForm(
             alert('Debes tener al menos 1 clase. En masterclass solo se permite 1.');
             return;
         }
-        router.patch(route('admin.courses.publish', course.id), {}, {
-            preserveScroll: true,
-            onSuccess: () => {
-                const errors = usePage().props.errors as Record<string, string | string[]>;
-                const courseError = firstError(errors, 'course');
-                if (courseError) {
-                    alert(courseError);
-                    notifications.notifyError();
-                    return;
-                }
-                form.status = 'PUBLICADO';
-                notifications.notifyPublishSuccess();
+        router.patch(
+            route('admin.courses.publish', course.id),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    const errors = usePage().props.errors as Record<string, string | string[]>;
+                    const courseError = firstError(errors, 'course');
+                    if (courseError) {
+                        alert(courseError);
+                        notifications.notifyError();
+                        return;
+                    }
+                    form.status = 'PUBLICADO';
+                    notifications.notifyPublishSuccess();
+                },
+                onError: (errors: Record<string, string | string[]>) => {
+                    const courseError = firstError(errors, 'course');
+                    if (courseError) alert(courseError);
+                    else notifications.notifyError();
+                },
             },
-            onError: (errors: Record<string, string | string[]>) => {
-                const courseError = firstError(errors, 'course');
-                if (courseError) alert(courseError);
-                else notifications.notifyError();
-            },
-        });
+        );
     }
 
     function hideCourse() {
-        router.patch(route('admin.courses.hide', course.id), {}, {
-            preserveScroll: true,
-            onSuccess: () => {
-                form.status = 'OCULTO';
-                notifications.notifySuccess();
+        router.patch(
+            route('admin.courses.hide', course.id),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    form.status = 'OCULTO';
+                    notifications.notifySuccess();
+                },
             },
-        });
+        );
     }
 
     return {

@@ -1,13 +1,13 @@
-import { ref, computed, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
+import { computed, ref, watch } from 'vue';
 
 export function useClassroomProgress(
     courseId: number,
     userId: number | string,
     completedLessonsServer: number[],
     allLessonsCompletedServer: boolean,
-    allLessonsCount: number
+    allLessonsCount: number,
 ) {
     const progressKey = computed(() => `iie_progress_${courseId}_${userId ?? 'guest'}`);
 
@@ -38,9 +38,7 @@ export function useClassroomProgress(
     }
 
     const localCompleted = ref<number[]>(buildInitialCompleted());
-    const localAllCompleted = ref(
-        allLessonsCompletedServer || localCompleted.value.length >= allLessonsCount
-    );
+    const localAllCompleted = ref(allLessonsCompletedServer || localCompleted.value.length >= allLessonsCount);
 
     watch(
         () => completedLessonsServer,
@@ -59,14 +57,14 @@ export function useClassroomProgress(
                 localAllCompleted.value = true;
             }
         },
-        { deep: true }
+        { deep: true },
     );
 
     watch(
         () => allLessonsCompletedServer,
         (newVal) => {
             if (newVal === true) localAllCompleted.value = true;
-        }
+        },
     );
 
     async function completeLesson(lessonId: number) {
@@ -84,15 +82,13 @@ export function useClassroomProgress(
                     onSuccess: () => {
                         console.log('[iieEdu] Progress synced with server');
                     },
-                }
+                },
             );
         }
     }
 
     function syncMissingProgress() {
-        const missingOnServer = localCompleted.value.filter(
-            (id) => !completedLessonsServer.map(Number).includes(Number(id))
-        );
+        const missingOnServer = localCompleted.value.filter((id) => !completedLessonsServer.map(Number).includes(Number(id)));
 
         if (missingOnServer.length > 0) {
             console.log('Synchronizing missing progress to server...', missingOnServer);

@@ -12,12 +12,15 @@ export function formatLocalTime(dateStr: string): string {
     return new Date(normalizeLessonDateTime(dateStr)).toLocaleString();
 }
 
-export function getLessonStatus(lesson: {
-    video_url?: string | null;
-    content_type: string;
-    start_time?: string | null;
-    end_time?: string | null;
-}, now: Date = new Date()): LessonStatusBadge {
+export function getLessonStatus(
+    lesson: {
+        video_url?: string | null;
+        content_type: string;
+        start_time?: string | null;
+        end_time?: string | null;
+    },
+    now: Date = new Date(),
+): LessonStatusBadge {
     if (lesson.video_url) {
         return { label: 'Grabada', class: 'bg-blue-100 text-blue-700' };
     }
@@ -29,9 +32,7 @@ export function getLessonStatus(lesson: {
     }
 
     const start = new Date(normalizeLessonDateTime(lesson.start_time)).getTime();
-    const end = lesson.end_time
-        ? new Date(normalizeLessonDateTime(lesson.end_time)).getTime()
-        : start + 3 * 60 * 60 * 1000;
+    const end = lesson.end_time ? new Date(normalizeLessonDateTime(lesson.end_time)).getTime() : start + 3 * 60 * 60 * 1000;
     const currentTime = now.getTime();
 
     if (currentTime < start) {

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Link, router, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, BookOpen, ClipboardCheck, CreditCard, Menu, Users } from 'lucide-vue-next';
-import { computed } from 'vue';
 import { useSidebar } from '@/components/ui/sidebar';
 import type { SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/vue3';
+import { BookOpen, ClipboardCheck, CreditCard, LayoutGrid, Menu, Users } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 defineProps<{
     active?: string;
@@ -68,29 +68,28 @@ function openMenu() {
 </script>
 
 <template>
-    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-outline-variant/10 shadow-[0_-8px_30px_rgba(0,0,0,0.07)] pb-safe">
+    <nav
+        class="pb-safe fixed bottom-0 left-0 right-0 z-50 border-t border-outline-variant/10 bg-white/95 shadow-[0_-8px_30px_rgba(0,0,0,0.07)] backdrop-blur-xl lg:hidden"
+    >
         <div class="flex items-center justify-around px-1 py-1.5">
             <Link
                 v-for="item in items"
                 :key="item.key"
                 :href="route(item.routeName)"
-                class="flex flex-col items-center gap-0.5 py-1.5 px-2.5 rounded-xl transition-all active:scale-90 relative min-w-0 flex-1"
+                class="relative flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 transition-all active:scale-90"
                 :class="isActive(item.path) ? 'text-primary' : 'text-on-surface-variant hover:text-primary'"
             >
-                <span
-                    v-if="isActive(item.path)"
-                    class="absolute -top-1.5 left-1/2 -translate-x-1/2 w-6 h-1 bg-primary rounded-full"
-                />
-                <component :is="item.icon" class="w-[18px] h-[18px] shrink-0" />
-                <span class="text-[8px] font-black uppercase tracking-wider truncate max-w-full">{{ item.label }}</span>
+                <span v-if="isActive(item.path)" class="absolute -top-1.5 left-1/2 h-1 w-6 -translate-x-1/2 rounded-full bg-primary" />
+                <component :is="item.icon" class="h-[18px] w-[18px] shrink-0" />
+                <span class="max-w-full truncate text-[8px] font-black uppercase tracking-wider">{{ item.label }}</span>
             </Link>
 
             <button
                 type="button"
                 @click="openMenu"
-                class="flex flex-col items-center gap-0.5 py-1.5 px-2.5 rounded-xl transition-all active:scale-90 text-on-surface-variant hover:text-primary min-w-0 flex-1"
+                class="flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-on-surface-variant transition-all hover:text-primary active:scale-90"
             >
-                <Menu class="w-[18px] h-[18px] shrink-0" />
+                <Menu class="h-[18px] w-[18px] shrink-0" />
                 <span class="text-[8px] font-black uppercase tracking-wider">Más</span>
             </button>
         </div>

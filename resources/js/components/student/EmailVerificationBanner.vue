@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { Link, useForm } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import { Mail, X } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 
 const props = defineProps<{
     emailVerifiedAt?: string | null;
@@ -43,29 +43,23 @@ function dismiss() {
 </script>
 
 <template>
-    <div v-if="isVisible" class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-4 mb-6">
-        <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-            <Mail class="w-5 h-5 text-amber-600" />
+    <div v-if="isVisible" class="mb-6 flex items-center gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+        <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-amber-100">
+            <Mail class="h-5 w-5 text-amber-600" />
         </div>
-        <div class="flex-1 min-w-0">
-            <p class="text-sm font-bold text-amber-900">
-                Verifica tu correo para recibir notificaciones
-            </p>
+        <div class="min-w-0 flex-1">
+            <p class="text-sm font-bold text-amber-900">Verifica tu correo para recibir notificaciones</p>
         </div>
-        <div class="flex items-center gap-2 shrink-0">
+        <div class="flex shrink-0 items-center gap-2">
             <button
                 @click="resend"
                 :disabled="resendForm.processing"
-                class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100 hover:bg-amber-200 px-3 py-2 rounded-xl transition-colors disabled:opacity-50"
+                class="rounded-xl bg-amber-100 px-3 py-2 text-xs font-bold uppercase tracking-wider text-amber-800 transition-colors hover:bg-amber-200 disabled:opacity-50"
             >
                 {{ resendForm.processing ? 'Enviando...' : 'Reenviar enlace' }}
             </button>
-            <button
-                @click="dismiss"
-                class="p-2 text-amber-400 hover:text-amber-700 transition-colors"
-                title="Descartar"
-            >
-                <X class="w-4 h-4" />
+            <button @click="dismiss" class="p-2 text-amber-400 transition-colors hover:text-amber-700" title="Descartar">
+                <X class="h-4 w-4" />
             </button>
         </div>
     </div>

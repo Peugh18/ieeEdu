@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Briefcase, Clock, Phone, CheckCircle } from 'lucide-vue-next';
 import type { ConsultancyStats } from '@/types/consultancy-request';
+import { Briefcase, CheckCircle, Clock, Phone } from 'lucide-vue-next';
 
 defineProps<{
     stats: ConsultancyStats;
@@ -8,22 +8,34 @@ defineProps<{
 </script>
 
 <template>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-        <div class="bg-surface-container-lowest rounded-3xl p-6 shadow-sm border border-outline-variant/10 flex items-center gap-5">
-            <div class="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center"><Briefcase class="w-6 h-6 text-primary" /></div>
-            <div><p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">Total</p><p class="text-3xl font-bold text-on-surface">{{ stats.total }}</p></div>
+    <div class="mb-10 grid grid-cols-1 gap-6 md:grid-cols-4">
+        <div class="flex items-center gap-5 rounded-3xl border border-outline-variant/10 bg-surface-container-lowest p-6 shadow-sm">
+            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10"><Briefcase class="h-6 w-6 text-primary" /></div>
+            <div>
+                <p class="mb-1 text-xs font-bold uppercase tracking-widest text-on-surface-variant">Total</p>
+                <p class="text-3xl font-bold text-on-surface">{{ stats.total }}</p>
+            </div>
         </div>
-        <div class="bg-amber-50 rounded-3xl p-6 shadow-sm border border-amber-100 flex items-center gap-5">
-            <div class="w-14 h-14 rounded-full bg-amber-100 flex items-center justify-center"><Clock class="w-6 h-6 text-amber-600" /></div>
-            <div><p class="text-xs font-bold text-amber-800 uppercase tracking-widest mb-1">Pendientes</p><p class="text-3xl font-bold text-amber-900">{{ stats.pending }}</p></div>
+        <div class="flex items-center gap-5 rounded-3xl border border-amber-100 bg-amber-50 p-6 shadow-sm">
+            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-amber-100"><Clock class="h-6 w-6 text-amber-600" /></div>
+            <div>
+                <p class="mb-1 text-xs font-bold uppercase tracking-widest text-amber-800">Pendientes</p>
+                <p class="text-3xl font-bold text-amber-900">{{ stats.pending }}</p>
+            </div>
         </div>
-        <div class="bg-blue-50 rounded-3xl p-6 shadow-sm border border-blue-100 flex items-center gap-5">
-            <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center"><Phone class="w-6 h-6 text-blue-600" /></div>
-            <div><p class="text-xs font-bold text-blue-800 uppercase tracking-widest mb-1">Contactados</p><p class="text-3xl font-bold text-blue-900">{{ stats.contacted }}</p></div>
+        <div class="flex items-center gap-5 rounded-3xl border border-blue-100 bg-blue-50 p-6 shadow-sm">
+            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100"><Phone class="h-6 w-6 text-blue-600" /></div>
+            <div>
+                <p class="mb-1 text-xs font-bold uppercase tracking-widest text-blue-800">Contactados</p>
+                <p class="text-3xl font-bold text-blue-900">{{ stats.contacted }}</p>
+            </div>
         </div>
-        <div class="bg-green-50 rounded-3xl p-6 shadow-sm border border-green-100 flex items-center gap-5">
-            <div class="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center"><CheckCircle class="w-6 h-6 text-green-600" /></div>
-            <div><p class="text-xs font-bold text-green-800 uppercase tracking-widest mb-1">Resueltos</p><p class="text-3xl font-bold text-green-900">{{ stats.resolved }}</p></div>
+        <div class="flex items-center gap-5 rounded-3xl border border-green-100 bg-green-50 p-6 shadow-sm">
+            <div class="flex h-14 w-14 items-center justify-center rounded-full bg-green-100"><CheckCircle class="h-6 w-6 text-green-600" /></div>
+            <div>
+                <p class="mb-1 text-xs font-bold uppercase tracking-widest text-green-800">Resueltos</p>
+                <p class="text-3xl font-bold text-green-900">{{ stats.resolved }}</p>
+            </div>
         </div>
     </div>
 </template>
