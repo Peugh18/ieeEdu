@@ -1,18 +1,18 @@
 <script setup lang="ts">
 const clientLogos = [
-    { name: 'Antamina', src: '/images/landing/antamina.jpg' },
+    { name: 'Antamina', src: '/images/landing/antamina.png' },
     { name: 'Barrick', src: '/images/landing/barrick.png' },
     { name: 'Boroo', src: '/images/landing/boroo.png' },
-    { name: 'Casa Grande', src: '/images/landing/casa-grande.jpg' },
+    { name: 'Casa Grande', src: '/images/landing/casa-grande.png' },
     { name: 'Colegio Médico del Perú', src: '/images/landing/colegio-medico-del peru.png' },
     { name: 'Danper', src: '/images/landing/danper.png' },
     { name: 'Gobierno Regional La Libertad', src: '/images/landing/gobierno-regional la-libertad.png' },
     { name: 'IICA', src: '/images/landing/IICA.png' },
     { name: 'Leon XIII', src: '/images/landing/Logo-Leonxiii.png' },
     { name: 'PCM', src: '/images/landing/pcm.png' },
-    { name: 'Perupetro', src: '/images/landing/peru-petro.jpg' },
-    { name: 'Produce', src: '/images/landing/peru-produce.jpg' },
-    { name: 'Sociedad Nacional de Industrias', src: '/images/landing/sociedad-nacional-de-industrias.jpg' },
+    { name: 'Perupetro', src: '/images/landing/peru-petro.png' },
+    { name: 'Produce', src: '/images/landing/peru-produce.png' },
+    { name: 'Sociedad Nacional de Industrias', src: '/images/landing/sociedad-nacional-de-industrias.png' },
 ];
 </script>
 

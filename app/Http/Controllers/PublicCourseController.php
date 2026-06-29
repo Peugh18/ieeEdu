@@ -50,8 +50,9 @@ class PublicCourseController extends Controller
 
         $teaserArticles = Article::latest()->take(4)->get();
 
-        // Banners del Home desde la BD, ordenados
+        // Banners del Home desde la BD, activos y ordenados
         $homeSlides = Banner::where('section', 'home')
+            ->where('is_active', true)
             ->orderBy('order')
             ->get();
 

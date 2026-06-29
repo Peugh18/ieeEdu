@@ -33,19 +33,19 @@ const defaultSlides = [
     },
 ];
 
-// Slides activos: si vienen de la BD (y tienen heading), los usamos; si no, usamos fallback
+// Slides activos: si vienen de la BD con imagen o texto, los usamos; si no, fallback
 const slides = computed(() => {
-    if (props.dbSlides && props.dbSlides.length > 0 && props.dbSlides.some((s) => s.heading)) {
+    if (props.dbSlides && props.dbSlides.length > 0 && props.dbSlides.some((s) => s.image_path || s.heading)) {
         return props.dbSlides
-            .filter((s) => s.heading) // Solo slides con contenido real
-            .sort((a, b) => a.order - b.order)
+            .filter((s) => s.image_path || s.heading)
+            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
             .map((s) => ({
-                image: s.image_path || defaultSlides[s.order - 1]?.image || defaultSlides[0].image,
-                tag: 'IEE — Instituto de Economía y Empresa',
+                image: s.image_path || defaultSlides[(s.order ?? 1) - 1]?.image || defaultSlides[0].image,
+                tag: s.show_text ? (s.heading || 'IEE — Instituto de Economía y Empresa') : 'IEE — Instituto de Economía y Empresa',
                 heading: s.heading || '',
                 body: s.subheading || '',
                 cta1: { text: s.button_text || 'Ver más', href: s.button_link || '/' },
-                cta2: { text: 'Explorar', href: '/' },
+                cta2: { text: 'Explorar', href: s.button_link || '/' },
             }));
     }
     return defaultSlides;
