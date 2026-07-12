@@ -11,7 +11,6 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class PaymentController extends Controller
@@ -92,10 +91,7 @@ class PaymentController extends Controller
 
     private function storeComprobanteFile($file): string
     {
-        $ext = $file->getClientOriginalExtension();
-        $safeName = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'_'.time();
-        $filename = $safeName.'.'.$ext;
-        $path = $file->storeAs('comprobantes', $filename, 'public');
+        $path = $file->store('comprobantes', 'public');
 
         return Storage::url($path);
     }

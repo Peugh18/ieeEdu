@@ -10,6 +10,7 @@ use App\Models\Course;
 use App\Models\Payment;
 use App\Support\PlanPricing;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -20,17 +21,16 @@ class PublicCourseController extends Controller
         // Fetch published courses (not masterclasses)
         $query = Course::where('status', 'PUBLICADO')
             ->whereIn('type', ['grabado', 'en vivo'])
-            ->with('category:id,name')
+            ->with(['category:id,name', 'teacher:id,name'])
             ->select([
                 'id', 'title', 'slug', 'description', 'price', 'sale_price',
                 'type', 'image', 'start_date', 'start_time', 'duration_weeks',
-                'class_hours', 'category_id', 'instructor_name', 'instructor_image',
+                'class_hours', 'category_id', 'instructor_name', 'instructor_image', 'docente_id',
             ]);
 
-        // Remover la exclusión de cursos para que el landing siempre muestre la oferta académica completa.
-        // Los usuarios suscritos deben poder ver el catálogo, y luego el sistema les indica su acceso.
-
-        $courses = $query->get();
+        $courses = Cache::remember('welcome_courses', 3600, function () use ($query) {
+            return $query->get();
+        });
 
         // Teaser: few items for editorial section
         $teaserBooks = Book::where('is_available', true)->latest()->take(8)->get()->map(function ($book) {

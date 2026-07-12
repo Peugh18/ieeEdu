@@ -36,6 +36,7 @@ const toggleMobileMenu = () => {
 };
 
 const menuItems = [
+    { label: 'Nosotros', href: route('nosotros') },
     { label: 'Cursos', href: route('cursos.index') },
     { label: 'Consultoría', href: route('consultoria') },
     { label: 'Publicaciones', href: route('publicaciones.index') },

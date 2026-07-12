@@ -41,7 +41,7 @@ const slides = computed(() => {
             .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
             .map((s) => ({
                 image: s.image_path || defaultSlides[(s.order ?? 1) - 1]?.image || defaultSlides[0].image,
-                tag: s.show_text ? (s.heading || 'IEE — Instituto de Economía y Empresa') : 'IEE — Instituto de Economía y Empresa',
+                tag: s.show_text ? s.heading || 'IEE — Instituto de Economía y Empresa' : 'IEE — Instituto de Economía y Empresa',
                 heading: s.heading || '',
                 body: s.subheading || '',
                 cta1: { text: s.button_text || 'Ver más', href: s.button_link || '/' },

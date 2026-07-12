@@ -36,7 +36,7 @@ class ExamController extends Controller
                 $attempts = $quiz->attempts;
                 $passed = $attempts->contains('status', 'aprobado');
                 $latestAttempt = $attempts->first();
-                $enrollment = $quiz->course->enrollments->first();
+                $enrollment = $quiz->course?->enrollments->first();
 
                 $attemptsLeft = max(0, $quiz->max_attempts - $attempts->count());
                 $progress = (int) ($enrollment?->progress ?? 0);
