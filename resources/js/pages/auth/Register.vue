@@ -89,8 +89,11 @@ const submit = () => {
                 <div class="grid gap-2">
                     <div class="flex items-start space-x-3">
                         <Checkbox id="terms" v-model:checked="form.terms" tabindex="6" />
-                        <Label for="terms" class="text-sm font-normal leading-tight text-on-surface-variant cursor-pointer select-none">
-                            Acepto los <a :href="route('terms')" target="_blank" class="text-primary font-semibold hover:underline">Términos y Condiciones</a> y la <a :href="route('privacy')" target="_blank" class="text-primary font-semibold hover:underline">Política de Privacidad</a>
+                        <Label for="terms" class="cursor-pointer select-none text-sm font-normal leading-tight text-on-surface-variant">
+                            Acepto los
+                            <a :href="route('terms')" target="_blank" class="font-semibold text-primary hover:underline">Términos y Condiciones</a> y
+                            la
+                            <a :href="route('privacy')" target="_blank" class="font-semibold text-primary hover:underline">Política de Privacidad</a>
                         </Label>
                     </div>
                     <InputError :message="form.errors.terms" />

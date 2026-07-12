@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [PublicCourseController::class, 'welcome'])->name('home');
 
+Route::get('/nosotros', function () {
+    return Inertia\Inertia::render('Nosotros');
+})->name('nosotros');
+
 Route::get('/cursos', [PublicCourseController::class, 'index'])->name('cursos.index');
 Route::get('/masterclass', [PublicCourseController::class, 'masterclasses'])->name('masterclass.index');
 Route::get('/cursos/{slug}', [PublicCourseController::class, 'show'])->name('cursos.show');
