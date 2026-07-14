@@ -15,9 +15,16 @@ const emit = defineEmits<{
     (e: 'close'): void;
 }>();
 
+const user = usePage<SharedData>().props.auth.user;
+
 const form = useForm({
     course_id: props.productType === 'course' ? props.productId : (null as number | null),
     book_id: props.productType === 'book' ? props.productId : (null as number | null),
+    department: '',
+    province: '',
+    district: '',
+    shipping_address: '',
+    shipping_phone: user?.telefono || '',
 });
 
 function submitWhatsApp() {
@@ -59,7 +66,7 @@ function submitWhatsApp() {
                         </p>
                     </div>
 
-                    <ol class="mb-8 space-y-4">
+                     <ol class="mb-6 space-y-3">
                         <li class="flex items-start gap-3">
                             <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                                 <MessageCircle class="h-4 w-4" />
@@ -67,7 +74,7 @@ function submitWhatsApp() {
                             <div>
                                 <p class="text-sm font-bold text-slate-800">1. Coordina por WhatsApp</p>
                                 <p class="mt-0.5 text-xs text-slate-500">
-                                    Te indicamos a quién pagar{{ productType === 'book' ? ' y confirmamos tu dirección en Perú' : '' }}.
+                                    {{ productType === 'book' ? 'Confirmamos los datos de pago y tu dirección de envío en WhatsApp.' : 'Te indicamos los datos de pago.' }}
                                 </p>
                             </div>
                         </li>
@@ -77,7 +84,7 @@ function submitWhatsApp() {
                             </div>
                             <div>
                                 <p class="text-sm font-bold text-slate-800">2. Sube tu comprobante</p>
-                                <p class="mt-0.5 text-xs text-slate-500">Cuando el asesor te lo indique, en <strong>Mis Pagos</strong>.</p>
+                                <p class="mt-0.5 text-xs text-slate-500">Cuando realices la transferencia, regístrala en <strong>Mis Pagos</strong>.</p>
                             </div>
                         </li>
                         <li class="flex items-start gap-3">
@@ -89,13 +96,80 @@ function submitWhatsApp() {
                                 <p class="mt-0.5 text-xs text-slate-500">
                                     {{
                                         productType === 'book'
-                                            ? 'Aprobamos tu pago y gestionamos el envío físico.'
+                                            ? 'Aprobamos tu pago y procesamos el envío físico.'
                                             : 'Activamos tu acceso al aula virtual.'
                                     }}
                                 </p>
                             </div>
                         </li>
                     </ol>
+
+                    <!-- Shipping Address Form (Only for physical books) -->
+                    <div v-if="productType === 'book'" class="mb-6 space-y-4 rounded-2xl border border-slate-100 bg-slate-50 p-5 text-left">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Dirección de despacho (Perú)</p>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-[9px] font-black uppercase tracking-wider text-slate-500">Departamento</label>
+                                <input
+                                    v-model="form.department"
+                                    type="text"
+                                    required
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none focus:border-primary"
+                                    placeholder="Ej: La Libertad"
+                                />
+                                <span v-if="form.errors.department" class="text-[9px] text-rose-500 font-semibold">{{ form.errors.department }}</span>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[9px] font-black uppercase tracking-wider text-slate-500">Provincia</label>
+                                <input
+                                    v-model="form.province"
+                                    type="text"
+                                    required
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none focus:border-primary"
+                                    placeholder="Ej: Trujillo"
+                                />
+                                <span v-if="form.errors.province" class="text-[9px] text-rose-500 font-semibold">{{ form.errors.province }}</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-[9px] font-black uppercase tracking-wider text-slate-500">Distrito</label>
+                                <input
+                                    v-model="form.district"
+                                    type="text"
+                                    required
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none focus:border-primary"
+                                    placeholder="Ej: Víctor Larco"
+                                />
+                                <span v-if="form.errors.district" class="text-[9px] text-rose-500 font-semibold">{{ form.errors.district }}</span>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-[9px] font-black uppercase tracking-wider text-slate-500">Teléfono Contacto</label>
+                                <input
+                                    v-model="form.shipping_phone"
+                                    type="text"
+                                    required
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none focus:border-primary"
+                                    placeholder="Ej: 958481351"
+                                />
+                                <span v-if="form.errors.shipping_phone" class="text-[9px] text-rose-500 font-semibold">{{ form.errors.shipping_phone }}</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-[9px] font-black uppercase tracking-wider text-slate-500">Dirección de Entrega</label>
+                            <input
+                                v-model="form.shipping_address"
+                                type="text"
+                                required
+                                class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 outline-none focus:border-primary"
+                                placeholder="Calle, Av, Nro, Urb, Dpto..."
+                            />
+                            <span v-if="form.errors.shipping_address" class="text-[9px] text-rose-500 font-semibold">{{ form.errors.shipping_address }}</span>
+                        </div>
+                    </div>
 
                     <div
                         v-if="form.errors.course_id || form.errors.book_id"

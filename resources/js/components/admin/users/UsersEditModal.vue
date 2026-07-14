@@ -3,6 +3,7 @@ import { UserListItem } from '@/types/admin';
 import { useForm } from '@inertiajs/vue3';
 import { X } from 'lucide-vue-next';
 import { watch } from 'vue';
+import AppSelect from '@/components/ui/AppSelect.vue';
 
 const props = defineProps<{
     show: boolean;
@@ -164,23 +165,25 @@ function avatarColor(id: number) {
                         <div class="grid grid-cols-1 gap-6 pt-4 md:grid-cols-2">
                             <div class="space-y-1.5">
                                 <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Grado de Acceso</label>
-                                <select
+                                <AppSelect
                                     v-model="editForm.role"
-                                    class="h-12 w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 outline-none transition-all focus:border-primary"
-                                >
-                                    <option value="usuario">Estudiante</option>
-                                    <option value="admin">Administrador</option>
-                                </select>
+                                    :options="[
+                                        { value: 'usuario', label: 'Estudiante' },
+                                        { value: 'admin', label: 'Administrador' }
+                                    ]"
+                                    class="h-12 border-slate-200 bg-white font-bold"
+                                />
                             </div>
                             <div class="space-y-1.5">
                                 <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Estatus Administrativo</label>
-                                <select
+                                <AppSelect
                                     v-model="editForm.status"
-                                    class="h-12 w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 outline-none transition-all focus:border-primary"
-                                >
-                                    <option value="activo">Vigencia Plena</option>
-                                    <option value="inactivo">Baja del Sistema</option>
-                                </select>
+                                    :options="[
+                                        { value: 'activo', label: 'Vigencia Plena' },
+                                        { value: 'inactivo', label: 'Baja del Sistema' }
+                                    ]"
+                                    class="h-12 border-slate-200 bg-white font-bold"
+                                />
                             </div>
                         </div>
 
@@ -224,12 +227,5 @@ function avatarColor(id: number) {
         transform: scale(1);
         opacity: 1;
     }
-}
-
-select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1rem;
 }
 </style>

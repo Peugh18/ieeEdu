@@ -12,9 +12,9 @@ class Book extends Model
     use HasFactory, Slugifiable;
 
     protected $fillable = [
-        'category',
         'title',
         'price',
+        'sale_price',
         'stock',
         'author',
         'description',
@@ -26,6 +26,7 @@ class Book extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'sale_price' => 'decimal:2',
         'stock' => 'integer',
         'is_available' => 'boolean',
     ];

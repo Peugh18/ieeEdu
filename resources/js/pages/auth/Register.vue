@@ -7,7 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
+
+const showPassword = ref(false);
+const showPasswordConfirmation = ref(false);
 
 const form = useForm({
     name: '',
@@ -60,29 +64,41 @@ const submit = () => {
 
                 <div class="grid gap-2">
                     <Label for="password">Contraseña</Label>
-                    <Input
-                        id="password"
-                        type="password"
-                        required
-                        tabindex="4"
-                        autocomplete="new-password"
-                        v-model="form.password"
-                        placeholder="Tu contraseña"
-                    />
+                    <div class="relative">
+                        <Input
+                            id="password"
+                            :type="showPassword ? 'text' : 'password'"
+                            required
+                            tabindex="4"
+                            autocomplete="new-password"
+                            v-model="form.password"
+                            placeholder="Tu contraseña"
+                        />
+                        <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-outline-variant/70 hover:text-outline-variant" @click="showPassword = !showPassword">
+                            <Eye v-if="!showPassword" class="h-4 w-4" />
+                            <EyeOff v-else class="h-4 w-4" />
+                        </button>
+                    </div>
                     <InputError :message="form.errors.password" />
                 </div>
 
                 <div class="grid gap-2">
                     <Label for="password_confirmation">Confirmar contraseña</Label>
-                    <Input
-                        id="password_confirmation"
-                        type="password"
-                        required
-                        tabindex="5"
-                        autocomplete="new-password"
-                        v-model="form.password_confirmation"
-                        placeholder="Repite tu contraseña"
-                    />
+                    <div class="relative">
+                        <Input
+                            id="password_confirmation"
+                            :type="showPasswordConfirmation ? 'text' : 'password'"
+                            required
+                            tabindex="5"
+                            autocomplete="new-password"
+                            v-model="form.password_confirmation"
+                            placeholder="Repite tu contraseña"
+                        />
+                        <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-outline-variant/70 hover:text-outline-variant" @click="showPasswordConfirmation = !showPasswordConfirmation">
+                            <Eye v-if="!showPasswordConfirmation" class="h-4 w-4" />
+                            <EyeOff v-else class="h-4 w-4" />
+                        </button>
+                    </div>
                     <InputError :message="form.errors.password_confirmation" />
                 </div>
 

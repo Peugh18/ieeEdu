@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Student\StorePurchaseIntentRequest;
 use App\Models\Book;
+use App\Models\BookOrder;
 use App\Models\Course;
 use App\Models\Payment;
 use App\Support\PlanPricing;
@@ -41,7 +42,20 @@ class PurchaseIntentController extends Controller
                 'status' => 'pendiente',
             ]);
 
-            $whatsappUrl = WhatsAppPurchaseMessage::book($user, $book, $payment);
+            // Create BookOrder immediately with prefilled shipping details
+            BookOrder::create([
+                'payment_id' => $payment->id,
+                'book_id' => $book->id,
+                'user_id' => $user->id,
+                'shipping_status' => BookOrder::STATUS_AWAITING_ADDRESS,
+                'department' => $data['department'] ?? null,
+                'province' => $data['province'] ?? null,
+                'district' => $data['district'] ?? null,
+                'shipping_address' => $data['shipping_address'] ?? null,
+                'shipping_phone' => $data['shipping_phone'] ?? null,
+            ]);
+
+            $whatsappUrl = WhatsAppPurchaseMessage::book($user, $book, $payment, $data);
         } else {
             $course = Course::findOrFail($data['course_id']);
             $payment = Payment::create([

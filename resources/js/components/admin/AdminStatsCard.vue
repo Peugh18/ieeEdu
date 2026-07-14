@@ -39,7 +39,7 @@ withDefaults(
         :class="
             variant === 'accent'
                 ? 'border-transparent bg-primary shadow-xl shadow-primary/10 hover:scale-[1.01]'
-                : 'border-slate-100 bg-white hover:border-slate-200 hover:shadow-md'
+                : 'border-outline-variant/10 bg-surface-container-lowest hover:border-outline-variant/20 hover:shadow-md'
         "
     >
         <div class="relative z-10 flex h-full flex-col justify-between space-y-4">

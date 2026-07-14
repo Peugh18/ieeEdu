@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AdminConsultancyRequestMail;
+use App\Mail\ClientConsultancyAutoReplyMail;
 use App\Models\Banner;
 use App\Models\ConsultancyRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 
 class ConsultancyController extends Controller
@@ -45,7 +48,17 @@ class ConsultancyController extends Controller
             'message.required' => 'Por favor describe brevemente tu necesidad.',
         ]);
 
-        ConsultancyRequest::create($validated);
+        $consultancy = ConsultancyRequest::create($validated);
+
+        // Enviar correo a la administración
+        $banner = Banner::where('section', 'consultoria')->orderBy('order')->first();
+        $adminEmail = $banner->contact_email ?? 'info@iee.edu.pe';
+        Mail::to($adminEmail)
+            ->send(new AdminConsultancyRequestMail($consultancy));
+
+        // Enviar auto-respuesta al cliente
+        Mail::to($consultancy->email)
+            ->send(new ClientConsultancyAutoReplyMail($consultancy));
 
         return back()->with('success', '¡Tu solicitud fue enviada con éxito! Nos pondremos en contacto contigo en las próximas 24 horas.');
     }

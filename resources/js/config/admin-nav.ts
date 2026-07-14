@@ -1,17 +1,13 @@
 import type { NavGroup } from '@/types/navigation';
 import {
     Award,
-    BookMarked,
     BookOpen,
     Briefcase,
     Building2,
     CreditCard,
-    Crown,
     FolderTree,
     Image,
     LayoutGrid,
-    Newspaper,
-    Package,
     Sparkles,
     Users,
 } from 'lucide-vue-next';
@@ -65,19 +61,7 @@ export const adminNavItems: NavGroup[] = [
                 title: 'Comprobantes',
                 href: 'admin.payments.index',
                 icon: CreditCard,
-                matchPaths: ['/admin/payments'],
-            },
-            {
-                title: 'Membresías',
-                href: 'admin.subscriptions.index',
-                icon: Crown,
-                matchPaths: ['/admin/subscriptions'],
-            },
-            {
-                title: 'Pedidos de libros',
-                href: 'admin.book-orders.index',
-                icon: Package,
-                matchPaths: ['/admin/book-orders'],
+                matchPaths: ['/admin/payments', '/admin/book-orders'],
             },
         ],
     },
@@ -85,16 +69,10 @@ export const adminNavItems: NavGroup[] = [
         label: 'Contenido',
         items: [
             {
-                title: 'Libros',
+                title: 'Publicaciones',
                 href: 'admin.books.index',
-                icon: BookMarked,
-                matchPaths: ['/admin/books'],
-            },
-            {
-                title: 'Artículos',
-                href: 'admin.articles.index',
-                icon: Newspaper,
-                matchPaths: ['/admin/articles'],
+                icon: BookOpen,
+                matchPaths: ['/admin/books', '/admin/articles'],
             },
         ],
     },

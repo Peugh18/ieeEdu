@@ -75,7 +75,7 @@ export function useCourseCurriculum(
             module_id: isMasterclass.value ? null : newLesson.value.module_id,
             title: newLesson.value.title.trim(),
             description: newLesson.value.description,
-            content_type: isMasterclass.value ? 'live' : newLesson.value.content_type,
+            content_type: newLesson.value.content_type,
         };
 
         if (!payload.title) {
@@ -94,7 +94,7 @@ export function useCourseCurriculum(
             payload.start_time = newLesson.value.start_time || null;
             payload.end_time = newLesson.value.end_time || null;
             if (!payload.live_link) {
-                alert(isMasterclass.value ? 'Masterclass requiere link de WhatsApp.' : 'Clase en vivo requiere link.');
+                alert('Clase en vivo requiere link.');
                 return;
             }
         }
@@ -211,8 +211,8 @@ export function useCourseCurriculum(
         materialsByLesson.value[lessonId] = (materialsByLesson.value[lessonId] ?? []).filter((m) => m.id !== materialId);
     }
 
-    function lessonsForModule(moduleId: number) {
-        return lessons.value.filter((l) => (isMasterclass.value ? true : l.module_id === moduleId));
+    function lessonsForModule(moduleId: number | string) {
+        return lessons.value.filter((l) => (isMasterclass.value ? true : l.module_id == moduleId));
     }
 
     onMounted(() => {

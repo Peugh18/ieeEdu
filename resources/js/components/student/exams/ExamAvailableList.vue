@@ -91,16 +91,16 @@ defineProps<{
     </div>
     <div
         v-else
-        class="group flex flex-col items-center rounded-2xl border border-dashed border-outline-variant/30 bg-white px-4 py-12 text-center shadow-inner md:rounded-[4rem] md:py-24"
+        class="group flex flex-col items-center rounded-3xl border border-dashed border-outline-variant/30 bg-surface-container-lowest px-4 py-12 text-center md:py-20"
     >
         <div
-            class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-outline-variant/20 bg-background transition-colors group-hover:bg-primary/5 md:mb-8 md:h-20 md:w-20 md:rounded-[1.75rem]"
+            class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-outline-variant/20 bg-background transition-colors group-hover:bg-primary/5 md:mb-8"
         >
-            <FileText class="h-6 w-6 text-outline-variant md:h-8 md:w-8" />
+            <FileText class="h-6 w-6 text-outline-variant" />
         </div>
-        <h4 class="mb-2 font-serif text-lg font-bold italic text-on-background md:mb-3 md:text-xl">Sin evaluaciones lectivas</h4>
-        <p class="max-w-xs font-serif text-xs italic leading-relaxed text-on-surface-variant md:text-sm">
-            No se presentan evaluaciones magistrales disponibles en su cronograma actual.
+        <h4 class="mb-2 text-lg font-bold text-on-background md:mb-3">Sin evaluaciones lectivas</h4>
+        <p class="max-w-xs text-sm text-on-surface-variant">
+            No se presentan evaluaciones disponibles en tu cronograma actual.
         </p>
     </div>
 </template>

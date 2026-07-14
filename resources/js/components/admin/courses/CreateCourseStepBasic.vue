@@ -2,6 +2,7 @@
 import type { CreateCourseForm } from '@/composables/admin/courses/useCreateCourse';
 import type { InertiaForm } from '@inertiajs/vue3';
 import { Star, Users, Video } from 'lucide-vue-next';
+import AppSelect from '@/components/ui/AppSelect.vue';
 
 defineProps<{
     form: InertiaForm<CreateCourseForm>;
@@ -113,13 +114,14 @@ const emit = defineEmits<{
                 <div class="space-y-3">
                     <label class="ml-1 block font-sans text-[14px] font-bold text-on-surface">Especialidad</label>
                     <div class="flex gap-2">
-                        <select
+                        <AppSelect
                             v-model="form.category_id"
-                            class="flex-1 appearance-none rounded-[1.5rem] border-transparent bg-surface-container-highest px-6 py-5 font-sans text-[15px] text-on-surface outline-none transition-all focus:ring-2 focus:ring-primary/20"
-                        >
-                            <option value="">Seleccione Categoría</option>
-                            <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
-                        </select>
+                            :options="[
+                                { value: '', label: 'Seleccione Categoría' },
+                                ...categories.map(c => ({ value: c.id, label: c.name }))
+                            ]"
+                            class="flex-1 bg-surface-container-highest border-0 shadow-none text-[15px] px-6 py-5"
+                        />
                         <button
                             type="button"
                             class="flex items-center justify-center rounded-[1.5rem] bg-surface-container-highest px-6 font-bold text-primary shadow-sm transition-colors hover:bg-surface-container-high"

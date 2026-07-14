@@ -81,7 +81,7 @@ class DashboardController extends Controller
                 'image' => $cert->course->image ?? '/images/cert-placeholder.png',
                 'code' => $cert->code ?? 'N/A',
                 'is_available' => true,
-                'download_url' => asset('storage/'.$cert->file_path),
+                'download_url' => route('student.certificates.download', ['certificate' => $cert->id]),
             ]);
     }
 }

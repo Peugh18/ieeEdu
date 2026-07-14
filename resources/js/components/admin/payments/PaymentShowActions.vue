@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { CheckCircle2, Undo2 } from 'lucide-vue-next';
+import { CheckCircle2, Undo2, XCircle } from 'lucide-vue-next';
 
-defineProps<{ status: string }>();
+defineProps<{ 
+    status: string;
+    productType?: 'course' | 'book' | 'membership' | null;
+}>();
 const emit = defineEmits<{ (e: 'approve'): void; (e: 'reject'): void; (e: 'revert'): void }>();
 </script>
 
@@ -12,8 +15,20 @@ const emit = defineEmits<{ (e: 'approve'): void; (e: 'reject'): void; (e: 'rever
         <div v-if="status === 'aprobado'" class="space-y-3">
             <div class="rounded-2xl bg-emerald-50 p-4 text-center">
                 <CheckCircle2 class="mx-auto mb-2 h-8 w-8 text-emerald-500" />
-                <p class="text-sm font-bold text-emerald-700">Acceso habilitado</p>
-                <p class="mt-1 text-xs text-emerald-600">El estudiante tiene acceso activo</p>
+                <p class="text-sm font-bold text-emerald-700">
+                    {{ 
+                        productType === 'book' ? 'Pedido registrado' : 
+                        productType === 'membership' ? 'Membresía activa' : 
+                        'Acceso habilitado' 
+                    }}
+                </p>
+                <p class="mt-1 text-xs text-emerald-600">
+                    {{ 
+                        productType === 'book' ? 'El pedido de envío físico ha sido programado' : 
+                        productType === 'membership' ? 'El estudiante tiene membresía Premium activa' : 
+                        'El estudiante tiene acceso activo al curso' 
+                    }}
+                </p>
             </div>
             <button
                 @click="emit('revert')"
@@ -24,11 +39,21 @@ const emit = defineEmits<{ (e: 'approve'): void; (e: 'reject'): void; (e: 'rever
         </div>
 
         <div v-else class="space-y-3">
+            <div v-if="status === 'rechazado'" class="rounded-2xl bg-red-50 p-4 text-center mb-3">
+                <XCircle class="mx-auto mb-2 h-8 w-8 text-red-500" />
+                <p class="text-sm font-bold text-red-700">Pago rechazado</p>
+                <p class="mt-1 text-xs text-red-600">El pago fue rechazado. El estudiante puede volver a subir un comprobante corregido.</p>
+            </div>
+
             <button
                 @click="emit('approve')"
                 class="w-full rounded-2xl bg-emerald-600 py-3 text-sm font-bold text-white shadow transition-opacity hover:opacity-90"
             >
-                ✓ Aprobar y desbloquear curso
+                ✓ Aprobar y {{ 
+                    productType === 'book' ? 'confirmar pedido' : 
+                    productType === 'membership' ? 'activar membresía' : 
+                    'desbloquear curso' 
+                }}
             </button>
             <button
                 v-if="status !== 'rechazado'"

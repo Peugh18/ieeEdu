@@ -2,6 +2,7 @@
 import CourseEditorTabPanel from '@/components/admin/courses/editor/CourseEditorTabPanel.vue';
 import type { CourseEditorCategory, CourseEditorCourse } from '@/types/course-editor';
 import type { InertiaForm } from '@inertiajs/vue3';
+import AppSelect from '@/components/ui/AppSelect.vue';
 
 defineProps<{
     show: boolean;
@@ -39,15 +40,16 @@ defineProps<{
                     </div>
                     <div class="space-y-3">
                         <label class="ml-1 block font-sans text-[14px] font-bold text-on-surface">Modalidad de Impartición</label>
-                        <select
+                        <AppSelect
                             v-model="form.type"
-                            class="w-full appearance-none rounded-[1.5rem] border-transparent bg-surface-container-highest px-6 py-5 font-sans text-[15px] text-on-surface outline-none transition-all focus:ring-2 focus:ring-primary/20"
-                        >
-                            <option value="grabado">Curso Grabado (Video)</option>
-                            <option value="en vivo">Curso En Vivo (Streaming)</option>
-                            <option value="masterclass">Masterclass Gratuita</option>
-                            <option value="evento">Evento Presencial/Virtual</option>
-                        </select>
+                            :options="[
+                                { value: 'grabado', label: 'Curso Grabado (Video)' },
+                                { value: 'en vivo', label: 'Curso En Vivo (Streaming)' },
+                                { value: 'masterclass', label: 'Masterclass Gratuita' },
+                                { value: 'evento', label: 'Evento Presencial/Virtual' }
+                            ]"
+                            class="bg-surface-container-highest border-0 shadow-sm text-[15px]"
+                        />
                     </div>
                 </div>
 
@@ -109,14 +111,15 @@ defineProps<{
                     </div>
                     <div class="space-y-3">
                         <label class="ml-1 block font-sans text-[14px] font-bold text-on-surface">Categoría Principal</label>
-                        <select
+                        <AppSelect
                             v-model="form.category_id"
-                            class="w-full appearance-none rounded-[1.5rem] border-transparent bg-surface-container-highest px-6 py-5 font-sans text-[15px] text-on-surface outline-none transition-all focus:ring-2 focus:ring-primary/20"
+                            :options="[
+                                { value: '', label: 'Seleccione Categoría' },
+                                ...categories.map(c => ({ value: c.id, label: c.name }))
+                            ]"
+                            class="bg-surface-container-highest border-0 shadow-sm text-[15px]"
                             :class="form.errors.category_id ? 'bg-red-50/50 ring-2 ring-red-500' : ''"
-                        >
-                            <option value="">Seleccione Categoría</option>
-                            <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
-                        </select>
+                        />
                         <p v-if="form.errors.category_id" class="ml-1 mt-1.5 font-sans text-sm font-bold text-red-600">
                             {{ form.errors.category_id }}
                         </p>

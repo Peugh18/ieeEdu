@@ -33,6 +33,7 @@ class UpdateBookOrderRequest extends FormRequest
             'pickup_location' => ['nullable', 'string', 'max:500'],
             'carrier' => ['nullable', 'string', 'max:120'],
             'tracking_url' => ['nullable', 'url', 'max:500'],
+            'tracking_code' => ['nullable', 'string', 'max:120'],
             'student_note' => ['nullable', 'string', 'max:1000'],
             'admin_notes' => ['nullable', 'string', 'max:1000'],
         ];

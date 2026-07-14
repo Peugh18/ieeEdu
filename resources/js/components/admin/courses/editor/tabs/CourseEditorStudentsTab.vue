@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CourseEditorTabPanel from '@/components/admin/courses/editor/CourseEditorTabPanel.vue';
+import AppSelect from '@/components/ui/AppSelect.vue';
 
 interface EnrolledStudent {
     id: number;
@@ -30,14 +31,15 @@ const studentFilter = defineModel<'all' | 'certified' | 'pending'>('filter', { r
                 </div>
                 <div class="flex items-center gap-3">
                     <label class="whitespace-nowrap text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">Filtrar por</label>
-                    <select
+                    <AppSelect
                         v-model="studentFilter"
-                        class="cursor-pointer rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-2.5 text-sm font-bold text-on-surface outline-none transition-all focus:ring-2 focus:ring-primary/20"
-                    >
-                        <option value="all">Todos los alumnos</option>
-                        <option value="certified">Certificado Obtenido</option>
-                        <option value="pending">Falta Obtener</option>
-                    </select>
+                        :options="[
+                            { value: 'all', label: 'Todos los alumnos' },
+                            { value: 'certified', label: 'Certificado Obtenido' },
+                            { value: 'pending', label: 'Falta Obtener' }
+                        ]"
+                        class="border-outline-variant/20 bg-surface-container-low text-sm font-bold shadow-sm"
+                    />
                 </div>
             </div>
 

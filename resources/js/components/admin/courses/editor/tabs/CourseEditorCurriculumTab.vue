@@ -2,6 +2,7 @@
 import CourseEditorTabPanel from '@/components/admin/courses/editor/CourseEditorTabPanel.vue';
 import type { CourseCurriculumApi } from '@/composables/admin/course-editor/useCourseCurriculum';
 import type { CourseLesson } from '@/types/course';
+import AppSelect from '@/components/ui/AppSelect.vue';
 
 defineProps<{
     show: boolean;
@@ -23,7 +24,7 @@ defineProps<{
             </p>
             <p
                 v-if="isMasterclass"
-                class="flex items-center gap-3 rounded-[1rem] border border-amber-200 bg-amber-50 px-5 py-3 font-sans text-[13px] font-bold text-amber-800"
+                class="flex items-center gap-3 rounded-[1rem] border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-900/20 px-5 py-3 font-sans text-[13px] font-bold text-amber-800 dark:text-amber-200"
             >
                 <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
@@ -57,27 +58,28 @@ defineProps<{
 
             <div class="space-y-5">
                 <h3 class="font-sans text-[16px] font-bold text-on-surface">Agregar clase</h3>
-                <div v-if="!isMasterclass" class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                    <select
+                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    <AppSelect
+                        v-if="!isMasterclass"
                         v-model="curriculum.newLesson.module_id"
-                        class="appearance-none rounded-[1.5rem] border-transparent bg-white px-6 py-4 font-sans text-[14px] text-on-surface shadow-sm outline-none transition-all focus:ring-2 focus:ring-primary/20"
-                    >
-                        <option :value="null" disabled>Selecciona un módulo (obligatorio)</option>
-                        <option v-for="m in curriculum.modules" :key="m.id" :value="m.id">{{ m.title }}</option>
-                    </select>
-                    <select
-                        v-model="curriculum.newLesson.content_type"
-                        class="appearance-none rounded-[1.5rem] border-transparent bg-white px-6 py-4 font-sans text-[14px] text-on-surface shadow-sm outline-none transition-all focus:ring-2 focus:ring-primary/20"
-                    >
-                        <option value="video">Video (grabado)</option>
-                        <option value="live">En vivo (link + horario)</option>
-                        <option value="text">Texto</option>
-                    </select>
-                </div>
-                <div v-else class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                    <div class="rounded-[1.5rem] border border-transparent bg-white px-6 py-4 font-sans text-[14px] font-bold text-primary shadow-sm">
-                        Masterclass: 1 clase con link de WhatsApp
+                        :options="[
+                            { value: null, label: 'Selecciona un módulo (obligatorio)' },
+                            ...curriculum.modules.map(m => ({ value: m.id, label: m.title }))
+                        ]"
+                        class="bg-white border-0 shadow-sm text-[14px]"
+                    />
+                    <div v-else class="rounded-[1.5rem] border border-transparent bg-white px-6 py-4 font-sans text-[14px] font-bold text-primary shadow-sm">
+                        Masterclass (Clase Única)
                     </div>
+                    <AppSelect
+                        v-model="curriculum.newLesson.content_type"
+                        :options="[
+                            { value: 'video', label: 'Video (grabado)' },
+                            { value: 'live', label: 'En vivo (link + horario)' },
+                            { value: 'text', label: 'Texto' }
+                        ]"
+                        class="bg-white border-0 shadow-sm text-[14px]"
+                    />
                 </div>
 
                 <input
@@ -93,25 +95,23 @@ defineProps<{
                 />
 
                 <input
-                    v-if="!isMasterclass && curriculum.newLesson.content_type === 'video'"
+                    v-if="curriculum.newLesson.content_type === 'video'"
                     v-model="curriculum.newLesson.video_url"
                     class="w-full rounded-[1.5rem] border-transparent bg-white px-6 py-4 font-sans text-[14px] text-on-surface shadow-sm outline-none transition-all placeholder:text-outline-variant focus:ring-2 focus:ring-primary/20"
                     placeholder="URL de video (Ej. YouTube, Vimeo)"
                 />
-                <div v-if="isMasterclass || curriculum.newLesson.content_type === 'live'" class="grid grid-cols-1 gap-5 md:grid-cols-3">
+                <div v-if="curriculum.newLesson.content_type === 'live'" class="grid grid-cols-1 gap-5 md:grid-cols-3">
                     <input
                         v-model="curriculum.newLesson.live_link"
-                        class="rounded-[1.5rem] border-transparent bg-white px-6 py-4 font-sans text-[14px] text-primary shadow-sm outline-none transition-all placeholder:text-primary/50 focus:ring-2 focus:ring-primary/20 md:col-span-3"
-                        :placeholder="isMasterclass ? 'Link de WhatsApp (grupo)' : 'Link Zoom/Meet'"
+                        class="rounded-[1.5rem] border-transparent bg-white px-6 py-4 font-sans text-[14px] text-primary shadow-sm outline-none transition-all placeholder:text-primary/50 focus:ring-2 focus:ring-primary/20 md:col-span-1"
+                        placeholder="Link Zoom/Meet"
                     />
                     <input
-                        v-if="!isMasterclass"
                         v-model="curriculum.newLesson.start_time"
                         type="datetime-local"
                         class="rounded-[1.5rem] border-transparent bg-white px-6 py-4 font-sans text-[14px] text-on-surface shadow-sm outline-none transition-all focus:ring-2 focus:ring-primary/20"
                     />
                     <input
-                        v-if="!isMasterclass"
                         v-model="curriculum.newLesson.end_time"
                         type="datetime-local"
                         class="rounded-[1.5rem] border-transparent bg-white px-6 py-4 font-sans text-[14px] text-on-surface shadow-sm outline-none transition-all focus:ring-2 focus:ring-primary/20"
@@ -218,14 +218,15 @@ defineProps<{
                                         <label class="mb-1 ml-1 block text-[10px] font-bold uppercase text-on-surface-variant"
                                             >Tipo de Contenido</label
                                         >
-                                        <select
+                                        <AppSelect
                                             v-model="curriculum.editLessonData.content_type"
-                                            class="w-full rounded-xl border border-outline-variant/30 px-3 py-2 text-sm transition focus:border-primary focus:outline-none"
-                                        >
-                                            <option value="video">Video (grabado)</option>
-                                            <option value="live">En vivo (link + horario)</option>
-                                            <option value="text">Texto</option>
-                                        </select>
+                                            :options="[
+                                                { value: 'video', label: 'Video (grabado)' },
+                                                { value: 'live', label: 'En vivo (link + horario)' },
+                                                { value: 'text', label: 'Texto' }
+                                            ]"
+                                            class="border-outline-variant/30 text-sm"
+                                        />
                                     </div>
                                 </div>
 
@@ -280,8 +281,8 @@ defineProps<{
                                             />
                                         </div>
                                     </div>
-                                    <div class="rounded-xl border border-amber-200 bg-amber-50 p-3">
-                                        <p class="text-[10px] leading-tight text-amber-800">
+                                    <div class="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-900/20 p-3">
+                                        <p class="text-[10px] leading-tight text-amber-800 dark:text-amber-200">
                                             <strong>Nota para Post-En-Vivo:</strong> Si ya pasó la sesión y tienes la grabación, cambia el tipo a
                                             <strong>Video</strong> y pega la URL de YouTube/Vimeo.
                                         </p>

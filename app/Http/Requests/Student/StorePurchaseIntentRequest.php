@@ -23,6 +23,13 @@ class StorePurchaseIntentRequest extends FormRequest
             'course_id' => ['required_without_all:book_id,plan', 'nullable', 'exists:courses,id'],
             'book_id' => ['required_without_all:course_id,plan', 'nullable', 'exists:books,id'],
             'plan' => ['required_without_all:course_id,book_id', 'nullable', 'string', Rule::in(PlanPricing::activeSlugs())],
+
+            // Shipping fields when purchasing a book
+            'department' => ['required_with:book_id', 'nullable', 'string', 'max:100'],
+            'province' => ['required_with:book_id', 'nullable', 'string', 'max:100'],
+            'district' => ['required_with:book_id', 'nullable', 'string', 'max:100'],
+            'shipping_address' => ['required_with:book_id', 'nullable', 'string', 'max:255'],
+            'shipping_phone' => ['required_with:book_id', 'nullable', 'string', 'max:50'],
         ];
     }
 

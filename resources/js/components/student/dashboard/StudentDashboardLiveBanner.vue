@@ -58,28 +58,18 @@ onUnmounted(() => {
 
 <template>
     <header
-        class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#2C2C15] via-[#3d3d1e] to-[#1a1a0a] p-5 shadow-2xl md:rounded-3xl md:p-12"
+        class="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent p-5 shadow-sm md:p-6 dark:from-primary/20 dark:via-primary/10"
     >
-        <div
-            class="absolute inset-0 opacity-[0.04]"
-            style="
-                background-image: url(&quot;data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E&quot;);
-            "
-        ></div>
-
-        <div class="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[#D4AF37]/10 blur-[80px]"></div>
-        <div class="absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-blue-500/5 blur-[80px]"></div>
-
-        <div class="relative z-10 flex flex-col justify-between gap-8 lg:flex-row lg:items-center">
-            <div class="space-y-4">
+        <div class="relative z-10 flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
+            <div class="space-y-3">
                 <div class="flex flex-wrap items-center gap-3">
-                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-1.5 backdrop-blur-md">
-                        <span class="h-2 w-2 animate-pulse rounded-full bg-emerald-400"></span>
-                        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">Instituto de Economía y Empresa</span>
+                    <div class="inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/5 px-4 py-1.5">
+                        <span class="h-2 w-2 animate-pulse rounded-full bg-primary"></span>
+                        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Instituto de Economía y Empresa</span>
                     </div>
                     <div
                         v-if="user.has_subscription"
-                        class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-lg shadow-amber-500/30"
+                        class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-sm"
                     >
                         <Crown class="h-3 w-3" />
                         Miembro Premium
@@ -87,129 +77,127 @@ onUnmounted(() => {
                 </div>
 
                 <div>
-                    <p class="mb-1 text-sm font-medium text-white/50">{{ greeting }},</p>
-                    <h1 class="font-serif text-3xl font-bold leading-tight text-white md:text-5xl">
+                    <p class="mb-1 text-sm font-medium text-on-surface-variant/70">{{ greeting }},</p>
+                    <h1 class="text-3xl font-bold leading-tight text-on-background md:text-4xl">
                         {{ user.name.split(' ')[0] }}
-                        <span class="text-[#D4AF37]">!</span>
+                        <span class="text-primary">!</span>
                     </h1>
-                    <p class="mt-2 font-serif text-base italic text-white/40">Continúa tu camino hacia la excelencia profesional.</p>
+                    <p class="mt-2 text-sm text-on-surface-variant">Continúa tu camino hacia la excelencia profesional.</p>
                 </div>
 
-                <div class="flex flex-wrap items-center gap-6 pt-2">
+                <div class="flex flex-wrap items-center gap-4 pt-1">
                     <div class="flex items-center gap-2">
-                        <div class="rounded-lg bg-blue-500/20 p-1.5">
-                            <BookOpen class="h-4 w-4 text-blue-300" />
+                        <div class="rounded-lg bg-blue-50 p-1.5 text-blue-600">
+                            <BookOpen class="h-3 w-3" />
                         </div>
                         <div>
-                            <p class="text-xl font-bold leading-none text-white">{{ animatedStats.active_courses }}</p>
-                            <p class="text-[10px] uppercase tracking-widest text-white/40">Cursos activos</p>
+                            <p class="text-base font-bold leading-none text-on-surface">{{ animatedStats.active_courses }}</p>
+                            <p class="text-[9px] uppercase tracking-widest text-on-surface-variant">Cursos activos</p>
                         </div>
                     </div>
-                    <div class="h-8 w-px bg-white/10"></div>
                     <div class="flex items-center gap-2">
-                        <div class="rounded-lg bg-emerald-500/20 p-1.5">
-                            <CheckCircle2 class="h-4 w-4 text-emerald-300" />
+                        <div class="rounded-lg bg-emerald-50 p-1.5 text-emerald-600">
+                            <CheckCircle2 class="h-3 w-3" />
                         </div>
                         <div>
-                            <p class="text-xl font-bold leading-none text-white">{{ animatedStats.completed_courses }}</p>
-                            <p class="text-[10px] uppercase tracking-widest text-white/40">Completados</p>
+                            <p class="text-base font-bold leading-none text-on-surface">{{ animatedStats.completed_courses }}</p>
+                            <p class="text-[9px] uppercase tracking-widest text-on-surface-variant">Completados</p>
                         </div>
                     </div>
-                    <div class="h-8 w-px bg-white/10"></div>
                     <div class="flex items-center gap-2">
-                        <div class="rounded-lg bg-[#D4AF37]/20 p-1.5">
-                            <Award class="h-4 w-4 text-[#D4AF37]" />
+                        <div class="rounded-lg bg-primary/10 p-1.5 text-primary">
+                            <Award class="h-3 w-3" />
                         </div>
                         <div>
-                            <p class="text-xl font-bold leading-none text-white">{{ animatedStats.certificate_count }}</p>
-                            <p class="text-[10px] uppercase tracking-widest text-white/40">Certificados</p>
+                            <p class="text-base font-bold leading-none text-on-surface">{{ animatedStats.certificate_count }}</p>
+                            <p class="text-[9px] uppercase tracking-widest text-on-surface-variant">Certificados</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex-shrink-0 lg:w-80">
+            <div class="flex-shrink-0 lg:w-72">
                 <div
                     v-if="nextLiveClass && countdown.isLive"
-                    class="cursor-pointer space-y-4 rounded-2xl border border-red-500/30 bg-gradient-to-br from-red-600/90 to-rose-700/90 p-6 shadow-xl shadow-red-900/30 backdrop-blur-md"
+                    class="cursor-pointer space-y-3 rounded-2xl border border-red-500/30 bg-red-50/50 p-5 shadow-sm transition-colors hover:bg-red-50"
                     @click="emit('openModal')"
                 >
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <span class="h-2.5 w-2.5 animate-pulse rounded-full bg-white"></span>
-                            <span class="text-[10px] font-bold uppercase tracking-[0.3em] text-white">En Vivo Ahora</span>
+                            <span class="h-2 w-2 animate-pulse rounded-full bg-red-600"></span>
+                            <span class="text-[10px] font-bold uppercase tracking-[0.3em] text-red-600">En Vivo</span>
                         </div>
-                        <div class="rounded-xl bg-white/10 p-2">
-                            <Radio class="h-4 w-4 text-white" />
+                        <div class="rounded-lg bg-red-100 p-1.5">
+                            <Radio class="h-3.5 w-3.5 text-red-600" />
                         </div>
                     </div>
                     <div>
-                        <p class="mb-1 text-xs text-white/70">{{ nextLiveClass.course_title }}</p>
-                        <p class="text-lg font-bold leading-snug text-white">{{ nextLiveClass.title }}</p>
+                        <p class="mb-0.5 text-[11px] text-red-600/70">{{ nextLiveClass.course_title }}</p>
+                        <p class="text-base font-bold leading-snug text-red-900">{{ nextLiveClass.title }}</p>
                     </div>
                     <button
-                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3 text-xs font-bold uppercase tracking-widest text-red-700 shadow-lg transition-all hover:bg-red-50 active:scale-95"
+                        class="flex w-full items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-[11px] font-bold uppercase tracking-widest text-white shadow-sm transition-all hover:bg-red-700 active:scale-95"
                     >
-                        <Play class="h-4 w-4 fill-current" />
+                        <Play class="h-3.5 w-3.5 fill-current" />
                         Unirse a la Sesión
                     </button>
                 </div>
 
                 <div
                     v-else-if="nextLiveClass && !countdown.isPast"
-                    class="cursor-pointer space-y-4 rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-md transition-colors hover:bg-white/15"
+                    class="cursor-pointer space-y-3 rounded-2xl border border-outline-variant/20 bg-background p-5 shadow-sm transition-colors hover:bg-surface-container-low"
                     @click="emit('openModal')"
                 >
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <Calendar class="h-4 w-4 text-[#D4AF37]" />
-                            <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/60">Próxima Sesión en Vivo</span>
+                            <Calendar class="h-3.5 w-3.5 text-primary" />
+                            <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-on-surface-variant/60">Próxima Sesión</span>
                         </div>
-                        <div class="rounded-xl bg-[#D4AF37]/10 p-2">
-                            <Wifi class="h-4 w-4 text-[#D4AF37]" />
+                        <div class="rounded-lg bg-primary/10 p-1.5">
+                            <Wifi class="h-3.5 w-3.5 text-primary" />
                         </div>
                     </div>
                     <div>
-                        <p class="mb-1 text-xs text-white/60">{{ nextLiveClass.course_title }}</p>
-                        <p class="text-base font-bold leading-snug text-white">{{ nextLiveClass.title }}</p>
+                        <p class="mb-0.5 text-[11px] text-on-surface-variant/60">{{ nextLiveClass.course_title }}</p>
+                        <p class="text-sm font-bold leading-snug text-on-surface">{{ nextLiveClass.title }}</p>
                     </div>
-                    <div class="grid grid-cols-4 gap-2 text-center">
-                        <div class="rounded-xl bg-white/5 px-1 py-3">
-                            <p class="font-mono text-2xl font-bold leading-none text-white">{{ String(countdown.days).padStart(2, '0') }}</p>
-                            <p class="mt-1 text-[9px] uppercase text-white/40">Días</p>
+                    <div class="grid grid-cols-4 gap-1.5 text-center">
+                        <div class="rounded-lg bg-surface-container px-1 py-2">
+                            <p class="font-mono text-lg font-bold leading-none text-on-surface">{{ String(countdown.days).padStart(2, '0') }}</p>
+                            <p class="mt-0.5 text-[8px] uppercase text-on-surface-variant">Días</p>
                         </div>
-                        <div class="rounded-xl bg-white/5 px-1 py-3">
-                            <p class="font-mono text-2xl font-bold leading-none text-white">{{ String(countdown.hours).padStart(2, '0') }}</p>
-                            <p class="mt-1 text-[9px] uppercase text-white/40">Hrs</p>
+                        <div class="rounded-lg bg-surface-container px-1 py-2">
+                            <p class="font-mono text-lg font-bold leading-none text-on-surface">{{ String(countdown.hours).padStart(2, '0') }}</p>
+                            <p class="mt-0.5 text-[8px] uppercase text-on-surface-variant">Hrs</p>
                         </div>
-                        <div class="rounded-xl bg-white/5 px-1 py-3">
-                            <p class="font-mono text-2xl font-bold leading-none text-[#D4AF37]">{{ String(countdown.minutes).padStart(2, '0') }}</p>
-                            <p class="mt-1 text-[9px] uppercase text-white/40">Min</p>
+                        <div class="rounded-lg bg-surface-container px-1 py-2">
+                            <p class="font-mono text-lg font-bold leading-none text-primary">{{ String(countdown.minutes).padStart(2, '0') }}</p>
+                            <p class="mt-0.5 text-[8px] uppercase text-on-surface-variant">Min</p>
                         </div>
-                        <div class="rounded-xl bg-white/5 px-1 py-3">
-                            <p class="font-mono text-2xl font-bold leading-none text-[#D4AF37]">{{ String(countdown.seconds).padStart(2, '0') }}</p>
-                            <p class="mt-1 text-[9px] uppercase text-white/40">Seg</p>
+                        <div class="rounded-lg bg-surface-container px-1 py-2">
+                            <p class="font-mono text-lg font-bold leading-none text-primary">{{ String(countdown.seconds).padStart(2, '0') }}</p>
+                            <p class="mt-0.5 text-[8px] uppercase text-on-surface-variant">Seg</p>
                         </div>
                     </div>
                     <button
-                        class="flex w-full items-center justify-center gap-2 rounded-xl border border-[#D4AF37]/30 bg-[#D4AF37]/20 py-3 text-xs font-bold uppercase tracking-widest text-[#D4AF37] transition-all hover:bg-[#D4AF37]/30 active:scale-95"
+                        class="flex w-full items-center justify-center gap-1.5 rounded-xl border border-primary/20 bg-primary/10 py-2.5 text-[11px] font-bold uppercase tracking-widest text-primary transition-all hover:bg-primary/20 active:scale-95"
                     >
-                        <Calendar class="h-3.5 w-3.5" />
+                        <Calendar class="h-3 w-3" />
                         Ver detalles
                     </button>
                 </div>
 
-                <div v-else class="space-y-3 rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-center backdrop-blur-md">
-                    <div class="inline-flex rounded-2xl bg-white/5 p-4">
-                        <Calendar class="h-8 w-8 text-white/20" />
+                <div v-else class="space-y-3 rounded-2xl border border-dashed border-outline-variant/30 bg-background p-6 text-center shadow-sm">
+                    <div class="inline-flex rounded-2xl bg-surface-container p-4">
+                        <Calendar class="h-8 w-8 text-on-surface-variant/40" />
                     </div>
                     <div>
-                        <p class="text-xs font-bold uppercase tracking-widest text-white/40">Sesiones en Vivo</p>
-                        <p class="mt-1 font-serif text-xs text-white/25">No tienes clases próximas programadas.</p>
+                        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Sesiones en Vivo</p>
+                        <p class="mt-1 text-xs text-on-surface-variant/60">No tienes clases próximas programadas.</p>
                     </div>
                     <Link
                         :href="route('student.live-classes.index')"
-                        class="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-[#D4AF37]/60 transition-colors hover:text-[#D4AF37]"
+                        class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-primary transition-colors hover:text-primary/80"
                     >
                         Ver calendario <ChevronRight class="h-3 w-3" />
                     </Link>

@@ -43,6 +43,17 @@ const menuItems = [
     { label: 'Masterclass', href: route('masterclass.index') },
     { label: 'Premium', href: route('planes'), isPremium: true },
 ];
+
+const isActive = (href: string) => {
+    if (!href) return false;
+    try {
+        const path = new URL(href).pathname;
+        if (path === '/') return page.url === '/';
+        return page.url.startsWith(path);
+    } catch {
+        return false;
+    }
+};
 </script>
 
 <template>
@@ -70,14 +81,19 @@ const menuItems = [
                     :class="[
                         item.isPremium
                             ? 'flex transform items-center gap-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#AA7C11] px-5 py-2 text-xs font-black uppercase tracking-widest text-white shadow-[0_4px_15px_rgba(212,175,55,0.4)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_25px_rgba(212,175,55,0.6)]'
-                            : 'group relative text-sm font-medium text-on-surface-variant transition-colors duration-300 hover:text-primary',
+                            : isActive(item.href)
+                              ? 'group relative text-sm font-bold text-primary transition-colors duration-300'
+                              : 'group relative text-sm font-medium text-on-surface-variant transition-colors duration-300 hover:text-primary',
                     ]"
                 >
                     <span v-if="item.isPremium" class="material-symbols-outlined" translate="no" style="font-size: 16px">hotel_class</span>
                     {{ item.label }}
                     <span
                         v-if="!item.isPremium"
-                        class="absolute bottom-0 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full"
+                        :class="[
+                            'absolute bottom-0 left-0 h-0.5 bg-primary transition-all duration-300',
+                            isActive(item.href) ? 'w-full' : 'w-0 group-hover:w-full'
+                        ]"
                     ></span>
                 </Link>
             </div>
@@ -204,7 +220,9 @@ const menuItems = [
                             'block rounded-lg px-3 py-2 font-medium transition-all',
                             item.isPremium
                                 ? 'mt-2 bg-gradient-to-r from-[#D4AF37] to-[#AA7C11] text-center font-bold uppercase tracking-widest text-white shadow-md'
-                                : 'text-on-surface-variant hover:bg-primary/5 hover:text-primary',
+                                : isActive(item.href)
+                                  ? 'bg-primary/10 text-primary font-bold'
+                                  : 'text-on-surface-variant hover:bg-primary/5 hover:text-primary',
                         ]"
                     >
                         <span

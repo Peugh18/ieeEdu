@@ -99,7 +99,7 @@ const paginationLinks = usePaginationLinks(props.courses.links);
 <template>
     <Head title="Gestión de Cursos - iieEdu Admin" />
     <AppLayout>
-        <div class="mx-auto max-w-[1400px] space-y-8 px-4 py-8">
+        <div class="w-full space-y-8 px-6 py-8 lg:px-10">
             <!-- PAGE HEADER -->
             <AdminPageHeader
                 title="Gestión de "

@@ -98,7 +98,7 @@ function textStyle(x: number, y: number, size: number) {
                             class="relative aspect-[1.414] w-full select-none overflow-hidden rounded-2xl border border-outline-variant/15 bg-white shadow-xl"
                         >
                             <template v-if="templateImage">
-                                <img :src="templateImage" class="h-full w-full object-cover" />
+                                <img :src="templateImage" class="h-full w-full object-fill" />
 
                                 <!-- Dynamic text positioning -->
                                 <div

@@ -10,11 +10,6 @@ function formatDate(date: string) {
     return new Date(date).toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
-function estimateReadingTime(title: string) {
-    const wpm = 180;
-    const words = title.split(/\s+/).length + 30;
-    return Math.max(3, Math.ceil(words / wpm) + 2);
-}
 
 function getArticleDownloadLink(article: PublicationArticle) {
     if (article.download_url && article.download_url.startsWith('http')) return article.download_url;
@@ -83,8 +78,8 @@ function getArticleDownloadLink(article: PublicationArticle) {
                             <span
                                 class="inline-flex items-center gap-1 rounded-full border border-[#AA7C11]/15 bg-[#AA7C11]/5 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-[#AA7C11] shadow-inner"
                             >
-                                <span class="material-symbols-outlined text-[10px]" translate="no" style="font-size: 11px">schedule</span>
-                                Lectura: {{ estimateReadingTime(article.title) }} min
+                                <span class="material-symbols-outlined text-[10px]" translate="no" style="font-size: 11px">menu_book</span>
+                                Lectura Recomendada
                             </span>
                         </div>
 

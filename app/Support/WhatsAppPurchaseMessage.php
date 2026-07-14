@@ -38,16 +38,21 @@ class WhatsAppPurchaseMessage
         return self::url($message);
     }
 
-    public static function book(User $user, Book $book, Payment $payment): string
+    public static function book(User $user, Book $book, Payment $payment, array $shippingData = []): string
     {
         $message = sprintf(
-            "Hola, quiero comprar el libro:\n*%s*\nMonto: S/ %s\n\nMis datos:\n• Nombre: %s\n• Email: %s\n• Teléfono: %s\n• Solicitud: #%d\n\nIndíquenme datos de pago y confirmaré mi dirección de envío en Perú. Luego subiré mi comprobante en la plataforma.",
+            "Hola, quiero comprar el libro:\n*%s*\nMonto: S/ %s\n\nMis datos:\n• Nombre: %s\n• Email: %s\n• Teléfono: %s\n• Solicitud: #%d\n\nDatos de Envío:\n• Departamento: %s\n• Provincia: %s\n• Distrito: %s\n• Dirección: %s\n• Teléfono de contacto: %s\n\nIndíquenme datos de pago (Yape/BCP) para transferir. Luego subiré mi comprobante en la plataforma.",
             $book->title,
             number_format((float) $payment->amount, 2),
             $user->name,
             $user->email,
             $user->telefono ?: 'No registrado',
             $payment->id,
+            $shippingData['department'] ?? 'No especificado',
+            $shippingData['province'] ?? 'No especificado',
+            $shippingData['district'] ?? 'No especificado',
+            $shippingData['shipping_address'] ?? 'No especificado',
+            $shippingData['shipping_phone'] ?? 'No especificado',
         );
 
         return self::url($message);

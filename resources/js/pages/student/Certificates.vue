@@ -42,33 +42,31 @@ const filteredCertificates = computed(() => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex min-h-screen justify-center overflow-x-hidden bg-background text-on-background">
-            <div class="w-full max-w-7xl space-y-8 p-4 md:space-y-12 md:p-12">
-                <!-- Academic Header -->
-                <header class="flex flex-col justify-between gap-4 md:flex-row md:items-end md:gap-10">
-                    <div class="space-y-2 md:space-y-4">
-                        <div class="inline-flex items-center gap-2 rounded-full border border-primary/10 bg-primary/5 px-4 py-1.5">
-                            <div class="h-2 w-2 rounded-full bg-[#D4AF37]"></div>
-                            <span class="text-[10px] font-black uppercase tracking-[0.25em] text-primary">Credenciales Institucionales</span>
+            <div class="w-full max-w-7xl px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8">
+                <!-- Clean Modern Header -->
+                <header class="mb-6 flex flex-col justify-between gap-6 md:flex-row md:items-start">
+                    <div class="flex-1">
+                        <div class="mb-2 flex items-center gap-2">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                                <Award class="h-4 w-4 text-primary" />
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-widest text-primary">Credenciales Institucionales</span>
                         </div>
-                        <h1 class="font-serif text-2xl font-bold italic tracking-tight text-on-background md:text-5xl">Honores y Certificaciones</h1>
-                        <p class="hidden max-w-2xl font-serif text-lg italic leading-relaxed text-on-surface-variant md:block">
-                            Su trayectoria de excelencia académica debidamente acreditada y validada por nuestra institución.
+                        <h1 class="text-2xl font-bold text-on-background md:text-3xl">Mis Certificados</h1>
+                        <p class="mt-1 max-w-2xl text-sm text-on-surface-variant/70">
+                            Tu trayectoria de excelencia académica debidamente acreditada y validada por nuestra institución.
                         </p>
                     </div>
 
                     <!-- Search Input and View Toggle -->
-                    <div v-if="certificates.length > 0" class="flex w-full shrink-0 flex-col items-center gap-4 sm:flex-row md:w-auto">
-                        <div class="relative w-full md:w-80">
-                            <div
-                                class="pointer-events-none absolute inset-y-0 left-4 flex items-center text-on-surface-variant/40 transition-colors focus-within:text-primary"
-                            >
-                                <Search class="h-4 w-4" />
-                            </div>
+                    <div v-if="certificates.length > 0" class="flex w-full shrink-0 flex-col items-center gap-4 sm:flex-row md:w-auto mt-2 md:mt-0">
+                        <div class="group relative w-full sm:w-64">
+                            <Search class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-outline-variant transition-colors group-focus-within:text-primary" />
                             <input
                                 v-model="searchQuery"
                                 type="text"
-                                placeholder="Buscar certificación..."
-                                class="w-full rounded-2xl border border-outline-variant/30 bg-white py-3 pl-11 pr-4 text-xs font-medium text-on-background placeholder-on-surface-variant/40 shadow-sm transition-all focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20 dark:border-slate-800 dark:bg-slate-900"
+                                placeholder="Buscar certificado..."
+                                class="w-full rounded-xl border border-outline-variant/30 bg-surface-container-lowest py-2.5 pl-10 pr-4 text-sm text-on-background transition-all placeholder:text-on-surface-variant/50 focus:border-primary/40 focus:ring-4 focus:ring-primary/10"
                             />
                         </div>
 

@@ -44,6 +44,7 @@ function shippingFromOrder(p: StudentPayment) {
                       ? 'Entregado'
                       : o.shipping_status,
         tracking_url: o.tracking_url,
+        tracking_code: o.tracking_code,
         delivery_mode: o.delivery_mode,
         pickup_location: o.pickup_location,
         student_note: o.student_note,
@@ -58,7 +59,7 @@ function shippingFromOrder(p: StudentPayment) {
 
 <template>
     <div class="space-y-4">
-        <div v-for="p in payments" :key="p.id" class="overflow-hidden rounded-[2rem] border border-slate-100 bg-white shadow-sm">
+        <div v-for="p in payments" :key="p.id" class="overflow-hidden rounded-3xl border border-outline-variant/20 bg-surface-container-lowest shadow-sm">
             <div class="p-6 md:p-8">
                 <div class="mb-4 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div class="flex items-start gap-3">
@@ -122,6 +123,15 @@ function shippingFromOrder(p: StudentPayment) {
                         <Upload class="h-3.5 w-3.5" /> Subir comprobante
                     </button>
                     <span v-else-if="p.status === 'en_revision'" class="text-xs font-bold text-amber-600">Comprobante en revisión</span>
+                    <div v-else-if="p.status === 'rechazado'" class="flex flex-col gap-2 pt-1">
+                        <p class="text-xs font-semibold text-rose-600">El comprobante fue rechazado por el administrador. Por favor, sube uno válido.</p>
+                        <button
+                            @click="emit('upload', p)"
+                            class="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-rose-700 w-fit"
+                        >
+                            <Upload class="h-3.5 w-3.5" /> Corregir comprobante
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

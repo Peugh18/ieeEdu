@@ -27,14 +27,16 @@ class PublicPublicationController extends Controller
         $books = $booksQuery->paginate(6, ['*'], 'books_page')->withQueryString();
         $books->getCollection()->transform(fn ($b) => [
             'id' => $b->id,
-            'category' => $b->category ?? 'Libro',
             'title' => $b->title,
             'price' => $b->price,
+            'sale_price' => $b->sale_price,
+            'stock' => $b->stock,
             'author' => $b->author ?? 'Instituto IEE',
             'description' => $b->description,
             'cover_image' => $b->cover_image,
             'download_url' => $b->download_url,
             'is_available' => (bool) $b->is_available,
+            'can_purchase' => $b->isPaid() && $b->canAcceptNewPurchase(),
         ]);
 
         $articlesQuery = Article::latest();

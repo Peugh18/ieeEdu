@@ -2,6 +2,7 @@
 import type { SharedData } from '@/types';
 import { useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
+import AppSelect from '@/components/ui/AppSelect.vue';
 
 const props = defineProps<{
     areas: string[];
@@ -160,25 +161,18 @@ function submit() {
                             class="elite-input w-full text-sm transition-all placeholder:text-on-surface-variant/35 focus:outline-none"
                         />
                         <div class="relative">
-                            <select
+                            <AppSelect
                                 v-model="form.area"
-                                class="elite-input w-full appearance-none pr-10 text-sm transition-all focus:outline-none"
+                                :options="[
+                                    { value: '', label: 'Área de consultoría de interés *' },
+                                    ...areas.map(area => ({ value: area, label: area }))
+                                ]"
+                                class="elite-input w-full text-sm transition-all focus:outline-none bg-transparent shadow-none"
                                 :class="[
                                     form.area ? 'text-on-surface' : 'text-on-surface-variant/35',
                                     form.errors.area ? '!border-red-500 focus:!border-red-500 focus:!ring-red-500/20' : '',
                                 ]"
-                            >
-                                <option value="" disabled>Área de consultoría de interés *</option>
-                                <option v-for="area in areas" :key="area" :value="area" class="bg-surface text-on-surface">{{ area }}</option>
-                            </select>
-                            <svg
-                                class="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant/40"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
+                            />
                             <p v-if="form.errors.area" class="mt-1 pl-1 text-xs text-red-500">{{ form.errors.area }}</p>
                         </div>
                         <textarea

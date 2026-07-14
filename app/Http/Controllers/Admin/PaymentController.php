@@ -9,6 +9,7 @@ use App\Models\BookOrder;
 use App\Models\Course;
 use App\Models\Payment;
 use App\Services\PaymentService;
+use App\Support\PlanPricing;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -24,7 +25,7 @@ class PaymentController extends Controller
         $perPage = (int) $request->input('per_page', 20);
         $perPage = in_array($perPage, [10, 20, 50]) ? $perPage : 20;
 
-        $query = Payment::query()->with(['user:id,name,email', 'course:id,title', 'book:id,title']);
+        $query = Payment::query()->with(['user:id,name,email', 'user.subscriptions', 'course:id,title', 'book:id,title']);
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
@@ -53,6 +54,21 @@ class PaymentController extends Controller
             }
         }
 
+        if ($subStatus = $request->input('sub_status')) {
+            $query->whereHas('user.subscriptions', function ($q) use ($subStatus) {
+                $q->whereColumn('subscriptions.type', 'payments.subscription_type');
+                $now = now();
+                if ($subStatus === 'activas') {
+                    $q->where('end_date', '>=', $now);
+                } elseif ($subStatus === 'expiradas') {
+                    $q->where('end_date', '<', $now);
+                } elseif ($subStatus === 'por_vencer') {
+                    $q->where('end_date', '>=', $now)
+                        ->where('end_date', '<=', $now->copy()->addDays(5));
+                }
+            });
+        }
+
         $payments = $query->orderBy('created_at', 'desc')
             ->paginate($perPage)
             ->withQueryString();
@@ -71,7 +87,7 @@ class PaymentController extends Controller
 
         return Inertia::render('admin/Payments', [
             'payments' => $payments,
-            'filters' => $request->only('status', 'search', 'date', 'per_page', 'type'),
+            'filters' => $request->only('status', 'search', 'date', 'per_page', 'type', 'sub_status'),
             'stats' => [
                 'total' => Payment::count(),
                 'pendiente' => Payment::where('status', 'pendiente')->count(),
@@ -83,6 +99,7 @@ class PaymentController extends Controller
             ],
             'courses' => $courses,
             'books' => $books,
+            'planOptions' => PlanPricing::adminOptions(),
         ]);
     }
 
@@ -103,6 +120,7 @@ class PaymentController extends Controller
             'user_id' => $data['user_id'],
             'course_id' => $data['product_type'] === 'course' ? $data['course_id'] : null,
             'book_id' => $data['product_type'] === 'book' ? $data['book_id'] : null,
+            'subscription_type' => $data['product_type'] === 'membership' ? $data['subscription_type'] : null,
             'amount' => $data['amount'],
             'status' => $data['status'] === 'aprobado' ? 'pendiente' : $data['status'],
             'comprobante' => $comprobanteUrl,
@@ -154,5 +172,23 @@ class PaymentController extends Controller
         $this->service->revert($payment);
 
         return redirect()->back()->with('success', 'Aprobación revertida — el pago volvió a revisión.');
+    }
+
+    public function destroy(Payment $payment)
+    {
+        $this->authorize('delete', $payment);
+
+        if ($payment->status === 'aprobado') {
+            $this->service->revert($payment);
+        }
+
+        if ($payment->comprobante) {
+            $path = str_replace('/storage/', '', $payment->comprobante);
+            Storage::disk('public')->delete($path);
+        }
+
+        $payment->delete();
+
+        return redirect()->back()->with('success', 'Registro de pago eliminado permanentemente.');
     }
 }

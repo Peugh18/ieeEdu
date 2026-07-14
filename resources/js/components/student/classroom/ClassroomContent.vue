@@ -266,9 +266,9 @@ function handleShare() {
         <div class="order-2 min-h-[250px]">
             <!-- 1. Description Tab -->
             <div v-show="activeTab === 'description'" class="space-y-6 duration-500 animate-in fade-in slide-in-from-bottom-4">
-                <div class="prose max-w-none font-sans text-sm leading-relaxed text-on-surface-variant/90 md:text-base">
+                <div class="prose max-w-none font-sans text-sm leading-relaxed text-on-surface-variant/90 md:text-base dark:text-slate-300">
                     <p v-if="currentLesson?.description" class="whitespace-pre-line leading-relaxed">{{ currentLesson.description }}</p>
-                    <p v-else class="text-base italic text-on-surface-variant/40">Descripción en revisión académica.</p>
+                    <p v-else class="text-base italic text-on-surface-variant/40 dark:text-slate-400">Descripción en revisión académica.</p>
                 </div>
             </div>
 
@@ -300,7 +300,7 @@ function handleShare() {
                     v-model="personalNotes"
                     @input="handleNotesInput"
                     placeholder="Escribe aquí tus ideas, apuntes y notas clave de la clase actual para repasarlas más tarde..."
-                    class="min-h-[250px] w-full resize-y rounded-2xl border border-outline-variant/20 bg-white p-6 font-sans text-sm font-medium leading-relaxed text-on-surface shadow-inner focus:border-primary/40 focus:ring-1 focus:ring-primary/20"
+                    class="min-h-[250px] w-full resize-y rounded-2xl border border-outline-variant/20 bg-white p-6 font-sans text-sm font-medium leading-relaxed text-on-surface shadow-inner focus:border-primary/40 focus:ring-1 focus:ring-primary/20 dark:bg-surface-2 dark:text-slate-300 dark:placeholder:text-slate-500"
                 ></textarea>
             </div>
 
@@ -315,11 +315,11 @@ function handleShare() {
                     <div
                         v-for="(faq, index) in faqs"
                         :key="index"
-                        class="overflow-hidden rounded-2xl border border-outline-variant/10 bg-white shadow-sm transition-all duration-300"
+                        class="overflow-hidden rounded-2xl border border-outline-variant/10 bg-white shadow-sm transition-all duration-300 dark:bg-surface-2"
                     >
                         <button
                             @click="toggleFaq(index)"
-                            class="flex w-full items-center justify-between px-6 py-4 text-left text-xs font-bold text-on-background transition-colors hover:text-primary focus:outline-none md:text-sm"
+                            class="flex w-full items-center justify-between px-6 py-4 text-left text-xs font-bold text-on-background transition-colors hover:text-primary focus:outline-none md:text-sm dark:text-slate-300"
                         >
                             <span>{{ faq.q }}</span>
                             <ChevronUp v-if="faq.open" class="h-4 w-4 shrink-0 text-primary" />
@@ -328,7 +328,7 @@ function handleShare() {
 
                         <div
                             v-show="faq.open"
-                            class="border-t border-outline-variant/5 bg-surface-container-low/30 px-6 pb-5 pt-1 text-xs font-medium leading-relaxed text-on-surface-variant/80 duration-200 animate-in slide-in-from-top-1 md:text-sm"
+                            class="border-t border-outline-variant/5 bg-surface-container-low/30 px-6 pb-5 pt-1 text-xs font-medium leading-relaxed text-on-surface-variant/80 duration-200 animate-in slide-in-from-top-1 md:text-sm dark:bg-black/20 dark:text-slate-400"
                         >
                             {{ faq.a }}
                         </div>

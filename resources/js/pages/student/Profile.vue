@@ -36,6 +36,15 @@ function handleAvatarChange(e: Event) {
             avatarPreview.value = ev.target?.result as string;
         };
         reader.readAsDataURL(file);
+        
+        // Auto-save the avatar immediately
+        profileForm.post(route('student.profile.custom.update'), {
+            preserveScroll: true,
+            forceFormData: true,
+            onSuccess: () => {
+                avatarPreview.value = null;
+            }
+        });
     }
 }
 
@@ -58,23 +67,23 @@ const tabs = [
 <template>
     <Head title="Perfil de Usuario - IEE" />
     <AppLayout>
-        <div class="mx-auto min-h-[85vh] max-w-[1400px] p-6 md:p-12">
+        <div class="mx-auto min-h-[85vh] max-w-7xl px-4 py-6 md:px-8 md:py-8">
             <input type="file" ref="fileInputRef" class="hidden" accept="image/*" @change="handleAvatarChange" />
-            <div class="relative mt-4 flex flex-col items-start gap-8 lg:flex-row">
+            <div class="relative mt-4 flex flex-col items-start gap-6 lg:flex-row lg:gap-8">
                 <ProfileSidebar
                     :tabs="tabs"
                     :active-tab="activeTab"
-                    :user="{ name: authUser?.name ?? '', email: authUser?.email ?? '', avatar: authUser?.avatar }"
+                    :user="{ name: authUser?.name ?? '', email: authUser?.email ?? '', avatar: avatarPreview || authUser?.avatar }"
                     :has-subscription="!!props.activeSubscription"
                     @update:active-tab="activeTab = $event"
                     @avatar-click="fileInputRef?.click()"
                 />
                 <main class="w-full min-w-0 flex-1">
-                    <div class="min-h-[500px] rounded-3xl border border-outline-variant/30 bg-white p-8 shadow-sm lg:p-12">
+                    <div class="min-h-[500px] rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-sm lg:p-10">
                         <section v-if="activeTab === 'perfil'" class="space-y-10 duration-500 animate-in fade-in slide-in-from-bottom-4">
                             <div>
-                                <h2 class="mb-2 font-serif text-3xl font-bold text-on-surface">Información Académica</h2>
-                                <p class="text-sm text-on-surface-variant">Resumen de tu formación en el instituto.</p>
+                                <h2 class="mb-2 text-2xl font-bold text-on-surface">Información Académica</h2>
+                                <p class="text-sm text-on-surface-variant">Resumen de tu formación en la institución.</p>
                             </div>
                             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 <div class="flex items-center gap-4 rounded-2xl border border-outline-variant/20 bg-surface p-6">
@@ -97,7 +106,7 @@ const tabs = [
                                 </div>
                             </div>
                             <div class="mt-8 pt-8 lg:mt-0 lg:pt-0">
-                                <h3 class="mb-6 font-serif text-xl font-bold text-on-surface">Detalles de la Cuenta</h3>
+                                <h3 class="mb-6 text-xl font-bold text-on-surface">Detalles de la Cuenta</h3>
                                 <form
                                     @submit.prevent="updateProfileData"
                                     class="max-w-xl space-y-6 rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-8"

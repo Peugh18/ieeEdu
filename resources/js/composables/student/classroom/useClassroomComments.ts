@@ -35,11 +35,9 @@ export function useClassroomComments() {
     }
 
     function deleteComment(commentId: number) {
-        if (confirm('¿Estás seguro de eliminar este comentario?')) {
-            router.delete(route('student.comments.destroy', { comment: commentId }), {
-                preserveScroll: true,
-            });
-        }
+        router.delete(route('student.comments.destroy', { comment: commentId }), {
+            preserveScroll: true,
+        });
     }
 
     function updateComment() {
