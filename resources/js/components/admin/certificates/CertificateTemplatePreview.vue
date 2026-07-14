@@ -70,7 +70,7 @@ function textStyle(x: number, y: number, size: number) {
             ref="previewContainer"
             class="relative aspect-[1.414] overflow-hidden rounded-[3rem] border border-outline-variant/40 bg-surface-container-high shadow-2xl"
         >
-            <img v-if="imagePreview" :src="imagePreview" class="h-full w-full object-cover" />
+            <img v-if="imagePreview" :src="imagePreview" class="h-full w-full object-fill" />
             <div
                 v-else
                 class="flex h-full w-full flex-col items-center justify-center gap-4 bg-surface-container-low font-serif italic text-on-surface-variant/20"

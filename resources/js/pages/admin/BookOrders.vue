@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
+import AdminStatsCard from '@/components/admin/AdminStatsCard.vue';
 import { useDebouncedInertiaFilters } from '@/composables/useDebouncedInertiaFilters';
 import { usePaginationLinks } from '@/composables/usePaginationLinks';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BookOrder } from '@/types/book-order';
 import type { PaginatedResponse } from '@/types/pagination';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { CheckCircle2, Clock, Filter, MapPin, Package, Search, Truck } from 'lucide-vue-next';
+import { CheckCircle2, Clock, Filter, MapPin, Package, Search, Truck, ExternalLink, Wallet } from 'lucide-vue-next';
 import { computed } from 'vue';
+import AppSelect from '@/components/ui/AppSelect.vue';
 
 const props = defineProps<{
     orders: PaginatedResponse<BookOrder>;
@@ -75,80 +77,88 @@ const fMoney = (n: number | string) => 'S/ ' + Number(n).toFixed(2);
 <template>
     <Head title="Pedidos de Libros - iieEdu Admin" />
     <AppLayout>
-        <div class="mx-auto max-w-7xl space-y-10 px-4 py-8">
+        <div class="w-full space-y-8 px-6 py-8 lg:px-10">
             <!-- ── Header ── -->
             <AdminPageHeader
-                title="Pedidos de "
+                title="Despachos de "
                 titleAccent="libros"
                 subtitle="Gestiona envíos físicos de libros comprados por los estudiantes."
-                compact
             />
+
+            <!-- ── Tab Bar ── -->
+            <div class="flex gap-1 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-1">
+                <Link
+                    :href="route('admin.payments.index')"
+                    class="flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                >
+                    <Wallet class="h-3.5 w-3.5" />
+                    Comprobantes de pago
+                </Link>
+                <button
+                    type="button"
+                    class="flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all bg-primary text-white shadow-md"
+                >
+                    <Package class="h-3.5 w-3.5" />
+                    Despachos de libros
+                </button>
+            </div>
 
             <!-- ── Stats Grid ── -->
             <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
-                <div
+                <AdminStatsCard
                     v-for="s in [
-                        { key: '', label: 'Total Pedidos', val: totalOrdersCount, icon: Package, cls: 'text-slate-900' },
-                        { key: 'awaiting_address', label: 'Sin Dirección', val: stats.awaiting_address, icon: MapPin, cls: 'text-amber-600' },
-                        { key: 'preparing', label: 'Preparando', val: stats.preparing, icon: Clock, cls: 'text-blue-600' },
-                        { key: 'shipped', label: 'En Camino', val: stats.shipped, icon: Truck, cls: 'text-violet-600' },
-                        { key: 'delivered', label: 'Entregados', val: stats.delivered, icon: CheckCircle2, cls: 'text-emerald-600' },
+                        { key: '', label: 'Total Pedidos', val: totalOrdersCount, icon: Package, cls: 'text-on-surface' },
+                        { key: 'awaiting_address', label: 'Sin Dirección', val: stats.awaiting_address, icon: MapPin, cls: 'text-amber-500' },
+                        { key: 'preparing', label: 'Preparando', val: stats.preparing, icon: Clock, cls: 'text-blue-500' },
+                        { key: 'shipped', label: 'En Camino', val: stats.shipped, icon: Truck, cls: 'text-violet-500' },
+                        { key: 'delivered', label: 'Entregados', val: stats.delivered, icon: CheckCircle2, cls: 'text-emerald-500' },
                     ]"
                     :key="s.key"
-                    @click="
-                        filterForm.status = s.key;
-                        applyFilters();
-                    "
-                    class="group relative cursor-pointer overflow-hidden rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm transition-all duration-300"
-                    :class="filterForm.status === s.key ? 'border-transparent ring-2 ring-primary' : 'hover:border-slate-200 hover:shadow-md'"
+                    :label="s.label"
+                    :value="s.val"
+                    :value-class="s.cls"
+                    class="cursor-pointer"
+                    :class="filterForm.status === s.key ? 'ring-2 ring-primary ring-offset-1' : ''"
+                    @click="filterForm.status = s.key; applyFilters();"
                 >
-                    <div class="relative z-10 flex h-full flex-col justify-between space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span
-                                class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 transition-colors group-hover:text-slate-600"
-                                >{{ s.label }}</span
-                            >
-                            <component :is="s.icon" class="h-4 w-4 text-slate-300 transition-colors group-hover:text-slate-500" />
-                        </div>
-                        <p class="text-4xl font-black tracking-tight" :class="s.cls">{{ s.val }}</p>
-                    </div>
-                    <div class="absolute -bottom-4 -right-4 h-20 w-20 opacity-[0.03] transition-opacity group-hover:opacity-[0.08]">
-                        <component :is="s.icon" class="h-full w-full" />
-                    </div>
-                </div>
+                    <template #icon><component :is="s.icon" class="h-4 w-4 text-outline-variant" /></template>
+                    <template #bg-icon><component :is="s.icon" class="h-full w-full" /></template>
+                </AdminStatsCard>
             </div>
 
             <!-- ── Filter Bar ── -->
-            <div class="flex flex-col items-center gap-4 rounded-[2.5rem] border border-slate-100 bg-slate-50 p-4 lg:flex-row">
+            <div class="flex flex-col items-center gap-3 rounded-[2.5rem] border border-outline-variant/20 bg-surface-container-low p-3 lg:flex-row">
                 <div class="relative w-full flex-1 lg:w-auto">
-                    <Search class="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Search class="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant/40" />
                     <input
                         v-model="filterForm.search"
                         placeholder="Buscar por estudiante, libro o correo..."
-                        class="h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-6 text-sm font-medium outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5"
+                        class="h-14 w-full rounded-2xl border border-outline-variant/20 bg-surface pl-12 pr-6 text-sm font-medium text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 focus:border-primary focus:ring-4 focus:ring-primary/5"
                         @keydown.enter.prevent="applyFilters"
                     />
                 </div>
                 <div class="flex w-full flex-wrap items-center gap-3 lg:w-auto">
                     <div class="relative min-w-[180px] flex-1 lg:flex-none">
-                        <Filter class="absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-                        <select
+                        <Filter class="absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-on-surface-variant/40" />
+                        <AppSelect
                             v-model="filterForm.status"
-                            class="h-14 w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-white pl-10 pr-10 text-xs font-bold text-slate-600 outline-none"
-                        >
-                            <option value="">Todos los Estados</option>
-                            <option v-for="(label, key) in statusLabels" :key="key" :value="key">{{ label }}</option>
-                        </select>
+                            :options="[
+                                { value: '', label: 'Todos los Estados' },
+                                ...Object.entries(statusLabels).map(([value, label]) =&gt; ({ value, label }))
+                            ]"
+                            class="h-14 border-outline-variant/20 bg-surface font-bold pl-10 shadow-none text-xs"
+                        />
                     </div>
                     <div class="relative min-w-[160px] flex-1 lg:flex-none">
-                        <select
+                        <AppSelect
                             v-model="filterForm.per_page"
-                            class="h-14 w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-white px-4 text-xs font-bold text-slate-600 outline-none"
-                        >
-                            <option value="10">10 por hoja</option>
-                            <option value="20">20 por hoja</option>
-                            <option value="50">50 por hoja</option>
-                        </select>
+                            :options="[
+                                { value: '10', label: '10 por hoja' },
+                                { value: '20', label: '20 por hoja' },
+                                { value: '50', label: '50 por hoja' }
+                            ]"
+                            class="h-14 border-outline-variant/20 bg-surface font-bold px-4 shadow-none text-xs"
+                        />
                     </div>
                 </div>
             </div>
@@ -190,12 +200,16 @@ const fMoney = (n: number | string) => 'S/ ' + Number(n).toFixed(2);
                                                 {{ order.book?.title ?? 'Libro no especificado' }}
                                             </p>
                                             <div class="mt-1 flex items-center gap-1.5">
-                                                <span
+                                                <a
                                                     v-if="order.payment?.comprobante"
-                                                    class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-widest text-blue-700"
+                                                    :href="order.payment.comprobante"
+                                                    target="_blank"
+                                                    title="Ver comprobante"
+                                                    class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-widest text-blue-700 hover:bg-blue-100 transition-colors"
                                                 >
-                                                    Comp: {{ order.payment.comprobante }}
-                                                </span>
+                                                    <ExternalLink class="h-2.5 w-2.5" />
+                                                    Comprobante
+                                                </a>
                                                 <span v-if="order.payment?.amount" class="text-[10px] font-semibold text-slate-400">
                                                     {{ fMoney(order.payment.amount) }}
                                                 </span>
@@ -243,12 +257,12 @@ const fMoney = (n: number | string) => 'S/ ' + Number(n).toFixed(2);
                                     </div>
                                 </td>
                                 <td class="px-8 py-5">
-                                    <div class="flex items-center justify-end gap-1.5 opacity-40 transition-opacity group-hover:opacity-100">
+                                    <div class="flex items-center justify-end gap-1.5">
                                         <Link
                                             v-if="order.payment"
                                             :href="route('admin.payments.show', { payment: order.payment.id })"
-                                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition-all hover:border-primary hover:bg-slate-50 hover:text-primary"
-                                            title="Ver Detalle de Pago / Enviar"
+                                            class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-all hover:border-primary hover:bg-primary/5 hover:text-primary"
+                                            title="Ver Detalle de Pago / Configurar envío"
                                         >
                                             <Truck class="h-4 w-4" />
                                         </Link>
@@ -285,12 +299,6 @@ const fMoney = (n: number | string) => 'S/ ' + Number(n).toFixed(2);
 </template>
 
 <style scoped>
-select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1.2rem center;
-    background-size: 1rem;
-}
 .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;

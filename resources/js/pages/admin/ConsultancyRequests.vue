@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminPagination from '@/components/admin/AdminPagination.vue';
+import AdminContentWrapper from '@/components/admin/AdminContentWrapper.vue';
 import ConsultancyFiltersComponent from '@/components/admin/consultancies/ConsultancyFilters.vue';
 import ConsultancyRequestsList from '@/components/admin/consultancies/ConsultancyRequestsList.vue';
 import ConsultancyStats from '@/components/admin/consultancies/ConsultancyStats.vue';
@@ -29,14 +30,14 @@ useDebouncedInertiaFilters(filterForm, () => {
 });
 
 function updateStatus(id: number, status: string) {
-    router.patch(route('admin.consultancies.status', { consultancy: id }), { status }, { preserveScroll: true });
+    router.patch(route('admin.consultancies.status', { consultancyRequest: id }), { status }, { preserveScroll: true });
 }
 </script>
 
 <template>
     <Head title="Solicitudes de Consultoría | Admin" />
     <AppLayout>
-        <div class="mx-auto min-h-screen max-w-7xl px-4 py-8">
+        <AdminContentWrapper>
             <AdminPageHeader title="Solicitudes de " title-accent="consultoría" subtitle="Leads y contactos del formulario web." compact />
 
             <ConsultancyStats :stats="stats" />
@@ -46,6 +47,6 @@ function updateStatus(id: number, status: string) {
             <ConsultancyRequestsList :requests="requests.data" :view-mode="viewMode" @update-status="updateStatus" />
 
             <AdminPagination v-if="requests.last_page > 1" :links="requests.links" class="mt-10" />
-        </div>
+        </AdminContentWrapper>
     </AppLayout>
 </template>

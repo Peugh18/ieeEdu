@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import BannerCarouselTabs from '@/components/admin/banners/BannerCarouselTabs.vue';
 import BannerContactEditor from '@/components/admin/banners/BannerContactEditor.vue';
@@ -35,8 +35,8 @@ const carouselPreviews = computed(() => activeBanner.value?.slides.map((s) => s.
 <template>
     <Head title="Gestión de Banners - iieEdu Admin" />
     <AppLayout>
-        <div class="mx-auto max-w-7xl space-y-8 px-4 py-8">
-            <AdminPageHeader title="Banners del " title-accent="sitio" subtitle="Imágenes de cabecera y textos del home." compact>
+        <div class="w-full space-y-8 px-6 py-8 lg:px-10">
+            <AdminPageHeader title="Banners del " title-accent="sitio" subtitle="Imágenes de cabecera y textos del home.">
                 <button
                     @click="saveChanges"
                     :disabled="isSaving"

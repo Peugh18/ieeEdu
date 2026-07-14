@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { UserPlus, X } from 'lucide-vue-next';
+import AppSelect from '@/components/ui/AppSelect.vue';
 
 defineProps<{
     show: boolean;
@@ -128,23 +129,25 @@ function handleClose() {
                         <div class="grid grid-cols-1 gap-6 pt-4 md:grid-cols-2">
                             <div class="space-y-1.5">
                                 <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Jerarquía / Rol</label>
-                                <select
+                                <AppSelect
                                     v-model="createForm.role"
-                                    class="h-12 w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-700 outline-none transition-all focus:border-primary"
-                                >
-                                    <option value="usuario">Estudiante Corporativo</option>
-                                    <option value="admin">Administrador de Sistema</option>
-                                </select>
+                                    :options="[
+                                        { value: 'usuario', label: 'Estudiante Corporativo' },
+                                        { value: 'admin', label: 'Administrador de Sistema' }
+                                    ]"
+                                    class="h-12 border-slate-200 bg-slate-50 font-bold"
+                                />
                             </div>
                             <div class="space-y-1.5">
                                 <label class="px-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Estado de Cuenta</label>
-                                <select
+                                <AppSelect
                                     v-model="createForm.status"
-                                    class="h-12 w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-700 outline-none transition-all focus:border-primary"
-                                >
-                                    <option value="activo">Habilitar Inmediatamente</option>
-                                    <option value="inactivo">Baja Preventiva</option>
-                                </select>
+                                    :options="[
+                                        { value: 'activo', label: 'Habilitar Inmediatamente' },
+                                        { value: 'inactivo', label: 'Baja Preventiva' }
+                                    ]"
+                                    class="h-12 border-slate-200 bg-slate-50 font-bold"
+                                />
                             </div>
                         </div>
 
@@ -188,12 +191,5 @@ function handleClose() {
         transform: scale(1);
         opacity: 1;
     }
-}
-
-select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1rem;
 }
 </style>

@@ -7,7 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
+import { Eye, EyeOff, LoaderCircle } from 'lucide-vue-next';
+import { ref } from 'vue';
+
+const showPassword = ref(false);
 
 defineProps<{
     status?: string;
@@ -59,15 +62,21 @@ const submit = () => {
                             ¿Olvidaste tu contraseña?
                         </TextLink>
                     </div>
-                    <Input
-                        id="password"
-                        type="password"
-                        required
-                        tabindex="2"
-                        autocomplete="current-password"
-                        v-model="form.password"
-                        placeholder="Tu contraseña"
-                    />
+                    <div class="relative">
+                        <Input
+                            id="password"
+                            :type="showPassword ? 'text' : 'password'"
+                            required
+                            tabindex="2"
+                            autocomplete="current-password"
+                            v-model="form.password"
+                            placeholder="Tu contraseña"
+                        />
+                        <button type="button" class="absolute inset-y-0 right-0 flex items-center pr-3 text-outline-variant/70 hover:text-outline-variant" @click="showPassword = !showPassword">
+                            <Eye v-if="!showPassword" class="h-4 w-4" />
+                            <EyeOff v-else class="h-4 w-4" />
+                        </button>
+                    </div>
                     <InputError :message="form.errors.password" />
                 </div>
 

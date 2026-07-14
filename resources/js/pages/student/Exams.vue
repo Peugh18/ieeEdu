@@ -40,18 +40,19 @@ const activeTab = ref<'available' | 'history'>('available');
     <Head title="Mis Exámenes - IEE" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex min-h-screen justify-center overflow-x-hidden bg-background text-on-background">
-            <div class="w-full max-w-7xl space-y-6 p-4 md:space-y-16 md:p-12">
-                <header class="flex flex-col justify-between gap-4 md:flex-row md:items-end md:gap-10">
-                    <div class="space-y-4">
-                        <div class="inline-flex items-center gap-1.5 rounded-full border border-primary/10 bg-primary/5 px-3 py-1 md:px-4 md:py-1.5">
-                            <div class="h-1.5 w-1.5 rounded-full bg-[#D4AF37] md:h-2 md:w-2"></div>
-                            <span class="text-[9px] font-black uppercase tracking-[0.2em] text-primary md:text-[10px] md:tracking-[0.25em]"
-                                >Expediente de Desempeño</span
-                            >
+            <div class="w-full max-w-7xl px-4 py-6 md:px-8 md:py-8 space-y-6 md:space-y-8">
+                <!-- Clean Modern Header -->
+                <header class="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-start">
+                    <div>
+                        <div class="mb-2 flex items-center gap-2">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                                <Award class="h-4 w-4 text-primary" />
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-widest text-primary">Expediente de Desempeño</span>
                         </div>
-                        <h1 class="font-serif text-2xl font-bold italic tracking-tight text-on-background md:text-5xl">Evaluaciones Académicas</h1>
-                        <p class="hidden max-w-2xl font-serif text-lg italic leading-relaxed text-on-surface-variant md:block">
-                            Gestione sus certificaciones y realice el seguimiento de su progresión hacia la excelencia profesional.
+                        <h1 class="text-2xl font-bold text-on-background md:text-3xl">Mis Exámenes</h1>
+                        <p class="mt-1 text-sm text-on-surface-variant/70">
+                            Gestiona tus certificaciones y realiza el seguimiento de tus evaluaciones.
                         </p>
                     </div>
                 </header>
@@ -119,59 +120,31 @@ const activeTab = ref<'available' | 'history'>('available');
                         </div>
                     </div>
 
-                    <aside class="hidden h-fit space-y-10 md:block lg:sticky lg:top-8 lg:col-span-4">
-                        <div class="group relative overflow-hidden rounded-[4rem] bg-primary p-12 text-white shadow-2xl shadow-primary/20">
-                            <div
-                                class="duration-[3s] absolute right-0 top-0 h-64 w-64 -translate-y-32 translate-x-32 -rotate-45 bg-white opacity-[0.03] transition-transform group-hover:translate-x-24"
-                            ></div>
-                            <div class="absolute bottom-0 left-0 h-48 w-48 rounded-full bg-[#D4AF37] opacity-[0.05] blur-[80px]"></div>
-                            <div class="relative z-10 space-y-12">
-                                <div class="space-y-4">
-                                    <h3 class="text-center font-serif text-xl font-bold uppercase italic tracking-widest opacity-60">
-                                        Promedio lectivo
-                                    </h3>
-                                    <div class="flex flex-col items-center">
-                                        <div class="relative flex items-end gap-2">
-                                            <span class="font-serif text-8xl font-bold italic leading-none lg:text-9xl">{{
-                                                ((props.stats.average_score / 20) * 10).toFixed(1)
-                                            }}</span>
-                                            <div class="mb-3 flex flex-col items-center opacity-40">
-                                                <span
-                                                    class="whitespace-nowrap border-t border-white/20 pt-1 text-[10px] font-black tracking-wider text-white/50"
-                                                    >SCORE 2.0</span
-                                                >
-                                            </div>
-                                        </div>
-                                        <div class="mt-4 flex items-center justify-center gap-3 text-white/40">
-                                            <span class="text-[10px] font-black uppercase italic tracking-[0.4em]"
-                                                >{{ props.stats.average_score.toFixed(1) }} / 20 Puntos</span
-                                            >
-                                        </div>
+                    <aside class="hidden h-fit space-y-6 md:block lg:sticky lg:top-8 lg:col-span-4">
+                        <div class="overflow-hidden rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm">
+                            <div class="mb-6 flex items-center justify-between">
+                                <h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                                    Promedio
+                               </h3>
+                                <div class="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">Score 20</div>
+                            </div>
+                            
+                            <div class="mb-8 flex items-end gap-2">
+                                <span class="text-6xl font-black leading-none text-primary">{{ ((props.stats.average_score / 20) * 10).toFixed(1) }}</span>
+                                <span class="mb-1 text-xs font-bold text-on-surface-variant/60">/ 10</span>
+                            </div>
+
+                            <div class="space-y-4 rounded-2xl bg-background p-4 border border-outline-variant/10">
+                                <div class="flex items-center gap-4">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                        <Award class="h-5 w-5" />
                                     </div>
-                                </div>
-                                <div class="space-y-8 rounded-[2.5rem] border border-white/10 bg-white/5 p-8 backdrop-blur-3xl">
-                                    <div class="flex items-center gap-6">
-                                        <div
-                                            class="flex h-16 w-16 items-center justify-center rounded-[1.25rem] border border-[#D4AF37]/30 bg-[#D4AF37]/20 shadow-inner"
-                                        >
-                                            <Award class="h-8 w-8 text-[#D4AF37]" />
-                                        </div>
-                                        <div class="flex-1">
-                                            <p class="mb-1 text-[9px] font-black uppercase tracking-[0.3em] text-white/40">Cátedras Acreditadas</p>
-                                            <p class="font-serif text-2xl font-bold italic">
-                                                {{
-                                                    props.stats.certificate_count < 10
-                                                        ? '0' + props.stats.certificate_count
-                                                        : props.stats.certificate_count
-                                                }}
-                                                Certificaciones
-                                            </p>
-                                        </div>
+                                    <div>
+                                        <p class="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/60">Certificaciones</p>
+                                        <p class="text-lg font-bold text-on-background">
+                                            {{ props.stats.certificate_count < 10 ? '0' + props.stats.certificate_count : props.stats.certificate_count }}
+                                        </p>
                                     </div>
-                                    <div class="h-px w-full bg-white/10"></div>
-                                    <p class="text-center font-serif text-sm italic leading-relaxed text-white/60">
-                                        Su rendimiento académico lo sitúa en el percentil superior institucional.
-                                    </p>
                                 </div>
                             </div>
                         </div>

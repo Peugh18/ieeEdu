@@ -32,11 +32,16 @@ class CertificateController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
+        $thisMonth = now()->startOfMonth();
+
         return Inertia::render('admin/Certificates', [
             'certificates' => $certificates,
             'filters' => $request->only('search', 'per_page'),
             'stats' => [
                 'total' => Certificate::count(),
+                'this_month' => Certificate::where('issue_date', '>=', $thisMonth)->count(),
+                'with_file' => Certificate::whereNotNull('file_path')->count(),
+                'unique_students' => Certificate::distinct('user_id')->count('user_id'),
             ],
         ]);
     }

@@ -2,6 +2,15 @@
 import type { Course, Lesson, QuizStats } from '@/types/classroom';
 import { Link } from '@inertiajs/vue3';
 import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import {
     CheckCircle2,
     ChevronDown,
     ChevronUp,
@@ -59,6 +68,20 @@ const emit = defineEmits<{
 }>();
 
 const newCommentModel = defineModel<string>('newComment', { default: '' });
+
+// Comment deletion state
+const commentToDelete = ref<number | null>(null);
+
+function confirmDeleteComment(commentId: number) {
+    commentToDelete.value = commentId;
+}
+
+function executeDeleteComment() {
+    if (commentToDelete.value) {
+        emit('deleteComment', commentToDelete.value);
+        commentToDelete.value = null;
+    }
+}
 
 // Accordion for modules
 const expandedModules = ref<Record<number, boolean>>({});
@@ -292,7 +315,7 @@ const strokeDashoffset = computed(() => {
                                     </div>
                                     <button
                                         v-if="c.user_id === currentUser?.id"
-                                        @click="emit('deleteComment', c.id)"
+                                        @click="confirmDeleteComment(c.id)"
                                         class="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-wider text-red-500/40 opacity-0 transition-all hover:text-red-600 group-hover:opacity-100"
                                     >
                                         <Trash2 class="h-3.5 w-3.5" /> Eliminar
@@ -428,7 +451,7 @@ const strokeDashoffset = computed(() => {
                         <!-- Module Lessons (Expanded) -->
                         <div
                             v-show="expandedModules[m.id]"
-                            class="space-y-1 border-t border-outline-variant/5 bg-surface-container-lowest/30 px-2 py-2"
+                            class="space-y-1 border-t border-outline-variant/5 bg-surface-container-lowest/30 px-2 py-2 dark:bg-black/20"
                         >
                             <div class="relative">
                                 <!-- Vertical Connector Line -->
@@ -524,7 +547,7 @@ const strokeDashoffset = computed(() => {
 
                         <div
                             v-show="expandedModules[-1]"
-                            class="space-y-1 border-t border-outline-variant/5 bg-surface-container-lowest/30 px-2 py-2"
+                            class="space-y-1 border-t border-outline-variant/5 bg-surface-container-lowest/30 px-2 py-2 dark:bg-black/20"
                         >
                             <div class="relative">
                                 <div class="absolute bottom-4 left-6 top-4 w-[1.5px] bg-outline-variant/15"></div>
@@ -635,6 +658,26 @@ const strokeDashoffset = computed(() => {
             </div>
         </template>
     </aside>
+
+    <!-- Delete Comment Confirmation Modal -->
+    <Dialog :open="commentToDelete !== null" @update:open="(val) => { if (!val) commentToDelete = null }">
+        <DialogContent class="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>Eliminar comentario</DialogTitle>
+                <DialogDescription>
+                    ¿Estás seguro de que deseas eliminar este comentario? Esta acción no se puede deshacer.
+                </DialogDescription>
+            </DialogHeader>
+            <DialogFooter class="sm:justify-start">
+                <Button variant="outline" @click="commentToDelete = null">
+                    Cancelar
+                </Button>
+                <Button variant="destructive" @click="executeDeleteComment">
+                    Sí, eliminar
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>
 
 <style scoped>

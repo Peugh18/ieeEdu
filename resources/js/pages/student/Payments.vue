@@ -31,29 +31,19 @@ function openUpload(payment: StudentPayment) {
     <Head title="Mis Pagos - IEE" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="min-h-screen bg-background">
-            <div class="mx-auto max-w-[1440px] space-y-6 p-4 pb-24 md:space-y-12 md:p-12">
-                <!-- Premium Header -->
-                <header
-                    class="relative mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-on-background to-[#2D302B] p-6 shadow-2xl shadow-on-background/20 md:mb-12 md:rounded-[3rem] md:p-16"
-                >
-                    <!-- Decor -->
-                    <div class="absolute right-0 top-0 -mr-48 -mt-48 h-96 w-96 rounded-full bg-primary/10 blur-[100px]"></div>
-                    <div class="absolute bottom-0 left-0 -mb-32 -ml-32 h-64 w-64 rounded-full bg-[#D4AF37]/5 blur-[80px]"></div>
-
-                    <div class="relative z-10 max-w-4xl space-y-6">
-                        <div
-                            class="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-2 shadow-inner backdrop-blur-xl"
-                        >
-                            <div class="h-2 w-2 animate-pulse rounded-full bg-[#D4AF37]"></div>
-                            <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-white/90">Transacciones</span>
+            <div class="mx-auto max-w-7xl space-y-6 px-4 py-6 md:space-y-8 md:px-8 md:py-8 pb-24">
+                <!-- Clean Modern Header -->
+                <header class="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-start">
+                    <div>
+                        <div class="mb-2 flex items-center gap-2">
+                            <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+                                <CreditCard class="h-4 w-4 text-primary" />
+                            </div>
+                            <span class="text-xs font-bold uppercase tracking-widest text-primary">Transacciones</span>
                         </div>
-
-                        <h1 class="font-serif text-2xl font-bold leading-tight tracking-tight text-white md:text-6xl">
-                            Historial de <span class="italic text-[#D4AF37]">Pagos</span>
-                        </h1>
-
-                        <p class="hidden max-w-2xl font-serif text-lg italic leading-relaxed text-background/70 md:block md:text-xl">
-                            Consulte el estado de sus inscripciones, comprobantes adjuntos y el seguimiento del despacho de sus libros físicos.
+                        <h1 class="text-2xl font-bold text-on-background md:text-3xl">Historial de Pagos</h1>
+                        <p class="mt-1 text-sm text-on-surface-variant/70">
+                            Consulta el estado de tus inscripciones, comprobantes adjuntos y seguimiento de libros.
                         </p>
                     </div>
                 </header>

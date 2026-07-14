@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { LayoutGrid, List, Search } from 'lucide-vue-next';
+import AppSelect from '@/components/ui/AppSelect.vue';
 
 const filterForm = defineModel<{ search: string; status: string }>('filterForm', { required: true });
 const viewMode = defineModel<'cards' | 'list'>('viewMode', { required: true });
@@ -21,16 +22,17 @@ const viewMode = defineModel<'cards' | 'list'>('viewMode', { required: true });
             />
         </div>
         <div class="flex w-full gap-2 md:w-auto">
-            <select
+            <AppSelect
                 v-model="filterForm.status"
-                class="relative w-full cursor-pointer appearance-none rounded-2xl border-none bg-surface-container-highest/50 px-5 py-3 pr-10 text-sm font-bold text-on-surface outline-none focus:ring-2 focus:ring-primary/20 md:w-auto"
-            >
-                <option value="">Ocultar resueltos</option>
-                <option value="all">Todos los estados</option>
-                <option value="pendiente">Pendiente</option>
-                <option value="en_contacto">Contactado</option>
-                <option value="cerrado">Resuelto</option>
-            </select>
+                :options="[
+                    { value: '', label: 'Ocultar resueltos' },
+                    { value: 'all', label: 'Todos los estados' },
+                    { value: 'pendiente', label: 'Pendiente' },
+                    { value: 'en_contacto', label: 'Contactado' },
+                    { value: 'cerrado', label: 'Resuelto' }
+                ]"
+                class="w-full bg-surface-container-highest/50 font-bold border-0 md:w-auto"
+            />
             <div class="hidden rounded-2xl bg-surface-container-highest/30 p-1 md:flex">
                 <button
                     @click="viewMode = 'cards'"

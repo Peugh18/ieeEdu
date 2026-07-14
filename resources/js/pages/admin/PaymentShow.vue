@@ -83,111 +83,120 @@ function formatMoney(n: number) {
                 </template>
             </AdminPageHeader>
 
-            <div class="grid gap-6 lg:grid-cols-3">
+            <div class="grid gap-6 lg:grid-cols-3 items-start">
                 <!-- Left: Details -->
                 <div class="space-y-6 lg:col-span-2">
-                    <!-- User card -->
-                    <div class="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest p-6 shadow-sm">
-                        <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                            <User2 class="h-3.5 w-3.5" /> Estudiante
-                        </p>
-                        <div class="flex items-center gap-4">
-                            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-sm font-bold text-blue-700">
-                                {{
-                                    props.payment.user.name
-                                        .split(' ')
-                                        .slice(0, 2)
-                                        .map((w: string) => w[0])
-                                        .join('')
-                                        .toUpperCase()
-                                }}
-                            </div>
+                    <!-- Top details row (3 columns) -->
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <!-- User card -->
+                        <div class="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest p-5 shadow-sm flex flex-col justify-between">
                             <div>
-                                <p class="font-bold text-on-surface">{{ props.payment.user.name }}</p>
-                                <p class="text-sm text-on-surface-variant">{{ props.payment.user.email }}</p>
-                                <p v-if="props.payment.user.telefono" class="text-xs text-on-surface-variant/70">{{ props.payment.user.telefono }}</p>
+                                <p class="mb-3 flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-on-surface-variant">
+                                    <User2 class="h-3.5 w-3.5" /> Estudiante
+                                </p>
+                                <div class="flex items-start gap-3">
+                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-xs font-bold text-primary">
+                                        {{
+                                            props.payment.user.name
+                                                .split(' ')
+                                                .slice(0, 2)
+                                                .map((w: string) => w[0])
+                                                .join('')
+                                                .toUpperCase()
+                                        }}
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <p class="truncate text-xs font-bold text-on-surface" :title="props.payment.user.name">{{ props.payment.user.name }}</p>
+                                        <p class="truncate text-[10px] text-on-surface-variant" :title="props.payment.user.email">{{ props.payment.user.email }}</p>
+                                        <p v-if="props.payment.user.telefono" class="mt-0.5 text-[10px] font-medium text-on-surface-variant/75">Telf: {{ props.payment.user.telefono }}</p>
+                                    </div>
+                                </div>
                             </div>
-                            <Link
-                                :href="route('admin.users.show', { user: props.payment.user.id })"
-                                class="ml-auto text-xs font-bold text-primary hover:underline"
-                            >
-                                Ver perfil →
-                            </Link>
+                            <div class="mt-3 border-t border-outline-variant/10 pt-2 text-right">
+                                <Link
+                                    :href="route('admin.users.show', { user: props.payment.user.id })"
+                                    class="text-[10px] font-black uppercase tracking-wider text-primary hover:underline"
+                                >
+                                    Ver perfil →
+                                </Link>
+                            </div>
+                        </div>
+
+                        <!-- Producto -->
+                        <div class="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest p-5 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <template v-if="props.payment.subscription_type">
+                                    <p class="mb-3 flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-on-surface-variant">
+                                        <Crown class="h-3.5 w-3.5 text-primary" /> Membresía Premium
+                                    </p>
+                                    <p class="text-xs font-bold capitalize text-on-surface">Plan {{ props.payment.subscription_type }}</p>
+                                </template>
+                                <template v-else-if="props.payment.book">
+                                    <p class="mb-3 flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-on-surface-variant">
+                                        <BookOpen class="h-3.5 w-3.5" /> Libro físico
+                                    </p>
+                                    <p class="line-clamp-2 text-xs font-bold text-on-surface" :title="props.payment.book.title">{{ props.payment.book.title }}</p>
+                                    <span class="mt-1.5 inline-block rounded-full border border-primary/20 bg-primary/10 px-2 py-0.5 text-[9px] font-bold text-primary"
+                                        >Envío en Perú</span
+                                    >
+                                </template>
+                                <template v-else-if="props.payment.course">
+                                    <p class="mb-3 flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-on-surface-variant">
+                                        <BookOpen class="h-3.5 w-3.5" /> Curso
+                                    </p>
+                                    <p class="line-clamp-2 text-xs font-bold text-on-surface" :title="props.payment.course.title">{{ props.payment.course.title }}</p>
+                                    <span
+                                        class="mt-1.5 inline-block rounded-full border border-outline-variant/20 px-2 py-0.5 text-[9px] font-bold text-on-surface-variant"
+                                        >{{ props.payment.course.type }}</span
+                                    >
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Payment details -->
+                        <div class="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest p-5 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <p class="mb-3 flex items-center gap-1.5 text-[9px] font-extrabold uppercase tracking-wider text-on-surface-variant">
+                                    <DollarSign class="h-3.5 w-3.5" /> Inversión
+                                </p>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-xs font-bold text-on-surface">Total:</span>
+                                    <span class="text-xl font-black text-primary">{{ formatMoney(props.payment.amount) }}</span>
+                                </div>
+                                <p class="mt-1 text-[10px] font-medium text-on-surface-variant">Yape / Transferencia</p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Producto -->
-                    <div class="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest p-6 shadow-sm">
-                        <template v-if="props.payment.subscription_type">
-                            <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                                <Crown class="h-3.5 w-3.5 text-primary" /> Membresía Premium
-                            </p>
-                            <p class="font-bold capitalize text-on-surface">Plan {{ props.payment.subscription_type }}</p>
-                        </template>
-                        <template v-else-if="props.payment.book">
-                            <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                                <BookOpen class="h-3.5 w-3.5" /> Libro físico
-                            </p>
-                            <p class="font-semibold text-on-surface">{{ props.payment.book.title }}</p>
-                            <span class="mt-2 inline-block rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs text-blue-600"
-                                >Envío en Perú</span
-                            >
-                        </template>
-                        <template v-else-if="props.payment.course">
-                            <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                                <BookOpen class="h-3.5 w-3.5" /> Curso
-                            </p>
-                            <p class="font-semibold text-on-surface">{{ props.payment.course.title }}</p>
-                            <span
-                                class="mt-1 inline-block rounded-full border border-outline-variant/20 px-2 py-0.5 text-xs text-on-surface-variant"
-                                >{{ props.payment.course.type }}</span
-                            >
-                        </template>
-                    </div>
-
+                    <!-- Shipping Form (Only if book order exists) -->
                     <BookOrderShippingForm v-if="props.payment.book_order" :order="props.payment.book_order" :shipping-statuses="shippingStatuses" />
                     <div
                         v-else-if="props.payment.book && props.payment.status === 'aprobado'"
-                        class="rounded-2xl border border-dashed border-amber-200 bg-amber-50/50 p-4 text-sm text-amber-800"
+                        class="rounded-2xl border border-dashed border-amber-500/30 bg-amber-500/10 p-4 text-xs font-bold text-amber-600 dark:text-amber-400"
                     >
                         Pedido de envío pendiente de crear. Recarga la página o contacta soporte.
                     </div>
                     <div
                         v-else-if="props.payment.book && props.payment.status !== 'aprobado'"
-                        class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-4 text-sm text-slate-600"
+                        class="rounded-2xl border border-dashed border-outline-variant/30 bg-surface-container-low p-4 text-xs font-bold text-on-surface-variant"
                     >
                         Aprueba el pago para habilitar la gestión de envío y dirección.
                     </div>
-
-                    <!-- Payment details -->
-                    <div class="rounded-3xl border border-outline-variant/10 bg-surface-container-lowest p-6 shadow-sm">
-                        <p class="mb-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                            <DollarSign class="h-3.5 w-3.5" /> Detalles del pago
-                        </p>
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div>
-                                <p class="text-xs text-on-surface-variant">Monto</p>
-                                <p class="mt-1 text-3xl font-bold text-primary">{{ formatMoney(props.payment.amount) }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-on-surface-variant">Método</p>
-                                <p class="mt-1 font-semibold text-on-surface">Yape / Transferencia (manual)</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-on-surface-variant">Fecha de registro</p>
-                                <p class="mt-1 text-sm text-on-surface">{{ formatDate(props.payment.created_at) }}</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-on-surface-variant">Última actualización</p>
-                                <p class="mt-1 text-sm text-on-surface">{{ formatDate(props.payment.updated_at) }}</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Right: Comprobante + Actions -->
-                <div class="space-y-6">
-                    <PaymentShowActions :status="props.payment.status" @approve="approve" @reject="reject" @revert="revert" />
+                <!-- Right: Comprobante + Actions (Sticky) -->
+                <div class="lg:sticky lg:top-6 lg:self-start space-y-6 w-full">
+                    <PaymentShowActions 
+                        :status="props.payment.status" 
+                        :product-type="
+                            props.payment.course ? 'course' : 
+                            props.payment.book ? 'book' : 
+                            props.payment.subscription_type ? 'membership' : null
+                        " 
+                        @approve="approve" 
+                        @reject="reject" 
+                        @revert="revert" 
+                    />
                     <PaymentComprobanteCard :comprobante="props.payment.comprobante" />
                 </div>
             </div>

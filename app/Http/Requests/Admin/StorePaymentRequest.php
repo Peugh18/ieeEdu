@@ -19,9 +19,10 @@ class StorePaymentRequest extends FormRequest
     {
         return [
             'user_id' => 'required|exists:users,id',
-            'product_type' => 'required|in:course,book',
+            'product_type' => 'required|in:course,book,membership',
             'course_id' => 'required_if:product_type,course|nullable|exists:courses,id',
             'book_id' => 'required_if:product_type,book|nullable|exists:books,id',
+            'subscription_type' => 'required_if:product_type,membership|nullable|string',
             'amount' => 'required|numeric|min:0',
             'status' => 'required|in:pendiente,en_revision,aprobado,rechazado',
             'comprobante' => 'nullable|image|max:5120',
@@ -60,23 +61,39 @@ class StorePaymentRequest extends FormRequest
                 return;
             }
 
-            $bookId = $this->input('book_id');
-            $book = Book::find($bookId);
+            if ($productType === 'book') {
+                $bookId = $this->input('book_id');
+                $book = Book::find($bookId);
 
-            if ($book && ! $book->canAcceptNewPurchase()) {
-                $user = User::find($userId);
-                if (! $user || ! $user->hasBookAccess((int) $bookId)) {
-                    $validator->errors()->add('book_id', 'Este libro no tiene stock disponible.');
+                if ($book && ! $book->canAcceptNewPurchase()) {
+                    $user = User::find($userId);
+                    if (! $user || ! $user->hasBookAccess((int) $bookId)) {
+                        $validator->errors()->add('book_id', 'Este libro no tiene stock disponible.');
+                    }
                 }
-            }
 
-            $pendingOrApproved = Payment::where('user_id', $userId)
-                ->where('book_id', $bookId)
-                ->whereIn('status', ['aprobado', 'en_revision', 'pendiente'])
-                ->exists();
+                $pendingOrApproved = Payment::where('user_id', $userId)
+                    ->where('book_id', $bookId)
+                    ->whereIn('status', ['aprobado', 'en_revision', 'pendiente'])
+                    ->exists();
 
-            if ($pendingOrApproved) {
-                $validator->errors()->add('book_id', 'Ya existe un pago registrado para este estudiante y este libro.');
+                if ($pendingOrApproved) {
+                    $validator->errors()->add('book_id', 'Ya existe un pago registrado para este estudiante y este libro.');
+                }
+
+                return;
+            } elseif ($productType === 'membership') {
+                $subscriptionType = $this->input('subscription_type');
+                $pendingOrApproved = Payment::where('user_id', $userId)
+                    ->where('subscription_type', $subscriptionType)
+                    ->whereIn('status', ['aprobado', 'en_revision', 'pendiente'])
+                    ->exists();
+
+                if ($pendingOrApproved) {
+                    $validator->errors()->add('subscription_type', 'Ya existe un pago registrado para este estudiante y este plan de membresía.');
+                }
+
+                return;
             }
         });
     }

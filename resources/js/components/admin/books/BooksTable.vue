@@ -38,7 +38,7 @@ function fmt(n: string | number) {
                 <div class="absolute left-4 top-4">
                     <span
                         class="rounded-md border border-slate-200/50 bg-white/90 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-700 shadow-sm backdrop-blur-md"
-                        >{{ book.category }}</span
+                        >{{ Number(book.price) > 0 ? 'Físico' : 'Digital' }}</span
                     >
                 </div>
                 <div v-if="Number(book.price) === 0" class="absolute bottom-4 right-4">
@@ -60,7 +60,7 @@ function fmt(n: string | number) {
 
                 <!-- Stats Indicators -->
                 <div class="mb-4 flex flex-wrap gap-1">
-                    <span class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[9px] font-semibold text-blue-700">
+                    <span v-if="Number(book.price) === 0" class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[9px] font-semibold text-blue-700">
                         <Download class="h-3 w-3" />
                         {{ book.downloads_count ?? 0 }} desc.
                     </span>
@@ -116,7 +116,7 @@ function fmt(n: string | number) {
                 <thead class="border-b border-slate-100 bg-slate-50/80">
                     <tr>
                         <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Identidad de la Obra</th>
-                        <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Categoría</th>
+                        <th class="px-6 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Tipo</th>
                         <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Estado de Acceso</th>
                         <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Stock</th>
                         <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Descargas</th>
@@ -156,7 +156,7 @@ function fmt(n: string | number) {
                             <span
                                 class="inline-flex rounded-xl border border-slate-200/50 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm transition-colors group-hover:border-slate-300"
                             >
-                                {{ book.category }}
+                                {{ Number(book.price) > 0 ? 'Físico' : 'Digital' }}
                             </span>
                         </td>
                         <td class="px-6 py-5">
@@ -176,24 +176,27 @@ function fmt(n: string | number) {
                         </td>
                         <td class="px-6 py-5 text-center">
                             <span
-                                v-if="Number(book.price) > 0 && book.stock !== null && book.stock !== undefined"
+                                v-if="Number(book.price) > 0"
                                 class="inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold tabular-nums"
-                                :class="book.stock > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'"
+                                :class="(book.stock ?? 0) > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'"
                             >
-                                {{ book.stock }}
+                                {{ book.stock ?? 0 }}
                             </span>
-                            <span v-else class="text-[10px] font-bold text-slate-400">∞</span>
+                            <span v-else class="text-[10px] font-bold text-slate-400">-</span>
                         </td>
                         <td class="px-6 py-5 text-center">
                             <span
+                                v-if="Number(book.price) === 0"
                                 class="inline-flex items-center gap-1.5 rounded-xl bg-blue-50 px-3 py-1.5 text-xs font-bold tabular-nums text-blue-700"
                             >
                                 <Download class="h-3.5 w-3.5" />
                                 {{ book.downloads_count ?? 0 }}
                             </span>
+                            <span v-else class="text-[10px] font-bold text-slate-400">-</span>
                         </td>
                         <td class="px-6 py-5 text-center">
                             <span
+                                v-if="Number(book.price) > 0"
                                 class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-50 px-3 py-1.5 text-xs font-bold tabular-nums text-indigo-700"
                             >
                                 {{ book.approved_sales_count ?? 0 }}
@@ -201,6 +204,7 @@ function fmt(n: string | number) {
                                     >· S/ {{ Number(book.total_earned).toFixed(2) }}</span
                                 >
                             </span>
+                            <span v-else class="text-[10px] font-bold text-slate-400">-</span>
                         </td>
                         <td class="px-6 py-5 text-right">
                             <span class="text-sm font-bold tabular-nums tracking-tighter text-slate-900">{{

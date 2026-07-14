@@ -2,12 +2,13 @@
 import { PaymentListItem } from '@/types/admin';
 import { PaginationLink } from '@/types/pagination';
 import { Link } from '@inertiajs/vue3';
-import { Activity, AlertCircle, CheckCircle2, Clock, Eye, FileImage, RefreshCw, Undo2, XCircle } from 'lucide-vue-next';
+import { Activity, AlertCircle, CheckCircle2, Clock, Eye, FileImage, RefreshCw, Trash2, Undo2, XCircle } from 'lucide-vue-next';
 
 defineProps<{
     payments: PaymentListItem[];
     total: number;
     paginationLinks: PaginationLink[];
+    type?: string; // '', 'course', 'membership', 'books'
 }>();
 
 const emit = defineEmits<{
@@ -15,6 +16,7 @@ const emit = defineEmits<{
     (e: 'approve', payment: PaymentListItem): void;
     (e: 'reject', payment: PaymentListItem): void;
     (e: 'revert', payment: PaymentListItem): void;
+    (e: 'destroy', payment: PaymentListItem): void;
 }>();
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -42,7 +44,14 @@ const avatarColors = [
 ];
 const aCls = (id: number) => avatarColors[id % avatarColors.length];
 const fDate = (d: string) => new Date(d).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
+const fDateTime = (d: string) => new Date(d).toLocaleString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 const fMoney = (n: number | string) => 'S/ ' + Number(n).toFixed(2);
+
+const getSub = (p: any) => {
+    if (!p.subscription_type || !p.user.subscriptions) return null;
+    return p.user.subscriptions.find((s: any) => s.type === p.subscription_type);
+};
+const isExpired = (endDate: string) => new Date(endDate).getTime() < new Date().getTime();
 </script>
 
 <template>
@@ -54,13 +63,31 @@ const fMoney = (n: number | string) => 'S/ ' + Number(n).toFixed(2);
                         <th class="px-8 py-5 text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Estudiante / Programa</th>
                         <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Inversión</th>
                         <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Estatus</th>
-                        <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Fecha</th>
+                        <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Fecha Pago</th>
+                        <!-- Course cols -->
+                        <template v-if="type === 'course'">
+                            <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Curso</th>
+                        </template>
+                        <!-- Membership cols -->
+                        <template v-else-if="type === 'membership'">
+                            <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Inicia</th>
+                            <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Vence</th>
+                        </template>
+                        <!-- Books cols -->
+                        <template v-else-if="type === 'books'">
+                            <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Libro</th>
+                        </template>
+                        <!-- All (default) -->
+                        <template v-else>
+                            <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Inicia</th>
+                            <th class="px-6 py-5 text-center text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Vence</th>
+                        </template>
                         <th class="px-8 py-5 text-right text-[10px] font-extrabold uppercase tracking-[0.2em] text-slate-400">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
                     <tr v-if="!payments.length">
-                        <td colspan="5" class="py-24 text-center">
+                        <td colspan="7" class="py-24 text-center">
                             <Activity class="mx-auto mb-4 h-12 w-12 text-slate-200" />
                             <p class="font-medium text-slate-400">No se han detectado transacciones con los criterios seleccionados.</p>
                         </td>
@@ -125,6 +152,63 @@ const fMoney = (n: number | string) => 'S/ ' + Number(n).toFixed(2);
                                 <span class="mt-0.5 text-[9px] font-medium uppercase tracking-widest text-slate-300">ID: #{{ p.id }}</span>
                             </div>
                         </td>
+                        <!-- Dynamic extra columns by type -->
+                        <!-- Course: show course title -->
+                        <template v-if="type === 'course'">
+                            <td class="px-6 py-5">
+                                <div class="flex justify-center">
+                                    <span class="line-clamp-2 max-w-[200px] text-center text-xs font-bold text-slate-700">{{ p.course?.title ?? '—' }}</span>
+                                </div>
+                            </td>
+                        </template>
+                        <!-- Membership: show vigencia -->
+                        <template v-else-if="type === 'membership'">
+                            <td class="px-6 py-5">
+                                <div class="flex justify-center">
+                                    <span v-if="getSub(p)" class="whitespace-nowrap text-[9px] font-extrabold uppercase tracking-widest text-emerald-600">{{ fDateTime(getSub(p).start_date) }}</span>
+                                    <span v-else class="text-[9px] font-medium uppercase tracking-widest text-slate-300">—</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col items-center gap-0.5">
+                                    <template v-if="getSub(p)">
+                                        <span class="whitespace-nowrap text-[9px] font-extrabold uppercase tracking-widest text-rose-500">{{ fDateTime(getSub(p).end_date) }}</span>
+                                        <span class="mt-1 rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-widest" :class="isExpired(getSub(p).end_date) ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'">
+                                            {{ isExpired(getSub(p).end_date) ? 'Expirada' : 'Activa' }}
+                                        </span>
+                                    </template>
+                                    <span v-else class="text-[9px] font-medium uppercase tracking-widest text-slate-300">—</span>
+                                </div>
+                            </td>
+                        </template>
+                        <!-- Books: show book title -->
+                        <template v-else-if="type === 'books'">
+                            <td class="px-6 py-5">
+                                <div class="flex justify-center">
+                                    <span class="line-clamp-2 max-w-[200px] text-center text-xs font-bold text-blue-700">{{ p.book?.title ?? '—' }}</span>
+                                </div>
+                            </td>
+                        </template>
+                        <!-- All (default): show start + end -->
+                        <template v-else>
+                            <td class="px-6 py-5">
+                                <div class="flex justify-center">
+                                    <span v-if="getSub(p)" class="whitespace-nowrap text-[9px] font-extrabold uppercase tracking-widest text-emerald-600">{{ fDateTime(getSub(p).start_date) }}</span>
+                                    <span v-else class="text-[9px] font-medium uppercase tracking-widest text-slate-300">—</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex flex-col items-center gap-0.5">
+                                    <template v-if="getSub(p)">
+                                        <span class="whitespace-nowrap text-[9px] font-extrabold uppercase tracking-widest text-rose-500">{{ fDateTime(getSub(p).end_date) }}</span>
+                                        <span class="mt-1 rounded-full px-2 py-0.5 text-[8px] font-black uppercase tracking-widest" :class="isExpired(getSub(p).end_date) ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'">
+                                            {{ isExpired(getSub(p).end_date) ? 'Expirada' : 'Activa' }}
+                                        </span>
+                                    </template>
+                                    <span v-else class="text-[9px] font-medium uppercase tracking-widest text-slate-300">—</span>
+                                </div>
+                            </td>
+                        </template>
                         <td class="px-8 py-5">
                             <div class="flex items-center justify-end gap-1.5 opacity-40 transition-opacity group-hover:opacity-100">
                                 <button
@@ -158,6 +242,13 @@ const fMoney = (n: number | string) => 'S/ ' + Number(n).toFixed(2);
                                     title="Revertir aprobación"
                                 >
                                     <Undo2 class="h-4 w-4" />
+                                </button>
+                                <button
+                                    @click="emit('destroy', p)"
+                                    class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition-all hover:border-red-500 hover:bg-red-50 hover:text-red-600"
+                                    title="Eliminar registro"
+                                >
+                                    <Trash2 class="h-4 w-4" />
                                 </button>
                             </div>
                         </td>

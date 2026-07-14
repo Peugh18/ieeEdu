@@ -2,6 +2,7 @@ export interface BookOrderShipping {
     status: string;
     label: string;
     tracking_url?: string | null;
+    tracking_code?: string | null;
     delivery_mode?: string | null;
     pickup_location?: string | null;
     student_note?: string | null;
@@ -25,6 +26,7 @@ export interface BookOrder {
     pickup_location: string | null;
     carrier: string | null;
     tracking_url: string | null;
+    tracking_code: string | null;
     student_note: string | null;
     admin_notes: string | null;
     shipped_at: string | null;

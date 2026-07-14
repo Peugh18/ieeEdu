@@ -29,10 +29,10 @@ const clientLogos = [
         </div>
         <div class="relative">
             <div
-                class="pointer-events-none absolute left-0 top-0 z-10 h-full w-20 bg-gradient-to-r from-surface-container-low to-transparent md:w-32"
+                class="pointer-events-none absolute left-0 top-0 z-10 h-full w-20 bg-gradient-to-r from-surface-container-low dark:from-[#161512] to-transparent md:w-32"
             ></div>
             <div
-                class="pointer-events-none absolute right-0 top-0 z-10 h-full w-20 bg-gradient-to-l from-surface-container-low to-transparent md:w-32"
+                class="pointer-events-none absolute right-0 top-0 z-10 h-full w-20 bg-gradient-to-l from-surface-container-low dark:from-[#161512] to-transparent md:w-32"
             ></div>
             <div class="animate-scroll flex items-center gap-10 whitespace-nowrap md:gap-14">
                 <div

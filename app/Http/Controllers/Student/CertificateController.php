@@ -51,12 +51,6 @@ class CertificateController extends Controller
     {
         $this->authorize('download', $certificate);
 
-        abort_unless(
-            $this->certificateService->checkEligibility(Auth::user(), $certificate->course),
-            403,
-            'No has completado los requisitos del curso para descargar el certificado.'
-        );
-
         $action = $request->query('action', 'download');
 
         return $this->certificateService->downloadPdf($certificate, $action);

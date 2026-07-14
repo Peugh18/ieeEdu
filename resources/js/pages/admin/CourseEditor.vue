@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import CourseEditorHeader from '@/components/admin/courses/editor/CourseEditorHeader.vue';
 import CourseEditorNotifications from '@/components/admin/courses/editor/CourseEditorNotifications.vue';
 import CourseEditorTabNav from '@/components/admin/courses/editor/CourseEditorTabNav.vue';

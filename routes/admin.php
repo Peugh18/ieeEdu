@@ -17,7 +17,6 @@ use App\Http\Controllers\Admin\ModuleController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\QuizController;
-use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\SubscriptionPlanController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Middleware\EnsureAdmin;
@@ -85,12 +84,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', EnsureAdmin::class])
     Route::patch('payments/{payment}/approve', [PaymentController::class, 'approve'])->name('payments.approve');
     Route::patch('payments/{payment}/reject', [PaymentController::class, 'reject'])->name('payments.reject');
     Route::patch('payments/{payment}/revert', [PaymentController::class, 'revert'])->name('payments.revert');
-
-    // Subscriptions (Planes Premium)
-    Route::get('subscriptions', [SubscriptionController::class, 'index'])->name('subscriptions.index');
-    Route::post('subscriptions', [SubscriptionController::class, 'store'])->name('subscriptions.store');
-    Route::patch('subscriptions/{subscription}/toggle', [SubscriptionController::class, 'toggleStatus'])->name('subscriptions.toggle');
-    Route::delete('subscriptions/{subscription}', [SubscriptionController::class, 'destroy'])->name('subscriptions.destroy');
+    Route::delete('payments/{payment}', [PaymentController::class, 'destroy'])->name('payments.destroy');
 
     // Certificates
     Route::get('certificates', [CertificateController::class, 'index'])->name('certificates.index');

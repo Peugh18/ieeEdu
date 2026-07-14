@@ -9,8 +9,8 @@ import ArticlesTable from '@/components/admin/articles/ArticlesTable.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { Article } from '@/types/article';
 import type { PaginatedResponse } from '@/types/pagination';
-import { Head, useForm } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import { ref, watch, onMounted } from 'vue';
 
 const props = defineProps<{ articles: PaginatedResponse<Article> }>();
 
@@ -29,6 +29,13 @@ function openCreate() {
     showModal.value = true;
 }
 
+onMounted(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openCreate') === '1') {
+        openCreate();
+    }
+});
+
 function openEdit(article: Article) {
     editingArticle.value = article;
     form.title = article.title;
@@ -45,8 +52,9 @@ function openEdit(article: Article) {
 function submit() {
     if (sourceType.value === 'pdf' && !form.download_url) form.download_url = 'PDF_DOCUMENT_PENDING';
     const url = editingArticle.value ? route('admin.articles.update', { article: editingArticle.value.id }) : route('admin.articles.store');
-    const method = editingArticle.value ? 'put' : 'post';
-    form.transform((d) => (editingArticle.value ? { ...d, _method: 'PUT' } : d))[method](url, {
+    
+    // In Laravel/Inertia, file uploads must ALWAYS use POST, even when updating. We fake the PUT request via _method.
+    form.transform((d) => (editingArticle.value ? { ...d, _method: 'PUT' } : d)).post(url, {
         forceFormData: true,
         onSuccess: () => {
             showModal.value = false;
@@ -88,15 +96,49 @@ watch(
 <template>
     <Head title="Gestión de Artículos - iieEdu Admin" />
     <AppLayout>
-        <div class="mx-auto max-w-[1400px] space-y-8 px-4 py-8">
-            <!-- PAGE HEADER -->
-            <AdminPageHeader
-                title="Gestión de "
-                titleAccent="Artículos"
-                subtitle="Difusión académica y prensa institucional."
-                actionLabel="Nuevo Artículo"
-                @action="openCreate"
-            />
+        <div class="w-full space-y-8 px-6 py-8 lg:px-10">
+            <!-- PAGE HEADER + TABS IN ONE ROW -->
+            <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                <div class="min-w-0 space-y-1.5">
+                    <h1 class="font-serif text-3xl font-bold leading-tight text-on-surface md:text-4xl lg:text-5xl">
+                        Gestión de <span class="italic text-primary">Publicaciones</span>
+                    </h1>
+                    <p class="text-sm font-medium text-on-surface-variant">Administra el catálogo de libros y artículos.</p>
+                </div>
+                <div class="flex shrink-0 items-center gap-3">
+                    <Link
+                        :href="route('admin.books.index', { openCreate: 1 })"
+                        class="inline-flex items-center gap-2 rounded-2xl border border-outline-variant/30 bg-surface-container-low px-6 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant shadow-sm transition-all hover:bg-surface-container-high hover:text-on-surface active:scale-[0.98]"
+                    >
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Nuevo Libro
+                    </Link>
+                    <button
+                        type="button"
+                        @click="openCreate"
+                        class="inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-all hover:bg-primary/90 active:scale-[0.98]"
+                    >
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Nuevo Artículo
+                    </button>
+                </div>
+            </div>
+
+            <!-- SUB-NAV TABS -->
+            <div class="flex gap-6 border-b border-outline-variant/20">
+                <Link
+                    :href="route('admin.books.index')"
+                    class="border-b-2 px-1 pb-3 text-xs font-black uppercase tracking-wider transition-colors border-transparent text-on-surface-variant hover:border-outline-variant hover:text-on-surface"
+                >
+                    📚 Libros
+                </Link>
+                <Link
+                    :href="route('admin.articles.index')"
+                    class="border-b-2 px-1 pb-3 text-xs font-black uppercase tracking-wider transition-colors border-primary text-primary"
+                >
+                    📰 Artículos
+                </Link>
+            </div>
 
             <!-- SEARCH AND FILTERS -->
             <AdminSearchBar

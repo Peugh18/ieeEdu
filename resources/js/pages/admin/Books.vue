@@ -9,9 +9,9 @@ import BooksTable from '@/components/admin/books/BooksTable.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { Book } from '@/types/book';
 import type { PaginatedResponse } from '@/types/pagination';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import { BookOpen, Download } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 
 const props = defineProps<{
     books: PaginatedResponse<Book>;
@@ -24,9 +24,9 @@ const imagePreview = ref<string | null>(null);
 const isFree = ref(false);
 
 const form = useForm({
-    category: 'Libro' as 'Libro' | 'Libro en camino' | 'Guía',
     title: '',
     price: 0,
+    sale_price: null as number | null,
     stock: 10,
     author: '',
     description: '',
@@ -51,11 +51,18 @@ function openCreate() {
     showModal.value = true;
 }
 
+onMounted(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('openCreate') === '1') {
+        openCreate();
+    }
+});
+
 function openEdit(book: Book) {
     editingBook.value = book;
-    form.category = book.category;
     form.title = book.title;
     form.price = typeof book.price === 'string' ? parseFloat(book.price) : book.price;
+    form.sale_price = typeof book.sale_price === 'string' ? parseFloat(book.sale_price) : (book.sale_price || null);
     isFree.value = Number(form.price) === 0;
     form.stock = book.stock ?? (isFree.value ? 0 : 10);
     form.author = book.author;
@@ -70,8 +77,9 @@ function openEdit(book: Book) {
 
 function submit() {
     const url = editingBook.value ? route('admin.books.update', { book: editingBook.value.id }) : route('admin.books.store');
-    const method = editingBook.value ? 'put' : 'post';
-    form.transform((d) => (editingBook.value ? { ...d, _method: 'PUT' } : d))[method](url, {
+    
+    // In Laravel/Inertia, file uploads must ALWAYS use POST, even when updating. We fake the PUT request via _method.
+    form.transform((d) => (editingBook.value ? { ...d, _method: 'PUT' } : d)).post(url, {
         forceFormData: true,
         onSuccess: () => {
             showModal.value = false;
@@ -95,8 +103,13 @@ watch(
         filteredBooks.value = props.books.data.filter((b) => {
             const q = searchQuery.value.toLowerCase();
             const matchesSearch =
-                !q || b.title.toLowerCase().includes(q) || (b.author && b.author.toLowerCase().includes(q)) || b.category.toLowerCase().includes(q);
-            return matchesSearch && (activeFilter.value === 'Todos' || b.category === activeFilter.value);
+                !q || b.title.toLowerCase().includes(q) || (b.author && b.author.toLowerCase().includes(q));
+            
+            let matchesFilter = true;
+            if (activeFilter.value === 'Físicos (Premium)') matchesFilter = Number(b.price) > 0;
+            if (activeFilter.value === 'Digitales (Gratis)') matchesFilter = Number(b.price) === 0;
+
+            return matchesSearch && matchesFilter;
         });
     },
     { immediate: true },
@@ -107,9 +120,13 @@ watch(
     (newData) => {
         filteredBooks.value = newData.filter((b) => {
             const q = searchQuery.value.toLowerCase();
+            let matchesFilter = true;
+            if (activeFilter.value === 'Físicos (Premium)') matchesFilter = Number(b.price) > 0;
+            if (activeFilter.value === 'Digitales (Gratis)') matchesFilter = Number(b.price) === 0;
+
             return (
                 (!q || b.title.toLowerCase().includes(q) || (b.author && b.author.toLowerCase().includes(q))) &&
-                (activeFilter.value === 'Todos' || b.category === activeFilter.value)
+                matchesFilter
             );
         });
     },
@@ -119,15 +136,49 @@ watch(
 <template>
     <Head title="Gestión de Libros - iieEdu Admin" />
     <AppLayout>
-        <div class="mx-auto max-w-[1400px] space-y-8 px-4 py-8">
-            <!-- PAGE HEADER -->
-            <AdminPageHeader
-                title="Gestión de "
-                titleAccent="Libros"
-                subtitle="Catálogo de publicaciones físicas y digitales."
-                actionLabel="Nuevo Libro"
-                @action="openCreate"
-            />
+        <div class="w-full space-y-8 px-6 py-8 lg:px-10">
+            <!-- PAGE HEADER + TABS IN ONE ROW -->
+            <div class="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                <div class="min-w-0 space-y-1.5">
+                    <h1 class="font-serif text-3xl font-bold leading-tight text-on-surface md:text-4xl lg:text-5xl">
+                        Gestión de <span class="italic text-primary">Publicaciones</span>
+                    </h1>
+                    <p class="text-sm font-medium text-on-surface-variant">Administra el catálogo de libros y artículos.</p>
+                </div>
+                <div class="flex shrink-0 items-center gap-3">
+                    <button
+                        type="button"
+                        @click="openCreate"
+                        class="inline-flex items-center gap-2 rounded-2xl bg-primary px-6 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-lg transition-all hover:bg-primary/90 active:scale-[0.98]"
+                    >
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Nuevo Libro
+                    </button>
+                    <Link
+                        :href="route('admin.articles.index', { openCreate: 1 })"
+                        class="inline-flex items-center gap-2 rounded-2xl border border-outline-variant/30 bg-surface-container-low px-6 py-3 text-xs font-bold uppercase tracking-wider text-on-surface-variant shadow-sm transition-all hover:bg-surface-container-high hover:text-on-surface active:scale-[0.98]"
+                    >
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Nuevo Artículo
+                    </Link>
+                </div>
+            </div>
+
+            <!-- SUB-NAV TABS -->
+            <div class="flex gap-6 border-b border-outline-variant/20">
+                <Link
+                    :href="route('admin.books.index')"
+                    class="border-b-2 px-1 pb-3 text-xs font-black uppercase tracking-wider transition-colors border-primary text-primary"
+                >
+                    📚 Libros
+                </Link>
+                <Link
+                    :href="route('admin.articles.index')"
+                    class="border-b-2 px-1 pb-3 text-xs font-black uppercase tracking-wider transition-colors border-transparent text-on-surface-variant hover:border-outline-variant hover:text-on-surface"
+                >
+                    📰 Artículos
+                </Link>
+            </div>
 
             <!-- ── Stats Grid ── -->
             <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
@@ -225,7 +276,7 @@ watch(
                         class="custom-scrollbar flex items-center gap-2 overflow-x-auto whitespace-nowrap rounded-full border border-slate-200/50 bg-slate-50 p-1.5 shadow-inner"
                     >
                         <button
-                            v-for="cat in ['Todos', 'Libro', 'Libro en camino', 'Guía']"
+                            v-for="cat in ['Todos', 'Físicos (Premium)', 'Digitales (Gratis)']"
                             :key="cat"
                             @click="activeFilter = cat"
                             class="rounded-full px-6 py-3 text-[9px] font-black uppercase tracking-widest transition-all duration-500"

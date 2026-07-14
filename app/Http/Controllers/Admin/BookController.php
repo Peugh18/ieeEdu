@@ -37,9 +37,9 @@ class BookController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'category' => 'required|in:Libro,Libro en camino,Guía',
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'sale_price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'author' => 'nullable|string|max:255',
             'description' => 'required|string',
@@ -52,14 +52,11 @@ class BookController extends Controller
         if ((float) $data['price'] > 0) {
             $request->validate(['stock' => 'required|integer|min:0']);
             $data['stock'] = (int) $request->input('stock');
+            $data['file_path'] = null;
+            $data['download_url'] = null;
         } else {
             $data['stock'] = null;
-        }
-
-        if ($data['category'] === 'Libro en camino') {
-            $data['price'] = 0;
-            $data['stock'] = null;
-            $data['author'] = $data['author'] ?? 'IEE';
+            $data['sale_price'] = null;
         }
 
         if ($request->hasFile('cover_image')) {
@@ -78,9 +75,9 @@ class BookController extends Controller
     public function update(Request $request, Book $book)
     {
         $data = $request->validate([
-            'category' => 'required|in:Libro,Libro en camino,Guía',
             'title' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'sale_price' => 'nullable|numeric|min:0',
             'stock' => 'nullable|integer|min:0',
             'author' => 'nullable|string|max:255',
             'description' => 'required|string',
@@ -93,13 +90,13 @@ class BookController extends Controller
         if ((float) $data['price'] > 0) {
             $request->validate(['stock' => 'required|integer|min:0']);
             $data['stock'] = (int) $request->input('stock');
+            $data['download_url'] = null;
+            if ($book->file_path) {
+                Storage::disk('public')->delete($book->file_path);
+            }
         } else {
             $data['stock'] = null;
-        }
-
-        if ($data['category'] === 'Libro en camino') {
-            $data['price'] = 0;
-            $data['stock'] = null;
+            $data['sale_price'] = null;
         }
 
         if ($request->hasFile('cover_image')) {

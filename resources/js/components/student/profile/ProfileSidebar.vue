@@ -30,7 +30,7 @@ const emit = defineEmits<{
                     <img
                         :src="
                             user.avatar
-                                ? '/storage/' + user.avatar
+                                ? (user.avatar.startsWith('data:') ? user.avatar : '/storage/' + user.avatar)
                                 : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=57572A&color=fff`
                         "
                         class="h-24 w-24 rounded-full border-[6px] border-white bg-surface object-cover shadow-xl transition-opacity group-hover:opacity-75"

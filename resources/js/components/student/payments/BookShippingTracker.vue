@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { BookOrderShipping } from '@/types/book-order';
-import { Clipboard, ExternalLink, Home, MapPin, Truck } from 'lucide-vue-next';
+import { Clipboard, ExternalLink, Home, MapPin, Truck, Hash } from 'lucide-vue-next';
 
 defineProps<{
     shipping: BookOrderShipping | null;
@@ -21,7 +21,7 @@ function stepIndex(status: string) {
 </script>
 
 <template>
-    <div v-if="shipping" :class="compact ? 'space-y-4' : 'space-y-8 rounded-3xl border border-blue-100/80 bg-blue-50/20 p-6 md:p-8'">
+    <div v-if="shipping" :class="compact ? 'space-y-4' : 'space-y-8 rounded-2xl border border-outline-variant/20 bg-background p-6 md:p-8'">
         <div class="flex items-center justify-between">
             <p class="text-[10px] font-black uppercase tracking-widest text-blue-600">Estado de despacho</p>
             <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold capitalize text-blue-700">
@@ -62,7 +62,7 @@ function stepIndex(status: string) {
 
         <!-- Shipping Details Grid -->
         <div
-            v-if="shipping.carrier || shipping.tracking_url || shipping.pickup_location || shipping.student_note"
+            v-if="shipping.carrier || shipping.tracking_url || shipping.tracking_code || shipping.pickup_location || shipping.student_note"
             class="grid grid-cols-1 gap-4 border-t border-blue-100/50 pt-4 sm:grid-cols-2 md:grid-cols-3"
         >
             <div v-if="shipping.carrier" class="flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-400">
@@ -100,16 +100,23 @@ function stepIndex(status: string) {
                 </div>
             </div>
 
-            <div v-if="shipping.tracking_url" class="col-span-full flex items-center gap-2.5 pt-1 text-xs text-slate-600 dark:text-slate-400">
+            <div v-if="shipping.tracking_url || shipping.tracking_code" class="col-span-full flex flex-wrap items-center gap-4 pt-1 text-xs text-slate-600 dark:text-slate-400">
                 <a
+                    v-if="shipping.tracking_url"
                     :href="shipping.tracking_url"
                     target="_blank"
                     rel="noopener"
                     class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-500 transition-all hover:text-blue-600 hover:underline"
                 >
                     <ExternalLink class="h-3.5 w-3.5" />
-                    Realizar seguimiento en courier
+                    Realizar seguimiento en mensajería
                 </a>
+                
+                <div v-if="shipping.tracking_code" class="inline-flex items-center gap-1.5 rounded-lg bg-blue-50/50 px-3 py-1.5 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
+                    <Hash class="h-3.5 w-3.5" />
+                    <span class="text-[10px] font-bold uppercase tracking-wider">Clave/Código:</span>
+                    <span class="font-black">{{ shipping.tracking_code }}</span>
+                </div>
             </div>
         </div>
     </div>

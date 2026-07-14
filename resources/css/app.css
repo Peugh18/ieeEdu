@@ -173,7 +173,13 @@
 .dark .bg-slate-100 {
     background-color: var(--elite-surface-2) !important;
 }
-.dark .hover\:bg-background:hover {
+.dark .hover\:bg-background:hover,
+.dark .hover\:bg-surface:hover,
+.dark .hover\:bg-surface-container-lowest:hover,
+.dark .hover\:bg-surface-container-low:hover,
+.dark .hover\:bg-surface-container:hover,
+.dark .hover\:bg-surface-container-high:hover,
+.dark .hover\:bg-surface-container-highest:hover {
     background-color: var(--elite-surface-2) !important;
 }
 .dark .group:hover .group-hover\:bg-white,
@@ -352,7 +358,8 @@
 
 /* Form Elements (Inputs / Select / Textarea) */
 .dark input:not([type='checkbox']):not([type='radio']):not([type='range']),
-.dark textarea {
+.dark textarea,
+.dark button[role='combobox'] {
     background-color: var(--elite-surface-2) !important;
     border-color: var(--elite-border-strong) !important;
     color: var(--elite-text) !important;

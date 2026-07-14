@@ -70,6 +70,7 @@ class PaymentService
             }
 
             $months = PlanPricing::months($payment->subscription_type);
+            $endDate = now()->addMonths($months);
 
             Subscription::updateOrCreate(
                 ['user_id' => $payment->user_id],
@@ -77,7 +78,7 @@ class PaymentService
                     'type' => $payment->subscription_type,
                     'status' => Subscription::STATUS_ACTIVE,
                     'start_date' => now(),
-                    'end_date' => now()->addMonths($months),
+                    'end_date' => $endDate,
                 ]
             );
 

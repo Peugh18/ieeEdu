@@ -10,8 +10,13 @@ defineProps<{
     books: PublicationBook[];
 }>();
 
+import BookDetailsModal from './BookDetailsModal.vue';
+
 const showModal = ref(false);
 const selectedBook = ref<PublicationBook | null>(null);
+
+const showDetailsModal = ref(false);
+const detailedBook = ref<PublicationBook | null>(null);
 
 function getBookCoverStyle(id: number) {
     const covers = [
@@ -33,6 +38,20 @@ function openCoordination(book: PublicationBook) {
     selectedBook.value = book;
     showModal.value = true;
 }
+
+function openDetails(book: PublicationBook) {
+    detailedBook.value = book;
+    showDetailsModal.value = true;
+}
+
+function handleModalAction(book: PublicationBook) {
+    showDetailsModal.value = false;
+    if (Number(book.price) > 0) {
+        openCoordination(book);
+    } else {
+        window.location.href = getDownloadLink(book);
+    }
+}
 </script>
 
 <template>
@@ -52,7 +71,8 @@ function openCoordination(book: PublicationBook) {
                 class="group flex h-full flex-col rounded-3xl border border-outline-variant/15 bg-surface p-5 transition-all duration-500 hover:-translate-y-1.5 hover:border-primary/20 hover:shadow-2xl"
             >
                 <div
-                    class="relative mb-5 aspect-[3/4] flex-shrink-0 overflow-hidden rounded-2xl border border-outline-variant/10 bg-surface-container-low shadow-md"
+                    @click="openDetails(book)"
+                    class="relative mb-5 aspect-[3/4] flex-shrink-0 overflow-hidden rounded-2xl border border-outline-variant/10 bg-surface-container-low shadow-md cursor-pointer"
                 >
                     <img
                         v-if="book.cover_image"
@@ -66,10 +86,13 @@ function openCoordination(book: PublicationBook) {
                     >
                         <h4 class="line-clamp-4 text-center font-serif text-sm font-bold text-white">{{ book.title }}</h4>
                     </div>
-                    <div v-if="Number(book.price) === 0 && book.category !== 'Libro en camino'" class="absolute bottom-3 right-3 z-20">
+                    <div v-if="Number(book.price) === 0" class="absolute bottom-3 right-3 z-20">
                         <span class="rounded-lg bg-emerald-500 px-2.5 py-1 text-[9px] font-bold uppercase text-white">Gratis</span>
                     </div>
-                    <div v-else-if="book.is_out_of_stock && !book.has_approved_purchase" class="absolute bottom-3 right-3 z-20">
+                    <div v-else-if="Number(book.price) > 0 && book.stock !== undefined && book.stock <= 3 && book.stock > 0" class="absolute bottom-3 right-3 z-20">
+                        <span class="rounded-lg bg-amber-500 px-2.5 py-1 text-[9px] font-bold uppercase text-white shadow-lg animate-pulse">¡Últimos {{ book.stock }}!</span>
+                    </div>
+                    <div v-else-if="Number(book.price) > 0 && book.stock === 0 && !book.has_approved_purchase" class="absolute bottom-3 right-3 z-20">
                         <span class="rounded-lg bg-red-500 px-2.5 py-1 text-[9px] font-bold uppercase text-white">Agotado</span>
                     </div>
                     <div v-else-if="book.shipping" class="absolute bottom-3 right-3 z-20">
@@ -78,22 +101,27 @@ function openCoordination(book: PublicationBook) {
                 </div>
 
                 <div class="flex flex-1 flex-col">
-                    <h2 class="mb-2 line-clamp-2 font-serif text-base font-bold text-on-surface">{{ book.title }}</h2>
-                    <p class="mb-3 line-clamp-3 flex-1 text-xs text-on-surface-variant/70">{{ book.description }}</p>
+                    <h2 @click="openDetails(book)" class="mb-2 line-clamp-2 font-serif text-base font-bold text-on-surface cursor-pointer hover:text-primary transition-colors">{{ book.title }}</h2>
+                    <button
+                        type="button"
+                        @click="openDetails(book)"
+                        class="mb-4 mt-1 text-left text-xs font-bold text-primary hover:text-primary-active transition-colors flex items-center gap-1"
+                    >
+                        Ver sinopsis y detalles →
+                    </button>
 
                     <BookShippingTracker v-if="book.shipping" :shipping="book.shipping" compact class="mb-4" />
 
                     <div class="mt-auto flex items-center justify-between border-t border-outline-variant/10 pt-4">
-                        <div class="font-serif text-lg font-bold text-on-surface">
-                            <template v-if="Number(book.price) > 0">S/ {{ book.price }}</template>
-                            <template v-else-if="book.category === 'Libro en camino'">---</template>
-                            <template v-else>Libre</template>
+                        <div class="font-serif flex items-baseline gap-2 text-on-surface">
+                            <template v-if="Number(book.price) > 0">
+                                <span v-if="Number(book.sale_price) > 0" class="text-xs text-on-surface-variant/60 line-through">S/ {{ book.price }}</span>
+                                <span class="text-lg font-bold">S/ {{ Number(book.sale_price) > 0 ? book.sale_price : book.price }}</span>
+                            </template>
+                            <template v-else><span class="text-lg font-bold">Libre</span></template>
                         </div>
 
-                        <template v-if="book.category === 'Libro en camino'">
-                            <button disabled class="cursor-not-allowed rounded-xl px-4 py-2.5 text-[10px] font-bold opacity-50">Pronto</button>
-                        </template>
-                        <template v-else-if="!book.is_available">
+                        <template v-if="!book.is_available">
                             <button disabled class="rounded-xl bg-red-500/10 px-4 py-2.5 text-[10px] font-bold text-red-500">No disponible</button>
                         </template>
                         <template v-else-if="book.has_approved_purchase">
@@ -146,8 +174,16 @@ function openCoordination(book: PublicationBook) {
             product-type="book"
             :product-id="selectedBook.id"
             :product-title="selectedBook.title"
-            :amount="Number(selectedBook.price)"
+            :amount="Number(selectedBook.sale_price) > 0 ? Number(selectedBook.sale_price) : Number(selectedBook.price)"
             @close="showModal = false"
+        />
+
+        <BookDetailsModal
+            v-if="detailedBook && showDetailsModal"
+            :show="showDetailsModal"
+            :book="detailedBook"
+            @close="showDetailsModal = false"
+            @action="handleModalAction"
         />
     </div>
 </template>

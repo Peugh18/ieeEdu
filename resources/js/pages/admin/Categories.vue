@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AdminFlashToast from '@/components/admin/AdminFlashToast.vue';
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import AdminPagination from '@/components/admin/AdminPagination.vue';
 import CategoriesTable from '@/components/admin/categories/CategoriesTable.vue';
@@ -11,8 +12,9 @@ import type { SharedData } from '@/types';
 import type { Category } from '@/types/category';
 import type { PaginatedResponse } from '@/types/pagination';
 import { Head, router, useForm, usePage } from '@inertiajs/vue3';
-import { AlertCircle, Check, Filter, Search } from 'lucide-vue-next';
+import { Filter, Search } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
+import AppSelect from '@/components/ui/AppSelect.vue';
 
 const props = defineProps<{
     categories: PaginatedResponse<Category>;
@@ -89,7 +91,7 @@ const paginationLinks = usePaginationLinks(props.categories.links);
 <template>
     <Head title="Categorías - Admin IEE" />
     <AppLayout>
-        <div class="mx-auto max-w-7xl space-y-10 px-4 py-8">
+        <div class="w-full space-y-8 px-6 py-8 lg:px-10">
             <AdminPageHeader
                 title="Categorías"
                 subtitle="Clasificación del catálogo de cursos."
@@ -101,25 +103,26 @@ const paginationLinks = usePaginationLinks(props.categories.links);
 
             <CategoryStats :total="categories.total" :visible="categories.data.length" />
 
-            <div class="flex flex-col items-center gap-3 rounded-[2.5rem] border border-slate-100 bg-slate-50 p-3 lg:flex-row">
+            <div class="flex flex-col items-center gap-3 rounded-[2.5rem] border border-outline-variant/20 bg-surface-container-low p-3 lg:flex-row">
                 <div class="relative w-full flex-1 lg:w-auto">
-                    <Search class="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Search class="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant/40" />
                     <input
                         v-model="filterForm.search"
                         placeholder="Filtrar por nombre de categoría..."
-                        class="h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-6 text-sm font-medium outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/5"
+                        class="h-14 w-full rounded-2xl border border-outline-variant/20 bg-surface pl-12 pr-6 text-sm font-medium text-on-surface outline-none transition-all placeholder:text-on-surface-variant/40 focus:border-primary focus:ring-4 focus:ring-primary/5"
                     />
                 </div>
                 <div class="relative w-full min-w-[160px] flex-1 lg:w-auto lg:flex-none">
-                    <Filter class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <select
+                    <Filter class="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-on-surface-variant/40" />
+                    <AppSelect
                         v-model="filterForm.per_page"
-                        class="h-14 w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-white pl-11 pr-10 text-xs font-bold text-slate-600 outline-none transition-colors hover:border-slate-300"
-                    >
-                        <option value="10">10 por página</option>
-                        <option value="20">20 por página</option>
-                        <option value="50">50 por página</option>
-                    </select>
+                        :options="[
+                            { value: '10', label: '10 por página' },
+                            { value: '20', label: '20 por página' },
+                            { value: '50', label: '50 por página' }
+                        ]"
+                        class="h-14 border-outline-variant/20 bg-surface font-bold pl-11 shadow-none text-xs"
+                    />
                 </div>
             </div>
 
@@ -129,35 +132,13 @@ const paginationLinks = usePaginationLinks(props.categories.links);
 
         <CategoryFormModal :show="showModal" :form="form" :editing-id="editingCategory?.id ?? null" @close="showModal = false" @submit="submit" />
 
-        <Transition
-            enter-active-class="transition duration-500"
-            enter-from-class="translate-y-full opacity-0"
-            enter-to-class="translate-y-0 opacity-100"
-        >
-            <div
-                v-if="flash.success || flash.error"
-                class="fixed bottom-10 right-10 z-[100] flex items-center gap-4 rounded-3xl bg-slate-900 p-2 pr-6 text-white shadow-2xl"
-            >
-                <div :class="`flex h-10 w-10 items-center justify-center rounded-full ${flash.success ? 'bg-emerald-500' : 'bg-rose-500'}`">
-                    <Check v-if="flash.success" class="h-6 w-6 text-white" />
-                    <AlertCircle v-else class="h-6 w-6 text-white" />
-                </div>
-                <div class="flex flex-col">
-                    <span :class="`text-[10px] font-bold uppercase tracking-widest ${flash.success ? 'text-emerald-500' : 'text-rose-500'}`">{{
-                        flash.success ? 'Éxito' : 'Error en sistema'
-                    }}</span>
-                    <span class="text-sm font-medium">{{ flash.success || flash.error }}</span>
-                </div>
-            </div>
-        </Transition>
+        <AdminFlashToast
+            :show="!!(flash.success || flash.error)"
+            :message="flash.success ?? flash.error ?? ''"
+            :variant="flash.success ? 'success' : 'error'"
+        />
     </AppLayout>
 </template>
 
 <style scoped>
-select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 1.2rem center;
-    background-size: 1rem;
-}
 </style>

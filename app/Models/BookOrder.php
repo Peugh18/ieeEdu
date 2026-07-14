@@ -31,6 +31,7 @@ class BookOrder extends Model
         'pickup_location',
         'carrier',
         'tracking_url',
+        'tracking_code',
         'student_note',
         'admin_notes',
         'shipped_at',

@@ -2,6 +2,7 @@
 import CertificateFieldEditor from '@/components/admin/certificates/CertificateFieldEditor.vue';
 import { Image as ImageIcon, Type } from 'lucide-vue-next';
 import { ref } from 'vue';
+import AppSelect from '@/components/ui/AppSelect.vue';
 
 export interface CertificateTemplateForm {
     student_name_X: number;
@@ -83,14 +84,15 @@ function handleImageChange(e: Event) {
                 </div>
                 <div class="space-y-2">
                     <span class="text-sm font-semibold text-on-surface-variant">Tipografía</span>
-                    <select
+                    <AppSelect
                         v-model="form.font_family"
-                        class="h-11 w-full rounded-xl border border-outline-variant/20 bg-surface-container-high px-3 text-sm font-medium focus:ring-2 focus:ring-primary/30"
-                    >
-                        <option value="serif">Serif (clásico)</option>
-                        <option value="sans-serif">Sans-serif (moderno)</option>
-                        <option value="cursive">Cursive (elegante)</option>
-                    </select>
+                        :options="[
+                            { value: 'serif', label: 'Serif (clásico)' },
+                            { value: 'sans-serif', label: 'Sans-serif (moderno)' },
+                            { value: 'cursive', label: 'Cursive (elegante)' }
+                        ]"
+                        class="h-11 border-outline-variant/20 bg-surface-container-high font-medium text-sm"
+                    />
                 </div>
             </div>
         </div>

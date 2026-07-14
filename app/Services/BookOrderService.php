@@ -11,14 +11,22 @@ class BookOrderService
 {
     public function createForPayment(Payment $payment): BookOrder
     {
-        return BookOrder::firstOrCreate(
-            ['payment_id' => $payment->id],
-            [
-                'book_id' => $payment->book_id,
-                'user_id' => $payment->user_id,
-                'shipping_status' => BookOrder::STATUS_AWAITING_ADDRESS,
-            ]
-        );
+        $order = BookOrder::where('payment_id', $payment->id)->first();
+        if ($order) {
+            $hasAddress = ! empty($order->shipping_address) && ! empty($order->district);
+            $order->update([
+                'shipping_status' => $hasAddress ? BookOrder::STATUS_PREPARING : BookOrder::STATUS_AWAITING_ADDRESS,
+            ]);
+
+            return $order;
+        }
+
+        return BookOrder::create([
+            'payment_id' => $payment->id,
+            'book_id' => $payment->book_id,
+            'user_id' => $payment->user_id,
+            'shipping_status' => BookOrder::STATUS_AWAITING_ADDRESS,
+        ]);
     }
 
     public function updateShipping(BookOrder $order, array $data): BookOrder

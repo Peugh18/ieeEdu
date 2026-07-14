@@ -1,4 +1,4 @@
-ï»¿<script setup lang="ts">
+<script setup lang="ts">
 import AdminFlashToast from '@/components/admin/AdminFlashToast.vue';
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
 import CertificateTemplateControls from '@/components/admin/certificates/CertificateTemplateControls.vue';
@@ -71,7 +71,7 @@ function showToast(variant: 'success' | 'error', message: string, subtitle?: str
 function submit() {
     form.post(route('admin.courses.certificate-template.update', { course: props.course.id }), {
         onSuccess: () => showToast('success', 'Cambios guardados', 'La plantilla del certificado ha sido actualizada.'),
-        onError: () => showToast('error', 'Error al guardar', 'Revisa que la imagen y los campos sean vÃ¡lidos.'),
+        onError: () => showToast('error', 'Error al guardar', 'Revisa que la imagen y los campos sean válidos.'),
         forceFormData: true,
     });
 }
@@ -80,19 +80,19 @@ watch(
     () => form.errors,
     (errors) => {
         if (Object.keys(errors).length > 0) {
-            showToast('error', 'Error de validaciÃ³n', Object.values(errors)[0] as string);
+            showToast('error', 'Error de validación', Object.values(errors)[0] as string);
         }
     },
 );
 </script>
 
 <template>
-    <Head title="DiseÃ±ador de Diplomados" />
+    <Head title="Diseñador de Diplomados" />
     <AppLayout>
         <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
             <AdminPageHeader
-                badge="AcadÃ©mico / Certificados"
-                title="ConfiguraciÃ³n de"
+                badge="Académico / Certificados"
+                title="Configuración de"
                 title-accent="Certificado"
                 :subtitle="course.title"
                 back-link="admin.courses.index"
@@ -114,7 +114,7 @@ watch(
                         />
                     </svg>
                     <Save v-else class="h-4 w-4" />
-                    {{ form.processing ? 'Guardandoâ€¦' : 'Guardar cambios' }}
+                    {{ form.processing ? 'Guardando…' : 'Guardar cambios' }}
                 </button>
             </AdminPageHeader>
 

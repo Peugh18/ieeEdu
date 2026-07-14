@@ -1,8 +1,8 @@
 export interface PublicationBook {
     id: number;
-    category: 'Libro' | 'Libro en camino' | 'Guía';
     title: string;
     price: string | number;
+    sale_price?: string | number | null;
     stock?: number | null;
     author: string;
     description: string;

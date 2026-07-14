@@ -53,9 +53,9 @@ class CatalogController extends Controller
 
             return [
                 'id' => $b->id,
-                'category' => $b->category ?? 'Libro',
                 'title' => $b->title,
                 'price' => $b->price,
+                'sale_price' => $b->sale_price,
                 'stock' => $b->stock,
                 'author' => $b->author ?? 'Instituto IEE',
                 'description' => $b->description,

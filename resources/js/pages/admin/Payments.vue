@@ -5,12 +5,14 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import type { SharedData } from '@/types';
 import { PaymentListItem } from '@/types/admin';
 import { PaginationLink } from '@/types/pagination';
-import { Head, router, useForm as useInertiaForm, usePage } from '@inertiajs/vue3';
-import { Check, CheckCircle2, Clock, RefreshCw, Wallet, XCircle } from 'lucide-vue-next';
+import { Head, Link, router, useForm as useInertiaForm, usePage } from '@inertiajs/vue3';
+import { Check, CheckCircle2, Clock, RefreshCw, Wallet, XCircle, Package } from 'lucide-vue-next';
 import { computed, onMounted, ref } from 'vue';
 
 // Components
+import AdminFlashToast from '@/components/admin/AdminFlashToast.vue';
 import AdminPageHeader from '@/components/admin/AdminPageHeader.vue';
+import AdminStatsCard from '@/components/admin/AdminStatsCard.vue';
 import PaymentDetailDrawer from '@/components/admin/payments/PaymentDetailDrawer.vue';
 import PaymentsCreateModal from '@/components/admin/payments/PaymentsCreateModal.vue';
 import PaymentsFilters from '@/components/admin/payments/PaymentsFilters.vue';
@@ -29,12 +31,20 @@ interface BookOption {
     price: number | string;
 }
 
+interface PlanOption {
+    slug: string;
+    name: string;
+    price: number;
+    months: number;
+}
+
 const props = defineProps<{
     payments: { data: PaymentListItem[]; links: PaginationLink[]; total: number; per_page: number };
-    filters: { status?: string; search?: string; date?: string; per_page?: string; type?: string };
+    filters: { status?: string; search?: string; date?: string; per_page?: string; type?: string; sub_status?: string };
     stats: { total: number; pendiente: number; en_revision: number; aprobado: number; rechazado: number; book_income?: number; book_sales?: number };
     courses: CourseOption[];
     books: BookOption[];
+    planOptions: PlanOption[];
 }>();
 
 const page = usePage<SharedData>();
@@ -46,6 +56,7 @@ const filterFormObj = useInertiaForm({
     status: props.filters.status || '',
     date: props.filters.date || '',
     type: props.filters.type || '',
+    sub_status: props.filters.sub_status || '',
     per_page: props.filters.per_page || '20',
 });
 
@@ -57,6 +68,7 @@ function applyFilters() {
             status: filterFormObj.status || undefined,
             date: filterFormObj.date || undefined,
             type: filterFormObj.type || undefined,
+            sub_status: filterFormObj.sub_status || undefined,
             per_page: filterFormObj.per_page !== '20' ? filterFormObj.per_page : undefined,
         },
         { preserveState: false, replace: true },
@@ -95,22 +107,44 @@ function revert(p: PaymentListItem) {
     router.patch(route('admin.payments.revert', { payment: p.id }), {}, { preserveScroll: true });
 }
 
+function destroy(p: PaymentListItem) {
+    if (!confirm(`¿Estás súper seguro de ELIMINAR el pago de ${p.user.name}? Esta acción borrará el registro de la base de datos de forma irreversible.`)) return;
+    router.delete(route('admin.payments.destroy', { payment: p.id }), { preserveScroll: true });
+}
+
 const pgLinks = usePaginationLinks(props.payments.links);
 </script>
 
 <template>
     <Head title="Gestión de Pagos - iieEdu Admin" />
     <AppLayout>
-        <div class="mx-auto max-w-7xl space-y-10 px-4 py-8">
+        <div class="w-full space-y-8 px-6 py-8 lg:px-10">
             <!-- ── Header ── -->
             <AdminPageHeader
                 title="Comprobantes de "
                 titleAccent="pago"
                 subtitle="Valida transferencias de cursos, libros y membresías."
                 actionLabel="Registrar pago"
-                compact
                 @action="showCreate = true"
             />
+
+            <!-- ── Tab Bar ── -->
+            <div class="flex gap-1 rounded-2xl border border-outline-variant/20 bg-surface-container-low p-1">
+                <button
+                    type="button"
+                    class="flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all bg-primary text-white shadow-md"
+                >
+                    <Wallet class="h-3.5 w-3.5" />
+                    Comprobantes de pago
+                </button>
+                <Link
+                    :href="route('admin.book-orders.index')"
+                    class="flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                >
+                    <Package class="h-3.5 w-3.5" />
+                    Despachos de libros
+                </Link>
+            </div>
 
             <!-- Filtro por tipo -->
             <div class="flex flex-wrap items-center gap-2">
@@ -137,36 +171,58 @@ const pgLinks = usePaginationLinks(props.payments.links);
                     {{ opt.label }}
                 </button>
             </div>
+            
+            <!-- Filtro de Membresía (solo visible si type === 'membership') -->
+            <div v-if="filterFormObj.type === 'membership'" class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-bold text-slate-400 mr-2">Vigencia:</span>
+                <button
+                    v-for="opt in [
+                        { key: '', label: 'Todas', icon: null },
+                        { key: 'activas', label: 'Activas', icon: CheckCircle2, color: 'text-emerald-500' },
+                        { key: 'por_vencer', label: 'Por Vencer (5 días)', icon: Clock, color: 'text-amber-500' },
+                        { key: 'expiradas', label: 'Expiradas', icon: XCircle, color: 'text-rose-500' },
+                    ]"
+                    :key="opt.key"
+                    type="button"
+                    class="rounded-xl px-4 py-1.5 text-xs font-bold transition-all"
+                    :class="
+                        filterFormObj.sub_status === opt.key
+                            ? 'bg-primary/10 text-primary border border-primary/20'
+                            : 'border border-slate-200 bg-white text-slate-500 hover:border-slate-300'
+                    "
+                    @click="
+                        filterFormObj.sub_status = opt.key;
+                        applyFilters();
+                    "
+                >
+                    <div class="flex items-center gap-1.5">
+                        <component v-if="opt.icon" :is="opt.icon" :class="['h-3.5 w-3.5', opt.color]" />
+                        <span>{{ opt.label }}</span>
+                    </div>
+                </button>
+            </div>
 
             <!-- ── Stats Grid ── -->
             <div class="grid grid-cols-2 gap-4 lg:grid-cols-5">
-                <div
+                <AdminStatsCard
                     v-for="s in [
-                        { key: '', label: 'Total Global', val: stats.total, icon: Wallet, cls: 'text-slate-900' },
-                        { key: 'pendiente', label: 'Pendientes', val: stats.pendiente, icon: Clock, cls: 'text-blue-600' },
-                        { key: 'en_revision', label: 'Por Validar', val: stats.en_revision, icon: RefreshCw, cls: 'text-amber-600' },
-                        { key: 'aprobado', label: 'Aprobados', val: stats.aprobado, icon: CheckCircle2, cls: 'text-emerald-600' },
-                        { key: 'rechazado', label: 'Rechazados', val: stats.rechazado, icon: XCircle, cls: 'text-rose-600' },
+                        { key: '', label: 'Total Global', val: stats.total, icon: Wallet, cls: 'text-on-surface' },
+                        { key: 'pendiente', label: 'Pendientes', val: stats.pendiente, icon: Clock, cls: 'text-blue-500' },
+                        { key: 'en_revision', label: 'Por Validar', val: stats.en_revision, icon: RefreshCw, cls: 'text-amber-500' },
+                        { key: 'aprobado', label: 'Aprobados', val: stats.aprobado, icon: CheckCircle2, cls: 'text-emerald-500' },
+                        { key: 'rechazado', label: 'Rechazados', val: stats.rechazado, icon: XCircle, cls: 'text-rose-500' },
                     ]"
                     :key="s.key"
+                    :label="s.label"
+                    :value="s.val"
+                    :value-class="s.cls"
+                    class="cursor-pointer"
+                    :class="filterFormObj.status === s.key ? 'ring-2 ring-primary ring-offset-1' : ''"
                     @click="filterFormObj.status = s.key"
-                    class="group relative cursor-pointer overflow-hidden rounded-[2rem] border border-slate-100 bg-white p-6 shadow-sm transition-all duration-300"
-                    :class="filterFormObj.status === s.key ? 'border-transparent ring-2 ring-primary' : 'hover:border-slate-200 hover:shadow-md'"
                 >
-                    <div class="relative z-10 flex h-full flex-col justify-between space-y-4">
-                        <div class="flex items-center justify-between">
-                            <span
-                                class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 transition-colors group-hover:text-slate-600"
-                                >{{ s.label }}</span
-                            >
-                            <component :is="s.icon" class="h-4 w-4 text-slate-300 transition-colors group-hover:text-slate-500" />
-                        </div>
-                        <p class="text-4xl font-black tracking-tight" :class="s.cls">{{ s.val }}</p>
-                    </div>
-                    <div class="absolute -bottom-4 -right-4 h-20 w-20 opacity-[0.03] transition-opacity group-hover:opacity-[0.08]">
-                        <component :is="s.icon" class="h-full w-full" />
-                    </div>
-                </div>
+                    <template #icon><component :is="s.icon" class="h-4 w-4 text-outline-variant" /></template>
+                    <template #bg-icon><component :is="s.icon" class="h-full w-full" /></template>
+                </AdminStatsCard>
             </div>
 
             <!-- ── Filter Bar ── -->
@@ -182,10 +238,12 @@ const pgLinks = usePaginationLinks(props.payments.links);
                 :payments="payments.data"
                 :total="stats.total"
                 :paginationLinks="pgLinks"
+                :type="filterFormObj.type"
                 @view="(p) => (detailPayment = p)"
                 @approve="approve"
                 @reject="reject"
                 @revert="revert"
+                @destroy="destroy"
             />
         </div>
 
@@ -211,29 +269,21 @@ const pgLinks = usePaginationLinks(props.payments.links);
                     detailPayment = null;
                 }
             "
+            @destroy="
+                (p) => {
+                    destroy(p);
+                    detailPayment = null;
+                }
+            "
         />
 
         <!-- ───────────────── CREATE MODAL (ESTILO COMPARTIDO) ───────────────── -->
-        <PaymentsCreateModal :show="showCreate" :courses="courses" :books="books" :initialSearch="initialSearch" @close="showCreate = false" />
+        <PaymentsCreateModal :show="showCreate" :courses="courses" :books="books" :planOptions="planOptions" :initialSearch="initialSearch" @close="showCreate = false" />
 
-        <!-- Flash -->
-        <Transition
-            enter-active-class="transition duration-500"
-            enter-from-class="translate-y-full opacity-0"
-            enter-to-class="translate-y-0 opacity-100"
-        >
-            <div
-                v-if="flash.success"
-                class="fixed bottom-10 right-10 z-[100] flex items-center gap-4 rounded-3xl bg-slate-900 p-2 pr-6 text-white shadow-2xl"
-            >
-                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500">
-                    <Check class="h-6 w-6" />
-                </div>
-                <div class="flex flex-col">
-                    <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Operación Exitosa</span>
-                    <span class="text-sm font-medium">{{ flash.success }}</span>
-                </div>
-            </div>
-        </Transition>
+        <AdminFlashToast
+            :show="!!flash.success"
+            :message="flash.success ?? ''"
+            variant="success"
+        />
     </AppLayout>
 </template>

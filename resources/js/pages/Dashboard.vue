@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import BottomNav from '@/components/student/BottomNav.vue';
 import StudentDashboardAcademicPerformance from '@/components/student/dashboard/StudentDashboardAcademicPerformance.vue';
 import StudentDashboardCertificates from '@/components/student/dashboard/StudentDashboardCertificates.vue';
@@ -9,7 +9,7 @@ import StudentDashboardQuickLinks from '@/components/student/dashboard/StudentDa
 import StudentDashboardRecommendations from '@/components/student/dashboard/StudentDashboardRecommendations.vue';
 import StudentDashboardStats from '@/components/student/dashboard/StudentDashboardStats.vue';
 import StudentDashboardSubscription from '@/components/student/dashboard/StudentDashboardSubscription.vue';
-import EmailVerificationBanner from '@/components/student/EmailVerificationBanner.vue';
+
 import { useAnimatedStats } from '@/composables/useAnimatedStats';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type SharedData, type User } from '@/types';
@@ -77,7 +77,7 @@ onUnmounted(() => {
             class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-amber-50/30 pb-24 dark:from-[#141410] dark:via-on-background dark:to-on-background"
         >
             <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-                <EmailVerificationBanner :email-verified-at="user?.email_verified_at" />
+
 
                 <StudentDashboardLiveBanner
                     :user="user"
