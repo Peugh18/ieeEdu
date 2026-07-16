@@ -2,7 +2,7 @@
 import { useSidebar } from '@/components/ui/sidebar';
 import type { SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, ClipboardCheck, CreditCard, LayoutGrid, Menu, Users } from 'lucide-vue-next';
+import { Award, BookOpen, ClipboardCheck, CreditCard, LayoutGrid, Menu, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 defineProps<{
@@ -24,7 +24,7 @@ try {
 const studentItems = [
     { key: 'dashboard', label: 'Inicio', icon: LayoutGrid, routeName: 'dashboard', path: '/dashboard' },
     { key: 'courses', label: 'Cursos', icon: BookOpen, routeName: 'student.courses.index', path: '/student/courses' },
-    { key: 'exams', label: 'Exámenes', icon: ClipboardCheck, routeName: 'student.exams.index', path: '/student/exams' },
+    { key: 'certificates', label: 'Certificados', icon: Award, routeName: 'student.certificates.index', path: '/student/certificates' },
     { key: 'payments', label: 'Pagos', icon: CreditCard, routeName: 'student.payments.index', path: '/student/payments' },
 ];
 
@@ -51,8 +51,8 @@ function isActive(itemPath: string): boolean {
     if (itemPath === '/admin/payments') {
         return url.startsWith('/admin/payments') || url.startsWith('/admin/subscriptions');
     }
-    if (itemPath === '/student/exams') {
-        return url.startsWith('/student/exams');
+    if (itemPath === '/student/certificates') {
+        return url.startsWith('/student/certificates');
     }
     if (itemPath === '/student/courses') {
         return url.startsWith('/student/courses') || url.startsWith('/student/classroom');
@@ -69,7 +69,7 @@ function openMenu() {
 
 <template>
     <nav
-        class="pb-safe fixed bottom-0 left-0 right-0 z-50 border-t border-outline-variant/10 bg-white/95 shadow-[0_-8px_30px_rgba(0,0,0,0.07)] backdrop-blur-xl lg:hidden"
+        class="pb-safe fixed bottom-0 left-0 right-0 z-50 border-t border-outline-variant/10 bg-surface/95 shadow-[0_-8px_30px_rgba(0,0,0,0.07)] dark:shadow-none backdrop-blur-xl lg:hidden"
     >
         <div class="flex items-center justify-around px-1 py-1.5">
             <Link

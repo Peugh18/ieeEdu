@@ -123,24 +123,24 @@ const activeTab = ref<'available' | 'history'>('available');
                     <aside class="hidden h-fit space-y-6 md:block lg:sticky lg:top-8 lg:col-span-4">
                         <div class="overflow-hidden rounded-3xl border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-sm">
                             <div class="mb-6 flex items-center justify-between">
-                                <h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
+                                <h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant/80">
                                     Promedio
                                </h3>
-                                <div class="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">Score 20</div>
+                                <div class="inline-flex min-h-[44px] items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">Score 20</div>
                             </div>
                             
                             <div class="mb-8 flex items-end gap-2">
                                 <span class="text-6xl font-black leading-none text-primary">{{ ((props.stats.average_score / 20) * 10).toFixed(1) }}</span>
-                                <span class="mb-1 text-xs font-bold text-on-surface-variant/60">/ 10</span>
+                                <span class="mb-1 text-sm font-bold text-on-surface-variant/70">/ 10</span>
                             </div>
 
-                            <div class="space-y-4 rounded-2xl bg-background p-4 border border-outline-variant/10">
+                            <div class="space-y-4 rounded-2xl bg-background p-4 border border-outline-variant/20">
                                 <div class="flex items-center gap-4">
-                                    <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                    <div class="flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                         <Award class="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <p class="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/60">Certificaciones</p>
+                                        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant/80">Certificaciones</p>
                                         <p class="text-lg font-bold text-on-background">
                                             {{ props.stats.certificate_count < 10 ? '0' + props.stats.certificate_count : props.stats.certificate_count }}
                                         </p>

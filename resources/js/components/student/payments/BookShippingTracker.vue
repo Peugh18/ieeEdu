@@ -23,8 +23,8 @@ function stepIndex(status: string) {
 <template>
     <div v-if="shipping" :class="compact ? 'space-y-4' : 'space-y-8 rounded-2xl border border-outline-variant/20 bg-background p-6 md:p-8'">
         <div class="flex items-center justify-between">
-            <p class="text-[10px] font-black uppercase tracking-widest text-blue-600">Estado de despacho</p>
-            <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold capitalize text-blue-700">
+            <p class="text-xs font-black uppercase tracking-widest text-blue-600">Estado de despacho</p>
+            <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold capitalize text-blue-700">
                 {{ steps[stepIndex(shipping.status)].label }}
             </span>
         </div>
@@ -42,7 +42,7 @@ function stepIndex(status: string) {
             <div v-for="(step, i) in steps" :key="step.key" class="group flex flex-1 flex-col items-center gap-2">
                 <!-- Step Circle -->
                 <div
-                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-bold transition-all duration-500"
+                    class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-all duration-500"
                     :class="[
                         i <= stepIndex(shipping.status)
                             ? 'border-blue-500 bg-blue-500 text-white shadow-md shadow-blue-500/10'
@@ -52,7 +52,7 @@ function stepIndex(status: string) {
                     {{ i + 1 }}
                 </div>
                 <span
-                    class="mt-1 text-center text-[9px] font-black uppercase leading-none tracking-wider md:text-[10px]"
+                    class="mt-1 text-center text-[11px] font-black uppercase leading-none tracking-wider md:text-xs"
                     :class="i <= stepIndex(shipping.status) ? 'text-slate-800 dark:text-slate-200' : 'text-slate-400'"
                 >
                     {{ step.label }}
@@ -68,7 +68,7 @@ function stepIndex(status: string) {
             <div v-if="shipping.carrier" class="flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-400">
                 <Truck class="h-4 w-4 text-blue-500" />
                 <div>
-                    <p class="mb-0.5 text-[8px] font-bold uppercase leading-none tracking-widest text-slate-400">Courier</p>
+                    <p class="mb-0.5 text-xs font-bold uppercase leading-none tracking-widest text-slate-400">Courier</p>
                     <p class="font-bold text-slate-800 dark:text-slate-200">{{ shipping.carrier }}</p>
                 </div>
             </div>
@@ -79,7 +79,7 @@ function stepIndex(status: string) {
             >
                 <MapPin class="h-4 w-4 text-blue-500" />
                 <div>
-                    <p class="mb-0.5 text-[8px] font-bold uppercase leading-none tracking-widest text-slate-400">Lugar de Recojo</p>
+                    <p class="mb-0.5 text-xs font-bold uppercase leading-none tracking-widest text-slate-400">Lugar de Recojo</p>
                     <p class="font-bold text-slate-800 dark:text-slate-200">{{ shipping.pickup_location }}</p>
                 </div>
             </div>
@@ -87,7 +87,7 @@ function stepIndex(status: string) {
             <div v-if="shipping.delivery_mode === 'home'" class="flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-400">
                 <Home class="h-4 w-4 text-blue-500" />
                 <div>
-                    <p class="mb-0.5 text-[8px] font-bold uppercase leading-none tracking-widest text-slate-400">Modalidad</p>
+                    <p class="mb-0.5 text-xs font-bold uppercase leading-none tracking-widest text-slate-400">Modalidad</p>
                     <p class="font-bold text-slate-800 dark:text-slate-200">Envío a domicilio</p>
                 </div>
             </div>
@@ -95,7 +95,7 @@ function stepIndex(status: string) {
             <div v-if="shipping.student_note" class="col-span-full flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-400">
                 <Clipboard class="h-4 w-4 text-blue-500" />
                 <div>
-                    <p class="mb-0.5 text-[8px] font-bold uppercase leading-none tracking-widest text-slate-400">Nota de envío</p>
+                    <p class="mb-0.5 text-xs font-bold uppercase leading-none tracking-widest text-slate-400">Nota de envío</p>
                     <p class="italic text-slate-700 dark:text-slate-300">{{ shipping.student_note }}</p>
                 </div>
             </div>
@@ -106,15 +106,15 @@ function stepIndex(status: string) {
                     :href="shipping.tracking_url"
                     target="_blank"
                     rel="noopener"
-                    class="inline-flex items-center gap-1.5 text-xs font-bold text-blue-500 transition-all hover:text-blue-600 hover:underline"
+                    class="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-blue-500 transition-all hover:text-blue-600 hover:underline"
                 >
                     <ExternalLink class="h-3.5 w-3.5" />
                     Realizar seguimiento en mensajería
                 </a>
                 
-                <div v-if="shipping.tracking_code" class="inline-flex items-center gap-1.5 rounded-lg bg-blue-50/50 px-3 py-1.5 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
+                <div v-if="shipping.tracking_code" class="inline-flex min-h-[44px] items-center gap-1.5 rounded-lg bg-blue-50/50 px-3 py-1.5 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400">
                     <Hash class="h-3.5 w-3.5" />
-                    <span class="text-[10px] font-bold uppercase tracking-wider">Clave/Código:</span>
+                    <span class="text-xs font-bold uppercase tracking-wider">Clave/Código:</span>
                     <span class="font-black">{{ shipping.tracking_code }}</span>
                 </div>
             </div>

@@ -68,8 +68,8 @@ const tabs = [
     <Head title="Perfil de Usuario - IEE" />
     <AppLayout>
         <div class="mx-auto min-h-[85vh] max-w-7xl px-4 py-6 md:px-8 md:py-8">
-            <input type="file" ref="fileInputRef" class="hidden" accept="image/*" @change="handleAvatarChange" />
-            <div class="relative mt-4 flex flex-col items-start gap-6 lg:flex-row lg:gap-8">
+            <input type="file" ref="fileInputRef" class="hidden" accept="image/*" capture="user" @change="handleAvatarChange" />
+            <div class="relative mt-4 flex flex-col items-start gap-4 md:gap-6 lg:flex-row lg:gap-8">
                 <ProfileSidebar
                     :tabs="tabs"
                     :active-tab="activeTab"
@@ -79,26 +79,26 @@ const tabs = [
                     @avatar-click="fileInputRef?.click()"
                 />
                 <main class="w-full min-w-0 flex-1">
-                    <div class="min-h-[500px] rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-sm lg:p-10">
-                        <section v-if="activeTab === 'perfil'" class="space-y-10 duration-500 animate-in fade-in slide-in-from-bottom-4">
+                    <div class="min-h-[500px] rounded-3xl border border-outline-variant/30 bg-surface-container-lowest p-4 sm:p-6 shadow-sm lg:p-10">
+                        <section v-if="activeTab === 'perfil'" class="space-y-8 md:space-y-10 duration-500 animate-in fade-in slide-in-from-bottom-4">
                             <div>
                                 <h2 class="mb-2 text-2xl font-bold text-on-surface">Información Académica</h2>
                                 <p class="text-sm text-on-surface-variant">Resumen de tu formación en la institución.</p>
                             </div>
-                            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                <div class="flex items-center gap-4 rounded-2xl border border-outline-variant/20 bg-surface p-6">
+                            <div class="grid grid-cols-1 gap-4 md:gap-6 md:grid-cols-2">
+                                <div class="flex items-center gap-4 rounded-2xl border border-outline-variant/20 bg-surface p-4 md:p-6">
                                     <div class="shrink-0 rounded-2xl bg-primary/10 p-4 text-primary"><User class="h-6 w-6" /></div>
                                     <div>
-                                        <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Cursos Activos</p>
+                                        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Cursos Activos</p>
                                         <p class="mt-1 text-2xl font-black text-on-surface">
                                             {{ props.enrolledCourses.filter((c) => c.progress < 100).length }}
                                         </p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-4 rounded-2xl border border-outline-variant/20 bg-surface p-6">
+                                <div class="flex items-center gap-4 rounded-2xl border border-outline-variant/20 bg-surface p-4 md:p-6">
                                     <div class="shrink-0 rounded-2xl bg-green-100 p-4 text-green-700"><BookOpen class="h-6 w-6" /></div>
                                     <div>
-                                        <p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Cursos Completados</p>
+                                        <p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Cursos Completados</p>
                                         <p class="mt-1 text-2xl font-black text-on-surface">
                                             {{ props.enrolledCourses.filter((c) => c.progress === 100).length }}
                                         </p>

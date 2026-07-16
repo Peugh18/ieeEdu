@@ -28,7 +28,7 @@ export function useClassroomPlayer(_completeLessonCallback: () => void) {
                     controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
                     tooltips: { controls: true, seek: true },
                     youtube: {
-                        noCookie: false,
+                        noCookie: true,
                         rel: 0,
                         showinfo: 0,
                         iv_load_policy: 3,
