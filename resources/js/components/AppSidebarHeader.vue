@@ -30,7 +30,7 @@ const user = computed(() => page.props.auth?.user);
                 <BrandLogo imageClass="h-7 w-auto object-contain opacity-90 transition-opacity group-hover:opacity-100" />
             </Link>
 
-            <SidebarTrigger class="-ml-1 flex text-on-surface-variant transition-colors hover:text-primary" />
+            <SidebarTrigger class="-ml-1 hidden text-on-surface-variant transition-colors hover:text-primary lg:flex" />
             
             <div v-if="props.breadcrumbs.length > 0" class="ml-2 hidden h-4 w-[1px] bg-outline-variant/30 lg:block"></div>
             

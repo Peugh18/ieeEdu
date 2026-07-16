@@ -80,7 +80,7 @@ const isActive = (href: string) => {
                     :href="item.href"
                     :class="[
                         item.isPremium
-                            ? 'flex transform items-center gap-1.5 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#AA7C11] px-5 py-2 text-xs font-black uppercase tracking-widest text-white shadow-[0_4px_15px_rgba(212,175,55,0.4)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_25px_rgba(212,175,55,0.6)]'
+                            ? 'group relative flex items-center gap-1 text-sm font-bold text-[#D4AF37] transition-colors duration-300 hover:text-[#AA7C11]'
                             : isActive(item.href)
                               ? 'group relative text-sm font-bold text-primary transition-colors duration-300'
                               : 'group relative text-sm font-medium text-on-surface-variant transition-colors duration-300 hover:text-primary',
@@ -132,13 +132,6 @@ const isActive = (href: string) => {
 
                     <!-- User Menu Dropdown (Authed User Widget like Sidebar Card) -->
                     <template v-else>
-                        <Link
-                            :href="route('dashboard')"
-                            class="transform rounded-lg bg-primary px-5 py-2 text-sm font-bold text-on-primary shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-xl"
-                        >
-                            Dashboard
-                        </Link>
-
                         <div class="relative">
                             <DropdownMenu>
                                 <DropdownMenuTrigger as-child>
@@ -219,7 +212,7 @@ const isActive = (href: string) => {
                         :class="[
                             'block rounded-lg px-3 py-2 font-medium transition-all',
                             item.isPremium
-                                ? 'mt-2 bg-gradient-to-r from-[#D4AF37] to-[#AA7C11] text-center font-bold uppercase tracking-widest text-white shadow-md'
+                                ? 'mt-2 text-center font-bold text-[#D4AF37] hover:bg-[#D4AF37]/10'
                                 : isActive(item.href)
                                   ? 'bg-primary/10 text-primary font-bold'
                                   : 'text-on-surface-variant hover:bg-primary/5 hover:text-primary',

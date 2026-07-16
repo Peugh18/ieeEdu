@@ -87,6 +87,7 @@ const faqs = ref([
 function toggleFaq(index: number) {
     faqs.value[index].open = !faqs.value[index].open;
 }
+import { useConfirmDialog } from '@/composables/useConfirmDialog';
 
 // Mock bookmark state
 const isBookmarked = ref(false);
@@ -94,8 +95,10 @@ function toggleBookmark() {
     isBookmarked.value = !isBookmarked.value;
 }
 
+const { confirm } = useConfirmDialog();
+
 // Mock share action
-function handleShare() {
+async function handleShare() {
     if (navigator.share) {
         navigator
             .share({
@@ -105,8 +108,13 @@ function handleShare() {
             })
             .catch((err) => console.log(err));
     } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert('Enlace copiado al portapapeles');
+        await navigator.clipboard.writeText(window.location.href);
+        await confirm({
+            title: '¡Enlace copiado!',
+            description: 'El enlace de la clase ha sido copiado al portapapeles.',
+            confirmLabel: 'Entendido',
+            cancelLabel: '',
+        });
     }
 }
 </script>

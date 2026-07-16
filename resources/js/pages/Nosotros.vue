@@ -102,19 +102,24 @@ onUnmounted(() => {
                             </div>
                         </div>
                         <div class="reveal relative">
-                            <!-- Placeholder for an image, could be an office shot or team -->
+                            <!-- Imagen Sobre Nosotros -->
                             <div
-                                class="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-2xl border border-outline-variant/20 bg-surface-variant dark:border-slate-700/30"
+                                class="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-2xl border border-outline-variant/20 bg-surface-variant shadow-lg dark:border-slate-700/30"
                             >
-                                <span class="material-symbols-outlined text-6xl text-outline-variant opacity-50" translate="no">location_city</span>
-                                <div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent"></div>
+                                <img 
+                                    src="/images/SobreNosotros.png" 
+                                    alt="Equipo del Instituto de Economía y Empresa" 
+                                    loading="lazy"
+                                    class="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                                />
+                                <div class="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent pointer-events-none"></div>
                             </div>
-                            <!-- Small floating card -->
+                            <!-- Small floating card with glassmorphism -->
                             <div
-                                class="absolute -bottom-6 -left-6 rounded-xl border border-outline-variant/10 bg-surface p-6 shadow-xl dark:border-slate-700/50"
+                                class="absolute -bottom-4 -left-2 sm:-bottom-6 sm:-left-6 rounded-xl border border-outline-variant/20 bg-surface/85 backdrop-blur-md p-4 sm:p-6 shadow-xl dark:border-slate-700/50 dark:bg-[#191b18]/85"
                             >
-                                <div class="mb-1 text-3xl font-bold text-primary">15+</div>
-                                <div class="text-sm font-medium uppercase tracking-wider text-on-surface-variant">Años de experiencia</div>
+                                <div class="mb-1 text-2xl sm:text-3xl font-bold text-primary">15+</div>
+                                <div class="text-xs sm:text-sm font-medium uppercase tracking-wider text-on-surface-variant">Años de<br class="sm:hidden" /> experiencia</div>
                             </div>
                         </div>
                     </div>

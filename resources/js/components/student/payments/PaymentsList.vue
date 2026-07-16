@@ -78,7 +78,7 @@ function shippingFromOrder(p: StudentPayment) {
                         </div>
                         <div>
                             <p class="text-base font-bold text-slate-900">{{ productLabel(p) }}</p>
-                            <p class="mt-0.5 text-[10px] uppercase tracking-widest text-slate-400">
+                            <p class="mt-0.5 text-xs uppercase tracking-widest text-slate-400">
                                 {{ p.book ? 'Libro físico' : p.course ? 'Curso' : p.subscription_type ? 'Membresía' : 'Pago' }} · #{{ p.id }}
                             </p>
                             <p class="mt-1 flex items-center gap-1 text-xs text-slate-500">
@@ -106,28 +106,28 @@ function shippingFromOrder(p: StudentPayment) {
                     <Link
                         v-if="p.status === 'aprobado' && p.course"
                         :href="route('student.classroom', { course: p.course.slug })"
-                        class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+                        class="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-primary hover:underline"
                         ><ArrowRight class="h-3.5 w-3.5" /> Ir al curso</Link
                     >
                     <Link
                         v-else-if="p.status === 'aprobado' && p.subscription_type"
                         :href="route('student.courses.index')"
-                        class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
+                        class="inline-flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-primary hover:underline"
                         ><ArrowRight class="h-3.5 w-3.5" /> Ver cursos</Link
                     >
                     <button
                         v-else-if="p.status === 'pendiente'"
                         @click="emit('upload', p)"
-                        class="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-primary/90"
+                        class="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-primary/90"
                     >
                         <Upload class="h-3.5 w-3.5" /> Subir comprobante
                     </button>
-                    <span v-else-if="p.status === 'en_revision'" class="text-xs font-bold text-amber-600">Comprobante en revisión</span>
+                    <div v-else-if="p.status === 'en_revision'" class="flex min-h-[44px] items-center text-xs font-bold text-amber-600">Comprobante en revisión</div>
                     <div v-else-if="p.status === 'rechazado'" class="flex flex-col gap-2 pt-1">
                         <p class="text-xs font-semibold text-rose-600">El comprobante fue rechazado por el administrador. Por favor, sube uno válido.</p>
                         <button
                             @click="emit('upload', p)"
-                            class="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-rose-700 w-fit"
+                            class="inline-flex min-h-[44px] w-fit items-center gap-1.5 rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-rose-700"
                         >
                             <Upload class="h-3.5 w-3.5" /> Corregir comprobante
                         </button>

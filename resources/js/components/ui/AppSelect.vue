@@ -39,13 +39,13 @@ const emit = defineEmits<{
         :disabled="disabled"
     >
         <SelectTrigger
-            class="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm ring-offset-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-on-surface-variant/50"
+            class="flex w-full min-h-[44px] md:min-h-10 items-center justify-between rounded-xl px-4 py-2.5 md:px-3 md:py-2 text-base md:text-sm ring-offset-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-on-surface-variant/50"
             :class="[
                 {
                     'bg-surface': !props.class?.includes('bg-'),
                     'border border-outline-variant/50': !props.class?.includes('border'),
                     'text-on-surface': !props.class?.includes('text-'),
-                    'h-10': !props.class?.match(/\bh-/),
+                    'h-auto': !props.class?.match(/\bh-/),
                 },
                 props.class
             ]"

@@ -4,11 +4,11 @@ import { BookOpen, Briefcase, FileText, GraduationCap, MonitorPlay } from 'lucid
 import { computed, onMounted, ref, watch } from 'vue';
 
 const sectionSpecs: Record<string, SectionSpec> = {
-    home: { minWidth: 1920, minHeight: 700, idealW: 1920, idealH: 1080, label: '1920×1080px (16:9)' },
-    consultoria: { minWidth: 1920, minHeight: 560, idealW: 1920, idealH: 600, label: '1920×600px (Panorámica)' },
-    masterclass: { minWidth: 1280, minHeight: 400, idealW: 1600, idealH: 500, label: '1600×500px (Tarjeta 16:5)' },
-    cursos: { minWidth: 1280, minHeight: 400, idealW: 1600, idealH: 500, label: '1600×500px (Tarjeta 16:5)' },
-    publicaciones: { minWidth: 1280, minHeight: 400, idealW: 1600, idealH: 500, label: '1600×500px (Tarjeta 16:5)' },
+    home: { minWidth: 1600, minHeight: 600, idealW: 1920, idealH: 1080, label: 'Mínimo 1600px (16:9 recomendado)' },
+    consultoria: { minWidth: 1600, minHeight: 500, idealW: 1920, idealH: 600, label: 'Mínimo 1600px (Panorámica)' },
+    masterclass: { minWidth: 1280, minHeight: 400, idealW: 1600, idealH: 500, label: 'Mínimo 1280px (Tarjeta)' },
+    cursos: { minWidth: 1280, minHeight: 400, idealW: 1600, idealH: 500, label: 'Mínimo 1280px (Tarjeta)' },
+    publicaciones: { minWidth: 1280, minHeight: 400, idealW: 1600, idealH: 500, label: 'Mínimo 1280px (Tarjeta)' },
 };
 
 function createSlide(section: string, order: number, extra: Partial<BannerSlide> = {}): BannerSlide {
