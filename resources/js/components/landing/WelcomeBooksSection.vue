@@ -118,7 +118,7 @@ const paidCount = computed(() => props.books.filter((b) => b.price && Number(b.p
                             <div
                                 class="group relative flex flex-col overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container"
                             >
-                                <div class="relative h-52 flex-shrink-0 overflow-hidden bg-gradient-to-br from-primary/10 to-tertiary-container/20">
+                                <div class="relative aspect-[3/4] w-full flex-shrink-0 overflow-hidden bg-gradient-to-br from-primary/10 to-tertiary-container/20">
                                     <img v-if="book.cover_image" :src="book.cover_image" :alt="book.title" class="h-full w-full object-cover" />
                                     <div v-else class="absolute inset-0 flex items-center justify-center">
                                         <svg class="h-16 w-16 text-primary/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -227,16 +227,13 @@ const paidCount = computed(() => props.books.filter((b) => b.price && Number(b.p
             </div>
 
             <div v-if="filteredPublications.length > 0" class="group relative hidden md:block">
-                <div ref="scrollContainer" class="hide-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-6">
-                    <div
-                        v-for="book in filteredPublications"
-                        :key="book.id"
-                        class="flex w-[calc(50%-1.25rem)] min-w-[240px] flex-shrink-0 snap-start lg:w-[calc(25%-1.25rem)]"
-                    >
+                <!-- Grid layout when <= 4 books -->
+                <div v-if="filteredPublications.length <= 4" class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                    <div v-for="book in filteredPublications" :key="book.id" class="flex flex-col">
                         <div
-                            class="group relative flex w-full flex-col overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-2xl"
+                            class="group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-2xl"
                         >
-                            <div class="relative h-44 flex-shrink-0 overflow-hidden bg-gradient-to-br from-primary/10 to-tertiary-container/20">
+                            <div class="relative aspect-[3/4] w-full flex-shrink-0 overflow-hidden bg-gradient-to-br from-primary/10 to-tertiary-container/20">
                                 <img
                                     v-if="book.cover_image"
                                     :src="book.cover_image"
@@ -314,24 +311,113 @@ const paidCount = computed(() => props.books.filter((b) => b.price && Number(b.p
                         </div>
                     </div>
                 </div>
-                <button
-                    v-if="filteredPublications.length > 4"
-                    @click="scrollBooks('left')"
-                    class="absolute -left-5 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-outline-variant/30 bg-surface-container text-on-surface opacity-0 shadow-lg transition-all hover:border-primary hover:bg-primary hover:text-on-primary group-hover:opacity-100"
-                >
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button>
-                <button
-                    v-if="filteredPublications.length > 4"
-                    @click="scrollBooks('right')"
-                    class="absolute -right-5 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-outline-variant/30 bg-surface-container text-on-surface opacity-0 shadow-lg transition-all hover:border-primary hover:bg-primary hover:text-on-primary group-hover:opacity-100"
-                >
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </button>
+
+                <!-- Carousel layout when > 4 books -->
+                <div v-else class="relative">
+                    <div ref="scrollContainer" class="hide-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-6">
+                        <div
+                            v-for="book in filteredPublications"
+                            :key="book.id"
+                            class="flex w-[calc(50%-1.25rem)] min-w-[240px] flex-shrink-0 snap-start lg:w-[calc(25%-1.25rem)]"
+                        >
+                            <div
+                                class="group relative flex w-full flex-col overflow-hidden rounded-2xl border border-outline-variant/15 bg-surface-container transition-all duration-300 hover:-translate-y-1 hover:border-primary/20 hover:shadow-2xl"
+                            >
+                                <div class="relative aspect-[3/4] w-full flex-shrink-0 overflow-hidden bg-gradient-to-br from-primary/10 to-tertiary-container/20">
+                                    <img
+                                        v-if="book.cover_image"
+                                        :src="book.cover_image"
+                                        :alt="book.title"
+                                        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    />
+                                    <div v-else class="absolute inset-0 flex items-center justify-center">
+                                        <svg class="h-16 w-16 text-primary/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="1"
+                                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div class="absolute left-3 top-3">
+                                        <span
+                                            :class="[
+                                                'rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest backdrop-blur-sm',
+                                                !book.price || Number(book.price) === 0 ? 'bg-green-500/90 text-white' : 'bg-primary/90 text-on-primary',
+                                            ]"
+                                        >
+                                            {{ !book.price || Number(book.price) === 0 ? 'Gratis' : 'Premium' }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-1 flex-col p-5">
+                                    <p v-if="book.category" class="mb-1.5 text-[10px] font-bold uppercase tracking-widest text-primary">
+                                        {{ book.category }}
+                                    </p>
+                                    <h3 class="mb-1 line-clamp-2 flex-1 font-serif text-sm font-bold leading-snug text-on-surface">{{ book.title }}</h3>
+                                    <p v-if="book.author" class="mb-4 text-xs text-on-surface-variant/60">{{ book.author }}</p>
+                                    <div class="mt-auto flex items-center justify-between border-t border-outline-variant/10 pt-3">
+                                        <span class="font-serif text-lg font-bold text-primary">
+                                            {{ !book.price || Number(book.price) === 0 ? 'Gratis' : `S/ ${Number(book.price).toFixed(0)}` }}
+                                        </span>
+                                        <a
+                                            v-if="Number(book.price) > 0"
+                                            href="/publicaciones"
+                                            class="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary transition-all hover:opacity-90 hover:shadow-md active:scale-95"
+                                        >
+                                            Ver más
+                                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                            </svg>
+                                        </a>
+                                        <a
+                                            v-else-if="book.download_url || book.file_path"
+                                            :href="book.download_url || `/storage/${book.file_path}`"
+                                            target="_blank"
+                                            download
+                                            class="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary transition-all hover:opacity-90 hover:shadow-md active:scale-95"
+                                        >
+                                            Descargar
+                                            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                                />
+                                            </svg>
+                                        </a>
+                                        <button
+                                            v-else
+                                            disabled
+                                            class="inline-flex cursor-not-allowed items-center gap-1.5 rounded-xl bg-surface-container-highest px-4 py-2 text-xs font-bold text-on-surface-variant/40"
+                                        >
+                                            No disp.
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        @click="scrollBooks('left')"
+                        class="absolute -left-5 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-outline-variant/30 bg-surface-container text-on-surface opacity-0 shadow-lg transition-all hover:border-primary hover:bg-primary hover:text-on-primary group-hover:opacity-100"
+                    >
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <button
+                        @click="scrollBooks('right')"
+                        class="absolute -right-5 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-outline-variant/30 bg-surface-container text-on-surface opacity-0 shadow-lg transition-all hover:border-primary hover:bg-primary hover:text-on-primary group-hover:opacity-100"
+                    >
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <div v-else class="py-24 text-center">
