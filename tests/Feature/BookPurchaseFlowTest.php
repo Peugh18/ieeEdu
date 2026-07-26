@@ -36,6 +36,11 @@ test('purchase intent creates pending payment and whatsapp redirect flash', func
 
     $response = $this->actingAs($student)->post(route('student.purchase-intent.store'), [
         'book_id' => $book->id,
+        'department' => 'Lima',
+        'province' => 'Lima',
+        'district' => 'Miraflores',
+        'shipping_address' => 'Av. Larco 123',
+        'shipping_phone' => '999888777',
     ]);
 
     $response->assertRedirect();

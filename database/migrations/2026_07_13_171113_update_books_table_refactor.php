@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('books', function (Blueprint $table) {
             $table->decimal('sale_price', 10, 2)->nullable()->after('price');
-            $table->dropColumn('category');
         });
     }
 

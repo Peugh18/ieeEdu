@@ -56,9 +56,9 @@ onUnmounted(() => {
     <div class="font-body flex min-h-screen flex-col bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container">
         <Navigation />
 
-        <main class="flex-1 pt-24 md:pt-32">
+        <main class="flex-1 pt-20 md:pt-24">
             <!-- Hero Section -->
-            <section class="relative overflow-hidden px-6 py-16 md:px-8 md:py-24">
+            <section class="relative overflow-hidden px-6 py-10 md:px-8 md:py-16">
                 <!-- Background decoration -->
                 <div class="absolute inset-0 z-0 bg-surface-container-lowest opacity-50 dark:opacity-5"></div>
                 <div class="absolute -right-40 -top-40 z-0 h-96 w-96 rounded-full bg-primary/5 blur-3xl"></div>
@@ -80,7 +80,7 @@ onUnmounted(() => {
             </section>
 
             <!-- Historia Section -->
-            <section class="bg-surface-container-low px-6 py-16 dark:bg-[#1f201d] md:px-8 md:py-24">
+            <section class="bg-surface-container-low px-6 py-12 dark:bg-[#1f201d] md:px-8 md:py-16">
                 <div class="mx-auto max-w-7xl">
                     <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
                         <div class="reveal">
@@ -127,7 +127,7 @@ onUnmounted(() => {
             </section>
 
             <!-- Propósito (Misión y Visión) -->
-            <section class="px-6 py-16 md:px-8 md:py-24">
+            <section class="px-6 py-12 md:px-8 md:py-16">
                 <div class="mx-auto max-w-7xl">
                     <div class="reveal-stagger grid gap-8 md:grid-cols-2">
                         <!-- Mision -->
@@ -163,7 +163,7 @@ onUnmounted(() => {
             </section>
 
             <!-- Valores -->
-            <section class="bg-surface-container-low px-6 py-16 dark:bg-[#1f201d] md:px-8 md:py-24">
+            <section class="bg-surface-container-low px-6 py-12 dark:bg-[#1f201d] md:px-8 md:py-16">
                 <div class="mx-auto max-w-7xl text-center">
                     <h2 class="reveal mb-12 font-serif text-3xl font-bold text-on-surface md:text-4xl">Los valores que guían nuestro trabajo</h2>
 
@@ -215,7 +215,7 @@ onUnmounted(() => {
             </section>
 
             <!-- Lineas de accion -->
-            <section class="px-6 py-16 md:px-8 md:py-24">
+            <section class="px-6 py-12 md:px-8 md:py-16">
                 <div class="mx-auto max-w-7xl">
                     <div class="mb-16 text-center">
                         <span

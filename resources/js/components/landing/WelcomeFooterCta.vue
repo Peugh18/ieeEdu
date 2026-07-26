@@ -7,7 +7,7 @@
             <div class="absolute bottom-0 right-1/4 h-[400px] w-[400px] translate-y-1/2 rounded-full bg-tertiary-container/[0.08] blur-[100px]"></div>
         </div>
 
-        <div class="relative z-10 mx-auto max-w-4xl px-6 py-20 text-center md:px-8 md:py-28">
+        <div class="relative z-10 mx-auto max-w-4xl px-6 py-12 text-center md:px-8 md:py-16">
             <div class="mb-8 inline-flex animate-pulse items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-4 py-2">
                 <svg class="h-4 w-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path

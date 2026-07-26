@@ -37,7 +37,7 @@ const {
 </script>
 
 <template>
-    <section id="cursos" class="reveal relative bg-surface py-20 md:py-32">
+    <section id="cursos" class="reveal relative bg-surface py-12 md:py-20">
         <div class="pointer-events-none absolute inset-0 overflow-hidden">
             <div class="absolute right-0 top-1/3 h-[500px] w-[500px] rounded-full bg-primary/[0.04] blur-[120px]"></div>
             <div class="absolute bottom-0 left-0 h-80 w-80 rounded-full bg-tertiary-container/[0.06] blur-[100px]"></div>

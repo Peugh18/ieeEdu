@@ -137,8 +137,8 @@ onUnmounted(() => {
         <div class="hero-scrim absolute inset-0 z-[1]"></div>
 
         <!-- ── Main layout ── -->
-        <div class="relative z-10 flex min-h-[92vh] items-center md:min-h-screen">
-            <div class="mx-auto w-full max-w-7xl px-4 pb-28 pt-24 sm:px-6 md:px-8 md:pb-36 md:pt-36">
+        <div class="relative z-10 flex min-h-[75vh] items-center md:min-h-[85vh]">
+            <div class="mx-auto w-full max-w-7xl px-4 pb-16 pt-20 sm:px-6 md:px-8 md:pb-20 md:pt-28">
                 <!-- Glassmorphism content card -->
                 <div class="hero-card relative max-w-xl overflow-hidden rounded-[1.75rem] p-7 sm:p-9 md:p-10">
                     <!-- Card accent line -->
@@ -279,59 +279,58 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* ── Scrim: very light veil so photo stays vivid ── */
+/* ── Scrim: subtle dark vignette so photo stays vivid without milky white fog ── */
 .hero-scrim {
-    background:
-        linear-gradient(
-            180deg,
-            color-mix(in srgb, var(--elite-bg) 35%, transparent) 0%,
-            transparent 45%,
-            color-mix(in srgb, var(--elite-bg) 50%, transparent) 100%
-        ),
-        color-mix(in srgb, var(--elite-bg) 15%, transparent);
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.25) 0%,
+        transparent 35%,
+        transparent 65%,
+        rgba(0, 0, 0, 0.4) 100%
+    );
 }
 
 /* ── Glassmorphism content card ── */
 .hero-card {
-    background: color-mix(in srgb, var(--elite-bg) 72%, transparent);
-    backdrop-filter: blur(28px) saturate(1.4);
-    -webkit-backdrop-filter: blur(28px) saturate(1.4);
-    border: 1px solid color-mix(in srgb, var(--elite-bg) 40%, transparent);
+    background: color-mix(in srgb, var(--elite-bg) 88%, transparent);
+    backdrop-filter: blur(24px) saturate(1.2);
+    -webkit-backdrop-filter: blur(24px) saturate(1.2);
+    border: 1px solid color-mix(in srgb, var(--elite-bg) 50%, transparent);
     box-shadow:
-        0 8px 32px color-mix(in srgb, var(--elite-bg) 25%, transparent),
-        inset 0 1px 0 color-mix(in srgb, var(--elite-bg) 50%, transparent);
+        0 12px 36px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 color-mix(in srgb, var(--elite-bg) 60%, transparent);
 }
 
 /* ── Secondary CTA: frosted outline ── */
 .hero-cta2 {
-    background: color-mix(in srgb, var(--elite-bg) 50%, transparent);
+    background: color-mix(in srgb, var(--elite-bg) 60%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid color-mix(in srgb, var(--elite-bg) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--elite-bg) 40%, transparent);
 }
 .hero-cta2:hover {
-    background: color-mix(in srgb, var(--elite-bg) 65%, transparent);
-    border-color: color-mix(in srgb, var(--elite-bg) 45%, transparent);
+    background: color-mix(in srgb, var(--elite-bg) 80%, transparent);
+    border-color: color-mix(in srgb, var(--elite-bg) 60%, transparent);
 }
 
 /* ── Nav buttons ── */
 .hero-nav-btn {
-    background: color-mix(in srgb, var(--elite-bg) 55%, transparent);
+    background: color-mix(in srgb, var(--elite-bg) 75%, transparent);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid color-mix(in srgb, var(--elite-bg) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--elite-bg) 40%, transparent);
     color: var(--elite-text);
 }
 .hero-nav-btn:hover {
-    background: color-mix(in srgb, var(--elite-bg) 75%, transparent);
+    background: color-mix(in srgb, var(--elite-bg) 90%, transparent);
 }
 
 /* ── Bottom pill ── */
 .hero-bottom-pill {
-    background: color-mix(in srgb, var(--elite-bg) 65%, transparent);
+    background: color-mix(in srgb, var(--elite-bg) 82%, transparent);
     backdrop-filter: blur(20px) saturate(1.3);
     -webkit-backdrop-filter: blur(20px) saturate(1.3);
-    border: 1px solid color-mix(in srgb, var(--elite-bg) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--elite-bg) 40%, transparent);
 }
 
 /* ── Shimmer on primary CTA ── */
