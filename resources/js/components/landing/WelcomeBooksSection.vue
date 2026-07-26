@@ -41,7 +41,7 @@ const paidCount = computed(() => props.books.filter((b) => b.price && Number(b.p
 </script>
 
 <template>
-    <section id="publicaciones" class="reveal relative overflow-hidden bg-surface py-20 md:py-32">
+    <section id="publicaciones" class="reveal relative overflow-hidden bg-surface py-12 md:py-20">
         <div class="pointer-events-none absolute inset-0 overflow-hidden">
             <div class="absolute left-0 top-1/3 h-[500px] w-[500px] rounded-full bg-primary/[0.03] blur-[120px]"></div>
             <div class="absolute bottom-0 right-1/4 h-[400px] w-[400px] rounded-full bg-tertiary-container/[0.06] blur-[100px]"></div>

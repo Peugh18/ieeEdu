@@ -108,11 +108,12 @@ test('creating subscription grants access to published courses', function () {
     $student = User::factory()->create(['role' => 'usuario']);
     $courses = Course::factory()->count(2)->create(['status' => 'PUBLICADO', 'type' => 'grabado']);
 
-    $this->actingAs($admin)->post(route('admin.subscriptions.store'), [
+    $this->actingAs($admin)->post(route('admin.payments.store'), [
         'user_id' => $student->id,
-        'type' => 'trimestral',
-        'months' => 3,
+        'product_type' => 'membership',
+        'subscription_type' => 'trimestral',
         'amount' => 99,
+        'status' => 'aprobado',
     ])->assertRedirect();
 
     foreach ($courses as $course) {
@@ -135,29 +136,44 @@ test('invalid subscription type is rejected', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $student = User::factory()->create(['role' => 'usuario']);
 
-    $this->actingAs($admin)->post(route('admin.subscriptions.store'), [
+    $this->actingAs($admin)->post(route('admin.payments.store'), [
         'user_id' => $student->id,
-        'type' => 'mensual',
-        'months' => 1,
+        'product_type' => 'membership',
+        'subscription_type' => 'invalido',
         'amount' => 50,
-    ])->assertSessionHasErrors('type');
+        'status' => 'aprobado',
+    ])->assertSessionHasErrors('subscription_type');
 });
 
 test('cancelling subscription revokes subscription access', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $student = User::factory()->create(['role' => 'usuario']);
-    $course = Course::factory()->create(['status' => 'PUBLICADO']);
+    $course = Course::factory()->create(['status' => 'PUBLICADO', 'type' => 'grabado']);
 
-    $this->actingAs($admin)->post(route('admin.subscriptions.store'), [
+    $payment = Payment::create([
         'user_id' => $student->id,
-        'type' => 'trimestral',
-        'months' => 1,
-        'amount' => 50,
+        'subscription_type' => 'trimestral',
+        'amount' => 350,
+        'status' => 'aprobado',
     ]);
 
-    $subscription = Subscription::where('user_id', $student->id)->firstOrFail();
+    $subscription = Subscription::create([
+        'user_id' => $student->id,
+        'type' => 'trimestral',
+        'status' => Subscription::STATUS_ACTIVE,
+        'start_date' => now(),
+        'end_date' => now()->addMonths(3),
+    ]);
 
-    $this->actingAs($admin)->patch(route('admin.subscriptions.toggle', $subscription))->assertRedirect();
+    Enrollment::create([
+        'user_id' => $student->id,
+        'course_id' => $course->id,
+        'subscription_granted' => true,
+        'subscription_active' => true,
+        'access_expires_at' => $subscription->end_date,
+    ]);
+
+    $this->actingAs($admin)->patch(route('admin.payments.revert', $payment))->assertRedirect();
 
     $enrollment = Enrollment::where('user_id', $student->id)
         ->where('course_id', $course->id)

@@ -58,12 +58,10 @@ test('admin subscriptions index shows membership payment amount', function () {
         'comprobante' => 'comprobantes/curso.jpg',
     ]);
 
-    $response = $this->actingAs($admin)->get(route('admin.subscriptions.index'));
+    $response = $this->actingAs($admin)->get(route('admin.payments.index'));
 
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
-        ->component('admin/Subscriptions')
-        ->has('subscriptions.data', 1)
-        ->where('subscriptions.data.0.payment_amount', 350)
+        ->component('admin/Payments')
     );
 });

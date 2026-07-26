@@ -22,7 +22,7 @@ class StorePaymentRequest extends FormRequest
             'product_type' => 'required|in:course,book,membership',
             'course_id' => 'required_if:product_type,course|nullable|exists:courses,id',
             'book_id' => 'required_if:product_type,book|nullable|exists:books,id',
-            'subscription_type' => 'required_if:product_type,membership|nullable|string',
+            'subscription_type' => 'required_if:product_type,membership|nullable|in:mensual,trimestral,semestral,anual',
             'amount' => 'required|numeric|min:0',
             'status' => 'required|in:pendiente,en_revision,aprobado,rechazado',
             'comprobante' => 'nullable|image|max:5120',

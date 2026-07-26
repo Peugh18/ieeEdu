@@ -14,6 +14,15 @@ class CertificatePolicy
 
     public function download(User $user, Certificate $certificate): bool
     {
-        return $user->role === 'admin' || $user->id === $certificate->user_id;
+        if ($user->role === 'admin') {
+            return true;
+        }
+
+        if ($user->id !== $certificate->user_id) {
+            return false;
+        }
+
+        $certificateService = app(\App\Services\CertificateService::class);
+        return $certificate->course ? $certificateService->checkEligibility($user, $certificate->course) : false;
     }
 }
