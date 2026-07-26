@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useCart } from '@/composables/useCart';
 import { Link } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 
 interface Course {
     id: number | string;
@@ -97,6 +97,8 @@ const handleAddToCart = (e: Event) => {
     e.preventDefault();
     addItem(props.course);
 };
+
+const imageError = ref(false);
 </script>
 
 <template>
@@ -113,10 +115,11 @@ const handleAddToCart = (e: Event) => {
         <!-- Visual Cover -->
         <Link :href="courseRoute" class="relative block h-48 w-full overflow-hidden border-b border-outline-variant/10 bg-surface-container-high">
             <img
-                v-if="course.image"
+                v-if="course.image && !imageError"
                 :src="course.image"
                 :alt="course.title"
                 class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                @error="imageError = true"
             />
             <!-- Premium Placeholder Fallback when no image is provided -->
             <div

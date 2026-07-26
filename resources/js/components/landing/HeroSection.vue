@@ -112,13 +112,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <section class="relative min-h-[92vh] overflow-hidden bg-surface md:min-h-screen" @mouseenter="isPaused = true" @mouseleave="isPaused = false">
-        <!-- ── Background slides (crossfade + subtle Ken Burns) ── -->
+    <section class="relative overflow-hidden bg-surface md:min-h-screen" @mouseenter="isPaused = true" @mouseleave="isPaused = false">
+        <!-- ── Background slides (desktop only — hidden on mobile via CSS) ── -->
         <div
             v-for="(slide, i) in slides"
             :key="i"
             :class="[
-                'duration-[transition-duration:1200ms] absolute inset-0 transition-opacity ease-in-out',
+                'hero-bg-slide duration-[transition-duration:1200ms] absolute inset-0 transition-opacity ease-in-out',
                 i === current ? 'opacity-100' : 'opacity-0',
             ]"
         >
@@ -133,12 +133,12 @@ onUnmounted(() => {
             />
         </div>
 
-        <!-- ── Light scrim (lets photo breathe, just enough contrast) ── -->
+        <!-- ── Light scrim (desktop only — hidden on mobile via CSS) ── -->
         <div class="hero-scrim absolute inset-0 z-[1]"></div>
 
         <!-- ── Main layout ── -->
-        <div class="relative z-10 flex min-h-[75vh] items-center md:min-h-[85vh]">
-            <div class="mx-auto w-full max-w-7xl px-4 pb-16 pt-20 sm:px-6 md:px-8 md:pb-20 md:pt-28">
+        <div class="relative z-10 flex md:min-h-[85vh] md:items-center">
+            <div class="mx-auto w-full max-w-7xl px-4 pb-6 pt-20 sm:px-6 md:px-8 md:pb-20 md:pt-28">
                 <!-- Glassmorphism content card -->
                 <div class="hero-card relative max-w-xl overflow-hidden rounded-[1.75rem] p-7 sm:p-9 md:p-10">
                     <!-- Card accent line -->
@@ -209,6 +209,24 @@ onUnmounted(() => {
                             {{ slides[current].cta2.text }}
                         </a>
                     </div>
+
+                    <!-- ── Stats card — mobile only ── -->
+                    <div class="mt-6 block md:hidden">
+                        <div class="hero-stats-card grid grid-cols-3 divide-x divide-outline-variant/20 overflow-hidden rounded-2xl">
+                            <div class="flex flex-col items-center gap-0.5 px-3 py-4">
+                                <span class="font-serif text-xl font-bold tabular-nums text-primary">{{ counters.pros }}+</span>
+                                <span class="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/60">Capacitados</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-0.5 px-3 py-4">
+                                <span class="font-serif text-xl font-bold tabular-nums text-primary">{{ counters.years }}+</span>
+                                <span class="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/60">Años</span>
+                            </div>
+                            <div class="flex flex-col items-center gap-0.5 px-3 py-4">
+                                <span class="font-serif text-xl font-bold tabular-nums text-primary">{{ counters.programs }}+</span>
+                                <span class="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant/60">Programas</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -232,7 +250,7 @@ onUnmounted(() => {
         </button>
 
         <!-- ── Floating bottom bar ── -->
-        <div class="absolute bottom-5 left-4 right-4 z-20 sm:left-6 sm:right-6 md:left-8 md:right-8">
+        <div class="relative z-20 px-4 pb-6 sm:px-6 md:absolute md:bottom-5 md:left-8 md:right-8 md:px-0 md:pb-0">
             <div class="hero-bottom-pill mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-2xl px-5 py-3.5 sm:px-6">
                 <!-- Left: dots + slide counter + progress -->
                 <div class="flex items-center gap-3">
@@ -279,6 +297,16 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* ── Mobile: hide background photo and scrim — use clean theme background ── */
+@media (max-width: 767px) {
+    .hero-bg-slide {
+        display: none;
+    }
+    .hero-scrim {
+        display: none;
+    }
+}
+
 /* ── Scrim: subtle dark vignette so photo stays vivid without milky white fog ── */
 .hero-scrim {
     background: linear-gradient(
@@ -299,6 +327,23 @@ onUnmounted(() => {
     box-shadow:
         0 12px 36px rgba(0, 0, 0, 0.12),
         inset 0 1px 0 color-mix(in srgb, var(--elite-bg) 60%, transparent);
+}
+
+/* Mobile: solid surface card — no blur/glass needed since no photo behind */
+@media (max-width: 767px) {
+    .hero-card {
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: none;
+        box-shadow: none;
+    }
+}
+
+/* ── Stats card — mobile only ── */
+.hero-stats-card {
+    background: color-mix(in srgb, var(--elite-text) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--elite-text) 8%, transparent);
 }
 
 /* ── Secondary CTA: frosted outline ── */

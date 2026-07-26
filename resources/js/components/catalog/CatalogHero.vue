@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from 'vue';
+
 defineProps<{
     banner?: {
         image_path?: string | null;
@@ -11,15 +13,17 @@ defineProps<{
     defaultSubheading: string;
     badgeText?: string;
 }>();
+
+const imageError = ref(false);
 </script>
 
 <template>
     <div class="mx-auto mb-10 max-w-[1400px] px-4 sm:px-6 lg:px-8">
         <div
-            v-if="banner?.image_path"
-            :class="['relative aspect-[16/9] overflow-hidden shadow-2xl sm:aspect-[16/5]', isDashboard ? 'rounded-[1.5rem]' : 'rounded-[2rem]']"
+            v-if="banner?.image_path && !imageError"
+            :class="['relative min-h-[300px] w-full overflow-hidden shadow-2xl sm:aspect-[16/5]', isDashboard ? 'rounded-[1.5rem]' : 'rounded-[2rem]']"
         >
-            <img :src="banner.image_path" :alt="banner.heading || 'Banner'" class="absolute inset-0 h-full w-full object-cover object-center" />
+            <img :src="banner.image_path" :alt="banner.heading || 'Banner'" class="absolute inset-0 h-full w-full object-cover object-center" @error="imageError = true" />
             <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/10"></div>
             <div v-if="banner.show_text" class="relative z-10 flex h-full flex-col justify-center px-6 sm:px-10 md:px-14">
                 <div class="max-w-2xl space-y-2 sm:space-y-4">
@@ -40,7 +44,7 @@ defineProps<{
         </div>
         <div
             v-else
-            class="relative flex aspect-[16/9] flex-col justify-center overflow-hidden rounded-[2rem] bg-surface-container-low px-6 sm:aspect-[16/5] sm:px-10 md:px-14"
+            class="relative flex min-h-[280px] flex-col justify-center overflow-hidden rounded-[2rem] bg-surface-container-low px-6 py-10 sm:aspect-[16/5] sm:min-h-[auto] sm:px-10 sm:py-0 md:px-14"
         >
             <div class="absolute -top-20 left-1/4 h-[500px] w-[500px] rounded-full bg-primary/[0.06] blur-[120px]"></div>
             <div class="absolute -bottom-20 right-1/4 h-[400px] w-[400px] rounded-full bg-tertiary-container/[0.08] blur-[100px]"></div>

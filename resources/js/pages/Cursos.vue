@@ -170,7 +170,7 @@ const paginationLinks = usePaginationLinks(props.courses.links);
 
                             <div
                                 v-else
-                                class="flex flex-col items-center justify-center space-y-6 rounded-[3rem] border-2 border-dashed border-outline-variant/40 bg-surface-container-highest py-24 text-center"
+                                class="flex flex-col items-center justify-center space-y-6 rounded-[3rem] border-2 border-dashed border-outline-variant/40 bg-surface-container-highest px-4 py-12 text-center sm:px-6 sm:py-24"
                             >
                                 <h3 class="font-serif text-3xl font-bold italic text-on-background">Sin coincidencias académicas</h3>
                                 <p class="max-w-md font-serif text-lg italic text-on-surface-variant">
