@@ -58,10 +58,17 @@ function handleModalAction(book: PublicationBook) {
     <div>
         <div
             v-if="!books.length"
-            class="mx-auto flex max-w-3xl flex-col items-center justify-center space-y-4 rounded-[2.5rem] border-2 border-dashed border-outline-variant/30 bg-surface-container-low p-8 py-24 text-center"
+            class="mx-auto flex max-w-md flex-col items-center justify-center space-y-4 rounded-3xl border border-outline-variant/20 bg-surface-container-low/70 p-6 py-12 text-center shadow-sm"
         >
-            <h3 class="font-serif text-xl font-bold text-on-surface">Sin resultados académicos</h3>
-            <p class="max-w-sm text-xs text-on-surface-variant">No hemos encontrado ningún libro o guía que coincida con la búsqueda.</p>
+            <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+            </div>
+            <div class="space-y-1">
+                <h3 class="font-serif text-lg font-bold text-on-surface">Sin resultados académicos</h3>
+                <p class="max-w-xs text-xs text-on-surface-variant">No hemos encontrado ningún libro o guía que coincida con la búsqueda.</p>
+            </div>
         </div>
 
         <div v-else class="mb-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

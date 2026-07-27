@@ -55,16 +55,16 @@ const paginationLinks = usePaginationLinks(props.courses.links);
                     default-subheading="Sesiones interactivas con expertos. Tu camino hacia la excelencia."
                 />
 
-                <div class="relative z-10 mx-auto max-w-[1400px] px-4 pt-6 sm:px-6 lg:px-8">
-                    <div class="mb-12 flex flex-wrap items-center justify-between gap-6 border-b border-outline-variant/20 pb-6">
-                        <div class="flex flex-wrap gap-2">
+                <div class="relative z-10 mx-auto max-w-[1400px] px-4 pt-4 sm:px-6 lg:px-8">
+                    <div class="mb-8 flex flex-col gap-4 border-b border-outline-variant/15 pb-6 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none sm:pb-0">
                             <button
                                 @click="applyFilters('Todas')"
-                                class="rounded-full border px-5 py-2 text-xs font-bold transition-all"
+                                class="whitespace-nowrap rounded-full border px-4 py-2 text-xs font-bold transition-all"
                                 :class="
                                     selectedCategory === 'Todas'
                                         ? 'border-primary bg-primary text-on-primary shadow-md shadow-primary/10'
-                                        : 'border-outline-variant/30 bg-surface text-on-surface-variant hover:border-primary/40 hover:text-primary'
+                                        : 'border-outline-variant/30 bg-surface-container text-on-surface-variant hover:border-primary/40 hover:text-primary'
                                 "
                             >
                                 Todas
@@ -73,11 +73,11 @@ const paginationLinks = usePaginationLinks(props.courses.links);
                                 v-for="cat in categories"
                                 :key="cat.id"
                                 @click="applyFilters(cat.name)"
-                                class="rounded-full border px-5 py-2 text-xs font-bold transition-all"
+                                class="whitespace-nowrap rounded-full border px-4 py-2 text-xs font-bold transition-all"
                                 :class="
                                     selectedCategory === cat.name
                                         ? 'border-primary bg-primary text-on-primary shadow-md shadow-primary/10'
-                                        : 'border-outline-variant/30 bg-surface text-on-surface-variant hover:border-primary/40 hover:text-primary'
+                                        : 'border-outline-variant/30 bg-surface-container text-on-surface-variant hover:border-primary/40 hover:text-primary'
                                 "
                             >
                                 {{ cat.name }}
@@ -97,24 +97,21 @@ const paginationLinks = usePaginationLinks(props.courses.links);
 
                     <div
                         v-else
-                        class="mx-auto max-w-3xl space-y-4 rounded-[3rem] border border-dashed border-outline-variant/30 bg-surface-container-low p-8 py-24 text-center"
+                        class="mx-auto flex max-w-md flex-col items-center justify-center space-y-4 rounded-3xl border border-outline-variant/20 bg-surface-container-low/70 p-6 py-12 text-center shadow-sm"
                     >
-                        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/5 text-primary/40">
-                            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.5"
-                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h10a2 2 0 012 2v2M7 7h10"
-                                />
+                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                            <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <h3 class="font-serif text-xl font-bold text-on-surface">Próximamente nuevas sesiones</h3>
-                        <p class="mx-auto max-w-sm text-xs text-on-surface-variant">
-                            No encontramos masterclasses en esta categoría por ahora. ¡Vuelve pronto!
-                        </p>
+                        <div class="space-y-1">
+                            <h3 class="font-serif text-lg font-bold text-on-surface">Próximamente nuevas sesiones</h3>
+                            <p class="max-w-xs text-xs text-on-surface-variant">
+                                No encontramos masterclasses en esta categoría por ahora. ¡Vuelve pronto!
+                            </p>
+                        </div>
                     </div>
-                </div>
+                </div>iv>
             </main>
         </div>
     </component>

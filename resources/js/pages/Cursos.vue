@@ -97,27 +97,29 @@ const paginationLinks = usePaginationLinks(props.courses.links);
                     <div class="mb-6 lg:hidden">
                         <button
                             @click="showFilters = true"
-                            class="flex w-full items-center justify-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container px-4 py-4 font-medium"
+                            class="flex w-full items-center justify-between rounded-2xl border border-outline-variant/20 bg-surface-container px-5 py-3.5 font-medium shadow-sm transition-all hover:bg-surface-container-high"
                         >
-                            <svg class="h-5 w-5 text-on-surface-variant" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-                                />
-                            </svg>
-                            <span class="text-on-surface">Filtrar y Buscar</span>
+                            <div class="flex items-center gap-2.5">
+                                <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                                    />
+                                </svg>
+                                <span class="text-sm font-bold text-on-surface">Filtrar y Buscar</span>
+                            </div>
                             <span
                                 v-if="filterForm.modality !== 'Todos' || filterForm.search || filterForm.category !== 'Todas las áreas'"
-                                class="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary"
+                                class="rounded-full bg-primary px-2.5 py-0.5 text-xs font-bold text-on-primary shadow-sm"
                                 >{{
                                     [
                                         filterForm.modality !== 'Todos' ? 1 : 0,
                                         filterForm.search ? 1 : 0,
                                         filterForm.category !== 'Todas las áreas' ? 1 : 0,
                                     ].reduce((a, b) => a + b, 0)
-                                }}</span
+                                }} activo(s)</span
                             >
                         </button>
                     </div>
@@ -135,18 +137,18 @@ const paginationLinks = usePaginationLinks(props.courses.links);
                         <CatalogDesktopFilters v-model:filter-form="filterForm" :modalities="modalities" :categories="categories" />
 
                         <main class="min-w-0 flex-1">
-                            <div class="mb-10 flex items-center justify-between pt-2">
-                                <h2 class="font-serif text-2xl text-on-surface-variant">
+                            <div class="mb-6 flex items-center justify-between pt-2">
+                                <h2 class="font-serif text-xl text-on-surface-variant sm:text-2xl">
                                     <strong class="text-on-background">{{ courses.total }}</strong> Programas de Excelencia
                                 </h2>
                             </div>
 
                             <div
                                 v-if="hasActiveSubscription"
-                                class="mb-8 flex items-center gap-4 rounded-2xl border border-emerald-100 bg-emerald-50 p-6"
+                                class="mb-8 flex items-center gap-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-5 text-on-surface"
                             >
-                                <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100">
-                                    <svg class="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path
                                             stroke-linecap="round"
                                             stroke-linejoin="round"
@@ -156,8 +158,8 @@ const paginationLinks = usePaginationLinks(props.courses.links);
                                     </svg>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-bold text-emerald-900">Tienes acceso total con tu membresía activa</p>
-                                    <p class="text-xs text-emerald-700">
+                                    <p class="text-xs font-bold sm:text-sm">Tienes acceso total con tu membresía activa</p>
+                                    <p class="text-[11px] opacity-80 sm:text-xs">
                                         Dirígete a <Link :href="route('student.courses.index')" class="font-bold underline">Mis Cursos</Link> para
                                         comenzar.
                                     </p>
@@ -170,19 +172,26 @@ const paginationLinks = usePaginationLinks(props.courses.links);
 
                             <div
                                 v-else
-                                class="flex flex-col items-center justify-center space-y-6 rounded-[3rem] border-2 border-dashed border-outline-variant/40 bg-surface-container-highest px-4 py-12 text-center sm:px-6 sm:py-24"
+                                class="mx-auto flex max-w-md flex-col items-center justify-center space-y-4 rounded-3xl border border-outline-variant/20 bg-surface-container-low/70 p-6 py-12 text-center shadow-sm"
                             >
-                                <h3 class="font-serif text-3xl font-bold italic text-on-background">Sin coincidencias académicas</h3>
-                                <p class="max-w-md font-serif text-lg italic text-on-surface-variant">
-                                    No hemos encontrado programas que coincidan con su búsqueda en esta escuela.
-                                </p>
+                                <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                    <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                </div>
+                                <div class="space-y-1">
+                                    <h3 class="font-serif text-lg font-bold text-on-surface">Sin coincidencias académicas</h3>
+                                    <p class="max-w-xs text-xs text-on-surface-variant">
+                                        No hemos encontrado programas que coincidan con su búsqueda en esta escuela.
+                                    </p>
+                                </div>
                                 <button
                                     @click="
                                         filterForm.modality = 'Todos';
                                         filterForm.category = 'Todas las áreas';
                                         filterForm.search = '';
                                     "
-                                    class="border-b border-primary/20 pb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary transition-all hover:text-primary/70"
+                                    class="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-on-primary shadow-md transition-all hover:bg-primary-active"
                                 >
                                     Restablecer Filtros
                                 </button>

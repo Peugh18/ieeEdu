@@ -4,13 +4,13 @@ const searchQuery = defineModel<string>('searchQuery', { required: true });
 </script>
 
 <template>
-    <div class="mb-12 flex flex-col items-center justify-between gap-6 border-b border-outline-variant/20 pb-6 md:flex-row">
-        <div class="inline-flex rounded-2xl border border-outline-variant/15 bg-surface-container p-1.5 shadow-inner">
+    <div class="mb-8 flex flex-col items-center justify-between gap-4 border-b border-outline-variant/15 pb-6 md:flex-row">
+        <div class="inline-flex w-full rounded-2xl border border-outline-variant/15 bg-surface-container p-1 shadow-inner sm:w-auto">
             <button
                 @click="currentTab = 'libros'"
                 :class="[
-                    'flex items-center gap-2 rounded-xl px-6 py-3.5 font-serif text-xs font-bold uppercase tracking-[0.05em] transition-all duration-300 sm:px-8',
-                    currentTab === 'libros' ? 'bg-surface text-primary shadow-md' : 'text-on-surface-variant/60 hover:text-on-surface',
+                    'flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 font-serif text-[11px] font-bold uppercase tracking-wider transition-all duration-300 sm:flex-initial sm:px-6 sm:py-3 sm:text-xs',
+                    currentTab === 'libros' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant/60 hover:text-on-surface',
                 ]"
             >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,8 +26,8 @@ const searchQuery = defineModel<string>('searchQuery', { required: true });
             <button
                 @click="currentTab = 'articulos'"
                 :class="[
-                    'flex items-center gap-2 rounded-xl px-6 py-3.5 font-serif text-xs font-bold uppercase tracking-[0.05em] transition-all duration-300 sm:px-8',
-                    currentTab === 'articulos' ? 'bg-surface text-primary shadow-md' : 'text-on-surface-variant/60 hover:text-on-surface',
+                    'flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2.5 font-serif text-[11px] font-bold uppercase tracking-wider transition-all duration-300 sm:flex-initial sm:px-6 sm:py-3 sm:text-xs',
+                    currentTab === 'articulos' ? 'bg-surface text-primary shadow-sm' : 'text-on-surface-variant/60 hover:text-on-surface',
                 ]"
             >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,7 +38,7 @@ const searchQuery = defineModel<string>('searchQuery', { required: true });
                         d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
                     />
                 </svg>
-                Artículos de Análisis
+                Artículos
             </button>
         </div>
 
